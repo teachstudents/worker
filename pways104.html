@@ -28,6 +28,23 @@
             overflow: hidden; 
             position: relative;
             padding: 1rem;
+            z-index: 10;
+        }
+
+        /* --- FLOATING EMOJIS BACKGROUND --- */
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.15;
+            animation: floatUp linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
         /* --- UI COMPONENTS --- */
@@ -115,8 +132,8 @@
         }
 
         .mcq-option-large {
-            font-size: 1.4rem; /* Increased 20% from 1.15rem */
-            padding: 0.75rem 1rem; /* Decreased vertical padding */
+            font-size: 1.4rem; /* Increased size */
+            padding: 0.5rem 1rem; /* Decreased vertical padding for tighter spacing */
             border: 3px solid #e2e8f0; 
             border-radius: 1rem;
             transition: all 0.2s;
@@ -328,20 +345,41 @@
         </div>
     </header>
 
+    <!-- Floating Emojis Background -->
+    <div id="bg-emojis" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
     <div id="praise-overlay" class="pop-in">
         <div id="praise-text">Correct!</div>
     </div>
 
-    <main id="app-content" class="bg-slate-50 relative w-full h-full">
+    <main id="app-content" class="bg-transparent relative w-full h-full">
         <!-- Injected here -->
     </main>
 
     <script>
+        /* --- BACKGROUND EMOJIS INITIALIZATION --- */
+        function initFloatingEmojis() {
+            const container = document.getElementById('bg-emojis');
+            container.innerHTML = '';
+            const emojis = ['🌿', '♻️', '🌍', '🐢', '🌊', '🐟', '💡', '🌱'];
+            for(let i=0; i<15; i++) {
+                let el = document.createElement('div');
+                el.className = 'floating-emoji';
+                el.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.animationDelay = Math.random() * 15 + 's';
+                el.style.animationDuration = 10 + Math.random() * 15 + 's';
+                el.style.fontSize = 1.5 + Math.random() * 2 + 'rem';
+                container.appendChild(el);
+            }
+        }
+        initFloatingEmojis();
+
         /* --- STATE --- */
         const defaultState = { page: 0, score: 0, audioEnabled: true };
-        let state = JSON.parse(localStorage.getItem('unit4_green_v6_final')) || defaultState;
+        let state = JSON.parse(localStorage.getItem('unit4_green_v7_final')) || defaultState;
 
-        function saveState() { localStorage.setItem('unit4_green_v6_final', JSON.stringify(state)); }
+        function saveState() { localStorage.setItem('unit4_green_v7_final', JSON.stringify(state)); }
         function resetProgress() { if(confirm("Start a New Session?")) { state = { ...defaultState }; saveState(); location.reload(); } }
         
         function startUnit() { 
@@ -390,9 +428,9 @@
             {
                 title: "The Consumer & The Activist",
                 script: [
-                    { speaker: "Student A (Consumer)", text: "I want to help the ocean, but I need to use plastic water bottles because the tap water in our school isn't safe to drink.", align: "left", voice: "Ava" },
+                    { speaker: "Student A (Consumer)", text: "I want to help the ocean, but I need to use plastic water bottles because the tap water in our school isn't safe to drink.", align: "left", voice: "Emma" },
                     { speaker: "Student B (Activist)", text: "That is a valid problem, but there may be some solutions. One solution is to ask the principal to install a filtered water station at school.", align: "right", voice: "Brian" },
-                    { speaker: "Student A (Consumer)", text: "That's a great idea, but what if they say it's too expensive?", align: "left", voice: "Ava" },
+                    { speaker: "Student A (Consumer)", text: "That's a great idea, but what if they say it's too expensive?", align: "left", voice: "Emma" },
                     { speaker: "Student B (Activist)", text: "Another idea is to carry a reusable metal bottle filled with filtered water from home. It saves money in the long run!", align: "right", voice: "Brian" }
                 ],
                 q1: { text: "Is Student A complaining about ocean currents?", ans: false, exp: "Student A is concerned about school drinking water." },
@@ -419,7 +457,7 @@
                 questions: [
                     { text: "What did 14-year-old Willow Tufano do with the trash she collected?", voice: "Emma" },
                     { text: "Sweden burns trash to produce energy. They are so good at it that they have to import trash from other countries. Is this good or bad?", voice: "Andrew" },
-                    { text: "Lauren Singer fits three years of trash in a small glass jar. Do you think a teenager could live a 'zero-waste' lifestyle? Why or why not?", voice: "Ava" },
+                    { text: "Lauren Singer fits three years of trash in a small glass jar. Do you think a teenager could live a 'zero-waste' lifestyle? Why or why not?", voice: "Emma" },
                     { text: "Think about your daily life at school. What is one item you throw away every single day?", voice: "Brian" }
                 ]
             },
@@ -430,7 +468,7 @@
                 questions: [
                     { text: "The Great Pacific Garbage Patch is not a solid island. It is a 'soup' of plastic. Why is this dangerous for sea life?", voice: "Andrew" },
                     { text: "Explain the chain reaction: How does a plastic bag blocking sunlight eventually kill large fish like tuna?", voice: "Emma" },
-                    { text: "Sea turtles eat plastic bags because they look like jellyfish. What can we do as students to stop this mistake?", voice: "Ava" },
+                    { text: "Sea turtles eat plastic bags because they look like jellyfish. What can we do as students to stop this mistake?", voice: "Emma" },
                     { text: "Cesar Harada is building robot boats to clean the ocean. Do you think technology is the best solution?", voice: "Brian" }
                 ]
             },
@@ -440,7 +478,7 @@
                 source: "Pages 69-70",
                 questions: [
                     { text: "Artist HA Schult put his 'Trash People' sculptures on the Great Wall of China. Why did he choose such a famous place?", voice: "Emma" },
-                    { text: "Can garbage be beautiful? Do you consider these sculptures 'art'?", voice: "Ava" },
+                    { text: "Can garbage be beautiful? Do you consider these sculptures 'art'?", voice: "Emma" },
                     { text: "If you had to make a sculpture out of the trash in your backpack or locker, what materials would you find?", voice: "Brian" }
                 ]
             },
@@ -451,7 +489,7 @@
                 questions: [
                     { text: "The 'Catadores' work in a dangerous landfill for low pay ($25/day). Why are they proud of their work?", voice: "Andrew" },
                     { text: "Vik Muniz took photos of the workers and filled them with trash. How did this change how the workers saw themselves?", voice: "Emma" },
-                    { text: "Valter said: 'One single can is of great importance.' What did he mean by this?", voice: "Ava" },
+                    { text: "Valter said: 'One single can is of great importance.' What did he mean by this?", voice: "Emma" },
                     { text: "Would you buy a piece of art made of garbage for $50,000? Why or why not?", voice: "Brian" }
                 ]
             },
@@ -462,7 +500,7 @@
                 questions: [
                     { text: "Level 1 (Recall): What does it mean to 'scan' a reading passage? How does this help you read faster?", voice: "Emma" },
                     { text: "Level 2 (Application): Can you name three vocabulary words from this unit and use them to describe a trash problem at your school?", voice: "Andrew" },
-                    { text: "Level 3 (Evaluation): Which idea in this unit do you think is the most effective way of reducing trash, and why?", voice: "Ava" },
+                    { text: "Level 3 (Evaluation): Which idea in this unit do you think is the most effective way of reducing trash, and why?", voice: "Emma" },
                     { text: "Level 4 (Creation): Imagine you are a student leader. What is one creative project you would start to reduce plastic waste among teenagers?", voice: "Brian" }
                 ]
             }
@@ -565,13 +603,22 @@
             const u = new SpeechSynthesisUtterance(text);
             u.rate = 0.85; 
             
-            let selectedVoice = voices.find(v => v.name === "Microsoft Multilingual Online English");
+            let selectedVoice = null;
             
-            if (!selectedVoice && preferredName) {
+            // Prioritize Microsoft Emma Online Multilingual English
+            if (preferredName === 'Emma' || preferredName === 'Ava') {
+                selectedVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Emma") && v.name.includes("Multilingual"));
+                if(!selectedVoice) selectedVoice = voices.find(v => v.name.includes("Emma"));
+            } else if (preferredName) {
                 selectedVoice = voices.find(v => v.name.includes(preferredName));
             }
+
+            // Fallback to Microsoft Multilingual Online English general
+            if(!selectedVoice) selectedVoice = voices.find(v => v.name === "Microsoft Multilingual Online English");
+            
+            // Final fallback list
             if (!selectedVoice) {
-                 const allowedNames = ["Andrew", "Emma", "Ava", "Brian", "Google US English", "Samantha"];
+                 const allowedNames = ["Andrew", "Emma", "Brian", "Google US English", "Samantha"];
                  for (const name of allowedNames) {
                       selectedVoice = voices.find(v => v.name.includes(name));
                       if (selectedVoice) break;
@@ -646,7 +693,7 @@
             scoreDisplay.textContent = state.score;
             updateAudioIcon();
             
-            const totalPages = 51; 
+            const totalPages = 52; 
             const pct = (state.page / totalPages) * 100;
             progressEl.style.width = `${pct}%`;
 
@@ -710,27 +757,28 @@
                     if(q.type === 'mcq') renderMCQSingle(q, qIndex);
                     else renderTrueFalse(q, qIndex);
                 } else {
-                     renderFinish();
+                     renderFinalReflection();
                 }
             }
             
-            else if(state.page >= 50) renderFinish();
+            else if(state.page === 50) renderFinalReflection();
+            else if(state.page >= 51) renderFinish();
         }
 
         /* --- VIEWS --- */
         function renderHome() {
             container.innerHTML = `
                 <div class="fade-in items-center justify-center text-center flex-1">
-                    <div class="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner mx-auto border-4 border-green-300">
+                    <div class="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner mx-auto border-4 border-green-300 relative z-10">
                         <i class="fas fa-leaf text-6xl text-green-600"></i>
                     </div>
-                    <h1 class="text-5xl font-black text-green-950 mb-4 tracking-tight">Unit 4: Green Living 🌿</h1>
-                    <p class="text-2xl text-green-800 mb-4 font-light">Trash, Recycling, and Artistic Solutions</p>
-                    <div class="max-w-2xl mx-auto bg-white p-4 rounded-xl border border-green-200 mb-8 shadow-sm">
+                    <h1 class="text-5xl font-black text-green-950 mb-4 tracking-tight relative z-10">Unit 4: Green Living 🌿</h1>
+                    <p class="text-2xl text-green-800 mb-4 font-light relative z-10">Trash, Recycling, and Artistic Solutions</p>
+                    <div class="max-w-2xl mx-auto bg-white p-4 rounded-xl border border-green-200 mb-8 shadow-sm relative z-10">
                         <p class="font-bold text-slate-700">Essential Question:</p>
                         <p class="text-slate-600">How does our trash impact the global environment, and what creative solutions can we use to solve this problem?</p>
                     </div>
-                    <button onclick="startUnit()" class="bg-green-600 text-white px-12 py-5 rounded-2xl text-xl font-bold shadow-xl hover:bg-green-700 btn-3d transition border-b-4 border-green-800">
+                    <button onclick="startUnit()" class="bg-green-600 text-white px-12 py-5 rounded-2xl text-xl font-bold shadow-xl hover:bg-green-700 btn-3d transition border-b-4 border-green-800 relative z-10">
                         START UNIT 🚀
                     </button>
                 </div>
@@ -741,7 +789,7 @@
 
         function renderMenu() {
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <h2 class="text-3xl font-black text-green-950 mb-6 uppercase tracking-widest border-b-4 border-yellow-400 pb-2">Unit 4 Menu</h2>
                     <div class="w-full max-w-4xl overflow-y-auto">
                         <div class="menu-grid">
@@ -761,7 +809,7 @@
             nextBtn.style.visibility = 'visible';
             prevBtn.style.visibility = 'visible';
             container.innerHTML = `
-                <div class="fade-in items-center justify-center flex-1 w-full p-4">
+                <div class="fade-in items-center justify-center flex-1 w-full p-4 relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 border-t-[8px] border-yellow-400 w-full text-center max-w-4xl">
                         <h2 class="text-xl font-bold mb-6 text-yellow-700 uppercase tracking-widest">Part 1: Explore the Theme</h2>
                         <div class="space-y-6 text-left">
@@ -782,7 +830,7 @@
         function renderSpeakingModule(modIndex) {
             const mod = speakingModules[modIndex];
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-green-100 mb-4 overflow-hidden h-full">
                         <div class="mb-6 border-b-2 border-green-50 pb-4 flex-none">
                             <span class="text-green-500 font-bold tracking-widest text-sm block mb-1 uppercase">UNIT 4 DISCUSSION</span>
@@ -809,7 +857,7 @@
         function renderDebate(idx) {
             const debate = debates[idx];
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-green-100 mb-4 overflow-hidden h-full">
                         <div class="mb-6 border-b-2 border-green-50 pb-4 flex-none text-center">
                             <span class="text-orange-500 font-bold tracking-widest text-sm block mb-1 uppercase">INTERACTIVE ROLEPLAY ${idx+1}/3</span>
@@ -838,7 +886,7 @@
         
         function renderTestPrep() {
              container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-blue-100 mb-4 h-full">
                         <div class="mb-6 border-b-2 border-blue-50 pb-4 flex-none">
                             <span class="text-blue-500 font-bold tracking-widest text-sm block mb-1 uppercase">EXAM ALIGNMENT</span>
@@ -873,7 +921,7 @@
 
         function renderHOTS() {
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-yellow-100 mb-4 h-full">
                         <div class="mb-6 border-b-2 border-yellow-50 pb-4 flex-none">
                             <span class="text-yellow-600 font-bold tracking-widest text-sm block mb-1 uppercase">BLOOM'S TAXONOMY</span>
@@ -888,7 +936,7 @@
                                 <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-balance-scale text-yellow-500 mr-2"></i> Evaluate</h3>
                                 <p class="text-slate-600 leading-relaxed">Which approach raises more awareness: HA Schult placing 1,000 "Trash People" at the Great Wall of China, or Pharrell Williams selling expensive jeans made from ocean plastic? Justify your choice.</p>
                             </div>
-                            <div onclick="speak(this.innerText, null, 'Ava')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-yellow-400 transition shadow-sm">
+                            <div onclick="speak(this.innerText, null, 'Emma')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-yellow-400 transition shadow-sm">
                                 <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i> Create</h3>
                                 <p class="text-slate-600 leading-relaxed">Invent a new product that solves the "plastic straw" problem in your school cafeteria. Pitch your invention in a 1-minute presentation.</p>
                             </div>
@@ -900,7 +948,7 @@
 
         function renderInteractiveWriting() {
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-5xl flex flex-col border border-indigo-100 h-full">
                         <div class="mb-4 text-center">
                             <h2 class="text-2xl font-black text-indigo-900 mb-1">GRASPS Essay Builder</h2>
@@ -957,7 +1005,7 @@
         function renderSpecialLesson(id) {
             const lesson = specialLessons[id];
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-green-100 mb-4 overflow-hidden h-full">
                         <div class="mb-6 border-b-2 border-green-50 pb-4 flex-none">
                             <h2 class="text-2xl font-black text-green-950">${lesson.title}</h2>
@@ -972,7 +1020,7 @@
 
         function renderExitTicket() {
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-10 w-full max-w-3xl flex flex-col border border-purple-100 text-center">
                         <h2 class="text-3xl font-black text-purple-900 mb-6">Exit Ticket: Self-Reflection</h2>
                         
@@ -995,7 +1043,7 @@
 
         function renderAudioRecorder() {
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-10 w-full max-w-3xl flex flex-col items-center border border-red-100 text-center">
                         <h2 class="text-3xl font-black text-red-900 mb-2">Spoken Summary</h2>
                         <p class="text-slate-600 mb-8 text-xl">Answer: "Who is in control: Cleaning the mess or Changing behavior?"</p>
@@ -1024,7 +1072,7 @@
             const safeText = textToSpeak.replace(/'/g, "\\'");
 
             container.innerHTML = `
-                <div class="fade-in h-full p-4 justify-start">
+                <div class="fade-in h-full p-4 justify-start relative z-10">
                     <div onclick="speak('${safeText}', null, '${voiceName}')" class="vocab-card w-full max-w-6xl bg-white flex flex-col p-12 relative overflow-hidden h-full items-start text-left cursor-pointer hover:border-yellow-400 transition hover:shadow-lg hover:bg-green-50">
                         <div class="flex-1 flex flex-col justify-start gap-8 pt-4 w-full">
                             <div>
@@ -1053,7 +1101,7 @@
             headerActions.appendChild(playBtn);
 
             container.innerHTML = `
-                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
                         <h2 class="text-2xl text-green-700 font-bold mb-4">${l.title}</h2>
                         <div id="script-container" class="text-2xl leading-relaxed font-bold text-gray-800 flex-1 flex flex-wrap content-start justify-start text-left gap-x-2 gap-y-2 overflow-y-auto">
@@ -1092,7 +1140,7 @@
             selectedGapWord = null;
 
             container.innerHTML = `
-                <div class="fade-in items-center justify-center h-full p-2">
+                <div class="fade-in items-center justify-center h-full p-2 relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-lg p-8 w-full max-w-6xl flex flex-col h-full border border-green-100">
                         <h2 class="text-xl text-green-600 font-bold mb-2">Complete the Summary:</h2>
                         <div class="bg-green-50 p-8 rounded-2xl text-2xl leading-loose text-gray-800 mb-4 flex-1 flex flex-wrap content-start items-center border border-green-200 font-medium text-left">
@@ -1142,13 +1190,13 @@
 
         function renderMCQSingle(q, qIdx) {
             container.innerHTML = `
-                <div class="fade-in items-center justify-center h-full p-4">
+                <div class="fade-in items-center justify-center h-full p-4 relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
                         <div class="mb-6 text-left w-full">
                             <span class="text-green-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (MCQ)</span>
                             <p class="font-bold text-gray-800 text-2xl leading-tight text-left">${q.q}</p>
                         </div>
-                        <div class="flex-1 flex flex-col justify-center gap-4">
+                        <div class="flex-1 flex flex-col justify-center gap-2">
                             ${q.opts.map((o, oi) => `
                                 <button id="opt-${oi}" onclick="checkMCQSingle(${oi}, ${q.ans})" class="mcq-option-large">
                                     <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center mr-4 text-xl border border-slate-300 shrink-0">
@@ -1183,7 +1231,7 @@
 
         function renderTrueFalse(q, qIdx) {
             container.innerHTML = `
-                <div class="fade-in items-center justify-center h-full p-4">
+                <div class="fade-in items-center justify-center h-full p-4 relative z-10">
                     <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
                         <div class="mb-6 text-left w-full">
                             <span class="text-green-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (TRUE/FALSE)</span>
@@ -1238,9 +1286,53 @@
             setTimeout(() => { overlay.style.display = 'none'; }, 2000);
         }
 
+        function renderFinalReflection() {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4 relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
+                        <div class="mb-4 text-center">
+                            <span class="text-green-500 font-bold tracking-widest text-sm block mb-2 uppercase">End of Unit Reflection</span>
+                            <h2 class="text-3xl font-black text-slate-800">Unit Review</h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-6 px-4 pb-4">
+                            
+                            <!-- Reflection 1 -->
+                            <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                                <h3 class="font-bold text-green-900 mb-2 text-xl">1. Most Effective Solution</h3>
+                                <p class="text-slate-700 mb-3">Thinking about your school and friends, which idea in this unit do you think is the most effective way of reducing trash?</p>
+                                <textarea class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-green-400" rows="3" placeholder="I think the best way for teenagers to reduce trash is..."></textarea>
+                            </div>
+
+                            <!-- Reflection 2 -->
+                            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                                <h3 class="font-bold text-blue-900 mb-2 text-xl">2. Reading Strategy</h3>
+                                <p class="text-slate-700 mb-3">What do you do when you "scan" a reading passage? How can you use this when doing research for a school project?</p>
+                                <textarea class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" rows="2" placeholder="When I scan, I look for..."></textarea>
+                            </div>
+
+                            <!-- Vocab Checklist -->
+                            <div class="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
+                                <h3 class="font-bold text-yellow-900 mb-4 text-xl">3. Vocabulary Checklist</h3>
+                                <p class="text-slate-700 mb-4">Check off the words you can confidently use in a sentence.</p>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    ${vocabulary.map(v => `
+                                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-yellow-100 rounded">
+                                            <input type="checkbox" class="w-5 h-5 text-green-600 rounded">
+                                            <span class="text-slate-800 font-medium">${v.word}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderFinish() {
              container.innerHTML = `
-                <div class="fade-in items-center justify-center flex-1 text-center p-4">
+                <div class="fade-in items-center justify-center flex-1 text-center p-4 relative z-10">
                     <div class="bg-white p-16 rounded-[3rem] shadow-2xl max-w-2xl w-full border-4 border-yellow-400">
                         <div class="text-8xl mb-6">🏆</div>
                         <h2 class="text-5xl font-black text-green-900 mb-4">Unit Complete!</h2>
