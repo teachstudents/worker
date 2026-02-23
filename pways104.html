@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Unit 4: Green Living</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        /* --- CORE LAYOUT --- */
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f0fdf4; /* Green-50 */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            position: relative;
+            padding: 1rem;
+        }
+
+        /* --- UI COMPONENTS --- */
+        .btn-3d {
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.25);
+            transform: translateY(0);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0);
+        }
+        
+        .fade-in { animation: fadeUp 0.3s ease-out forwards; width: 100%; height: 100%; display: flex; flex-direction: column; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Shimmer Effect */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-effect {
+            background: linear-gradient(90deg, #16a34a 25%, #4ade80 50%, #16a34a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+            border-color: #14532d !important;
+            color: white !important;
+        }
+
+        /* --- SPECIFIC ELEMENTS --- */
+        .vocab-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+            border: 2px solid #22c55e;
+            transition: all 0.2s ease;
+        }
+        .vocab-card:hover {
+            border-color: #15803d;
+            background-color: #f0fdf4;
+            transform: translateY(-2px);
+        }
+        .vocab-card:active {
+            transform: scale(0.98);
+        }
+
+        .gap-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 8rem; 
+            border-bottom: 3px solid #16a34a;
+            padding: 0 8px;
+            margin: 0 4px;
+            color: #14532d;
+            font-weight: 700;
+            background: #dcfce7;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            height: 1.5em;
+            vertical-align: bottom;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 1.15rem; 
+        }
+        .gap-slot.filled { background: #15803d; color: white; border-bottom: 3px solid #052e16; }
+        .gap-slot.wrong { animation: shake 0.4s; background: #fecaca !important; border-color: #dc2626 !important; }
+
+        .highlight-word {
+            transition: background-color 0.1s, color 0.1s;
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+        .highlight-word.active {
+            background-color: #facc15; 
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mcq-option-large {
+            font-size: 1.15rem; 
+            padding: 1rem;
+            border: 3px solid #e2e8f0; 
+            border-radius: 1rem;
+            transition: all 0.2s;
+            text-align: left;
+            background: white;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .mcq-option-large:hover { border-color: #22c55e; background: #f0fdf4; }
+        .mcq-option-large.correct { background-color: #bbf7d0; border-color: #16a34a; }
+        .mcq-option-large.wrong { background-color: #fecaca; border-color: #dc2626; }
+
+        .tf-btn {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 4px solid #e2e8f0;
+            background: white;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .tf-btn:hover { border-color: #94a3b8; background: #f8fafc; }
+        .tf-btn.correct { background: #dcfce7; border-color: #22c55e; color: #14532d; }
+        .tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #7f1d1d; }
+
+        .word-bank-item {
+            font-size: 1.1rem; 
+            padding: 0.5rem 1rem; 
+        }
+        .word-bank-item.selected {
+            background-color: #16a34a;
+            color: white;
+            border-color: #14532d;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .word-bank-item.used {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transform: scale(0.95);
+        }
+
+        #praise-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+        #praise-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #16a34a;
+            text-shadow: 0 4px 0 white, 0 8px 10px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.95);
+            padding: 2rem 3rem;
+            border-radius: 2rem;
+            border: 6px solid #16a34a;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .speaking-question-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 1rem;
+        }
+        .speaking-question-card:active {
+            transform: scale(0.98);
+            background-color: #f0fdf4;
+        }
+        .speaking-question-text {
+            font-size: 1.25rem; 
+            line-height: 1.35;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .chat-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        .chat-bubble:hover {
+            transform: scale(1.02);
+            border-color: rgba(0,0,0,0.1);
+        }
+        .chat-bubble.active {
+            border-color: #16a34a;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+        }
+        .chat-left {
+            align-self: flex-start;
+            background-color: #ffffff;
+            border-bottom-left-radius: 0;
+            border: 1px solid #e2e8f0;
+        }
+        .chat-right {
+            align-self: flex-end;
+            background-color: #dcfce7;
+            border-bottom-right-radius: 0;
+            border: 1px solid #86efac;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .menu-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 2px solid #cbd5e1;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
+        }
+        .menu-item:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .menu-item i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #15803d;
+        }
+        .menu-item span {
+            font-weight: 700;
+            color: #334155;
+        }
+
+        /* Pulse for recording */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        .recording-pulse {
+            animation: pulse-red 2s infinite;
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="bg-[#14532d] text-white p-2 shadow-lg z-20 flex-none h-16 border-b-4 border-green-500">
+        <div class="max-w-7xl mx-auto flex justify-between items-center h-full w-full px-2">
+            
+            <div class="flex gap-4 items-center">
+                <!-- MENU BUTTON -->
+                <button onclick="showMenu()" class="text-white hover:text-green-400 transition" title="Main Menu">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="h-6 w-px bg-green-700"></div>
+                <button onclick="resetProgress()" class="text-green-200 hover:text-white transition" title="New Session">
+                    <i class="fas fa-redo text-xl"></i>
+                </button>
+                <button onclick="toggleAudio()" id="audio-btn" class="text-green-400 hover:text-green-300 transition" title="Toggle Auto-Play">
+                    <i class="fas fa-volume-up text-xl"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center flex-1 mx-4">
+                <div class="w-full max-w-sm h-3 bg-green-900 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-green-400 w-0 transition-all duration-500 shadow-[0_0_10px_rgba(74,222,128,0.5)]"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div id="header-actions"></div>
+                <div class="bg-green-950 px-3 py-1 rounded-lg text-xl font-mono border border-green-700 min-w-[60px] text-center">
+                    <span id="score-val" class="text-green-400 font-bold">0</span>
+                </div>
+                
+                <button id="prev-btn" class="bg-green-800 hover:bg-green-700 text-white w-10 h-10 rounded-lg flex items-center justify-center disabled:opacity-30 transition btn-3d">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                </button>
+                <button id="next-btn" class="bg-yellow-500 hover:bg-yellow-400 text-green-950 px-4 h-10 rounded-lg font-bold flex items-center gap-2 btn-3d text-sm transition shadow-yellow-900/50">
+                    NEXT <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="praise-overlay" class="pop-in">
+        <div id="praise-text">Correct!</div>
+    </div>
+
+    <main id="app-content" class="bg-slate-50 relative w-full h-full">
+        <!-- Injected here -->
+    </main>
+
+    <script>
+        /* --- STATE --- */
+        const defaultState = { page: 0, score: 0, audioEnabled: true };
+        let state = JSON.parse(localStorage.getItem('unit4_green_v5_final')) || defaultState;
+
+        function saveState() { localStorage.setItem('unit4_green_v5_final', JSON.stringify(state)); }
+        function resetProgress() { if(confirm("Start a New Session?")) { state = { ...defaultState }; saveState(); location.reload(); } }
+        
+        function startUnit() { 
+            state.page = 1; 
+            saveState(); 
+            render(); 
+        }
+
+        function toggleAudio() { 
+            state.audioEnabled = !state.audioEnabled; 
+            saveState(); 
+            updateAudioIcon(); 
+            stopAudio(); 
+        }
+        
+        function updateAudioIcon() {
+            const btn = document.getElementById('audio-btn');
+            if(btn) btn.innerHTML = state.audioEnabled ? '<i class="fas fa-volume-up text-xl"></i>' : '<i class="fas fa-volume-mute text-xl text-gray-500"></i>';
+        }
+
+        function showMenu() {
+            state.page = -1; // Menu State
+            saveState();
+            render();
+        }
+
+        function goToPage(p) {
+            state.page = p;
+            saveState();
+            render();
+        }
+
+        /* --- DATA --- */
+        const debates = [
+            {
+                title: "Reduce vs. Recycle",
+                script: [
+                    { speaker: "Emma", text: "I think recycling is the best solution. It allows us to keep using materials like plastic without wasting them. Look at Pharrell Williams making jeans from bottles! It creates jobs and saves resources.", align: "left", voice: "Emma" },
+                    { speaker: "Andrew", text: "I disagree, Emma. Recycling uses energy too. The real answer is to reduce. We should ban plastic bags and bottles completely so we don't have trash to begin with. If we don't buy it, we don't throw it away.", align: "right", voice: "Andrew" },
+                    { speaker: "Emma", text: "That is unrealistic, Andrew. Students need packaging for lunches, and people need medicine containers. If we create a better system, like the Catadores in Brazil, we can manage the waste responsibly.", align: "left", voice: "Emma" },
+                    { speaker: "Andrew", text: "But the Catadores work in dangerous conditions! If we just stopped producing single-use plastic, we wouldn't need landfills like Jardim Gramacho at all. Prevention is better than cure.", align: "right", voice: "Andrew" }
+                ],
+                q1: { text: "Who supports recycling because it creates jobs?", ans: true, exp: "Emma supports recycling for this reason." },
+                q2: { text: "Who argues that prevention is better than cure?", ans: true, exp: "Andrew argues for reduction (prevention)." }
+            },
+            {
+                title: "The Consumer & The Activist",
+                script: [
+                    { speaker: "Student A (Consumer)", text: "I want to help the ocean, but I need to use plastic water bottles because the tap water in our school isn't safe to drink.", align: "left", voice: "Ava" },
+                    { speaker: "Student B (Activist)", text: "That is a valid problem, but there may be some solutions. One solution is to ask the principal to install a filtered water station at school.", align: "right", voice: "Brian" },
+                    { speaker: "Student A (Consumer)", text: "That's a great idea, but what if they say it's too expensive?", align: "left", voice: "Ava" },
+                    { speaker: "Student B (Activist)", text: "Another idea is to carry a reusable metal bottle filled with filtered water from home. It saves money in the long run!", align: "right", voice: "Brian" }
+                ],
+                q1: { text: "Is Student A complaining about ocean currents?", ans: false, exp: "Student A is concerned about school drinking water." },
+                q2: { text: "Does Student B suggest bringing water from home?", ans: true, exp: "Yes, as a secondary solution." }
+            },
+            {
+                title: "The Artist & The Landfill Worker",
+                script: [
+                    { speaker: "Vik Muniz (Artist)", text: "I want to take your photograph and make it into a huge piece of art using the garbage you collect here at the landfill.", align: "left", voice: "Andrew" },
+                    { speaker: "Valter (Catadore)", text: "I am proud of my work because recycling prevents harm to nature. But how will making art out of garbage help my family?", align: "right", voice: "Emma" },
+                    { speaker: "Vik Muniz (Artist)", text: "We will auction the artwork in London. I plan to give the money, which could be up to $50,000, directly to your workers' organization.", align: "left", voice: "Andrew" },
+                    { speaker: "Valter (Catadore)", text: "That would change everything. It shows people that even one single can is of great importance!", align: "right", voice: "Emma" }
+                ],
+                q1: { text: "Did the artist keep the money from the auction?", ans: false, exp: "No, he gave it to the workers' organization." },
+                q2: { text: "Is the worker ashamed of his job?", ans: false, exp: "No, he says he is proud because it prevents harm to nature." }
+            }
+        ];
+
+        const speakingModules = [
+            {
+                id: 1,
+                title: "Explore the Theme (Pages 62-63)",
+                source: "Introduction",
+                questions: [
+                    { text: "What did 14-year-old Willow Tufano do with the trash she collected?", voice: "Emma" },
+                    { text: "Sweden burns trash to produce energy. They are so good at it that they have to import trash from other countries. Is this good or bad?", voice: "Andrew" },
+                    { text: "Lauren Singer fits three years of trash in a small glass jar. Do you think a teenager could live a 'zero-waste' lifestyle? Why or why not?", voice: "Ava" },
+                    { text: "Think about your daily life at school. What is one item you throw away every single day?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Reading 1: Garbage Island",
+                source: "Pages 64-67",
+                questions: [
+                    { text: "The Great Pacific Garbage Patch is not a solid island. It is a 'soup' of plastic. Why is this dangerous for sea life?", voice: "Andrew" },
+                    { text: "Explain the chain reaction: How does a plastic bag blocking sunlight eventually kill large fish like tuna?", voice: "Emma" },
+                    { text: "Sea turtles eat plastic bags because they look like jellyfish. What can we do as students to stop this mistake?", voice: "Ava" },
+                    { text: "Cesar Harada is building robot boats to clean the ocean. Do you think technology is the best solution?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Video: Trash People",
+                source: "Pages 69-70",
+                questions: [
+                    { text: "Artist HA Schult put his 'Trash People' sculptures on the Great Wall of China. Why did he choose such a famous place?", voice: "Emma" },
+                    { text: "Can garbage be beautiful? Do you consider these sculptures 'art'?", voice: "Ava" },
+                    { text: "If you had to make a sculpture out of the trash in your backpack or locker, what materials would you find?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 4,
+                title: "Reading 2: The Art of Recycling",
+                source: "Pages 71-74",
+                questions: [
+                    { text: "The 'Catadores' work in a dangerous landfill for low pay ($25/day). Why are they proud of their work?", voice: "Andrew" },
+                    { text: "Vik Muniz took photos of the workers and filled them with trash. How did this change how the workers saw themselves?", voice: "Emma" },
+                    { text: "Valter said: 'One single can is of great importance.' What did he mean by this?", voice: "Ava" },
+                    { text: "Would you buy a piece of art made of garbage for $50,000? Why or why not?", voice: "Brian" }
+                ]
+            }
+        ];
+
+        const specialLessons = {
+            1: {
+                title: "Writing Skill: Problem & Solution",
+                content: `
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                            <h4 class="font-bold text-blue-800 mb-2">Language for Solutions</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-base text-slate-700">
+                                <li><strong>Introduce Problem:</strong> "Plastic causes problems, <em>but there may be some solutions.</em>"</li>
+                                <li><strong>Solution 1:</strong> "One solution is to..." (+ infinitive)</li>
+                                <li><strong>Solution 2:</strong> "Another idea is to..." (+ infinitive)</li>
+                                <li><strong>Modal Verbs:</strong> "We <em>can</em> reduce waste by..."</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border-2 border-blue-100">
+                            <h4 class="font-bold text-blue-800 mb-2">Example</h4>
+                            <p class="italic text-slate-600">"Air pollution is a problem. <strong>One solution is to</strong> use public transportation. <strong>Another idea is to</strong> ride bicycles."</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        const vocabulary = [
+            { word: "Float", emoji: "⛵", def: "To move slowly on water or in the air.", sent: "Plastic bottles float in the ocean for years.", persona: "Reading 1" },
+            { word: "Aware", emoji: "🧠", def: "Knowing that something exists.", sent: "We must make people aware of the trash problem.", persona: "Reading 1" },
+            { word: "Solution", emoji: "💡", def: "A way of solving a problem.", sent: "Recycling is one solution to waste.", persona: "Reading 1" },
+            { word: "Recycle", emoji: "♻️", def: "To process used things into new products.", sent: "We can recycle cans and bottles.", persona: "Reading 1" },
+            { word: "Current", emoji: "🌊", def: "Movement of water in a specific direction.", sent: "Ocean currents trap the trash in a circle.", persona: "Reading 1" },
+            { word: "Report", emoji: "📝", def: "To give a spoken or written account.", sent: "Scientists report that the island is growing.", persona: "Reading 1" },
+            { word: "Material", emoji: "🧱", def: "Physical substance things are made of.", sent: "The artist uses recycled material for his work.", persona: "Reading 2" },
+            { word: "Proud", emoji: "😌", def: "Feeling deep pleasure about an achievement.", sent: "Valter is proud to be a picker.", persona: "Reading 2" },
+            { word: "Deal with", emoji: "🤝", def: "To take action to solve a problem.", sent: "Organizations deal with environmental issues.", persona: "Reading 2" },
+            { word: "Create", emoji: "🎨", def: "To make something new.", sent: "Vik Muniz creates art from garbage.", persona: "Reading 2" }
+        ];
+
+        const lectures = {
+            1: {
+                title: "🌊 Reading 1: Garbage Island",
+                text: "You can't see it from the air. It's almost impossible to see from a ship. But somewhere in the North Pacific is a giant island of garbage floating just below the ocean's surface. How did it get there? The garbage island is not really an island. It's a collection of millions of pieces of plastic and other objects that people have thrown away, such as shopping bags and water bottles. Pacific Ocean currents bring the objects together and cause them to spin around in a giant circle. The spinning movement stops the garbage from escaping. The island is huge. Scientists estimate that it is about 270,000 square miles (700,000 km). Some studies report that it may be up to 20 times larger, twice the size of the continental United States. What problems does it cause? The larger pieces of garbage in the island are a problem for wildlife. For example, sea turtles often think plastic bags are jellyfish, their favorite food. They eat the plastic and die. Seabirds looking for food in the ocean may also die from eating plastic objects floating on the water. In addition, tiny pieces of plastic near the ocean surface block sunlight from reaching deeper water. The lack of sunlight kills very small sea organisms called plankton. As a result, there is less food for larger fish such as tuna. What can we do? Cleaning up a giant island of plastic garbage isn't easy, but there may be some solutions. One method is to use technology to collect the trash and recycle it. Environmental engineer Cesar Harada is building a type of robot boat that gathers up trash. Harada hopes this robot technology will help reduce garbage in the Pacific. New approaches to recycling can also help make more people aware of the problem. For example, singer and songwriter Pharrell Williams works with a company that recycles plastic garbage to make denim for blue jeans. In this way, he combines his interest in fashion with his concern for the environment. If many people make small changes, it can have a big impact. As Williams says, 'The ocean is just one part of the earth, but the world is made up of 75 to 80% water. It's a huge place to start.'",
+                gaps: { 
+                    parts: ["The Great Pacific Garbage Patch is not solid [1]. It is a collection of millions of pieces of [2]. Ocean currents bring the objects together and cause them to [3] in a circle. The plastic blocks [4], which kills plankton."],
+                    ans: ["land", "plastic", "spin", "sunlight"],
+                    bank: ["land", "plastic", "spin", "sunlight", "fire", "swim", "food"] 
+                }
+            },
+            2: {
+                title: "🎨 Reading 2: The Art of Recycling",
+                text: "Brazilian artist Vik Muniz uses everyday objects in unusual ways. Through his art, Muniz makes people think differently about their everyday lives, even their own garbage. In 2007, Muniz worked on a 2-year project at one of the world's largest landfills until its closure in 2012. Jardim Gramacho received about 70% of the garbage from Rio de Janeiro. About 3,000 garbage pickers known as catadores worked there. Their job was to hunt through the garbage for recyclable cans, bottles, and other materials. They then made money by selling the objects to recycling companies. The catadores' work was dirty and dangerous, and most of them only received between $20 and $25 a day. Despite the hard conditions, many catadores were proud of their work. Valter dos Santos, a worker at Jardim Gramacho for more than 25 years, told Muniz, 'I am proud to be a picker. I tried to explain to people that recycling prevents great harm to nature and the environment.' People sometimes say, 'But one single soda can, one single can is of great importance. That single can will make the difference.' Muniz became friends with Dos Santos and other catadores. They allowed him to take their photographs at the landfill where they posed for artistic portraits. For example, Muniz photographed a landfill worker in the style of a famous French painting, The Death of Marat. The workers then helped Muniz create huge images of these photos on the floor of his studio. They used material from the landfill to add color and depth to the images. Why create such huge images using garbage? Muniz says he wanted to 'change the lives of people with the same materials they deal with every day.' A photograph of his recreation of the French painting sold for £28,000 ($50,000) at a London art auction. Muniz gave the money to the catadores' workers organization. In 2010, British-Brazilian director Lucy Walker created a movie about Muniz's project called Waste Land. The film received many awards and helped make people aware of the garbage collectors' lives. The catadores also began to see themselves differently. 'Sometimes we see ourselves as so small,' says Irma, a cook at Gramacho. 'But people out there see us as so big, so beautiful.'",
+                gaps: {
+                    parts: ["Vik Muniz went to a huge [1] in Rio de Janeiro. He met the catadores, who pick [2] materials. He sold one picture for 50,000 dollars and gave the [3] to the workers' [4]."],
+                    ans: ["landfill", "recyclable", "money", "organization"],
+                    bank: ["landfill", "recyclable", "money", "organization", "beach", "dangerous", "car"]
+                }
+            }
+        };
+
+        const allQuestions = [
+            // READING 1: GARBAGE ISLAND (1-10)
+            { type: 'mcq', q: "The word 'collection' in the passage is closest in meaning to:", opts: ["Payment", "Group or accumulation", "Donation", "Exhibition"], ans: 1 },
+            { type: 'mcq', q: "What prevents the plastic trash from floating away from the 'Garbage Island'?", opts: ["Large nets installed by environmentalists.", "The weight of the plastic sinking to the bottom.", "Ocean currents spinning in a giant circle.", "The large size of the plastic bottles."], ans: 2 },
+            { type: 'mcq', q: "Why do sea turtles often eat plastic bags?", opts: ["They are attracted to the bright colors.", "They mistake the bags for jellyfish.", "There is no other food available.", "The bags smell like fish."], ans: 1 },
+            { type: 'mcq', q: "Based on the passage, what is the ultimate consequence of plastic blocking sunlight?", opts: ["The water becomes too cold for fish.", "The plastic melts into the water.", "The food supply for larger fish, like tuna, decreases.", "Seabirds land on the plastic to rest."], ans: 2 },
+            { type: 'mcq', q: "The word 'tiny' in the passage is closest in meaning to:", opts: ["Very small", "Shiny", "Sharp", "Heavy"], ans: 0 },
+            { type: 'mcq', q: "Which of the following is NOT mentioned as a problem caused by the Garbage Island?", opts: ["Sea turtles eating plastic.", "Plastic blocking sunlight.", "Ships crashing into the large pile of trash.", "Seabirds eating plastic objects."], ans: 2 },
+            { type: 'mcq', q: "How large is the Garbage Island estimated to be according to some studies?", opts: ["The size of New York City.", "Twice the size of the continental United States.", "The size of a football field.", "700 kilometers long."], ans: 1 },
+            { type: 'mcq', q: "What solution is Cesar Harada working on?", opts: ["A chemical that dissolves plastic.", "A robot boat that gathers trash.", "A giant net to catch bottles.", "A law to ban plastic bags."], ans: 1 },
+            { type: 'mcq', q: "Where would this sentence best fit? 'This creates a chain reaction that damages the entire ocean ecosystem.'", opts: ["After '...twice the size of the US.'", "After '...eat the plastic and die.'", "After '...less food for larger fish such as tuna.'", "After '...huge place to start.'"], ans: 2 },
+            { type: 'mcq', q: "Which of the following best summarizes the main ideas of the passage?", opts: ["Cruises ships dump waste, and musicians hold concerts.", "Ocean currents trap plastic, which harms wildlife and the food chain, but innovators are working on solutions.", "The island is solid enough for people to walk on and build recycling plants.", "Plastic blocking sunlight is the only problem caused by the Garbage Island."], ans: 1 },
+
+            // READING 2: THE ART OF RECYCLING (11-20)
+            { type: 'mcq', q: "What is the main goal of artist Vik Muniz's work described in the text?", opts: ["To clean up the streets of Rio de Janeiro.", "To make people think differently about everyday trash.", "To teach people how to paint using oil.", "To build houses out of recycled materials."], ans: 1 },
+            { type: 'mcq', q: "What was 'Jardim Gramacho'?", opts: ["An art gallery in London.", "A famous museum in Brazil.", "One of the world's largest landfills.", "A recycling factory."], ans: 2 },
+            { type: 'mcq', q: "Who are the 'catadores'?", opts: ["Famous Brazilian painters.", "Garbage pickers who hunt for recyclable materials.", "Tourists visiting the landfill.", "Directors of documentary films."], ans: 1 },
+            { type: 'mcq', q: "In the sentence 'recycling prevents great harm to nature,' the word 'harm' is closest in meaning to:", opts: ["Damage", "Help", "Beauty", "Money"], ans: 0 },
+            { type: 'mcq', q: "How much money did most catadores earn per day?", opts: ["$50", "$100", "Between $20 and $25", "Nothing"], ans: 2 },
+            { type: 'mcq', q: "Why did Valter dos Santos say, 'I am proud to be a picker'?", opts: ["Because he made a lot of money.", "Because he believed his work helped save the environment.", "Because he enjoyed finding valuable jewelry.", "Because he wanted to become a famous artist."], ans: 1 },
+            { type: 'mcq', q: "How did Vik Muniz create the portraits of the workers?", opts: ["He painted them with oil paint.", "He used a computer to draw them.", "He arranged trash on top of projected photographs.", "He carved them out of wood."], ans: 2 },
+            { type: 'mcq', q: "How much did the photograph of the artwork sell for at the London auction?", opts: ["$20,000", "$25,000", "$50,000", "$1 million"], ans: 2 },
+            { type: 'mcq', q: "What did Muniz do with the money earned from the sale of the photograph?", opts: ["He kept it for himself.", "He bought a new studio.", "He gave it to the catadores' workers organization.", "He donated it to a museum."], ans: 2 },
+            { type: 'mcq', q: "What was the name of the documentary movie made about this project?", opts: ["Garbage Island", "Waste Land", "The Art of Trash", "Rio's Recyclers"], ans: 1 }
+        ];
+
+        /* --- AUDIO SYSTEM --- */
+        let voices = [];
+        const synth = window.speechSynthesis;
+
+        function loadVoices() { voices = synth.getVoices(); }
+        synth.onvoiceschanged = loadVoices;
+        setTimeout(loadVoices, 500);
+
+        function speak(text, highlightCallback, preferredName) {
+            if(!state.audioEnabled) return;
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.85; 
+            
+            let selectedVoice = voices.find(v => v.name === "Microsoft Multilingual Online English");
+            
+            if (!selectedVoice && preferredName) {
+                selectedVoice = voices.find(v => v.name.includes(preferredName));
+            }
+            if (!selectedVoice) {
+                 const allowedNames = ["Andrew", "Emma", "Ava", "Brian", "Google US English", "Samantha"];
+                 for (const name of allowedNames) {
+                      selectedVoice = voices.find(v => v.name.includes(name));
+                      if (selectedVoice) break;
+                 }
+            }
+            if (selectedVoice) u.voice = selectedVoice;
+
+            if (highlightCallback) {
+                u.onboundary = (event) => { if (event.name === 'word') highlightCallback(event.charIndex); };
+            }
+            synth.speak(u);
+        }
+        function stopAudio() { synth.cancel(); }
+
+        /* --- MEDIA RECORDER --- */
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.controls = true;
+                    
+                    const container = document.getElementById('audio-preview-container');
+                    container.innerHTML = '';
+                    container.appendChild(audio);
+                    
+                    const downloadBtn = document.getElementById('download-audio-btn');
+                    downloadBtn.href = audioUrl;
+                    downloadBtn.download = `unit4_summary_${new Date().toISOString().slice(0,10)}.wav`;
+                    downloadBtn.style.display = 'inline-flex';
+                });
+                mediaRecorder.start();
+                document.getElementById('mic-btn').classList.add('recording-pulse');
+                document.getElementById('mic-status').textContent = "Recording...";
+            } catch (err) {
+                alert("Error accessing microphone: " + err);
+            }
+        }
+
+        function stopRecording() {
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                document.getElementById('mic-btn').classList.remove('recording-pulse');
+                document.getElementById('mic-status').textContent = "Tap mic to record";
+            }
+        }
+
+        /* --- ROUTER --- */
+        const container = document.getElementById('app-content');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const scoreDisplay = document.getElementById('score-val');
+        const progressEl = document.getElementById('progress-bar');
+        const headerActions = document.getElementById('header-actions');
+        const praiseOverlay = document.getElementById('praise-overlay');
+
+        function render() {
+            container.innerHTML = '';
+            headerActions.innerHTML = ''; 
+            praiseOverlay.style.display = 'none';
+            stopAudio();
+            scoreDisplay.textContent = state.score;
+            updateAudioIcon();
+            
+            const totalPages = 50; 
+            const pct = (state.page / totalPages) * 100;
+            progressEl.style.width = `${pct}%`;
+
+            if(state.page === -1) {
+                progressEl.style.width = '0%';
+                prevBtn.style.visibility = 'hidden';
+                nextBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+                nextBtn.style.visibility = 'visible';
+            }
+
+            prevBtn.disabled = state.page <= 0;
+            prevBtn.onclick = () => { if(state.page > 0) { state.page--; saveState(); render(); }};
+            nextBtn.onclick = () => { if(state.page < totalPages) { state.page++; saveState(); render(); }};
+
+            // Routing Logic
+            if(state.page === -1) renderMenu();
+            else if(state.page === 0) renderHome();
+            else if(state.page === 1) renderWarmup(); 
+            else if(state.page === 2) renderSpeakingModule(0); 
+            
+            // READING 1 BLOCK
+            else if(state.page >= 3 && state.page <= 8) renderVocab(state.page - 3); 
+            else if(state.page === 9) renderScriptView(1, 'Emma'); 
+            else if(state.page === 10) renderGapFill(1); 
+            else if(state.page === 11) renderSpeakingModule(1); 
+            
+            // VIDEO BLOCK
+            else if(state.page === 12) renderSpeakingModule(2); 
+            
+            // READING 2 BLOCK
+            else if(state.page >= 13 && state.page <= 16) renderVocab(state.page - 7); 
+            else if(state.page === 17) renderScriptView(2, 'Andrew'); 
+            else if(state.page === 18) renderGapFill(2); 
+            else if(state.page === 19) renderSpeakingModule(3); 
+            
+            // SYNTHESIS, DEBATES, HOTS, TEST PREP
+            else if(state.page === 20) renderDebate(0); 
+            else if(state.page === 21) renderDebate(1); 
+            else if(state.page === 22) renderDebate(2); 
+            else if(state.page === 23) renderTestPrep();
+            else if(state.page === 24) renderHOTS();
+            
+            // WRITING
+            else if(state.page === 25) renderSpecialLesson(1); 
+            else if(state.page === 26) renderInteractiveWriting(); 
+            
+            // AUDIO & REFLECTION
+            else if(state.page === 27) renderAudioRecorder(); 
+            else if(state.page === 28) renderExitTicket();
+            
+            // QUIZZES (20 Questions: 10 R1, 10 R2)
+            else if(state.page >= 29 && state.page <= 48) {
+                const qIndex = state.page - 29;
+                if(qIndex < allQuestions.length) {
+                    const q = allQuestions[qIndex];
+                    if(q.type === 'mcq') renderMCQSingle(q, qIndex);
+                    else renderTrueFalse(q, qIndex);
+                } else {
+                     renderFinish();
+                }
+            }
+            
+            else if(state.page >= 49) renderFinish();
+        }
+
+        /* --- VIEWS --- */
+        function renderHome() {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center text-center flex-1">
+                    <div class="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner mx-auto border-4 border-green-300">
+                        <i class="fas fa-leaf text-6xl text-green-600"></i>
+                    </div>
+                    <h1 class="text-5xl font-black text-green-950 mb-4 tracking-tight">Unit 4: Green Living 🌿</h1>
+                    <p class="text-2xl text-green-800 mb-4 font-light">Trash, Recycling, and Artistic Solutions</p>
+                    <div class="max-w-2xl mx-auto bg-white p-4 rounded-xl border border-green-200 mb-8 shadow-sm">
+                        <p class="font-bold text-slate-700">Essential Question:</p>
+                        <p class="text-slate-600">How does our trash impact the global environment, and what creative solutions can we use to solve this problem?</p>
+                    </div>
+                    <button onclick="startUnit()" class="bg-green-600 text-white px-12 py-5 rounded-2xl text-xl font-bold shadow-xl hover:bg-green-700 btn-3d transition border-b-4 border-green-800">
+                        START UNIT 🚀
+                    </button>
+                </div>
+            `;
+            nextBtn.style.visibility = 'hidden';
+            prevBtn.style.visibility = 'hidden';
+        }
+
+        function renderMenu() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <h2 class="text-3xl font-black text-green-950 mb-6 uppercase tracking-widest border-b-4 border-yellow-400 pb-2">Unit 4 Menu</h2>
+                    <div class="w-full max-w-4xl overflow-y-auto">
+                        <div class="menu-grid">
+                            <div onclick="goToPage(0)" class="menu-item"><i class="fas fa-home text-yellow-500"></i><span>Home</span></div>
+                            <div onclick="goToPage(3)" class="menu-item border-green-400 bg-green-50"><i class="fas fa-book-reader text-green-700"></i><span>Reading 1</span></div>
+                            <div onclick="goToPage(13)" class="menu-item border-blue-400 bg-blue-50"><i class="fas fa-book-open text-blue-700"></i><span>Reading 2</span></div>
+                            <div onclick="goToPage(20)" class="menu-item"><i class="fas fa-comments text-orange-500"></i><span>Debates</span></div>
+                            <div onclick="goToPage(26)" class="menu-item"><i class="fas fa-pen-nib text-indigo-600"></i><span>Writing</span></div>
+                            <div onclick="goToPage(29)" class="menu-item"><i class="fas fa-clipboard-check text-red-500"></i><span>Quiz</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWarmup() {
+            nextBtn.style.visibility = 'visible';
+            prevBtn.style.visibility = 'visible';
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 w-full p-4">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 border-t-[8px] border-yellow-400 w-full text-center max-w-4xl">
+                        <h2 class="text-xl font-bold mb-6 text-yellow-700 uppercase tracking-widest">Part 1: Explore the Theme</h2>
+                        <div class="space-y-6 text-left">
+                            <div onclick="speak(this.innerText, null, 'Emma')" class="p-4 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:border-yellow-400 transition">
+                                <p class="font-bold text-slate-800"><i class="fas fa-bed text-yellow-500 mr-2"></i> Personal Connection</p>
+                                <p class="text-slate-600 mt-2">If you had to keep all the trash you produced for one week in your bedroom, how would your room look? What items would take up the most space?</p>
+                            </div>
+                            <div onclick="speak(this.innerText, null, 'Andrew')" class="p-4 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:border-yellow-400 transition">
+                                <p class="font-bold text-slate-800"><i class="fas fa-clock text-yellow-500 mr-2"></i> Hypothesize</p>
+                                <p class="text-slate-600 mt-2">Look at the plastic items you are wearing or holding right now (pens, phone cases, polyester clothing). Where will those items be 100 years from now?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSpeakingModule(modIndex) {
+            const mod = speakingModules[modIndex];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-green-100 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-green-50 pb-4 flex-none">
+                            <span class="text-green-500 font-bold tracking-widest text-sm block mb-1 uppercase">UNIT 4 DISCUSSION</span>
+                            <h2 class="text-3xl font-black text-green-950 mb-2">${mod.title}</h2>
+                            <p class="text-slate-500 font-medium">Source: ${mod.source}</p>
+                        </div>
+                        <div class="flex flex-col gap-3 overflow-y-auto flex-1 pr-2">
+                            ${mod.questions.map((q, i) => `
+                                <div onclick="speak('${q.text.replace(/'/g, "\\'")}', null, '${q.voice}')" class="speaking-question-card p-4 rounded-xl border-2 border-slate-100 hover:border-yellow-400 hover:bg-yellow-50 transition cursor-pointer select-none bg-white shadow-sm">
+                                    <div class="flex gap-5">
+                                        <div class="flex-none pt-1">
+                                            <div class="w-10 h-10 rounded-full bg-green-50 text-green-600 font-bold flex items-center justify-center text-lg border border-green-200">${i+1}</div>
+                                        </div>
+                                        <p class="speaking-question-text leading-relaxed font-medium">${q.text}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDebate(idx) {
+            const debate = debates[idx];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-green-100 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-green-50 pb-4 flex-none text-center">
+                            <span class="text-orange-500 font-bold tracking-widest text-sm block mb-1 uppercase">INTERACTIVE ROLEPLAY ${idx+1}/3</span>
+                            <h2 class="text-3xl font-black text-green-950 mb-2">${debate.title}</h2>
+                            <p class="text-slate-500">Click each bubble to listen to the dialogue.</p>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto flex-1 px-4">
+                            ${debate.script.map((line) => `
+                                <div onclick="speak('${line.text.replace(/'/g, "\\'")}', null, '${line.voice}')" class="chat-bubble ${line.align === 'left' ? 'chat-left' : 'chat-right'}">
+                                    <div class="text-xs font-bold ${line.align === 'left' ? 'text-blue-600' : 'text-green-600'} mb-1">${line.speaker}</div>
+                                    <p class="text-slate-800 text-lg leading-snug">${line.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <h4 class="font-bold text-slate-700 mb-2">Comprehension Check:</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="checkTF(true, ${debate.q1.ans}, '${debate.q1.exp.replace(/'/g, "\\'")}')" class="p-3 border rounded-lg hover:bg-green-50 text-left text-sm font-bold text-slate-700">${debate.q1.text}</button>
+                                <button onclick="checkTF(true, ${debate.q2.ans}, '${debate.q2.exp.replace(/'/g, "\\'")}')" class="p-3 border rounded-lg hover:bg-green-50 text-left text-sm font-bold text-slate-700">${debate.q2.text}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderTestPrep() {
+             container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-blue-100 mb-4 h-full">
+                        <div class="mb-6 border-b-2 border-blue-50 pb-4 flex-none">
+                            <span class="text-blue-500 font-bold tracking-widest text-sm block mb-1 uppercase">EXAM ALIGNMENT</span>
+                            <h2 class="text-3xl font-black text-blue-950 mb-2">IELTS & TOEFL Speaking</h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-6">
+                            <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                                <h3 class="font-bold text-blue-800 mb-2">IELTS Part 1 (Familiar Topics)</h3>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700">
+                                    <li>Do you recycle at home? (Why/Why not?)</li>
+                                    <li>What kind of bags do you use when you go shopping?</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                                <h3 class="font-bold text-purple-800 mb-2">IELTS Part 2 (Long Turn)</h3>
+                                <p class="text-slate-700 font-medium mb-2">Describe a time when you helped protect the environment (e.g., cleaning up a park, recycling). You should say:</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-600 text-sm">
+                                    <li>Where you were and who you were with</li>
+                                    <li>What exactly you did</li>
+                                    <li>And explain how you felt about doing it.</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-red-50 rounded-xl border border-red-200">
+                                <h3 class="font-bold text-red-800 mb-2">TOEFL Independent Speaking</h3>
+                                <p class="text-slate-700 italic">"Some people believe that cleaning up the ocean requires advanced technology like robot boats. Others believe it requires changing human behavior, such as banning plastic bags. Which approach do you think is more effective and why? Include details and examples."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHOTS() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-yellow-100 mb-4 h-full">
+                        <div class="mb-6 border-b-2 border-yellow-50 pb-4 flex-none">
+                            <span class="text-yellow-600 font-bold tracking-widest text-sm block mb-1 uppercase">BLOOM'S TAXONOMY</span>
+                            <h2 class="text-3xl font-black text-yellow-950 mb-2">Higher-Order Thinking</h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-4">
+                            <div onclick="speak(this.innerText, null, 'Emma')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-yellow-400 transition shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-search text-yellow-500 mr-2"></i> Analyze</h3>
+                                <p class="text-slate-600 leading-relaxed">Explain how dropping a plastic bag in the street outside your school could eventually kill a fish 5,000 miles away. Describe the "chain reaction".</p>
+                            </div>
+                            <div onclick="speak(this.innerText, null, 'Andrew')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-yellow-400 transition shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-balance-scale text-yellow-500 mr-2"></i> Evaluate</h3>
+                                <p class="text-slate-600 leading-relaxed">Which approach raises more awareness: HA Schult placing 1,000 "Trash People" at the Great Wall of China, or Pharrell Williams selling expensive jeans made from ocean plastic? Justify your choice.</p>
+                            </div>
+                            <div onclick="speak(this.innerText, null, 'Ava')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-yellow-400 transition shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i> Create</h3>
+                                <p class="text-slate-600 leading-relaxed">Invent a new product that solves the "plastic straw" problem in your school cafeteria. Pitch your invention in a 1-minute presentation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderInteractiveWriting() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-5xl flex flex-col border border-indigo-100 h-full">
+                        <div class="mb-4 text-center">
+                            <h2 class="text-2xl font-black text-indigo-900 mb-1">GRASPS Essay Builder</h2>
+                            <p class="text-slate-500 text-sm">Role: Concerned Student | Audience: City Council</p>
+                        </div>
+                        
+                        <div class="flex-1 overflow-y-auto space-y-4 px-2">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-indigo-500 uppercase">1. Topic Sentence (State the Problem)</label>
+                                <input type="text" id="write-topic" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none" placeholder="e.g., Heavy traffic near our school results in bad air quality...">
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-indigo-500 uppercase">2. Solution 1 (Introduce Idea)</label>
+                                <input type="text" id="write-sol1" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none" placeholder="e.g., One solution is to improve public transportation...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-indigo-500 uppercase">3. Detail 1 (Explain how it works)</label>
+                                <input type="text" id="write-det1" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none" placeholder="e.g., We could build designated bus lanes so buses move faster...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-indigo-500 uppercase">4. Solution 2</label>
+                                <input type="text" id="write-sol2" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none" placeholder="e.g., Another idea is to start a school carpool program...">
+                            </div>
+                            
+                            <button onclick="generateEssay()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg mt-4">
+                                Generate Proposal
+                            </button>
+                            
+                            <div id="essay-output" class="hidden mt-6 p-6 bg-indigo-50 rounded-xl border border-indigo-200 text-slate-800 text-lg leading-relaxed font-serif"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateEssay() {
+            const topic = document.getElementById('write-topic').value;
+            const sol1 = document.getElementById('write-sol1').value;
+            const det1 = document.getElementById('write-det1').value;
+            const sol2 = document.getElementById('write-sol2').value;
+            
+            if(!topic || !sol1) { alert("Please fill in the main fields."); return; }
+            
+            const final = `Dear City Council,\n\n${topic} ${sol1} ${det1} ${sol2} We hope you consider these solutions to protect our environment.\n\nSincerely,\nA Concerned Student`;
+            const out = document.getElementById('essay-output');
+            out.innerText = final;
+            out.classList.remove('hidden');
+            out.classList.add('pop-in');
+        }
+
+        function renderSpecialLesson(id) {
+            const lesson = specialLessons[id];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-green-100 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-green-50 pb-4 flex-none">
+                            <h2 class="text-2xl font-black text-green-950">${lesson.title}</h2>
+                        </div>
+                        <div class="overflow-y-auto flex-1 pr-2 text-slate-800">
+                            ${lesson.content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderExitTicket() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-10 w-full max-w-3xl flex flex-col border border-purple-100 text-center">
+                        <h2 class="text-3xl font-black text-purple-900 mb-6">Exit Ticket: Self-Reflection</h2>
+                        
+                        <div class="space-y-6 text-left w-full">
+                            <div class="bg-purple-50 p-5 rounded-xl border border-purple-200">
+                                <h3 class="font-bold text-purple-800 mb-2"><i class="fas fa-eye"></i> Process Reflection</h3>
+                                <p class="text-slate-700">"When scanning the text for details on page 68, did I try to read every single word, or did I successfully let my eyes jump to capitalized letters and numbers? How can I improve my scanning speed?"</p>
+                            </div>
+                            
+                            <div class="bg-green-50 p-5 rounded-xl border border-green-200">
+                                <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-brain"></i> Concept Transfer</h3>
+                                <p class="text-slate-700">"Valter dos Santos said, <em>'One single can is of great importance'</em>. How does this mindset apply to learning English? Can learning 'one single vocabulary word' a day make a difference?"</p>
+                            </div>
+                        </div>
+                        <button onclick="nextBtn.click()" class="mt-8 bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition">Continue to Final Quiz</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAudioRecorder() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-10 w-full max-w-3xl flex flex-col items-center border border-red-100 text-center">
+                        <h2 class="text-3xl font-black text-red-900 mb-2">Spoken Summary</h2>
+                        <p class="text-slate-600 mb-8 text-xl">Answer: "Who is in control: Cleaning the mess or Changing behavior?"</p>
+                        
+                        <div class="w-full h-48 bg-slate-100 rounded-2xl mb-8 flex items-center justify-center relative overflow-hidden">
+                            <button id="mic-btn" onmousedown="startRecording()" onmouseup="stopRecording()" onmouseleave="stopRecording()" ontouchstart="startRecording()" ontouchend="stopRecording()" class="w-24 h-24 rounded-full bg-red-600 text-white text-4xl flex items-center justify-center shadow-lg transition hover:scale-105 active:scale-95 cursor-pointer select-none -webkit-tap-highlight-color-transparent z-10">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <p id="mic-status" class="absolute bottom-4 text-slate-500 font-bold">Press and Hold to Record</p>
+                        </div>
+
+                        <div id="audio-preview-container" class="w-full mb-6 min-h-[54px]"></div>
+
+                        <a id="download-audio-btn" class="hidden bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-700 transition items-center gap-2 cursor-pointer">
+                            <i class="fas fa-download"></i> Download Recording
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVocab(idx) {
+            const v = vocabulary[idx];
+            let voiceName = idx % 2 === 0 ? "Emma" : "Andrew";
+            const textToSpeak = `${v.word}. ${v.def}. Example: ${v.sent}`;
+            const safeText = textToSpeak.replace(/'/g, "\\'");
+
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 justify-start">
+                    <div onclick="speak('${safeText}', null, '${voiceName}')" class="vocab-card w-full max-w-6xl bg-white flex flex-col p-12 relative overflow-hidden h-full items-start text-left cursor-pointer hover:border-yellow-400 transition hover:shadow-lg hover:bg-green-50">
+                        <div class="flex-1 flex flex-col justify-start gap-8 pt-4 w-full">
+                            <div>
+                                <span class="block text-green-600 text-lg font-bold tracking-widest mb-2">VOCABULARY</span>
+                                <h2 class="text-5xl font-black text-slate-800">${v.emoji} ${v.word.toLowerCase()}</h2>
+                            </div>
+                            <p class="text-5xl text-gray-700 leading-snug font-light">${v.def}</p>
+                            <div class="border-l-[8px] border-yellow-400 pl-8 bg-white/50 p-6 rounded-r-xl w-full">
+                                <p class="text-3xl text-green-900 italic font-medium leading-relaxed">"${v.sent}"</p>
+                                <p class="text-right text-yellow-700 font-bold mt-4">— ${v.persona}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if(state.audioEnabled) setTimeout(() => speak(textToSpeak, null, voiceName), 500);
+        }
+
+        function renderScriptView(lecId, voiceName) {
+            const l = lectures[lecId];
+            const words = l.text.split(' ');
+            const playBtn = document.createElement('button');
+            playBtn.className = "bg-yellow-500 hover:bg-yellow-400 text-green-900 w-10 h-10 rounded-full flex items-center justify-center transition shadow-lg font-bold";
+            playBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            playBtn.onclick = stopAudio;
+            headerActions.appendChild(playBtn);
+
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
+                        <h2 class="text-2xl text-green-700 font-bold mb-4">${l.title}</h2>
+                        <div id="script-container" class="text-2xl leading-relaxed font-bold text-gray-800 flex-1 flex flex-wrap content-start justify-start text-left gap-x-2 gap-y-2 overflow-y-auto">
+                            ${words.map((w, i) => `<span class="highlight-word">${w} </span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if(state.audioEnabled) {
+                setTimeout(() => {
+                    speak(l.text, (charIdx) => {
+                        let runningTotal = 0;
+                        const spans = document.querySelectorAll('.highlight-word');
+                        spans.forEach(s => s.classList.remove('active'));
+                        for(let i=0; i<spans.length; i++) {
+                            const span = spans[i];
+                            const len = span.innerText.length;
+                            if (charIdx >= runningTotal && charIdx < runningTotal + len) {
+                                span.classList.add('active');
+                                span.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                                break;
+                            }
+                            runningTotal += len;
+                        }
+                    }, voiceName);
+                }, 500);
+            }
+        }
+
+        let selectedGapWord = null;
+        function renderGapFill(lecId) {
+            const l = lectures[lecId];
+            const parts = l.gaps.parts[0].split(/(\[\d\])/);
+            const bank = [...l.gaps.bank].sort(() => 0.5 - Math.random());
+            selectedGapWord = null;
+
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-2">
+                    <div class="bg-white rounded-[2rem] shadow-lg p-8 w-full max-w-6xl flex flex-col h-full border border-green-100">
+                        <h2 class="text-xl text-green-600 font-bold mb-2">Complete the Summary:</h2>
+                        <div class="bg-green-50 p-8 rounded-2xl text-2xl leading-loose text-gray-800 mb-4 flex-1 flex flex-wrap content-start items-center border border-green-200 font-medium text-left">
+                            <div class="text-left w-full">
+                                ${parts.map(p => p.match(/\[\d\]/) ? `<span class="gap-slot" id="gap-${p.replace(/\D/g,'')}" onclick="handleGapClick(this, ${lecId}, ${parseInt(p.replace(/\D/g,''))-1})"></span>` : p).join('')}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 justify-center mb-4 bg-slate-100 p-4 rounded-xl min-h-[80px] items-center">
+                            ${bank.map(w => `<button class="word-bank-item bg-white border border-slate-300 px-4 py-2 rounded-lg shadow-sm font-bold text-lg hover:bg-green-50 hover:border-green-400 transition" onclick="selectBankWord(this, '${w}')">${w}</button>`).join('')}
+                        </div>
+                        <p class="text-center text-slate-400 text-sm">Select a word, then tap a blank space.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectBankWord(btn, word) {
+            const isSelected = btn.classList.contains('selected');
+            document.querySelectorAll('.word-bank-item').forEach(b => b.classList.remove('selected'));
+            if (!isSelected) {
+                btn.classList.add('selected');
+                selectedGapWord = { word: word, el: btn };
+            } else { selectedGapWord = null; }
+        }
+
+        function handleGapClick(gapEl, lecId, ansIndex) {
+            if (!selectedGapWord || gapEl.classList.contains('filled')) return;
+            const correctWord = lectures[lecId].gaps.ans[ansIndex];
+            if (selectedGapWord.word === correctWord) {
+                gapEl.textContent = selectedGapWord.word;
+                gapEl.classList.add('filled', 'shimmer-effect');
+                selectedGapWord.el.classList.add('used');
+                selectedGapWord.el.classList.remove('selected');
+                selectedGapWord = null;
+                const totalGaps = lectures[lecId].gaps.ans.length;
+                const filledGaps = document.querySelectorAll('.gap-slot.filled').length;
+                if(filledGaps === totalGaps) {
+                    state.score += 20; saveState();
+                    scoreDisplay.textContent = state.score;
+                    showPraise("Perfect! 🎉");
+                }
+            } else {
+                gapEl.classList.add('wrong');
+                setTimeout(() => gapEl.classList.remove('wrong'), 500);
+            }
+        }
+
+        function renderMCQSingle(q, qIdx) {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
+                        <div class="mb-6 text-left w-full">
+                            <span class="text-green-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (MCQ)</span>
+                            <p class="font-bold text-gray-800 text-2xl leading-tight text-left">${q.q}</p>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center gap-4">
+                            ${q.opts.map((o, oi) => `
+                                <button id="opt-${oi}" onclick="checkMCQSingle(${oi}, ${q.ans})" class="mcq-option-large">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center mr-4 text-lg border border-slate-300 shrink-0">
+                                        ${String.fromCharCode(65+oi)}
+                                    </div>
+                                    <span class="font-medium text-slate-700 text-left">${o}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMCQSingle(optIdx, correctIdx) {
+            const btn = document.getElementById(`opt-${optIdx}`);
+            const allOpts = document.querySelectorAll('.mcq-option-large');
+            if(btn.disabled) return; 
+
+            if(optIdx === correctIdx) {
+                btn.classList.add('correct');
+                state.score += 10;
+                showPraise("Correct! 🌟");
+            } else {
+                btn.classList.add('wrong');
+                btn.classList.add('shake');
+                document.getElementById(`opt-${correctIdx}`).classList.add('correct');
+            }
+            allOpts.forEach(b => b.disabled = true);
+            scoreDisplay.textContent = state.score; saveState();
+        }
+
+        function renderTrueFalse(q, qIdx) {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-green-100">
+                        <div class="mb-6 text-left w-full">
+                            <span class="text-green-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (TRUE/FALSE)</span>
+                            <p class="font-bold text-gray-800 text-3xl leading-tight text-left mb-8">${q.q}</p>
+                        </div>
+                        <div class="flex gap-6 justify-center mb-8">
+                            <button id="tf-true" onclick="checkTF(true, ${q.ans}, '${q.exp.replace(/'/g, "\\'")}')" class="tf-btn w-1/3">
+                                <i class="fas fa-check-circle text-4xl text-green-500"></i> TRUE
+                            </button>
+                            <button id="tf-false" onclick="checkTF(false, ${q.ans}, '${q.exp.replace(/'/g, "\\'")}')" class="tf-btn w-1/3">
+                                <i class="fas fa-times-circle text-4xl text-red-500"></i> FALSE
+                            </button>
+                        </div>
+                        <div id="tf-feedback" class="hidden p-6 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                            <p class="text-xl text-slate-700 font-bold" id="tf-exp-text"></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkTF(choice, answer, explanation) {
+            const btnTrue = document.getElementById('tf-true');
+            const btnFalse = document.getElementById('tf-false');
+            if(btnTrue.disabled) return;
+
+            btnTrue.disabled = true;
+            btnFalse.disabled = true;
+
+            if(choice === answer) {
+                state.score += 10;
+                showPraise("Correct! 🌟");
+                if(choice) btnTrue.classList.add('correct'); else btnFalse.classList.add('correct');
+            } else {
+                if(choice) btnTrue.classList.add('wrong'); else btnFalse.classList.add('wrong');
+                if(answer) btnTrue.classList.add('correct'); else btnFalse.classList.add('correct');
+            }
+
+            const feed = document.getElementById('tf-feedback');
+            document.getElementById('tf-exp-text').textContent = "Note: " + explanation;
+            feed.classList.remove('hidden');
+            feed.classList.add('pop-in');
+
+            scoreDisplay.textContent = state.score; saveState();
+        }
+
+        function showPraise(text) {
+            const overlay = document.getElementById('praise-overlay');
+            const txt = document.getElementById('praise-text');
+            txt.textContent = text;
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+        }
+
+        function renderFinish() {
+             container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 text-center p-4">
+                    <div class="bg-white p-16 rounded-[3rem] shadow-2xl max-w-2xl w-full border-4 border-yellow-400">
+                        <div class="text-8xl mb-6">🏆</div>
+                        <h2 class="text-5xl font-black text-green-900 mb-4">Unit Complete!</h2>
+                        <div class="my-8 py-6 bg-green-50 rounded-3xl border-2 border-green-100">
+                            <span class="text-7xl font-black text-yellow-500">${state.score}</span>
+                        </div>
+                        <button onclick="resetProgress()" class="bg-green-800 text-white px-8 py-4 rounded-xl font-bold text-xl hover:bg-green-700 transition w-full shadow-lg">
+                            New Session 🔄
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if(state.page === 0) renderHome(); else render();
+        scoreDisplay.textContent = state.score;
+        updateAudioIcon();
+    </script>
+</body>
+</html>
