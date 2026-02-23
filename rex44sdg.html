@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Explorer 4: SDG Interactive Hub</title>
+    <style>
+        :root {
+            --sdg: #1E3A8A; --tool: #7C3AED; --habit: #EA580C; --stakeholder: #059669;
+            --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --accent: #F59E0B;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        header { background: linear-gradient(135deg, var(--sdg), #3B82F6); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        header h1 { margin: 0; font-size: 1.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; overflow-x: auto; }
+        .tree ul { padding-top: 20px; position: relative; display: flex; justify-content: center; }
+        .tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 20px 5px 0 5px; }
+        .tree li::before, .tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 2px solid #CBD5E1; width: 50%; height: 20px; }
+        .tree li::after { right: auto; left: 50%; border-left: 2px solid #CBD5E1; }
+        .tree li:only-child::after, .tree li:only-child::before { display: none; }
+        .tree li:only-child { padding-top: 0; }
+        .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
+        .tree li:last-child::before { border-right: 2px solid #CBD5E1; border-radius: 0 5px 0 0; }
+        .tree li:first-child::after { border-radius: 5px 0 0 0; }
+        .tree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid #CBD5E1; width: 0; height: 20px; }
+        .node { border: 2px solid; padding: 10px 15px; text-decoration: none; color: white; font-size: 0.85rem; font-weight: bold; display: inline-block; border-radius: 8px; transition: all 0.3s; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 120px; position: relative; z-index: 10; }
+        .node:hover { transform: translateY(-3px); box-shadow: 0 8px 12px rgba(0,0,0,0.15); filter: brightness(1.1); }
+        .node.sdg { background: var(--sdg); border-color: #1E3A8A; }
+        .node.tool { background: var(--tool); border-color: #7C3AED; }
+        .node.habit { background: var(--habit); border-color: #EA580C; }
+        .node.stakeholder { background: var(--stakeholder); border-color: #059669; }
+        .node-icon { display: block; font-size: 1.2rem; margin-bottom: 5px; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); overflow-y: auto; }
+        .modal-content { background-color: var(--card); margin: 2% auto; padding: 0; border-radius: 12px; width: 95%; max-width: 1400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideDown 0.4s ease; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { background: var(--sdg); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .close-btn { color: white; font-size: 28px; font-weight: bold; cursor: pointer; background: none; border: none; }
+        .modal-body { padding: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 20px; border: none; background: #F3F4F6; cursor: pointer; border-radius: 6px; font-weight: 600; color: var(--text); transition: all 0.2s; }
+        .tab-btn.active { background: var(--sdg); color: white; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.3); }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px; }
+        .card h3 { margin-top: 0; color: var(--sdg); border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: inline-block; }
+        .tag { display: inline-block; background: #FEF3C7; color: #92400E; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 5px; margin-bottom: 5px; font-weight: bold; }
+        .btn { background: var(--stakeholder); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn:hover { background: #047857; }
+        @media (max-width: 768px) { .tree ul { flex-direction: column; align-items: center; } .tree li { padding: 10px 0; } .tree li::before, .tree li::after, .tree ul ul::before { display: none; } .grid-2 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<header>
+    <h1>🌍 Reading Explorer 4: SDG Interactive Hub</h1>
+    <p>24 Readings | 12 Units | SDG & Cognitive Framework Integration</p>
+</header>
+<div class="container">
+    <div class="tree" id="treeRoot"></div>
+</div>
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div>
+                <h2 id="modalTitle" style="margin:0;">Loading...</h2>
+                <span id="modalSubtitle" style="opacity:0.9; font-size:0.9rem;">Select a tab to view details</span>
+            </div>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab('overview')">📋 Overview</button>
+                <button class="tab-btn" onclick="openTab('inquiry')">🧠 Inquiry & Tools</button>
+                <button class="tab-btn" onclick="openTab('stakes')">👥 Stakeholders</button>
+                <button class="tab-btn" onclick="openTab('task')">🏆 GRASPS Task</button>
+            </div>
+            <div id="overview" class="tab-content active">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>📖 Reading Summary</h3>
+                        <p id="readSummary"></p>
+                        <h4>🔑 Key Facts</h4>
+                        <ul id="keyFacts"></ul>
+                    </div>
+                    <div class="card">
+                        <h3>🎯 Critical Thinking Task</h3>
+                        <p id="critTask"></p>
+                        <h4>🎨 Visual Elements</h4>
+                        <p id="visElements"></p>
+                    </div>
+                </div>
+            </div>
+            <div id="inquiry" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>🧩 Cognitive Framework</h3>
+                        <p><strong>Tool:</strong> <span id="cogTool"></span></p>
+                        <p><strong>Habit:</strong> <span id="cogHabit"></span></p>
+                        <p><strong>Core Inquiry:</strong> <span id="coreInquiry"></span></p>
+                    </div>
+                    <div class="card">
+                        <h3>🌍 SDG Mapping</h3>
+                        <p><strong>Primary:</strong> <span id="sdgPrimary"></span></p>
+                        <p><strong>Secondary:</strong> <span id="sdgSecondary"></span></p>
+                        <p><strong>Rationale:</strong> <span id="sdgRationale"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div id="stakes" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>🎓 Educational</h3>
+                        <p><strong>Role:</strong> <span id="stakeEduRole"></span></p>
+                        <p><strong>Concern:</strong> <span id="stakeEduConcern"></span></p>
+                        <p><strong>Argument:</strong> <span id="stakeEduArg"></span></p>
+                    </div>
+                    <div class="card">
+                        <h3>🌿 Environmental</h3>
+                        <p><strong>Role:</strong> <span id="stakeEnvRole"></span></p>
+                        <p><strong>Concern:</strong> <span id="stakeEnvConcern"></span></p>
+                        <p><strong>Argument:</strong> <span id="stakeEnvArg"></span></p>
+                    </div>
+                    <div class="card">
+                        <h3>💼 Economic</h3>
+                        <p><strong>Role:</strong> <span id="stakeEcoRole"></span></p>
+                        <p><strong>Concern:</strong> <span id="stakeEcoConcern"></span></p>
+                        <p><strong>Argument:</strong> <span id="stakeEcoArg"></span></p>
+                    </div>
+                    <div class="card">
+                        <h3>🤝 Social/Global</h3>
+                        <p><strong>Role:</strong> <span id="stakeSocRole"></span></p>
+                        <p><strong>Concern:</strong> <span id="stakeSocConcern"></span></p>
+                        <p><strong>Argument:</strong> <span id="stakeSocArg"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div id="task" class="tab-content">
+                <div class="card">
+                    <h3>🏆 GRASPS Performance Task</h3>
+                    <p><strong>Goal:</strong> Apply critical thinking to the core inquiry.</p>
+                    <p><strong>Role:</strong> Critical Thinker / Problem Solver</p>
+                    <p><strong>Audience:</strong> Academic Peers / Global Community</p>
+                    <p><strong>Product:</strong> Persuasive Argument or Solution Proposal</p>
+                    <p><strong>Standards:</strong> KASEC Rubric (Knowledge, Analysis, Structure, Evidence, Clarity)</p>
+                    <button class="btn" onclick="alert('KASEC Rubric:\nK: Accurate use of reading data\nA: Deep analysis of stakeholder views\nS: Logical flow of argument\nE: Specific examples from text\nC: Clear academic language')">View KASEC Rubric</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const curriculumData = {
+        "Unit 1: Images of Life": [
+            {
+                "title": "1A: The Visual Village", "subject": "Media/Technology",
+                "summary": "Smartphones have turned everyone into amateur photographers, changing how we document and perceive reality and truth.",
+                "facts": ["Smartphone camera quality rivals digital cameras.", "Altered photos can create controversy and misleading impressions of serious global events."],
+                "task": "Decide whether a dramatically filtered photo of a political protest should be published as 'news' or 'art.'",
+                "visuals": "Photo of a giant wave hitting a Sydney ferry; 3D Prompt: A vintage camera lens morphing into a glowing smartphone sensor.",
+                "sdg": {"primary": "SDG 16 (Peace & Justice)", "secondary": "SDG 9 (Innovation)", "rationale": "Discusses the ethics of photo manipulation and public access to truthful information."},
+                "framework": {"tool": "Ethical Reasoning", "habit": "Responding with Wonderment and Awe", "inquiry": "Where is the line between documenting reality and creating fantasy?"},
+                "stakes": {
+                    "edu": {"role": "Media Literacy Teacher", "concern": "Student media consumption", "arg": "Students must learn to verify digital images to spot algorithmic manipulation."},
+                    "env": {"role": "Wildlife Photographer", "concern": "Authentic representation", "arg": "Authentic imagery must be used to document climate change without deceptive filters."},
+                    "eco": {"role": "Tech Developer", "concern": "App engagement", "arg": "Advanced camera apps democratize art and generate software revenue."},
+                    "soc": {"role": "Photojournalist", "concern": "Media integrity", "arg": "Strict ethical guidelines are necessary to preserve the integrity of news media."}
+                }
+            },
+            {
+                "title": "1B: My Journey in Photographs", "subject": "Photojournalism",
+                "summary": "The inspiring journey of Annie Griffiths, who started as a waitress and became a National Geographic photographer documenting women globally.",
+                "facts": ["Griffiths had 'little or no instruction' initially.", "Her work focuses on the hidden strengths of women in isolated cultures."],
+                "task": "Document the contribution of an underrepresented group in your community through an empathetic 'Portrait' project.",
+                "visuals": "Photographs of women in diverse cultures working and connecting.",
+                "sdg": {"primary": "SDG 5 (Gender Equality)", "secondary": "SDG 10 (Reduced Inequalities)", "rationale": "Focuses on elevating the voices and visibility of marginalized women globally."},
+                "framework": {"tool": "Perspective-Taking", "habit": "Persisting (Vicarious Experience)", "inquiry": "How does empathy bridge the gap between cultures when language fails?"},
+                "stakes": {
+                    "edu": {"role": "Curriculum Designer", "concern": "Representation", "arg": "Textbooks must include diverse, female-led narratives to build student self-efficacy."},
+                    "env": {"role": "Indigenous Guide", "concern": "Cultural survival", "arg": "Photography should preserve native practices rather than exploit them for tourism."},
+                    "eco": {"role": "NGO Director", "concern": "Funding", "arg": "Empathetic photography is the most effective tool to secure global funding for women's initiatives."},
+                    "soc": {"role": "Feminist Sociologist", "concern": "Gender norms", "arg": "Visual storytelling is required to dismantle historical patriarchal stereotypes."}
+                }
+            }
+        ],
+        "Unit 2: Natural Attraction": [
+            {
+                "title": "2A: Living Light", "subject": "Marine Biology",
+                "summary": "An exploration of bioluminescence in nature, focusing on the 'bio bay' in Puerto Rico and the 'burglar alarm' effect.",
+                "facts": ["Dinoflagellates light up whenever the water around them moves.", "The 'burglar alarm' attracts a larger predator to eat the animal threatening the glowing organism."],
+                "task": "Design a biomimetic safety system for humans based on the 'Burglar Alarm' principle.",
+                "visuals": "Glowing red jellyfish; Puerto Rico's Bio Bay at night.",
+                "sdg": {"primary": "SDG 14 (Life Below Water)", "secondary": "SDG 9 (Innovation)", "rationale": "Highlights the fragility of marine ecosystems and the potential for biomimetic human innovation."},
+                "framework": {"tool": "Systems Mapping", "habit": "Responding with Wonderment and Awe", "inquiry": "Why would an animal light itself up in a pitch-black ocean full of predators?"},
+                "stakes": {
+                    "edu": {"role": "Museum Educator", "concern": "Public engagement", "arg": "Interactive light exhibits bridge the gap between dry science and human emotion."},
+                    "env": {"role": "Marine Conservationist", "concern": "Habitat destruction", "arg": "Human light pollution is disrupting ancient marine communication systems."},
+                    "eco": {"role": "Eco-Tourism Operator", "concern": "Sustainable profit", "arg": "The local economy relies entirely on keeping the bay pristine to attract viewers."},
+                    "soc": {"role": "Bio-Acoustician", "concern": "Animal intelligence", "arg": "We must recognize light flashing as a complex, living language deserving protection."}
+                }
+            },
+            {
+                "title": "2B: Feathers of Love", "subject": "Zoology",
+                "summary": "An analysis of the elaborate, evolutionary mating rituals of the Birds of Paradise in New Guinea.",
+                "facts": ["The birds' extreme plumage makes them targets for hunters.", "They are 'near threatened' due to habitat loss."],
+                "task": "Write a field guide entry convincing tourists to protect the habitat rather than buying poached feathers.",
+                "visuals": "Infographic: 'Giants of the Skies'; Images of Birds of Paradise.",
+                "sdg": {"primary": "SDG 15 (Life on Land)", "secondary": "SDG 12 (Responsible Consumption)", "rationale": "Addresses biodiversity loss driven by human poaching and deforestation."},
+                "framework": {"tool": "Analogizing", "habit": "Questioning and Posing Problems", "inquiry": "Why do species evolve 'absurd' and dangerous beauty to survive?"},
+                "stakes": {
+                    "edu": {"role": "Evolutionary Biologist", "concern": "Generational knowledge", "arg": "Animal rituals represent deep time and history equivalent to human libraries."},
+                    "env": {"role": "Habitat Restorer", "concern": "Ecosystem collapse", "arg": "Saving the birds requires saving the specific insects and trees they rely on."},
+                    "eco": {"role": "Timber Executive", "concern": "Resource extraction", "arg": "Must balance the immediate need for logging revenue with preserving the forest."},
+                    "soc": {"role": "Indigenous Leader", "concern": "Sacred traditions", "arg": "The birds are the spiritual heartbeat of the community, not just biological specimens."}
+                }
+            }
+        ],
+        "Unit 3: Food and Health": [
+            {
+                "title": "3A: How Safe is Our Food?", "subject": "Public Health",
+                "summary": "An investigation into how global food supply chains spread deadly bacteria like Salmonella and E. coli.",
+                "facts": ["Scientists use 'PulseNet' DNA analysis to track outbreaks.", "Contamination often occurs early in the production process, not in domestic kitchens."],
+                "task": "Draft a systemic policy that holds international agricultural corporations, rather than consumers, accountable for food safety.",
+                "visuals": "A medical researcher examining a blue/green sample of E. coli bacteria.",
+                "sdg": {"primary": "SDG 3 (Good Health & Well-being)", "secondary": "SDG 12 (Responsible Consumption)", "rationale": "Directly addresses the global health crisis caused by mass, unregulated food production."},
+                "framework": {"tool": "Systems Mapping", "habit": "Striving for Accuracy", "inquiry": "How does the globalized demand for out-of-season food create systemic health risks?"},
+                "stakes": {
+                    "edu": {"role": "Public Health Nutritionist", "concern": "Systemic education", "arg": "We must teach children about the supply chain, not just washing their hands."},
+                    "env": {"role": "Soil Scientist", "concern": "Pesticide runoff", "arg": "Mass farming degrades the natural soil bacteria that naturally fight E. coli."},
+                    "eco": {"role": "Global Supply Manager", "concern": "Logistics", "arg": "Fast, global shipping prioritizes shelf-life over safety, requiring a fundamental economic shift."},
+                    "soc": {"role": "Concerned Parent", "concern": "Domestic safety", "arg": "Families are unfairly blamed for illnesses that are engineered into the food before they buy it."}
+                }
+            },
+            {
+                "title": "3B: The Battle for Biotech Foods", "subject": "Biotechnology/Agriculture",
+                "summary": "A deep dive into Genetically Engineered (GE) crops, weighing innovations like Golden Rice against environmental fears.",
+                "facts": ["Rat genes have been inserted into lettuce; moth genes into apples.", "'Golden Rice' can prevent blindness but faces massive public resistance."],
+                "task": "Write a recommendation to the UN on whether a starving nation should adopt GE crops.",
+                "visuals": "Photo of a giant, 18-month-old genetically modified coho salmon.",
+                "sdg": {"primary": "SDG 2 (Zero Hunger)", "secondary": "SDG 9 (Innovation)", "rationale": "Evaluates the ethics of using advanced technology to eliminate global malnutrition."},
+                "framework": {"tool": "Ethical Reasoning", "habit": "Persisting (through complex scientific data)", "inquiry": "Do the humanitarian benefits of synthetic food outweigh the unpredictable ecological risks?"},
+                "stakes": {
+                    "edu": {"role": "Bio-Ethicist", "concern": "Scientific regulation", "arg": "We must establish moral boundaries before releasing synthetic organisms into the wild."},
+                    "env": {"role": "Biodiversity Defender", "concern": "Unintended consequences", "arg": "GE super-crops could wipe out natural plant species, collapsing local ecosystems."},
+                    "eco": {"role": "Ag-Tech Investor", "concern": "Scaling solutions", "arg": "Lab-grown food is the only mathematically viable way to feed 8 billion people."},
+                    "soc": {"role": "Global Hunger Activist", "concern": "Food equity", "arg": "Biotech must not be patented and monopolized by the wealthy; it must be free for the poor."}
+                }
+            }
+        ],
+        "Unit 4: Design and Engineering": [
+            {
+                "title": "4A: Design by Nature: Biomimetics", "subject": "Engineering/Biology",
+                "summary": "Biomimetics scientists study animal adaptations—like the thorny devil lizard and the gecko—to create new human technologies.",
+                "facts": ["The thorny devil drinks through its foot.", "Gecko feet inspired 'Stickybot.' Cockleburs inspired Velcro."],
+                "task": "Invent and pitch a new biomimetic application based on an animal's unique biological trait.",
+                "visuals": "The thorny devil lizard in water; A close-up of Velcro hooks.",
+                "sdg": {"primary": "SDG 9 (Industry, Innovation & Infrastructure)", "secondary": "SDG 11 (Sustainable Cities)", "rationale": "Champions sustainable engineering inspired by the natural world."},
+                "framework": {"tool": "Analogizing", "habit": "Creating, Imagining, Innovating", "inquiry": "How can human engineering survive by mimicking, rather than conquering, nature?"},
+                "stakes": {
+                    "edu": {"role": "STEM Teacher", "concern": "Cross-disciplinary learning", "arg": "Engineering students must study biology to find sustainable solutions."},
+                    "env": {"role": "Biomimetic Architect", "concern": "Concrete use", "arg": "We must stop fighting nature with concrete walls and start biomimicking how nature absorbs water."},
+                    "eco": {"role": "R&D Director", "concern": "Product utility", "arg": "Looking at pretty structures isn't enough; we must transform them into profitable, scalable utility."},
+                    "soc": {"role": "Disaster Relief Coordinator", "concern": "Search and rescue", "arg": "Robotic flies and geckos can navigate collapsed buildings to save trapped humans."}
+                }
+            },
+            {
+                "title": "4B: Weaving the Future", "subject": "Textile Engineering",
+                "summary": "The evolution of high-tech textiles, from Kevlar to 'smart' fabrics that monitor health and adapt to environments.",
+                "facts": ["Spider genes have been inserted into goats to produce silk milk.", "The military is developing invisible uniforms."],
+                "task": "Design a piece of 'active clothing' that addresses a specific global health or environmental crisis.",
+                "visuals": "Spider web; A smart shirt transmitting breathing data to a cell phone.",
+                "sdg": {"primary": "SDG 9 (Industry, Innovation)", "secondary": "SDG 3 (Good Health)", "rationale": "Focuses on how wearable tech can monitor and improve human health."},
+                "framework": {"tool": "Futures Thinking", "habit": "Thinking Flexibly", "inquiry": "How will 'active' technology integrated directly into our clothing alter human interaction?"},
+                "stakes": {
+                    "edu": {"role": "Fashion Designer", "concern": "Integrating tech", "arg": "The future of clothing is not passive fashion, but active utility."},
+                    "env": {"role": "Material Scientist", "concern": "Microplastics", "arg": "Synthetic polymers must be designed to be water-soluble to prevent ocean pollution."},
+                    "eco": {"role": "Supply Chain Manager", "concern": "Mass production", "arg": "Scaling smart-shirts requires completely new factory infrastructure."},
+                    "soc": {"role": "Privacy Advocate", "concern": "Data surveillance", "arg": "Shirts that monitor your heartbeat could be hacked, raising massive privacy issues."}
+                }
+            }
+        ],
+        "Unit 5: Human Journey": [
+            {
+                "title": "5A: The DNA Trail", "subject": "Genetics/Anthropology",
+                "summary": "Geneticists use DNA to trace the migration of ancient humans out of Africa to populate the globe.",
+                "facts": ["For decades, proof was only bones.", "Now, DNA proves that all seven billion humans share identical genetic ancestors."],
+                "task": "Trace specific migratory routes to prove the biological unity of the human family tree.",
+                "visuals": "Global map showing ancient human migration paths based on DNA.",
+                "sdg": {"primary": "SDG 10 (Reduced Inequalities)", "secondary": "SDG 16 (Peace & Justice)", "rationale": "Uses hard science to deconstruct racism and the artificial concept of borders."},
+                "framework": {"tool": "Pattern Recognition", "habit": "Applying Past Knowledge", "inquiry": "How does tracing our genetic past dismantle modern cultural borders?"},
+                "stakes": {
+                    "edu": {"role": "Genetic Genealogist", "concern": "Scientific literacy", "arg": "Infallible DNA data must be taught to dismantle racist cultural myths."},
+                    "env": {"role": "Anthropologist", "concern": "Climate triggers", "arg": "Ancient humans didn't migrate out of wanderlust; they were driven by severe climate shifts."},
+                    "eco": {"role": "Labor Economist", "concern": "Modern borders", "arg": "We accept ancient migration but criminalize modern economic migrants."},
+                    "soc": {"role": "Sociologist", "concern": "Inherited prejudice", "arg": "Genetic science proves that rigid national identities are dangerous social inventions."}
+                }
+            },
+            {
+                "title": "5B: The Nomadic Life (Hardwired to Explore)", "subject": "Genetics/Psychology",
+                "summary": "Explores whether the DRD4-7R gene, linked to dopamine and restlessness, is the biological driver of human exploration.",
+                "facts": ["The 7R variant is carried by 20% of humans.", "Linked to taking risks and craving 'new things.'"],
+                "task": "Argue how the 'restless gene' can be redirected from passive digital scrolling toward active real-world mastery.",
+                "visuals": "An astronaut in a module compared to ancient human explorers.",
+                "sdg": {"primary": "SDG 3 (Good Health - Mental Well-being)", "secondary": "SDG 4 (Quality Education)", "rationale": "Connects biological dopamine drives to modern learning and behavioral addiction."},
+                "framework": {"tool": "Abstracting", "habit": "Metacognition", "inquiry": "Is the modern obsession with digital novelty a hijacking of our ancient survival instincts?"},
+                "stakes": {
+                    "edu": {"role": "Cognitive Psychologist", "concern": "Attention spans", "arg": "The brain's drive for novelty is being hijacked by 'cheap dopamine' from screens."},
+                    "env": {"role": "Deep Sea Explorer", "concern": "The final frontiers", "arg": "The urge to explore must be channeled into understanding the deep ocean, not just space."},
+                    "eco": {"role": "Behavioral Marketer", "concern": "Consumer triggers", "arg": "Corporations exploit the 7R gene to keep users addicted to buying new products."},
+                    "soc": {"role": "Modern Youth", "concern": "Digital isolation", "arg": "Our biological need for 'adventure' is being trapped inside sterile digital rooms."}
+                }
+            }
+        ],
+        "Unit 6: Money and Trade": [
+            {
+                "title": "6A: How Money Made Us Modern", "subject": "History/Economics",
+                "summary": "Traces the evolution of money from 9,500-year-old Sumerian clay tokens to the modern abstraction of credit cards.",
+                "facts": ["Early accounting tools (tokens) evolved into money.", "Money is a symbolic representation of value."],
+                "task": "Evaluate the psychological impact of moving from physical cash to invisible digital transactions.",
+                "visuals": "Ancient Sumerian clay tokens; A customer in Sweden paying with a phone app.",
+                "sdg": {"primary": "SDG 8 (Decent Work & Economic Growth)", "secondary": "SDG 10 (Reduced Inequalities)", "rationale": "Examines the foundation of financial systems that drive global wealth and disparity."},
+                "framework": {"tool": "Systems Mapping", "habit": "Thinking Interdependently", "inquiry": "How did the abstraction of value separate human labor from its physical reality?"},
+                "stakes": {
+                    "edu": {"role": "Economic Historian", "concern": "Financial literacy", "arg": "Understanding the origin of money prevents people from being manipulated by it today."},
+                    "env": {"role": "Resource Economist", "concern": "Abstracting nature", "arg": "When money became a symbol, we forgot that it represents the physical destruction of the Earth."},
+                    "eco": {"role": "Banking Policy Maker", "concern": "Cashless transitions", "arg": "Eliminating cash reduces tax cheats and crime, improving national economies."},
+                    "soc": {"role": "Privacy Rights Advocate", "concern": "Tracking", "arg": "A cashless society allows governments to track every single transaction a citizen makes."}
+                }
+            },
+            {
+                "title": "6B: The Rise of Virtual Money", "subject": "Technology/Economics",
+                "summary": "An exploration of Bitcoin and cryptocurrencies, operating on blockchain networks without central banks.",
+                "facts": ["Satoshi Nakamoto invented Bitcoin.", "Transactions are verified by a global network, bypassing traditional middlemen."],
+                "task": "Debate whether you would accept your salary in Bitcoin, weighing technological freedom against extreme volatility.",
+                "visuals": "3D Prompt: A pickaxe shattering a rock wall into glowing green binary code.",
+                "sdg": {"primary": "SDG 9 (Industry & Innovation)", "secondary": "SDG 16 (Strong Institutions)", "rationale": "Evaluates how blockchain challenges the power of traditional global banking institutions."},
+                "framework": {"tool": "Dimensional Thinking", "habit": "Questioning and Posing Problems", "inquiry": "Can decentralized technology remove corruption, or does it just create new types of inequality?"},
+                "stakes": {
+                    "edu": {"role": "Tech Educator", "concern": "Digital literacy", "arg": "Students must understand blockchain, as it will rewrite the rules of global contracts."},
+                    "env": {"role": "Energy Analyst", "concern": "Carbon footprint", "arg": "'Mining' virtual currency requires massive, unsustainable amounts of electricity."},
+                    "eco": {"role": "Venture Capitalist", "concern": "Market volatility", "arg": "Crypto is an asset class that removes borders but introduces terrifying financial risk."},
+                    "soc": {"role": "Law Enforcement Agent", "concern": "Anonymous crime", "arg": "Decentralized money initially provided cover for illegal drug and weapon markets (Silk Road)."}
+                }
+            }
+        ],
+        "Unit 7: Group Behavior": [
+            {
+                "title": "7A: A Crowd in Harmony", "subject": "Sociology/Psychology",
+                "summary": "Analyzes the Kumbh Mela festival on the Ganges River, where tens of millions gather peacefully without panic.",
+                "facts": ["Research shows that being part of a unified physical crowd can reduce anxiety and pain by 10%."],
+                "task": "Contrast the psychological health of physical community gatherings with the isolation of digital networks.",
+                "visuals": "Tens of millions of people bathing in the Ganges River.",
+                "sdg": {"primary": "SDG 3 (Good Health & Well-being)", "secondary": "SDG 11 (Sustainable Communities)", "rationale": "Proves scientifically that physical human connection and shared purpose improve mental health."},
+                "framework": {"tool": "Collaborative Sense-making", "habit": "Listening with Empathy", "inquiry": "Why do some massive crowds result in violence while others create profound peace?"},
+                "stakes": {
+                    "edu": {"role": "Behavioral Scientist", "concern": "Crowd psychology", "arg": "We must study peaceful crowds to understand how shared identity suppresses panic."},
+                    "env": {"role": "River Ecologist", "concern": "Pollution", "arg": "Mass religious bathing introduces immense pollution to already strained water systems."},
+                    "eco": {"role": "Urban Planner", "concern": "Infrastructure", "arg": "Designing spaces for massive human flow without injury requires advanced logistical engineering."},
+                    "soc": {"role": "Religious Pilgrim", "concern": "Spiritual purpose", "arg": "The harmony exists because the crowd shares a sacred goal, not an aggressive one."}
+                }
+            },
+            {
+                "title": "7B: Our Online Behavior", "subject": "Cyber-Psychology",
+                "summary": "Examines the rise of online hostility, citing studies that anonymity provides cover for nasty, harassing behavior.",
+                "facts": ["A Pew study found 4 out of 10 people experienced online harassment.", "The internet fuels 'neurobiological' aggression."],
+                "task": "Design an ethical algorithm that forces users to pause and verify humanity before posting a hostile comment.",
+                "visuals": "A person holding a smartphone on a city street.",
+                "sdg": {"primary": "SDG 16 (Peace & Justice)", "secondary": "SDG 3 (Mental Health)", "rationale": "Addresses the psychological trauma caused by unregulated digital aggression."},
+                "framework": {"tool": "Ethical Reasoning", "habit": "Managing Impulsivity", "inquiry": "Does the anonymity of the Internet unlock our natural cruelty, or does it just amplify existing societal flaws?"},
+                "stakes": {
+                    "edu": {"role": "Digital Wellness Coach", "concern": "Cyberbullying", "arg": "We must teach the cognitive act of pausing to break engineered dopamine loops of outrage."},
+                    "env": {"role": "Attention Ecologist", "concern": "Information pollution", "arg": "Toxic digital environments pollute our mental space just as smog pollutes the air."},
+                    "eco": {"role": "Social Media CEO", "concern": "Platform metrics", "arg": "Algorithms are mathematically designed to reward outrage because anger generates the most ad clicks."},
+                    "soc": {"role": "'Echo Chamber' User", "concern": "Tribalism", "arg": "The internet destroys nuance, forcing users to attack anyone outside their digital tribe."}
+                }
+            }
+        ],
+        "Unit 8: Investigations": [
+            {
+                "title": "8A: A Murder Mystery (Ancient Poisoning)", "subject": "History/Forensics",
+                "summary": "Uses forensic evidence to investigate historical deaths, focusing on whether ancient figures were assassinated by poison.",
+                "facts": ["Toxicological analysis of ancient remains can reveal long-hidden political plots and betrayals."],
+                "task": "Reconstruct an ancient crime scene strictly using biological data, stripping away romanticized myths.",
+                "visuals": "An archeological dig site/ancient artifacts.",
+                "sdg": {"primary": "SDG 16 (Peace, Justice & Strong Institutions)", "secondary": "SDG 4 (Quality Education)", "rationale": "Demonstrates that the pursuit of truth and justice transcends time."},
+                "framework": {"tool": "Deductive Reasoning", "habit": "Striving for Accuracy", "inquiry": "How does modern science rewrite the political mythology of the ancient world?"},
+                "stakes": {
+                    "edu": {"role": "Forensic Historian", "concern": "Historical truth", "arg": "We must separate historical romance from cold biological facts to understand the past."},
+                    "env": {"role": "Archaeobotanist", "concern": "Ancient toxins", "arg": "Ancient assassins utilized deep knowledge of local toxic plant ecosystems to kill."},
+                    "eco": {"role": "Antiquities Tourism Director", "concern": "Site exploitation", "arg": "Marketing ancient tragedy for modern profit requires strict ethical boundaries."},
+                    "soc": {"role": "Modern Detective", "concern": "Human nature", "arg": "The mechanics of greed and political assassination remain identical from ancient times to today."}
+                }
+            },
+            {
+                "title": "8B: In the Crime Lab", "subject": "Forensic Science/Toxicology",
+                "summary": "Profiles toxicology experts using tools like mass spectrometry to detect poisons in homicide investigations.",
+                "facts": ["Marcella Fierro inspired the Kay Scarpetta novels.", "Mass spectrometry identifies exact chemical signatures in victims."],
+                "task": "Trace the exact logical 'Chain of Evidence' required to prove a murder in a court of law.",
+                "visuals": "A member of the scientific police gathering evidence at a crime scene in Lyon, France.",
+                "sdg": {"primary": "SDG 16 (Peace, Justice & Strong Institutions)", "secondary": "SDG 3 (Good Health)", "rationale": "Highlights the role of incorruptible science in upholding the rule of law."},
+                "framework": {"tool": "Schematizing", "habit": "Persisting (through complex data)", "inquiry": "How does absolute scientific precision combat human manipulation in the justice system?"},
+                "stakes": {
+                    "edu": {"role": "Criminology Professor", "concern": "Scientific rigor", "arg": "Students must learn that forensic science is slow, tedious work, not a 60-minute TV show."},
+                    "env": {"role": "Chemical Analyst", "concern": "Chemical tracing", "arg": "We must map how invisible synthetic chemicals interact with human biology."},
+                    "eco": {"role": "Lab Director", "concern": "Funding constraints", "arg": "Justice is delayed when state labs are underfunded and backlogged."},
+                    "soc": {"role": "Defense Attorney", "concern": "Manipulated evidence", "arg": "Even the best science can lead to false convictions if the chain of custody is broken."}
+                }
+            }
+        ],
+        "Unit 9: Rediscovering the Past": [
+            {
+                "title": "9A: Virtually Immortal", "subject": "Archeology/Technology",
+                "summary": "Archeologists use lasers to create a precise 3D digital model of Rani ki Vav (the Queen's Stepwell) in India.",
+                "facts": ["Lasers measure reflectivity to build digital models, ensuring the site survives virtually if destroyed by floods or war."],
+                "task": "Defend the funding of a massive digital preservation project for a site threatened by climate change.",
+                "visuals": "The stunning Rani ki Vav stepwell; digital rendering software interface.",
+                "sdg": {"primary": "SDG 11 (Sustainable Cities & Communities - Heritage)", "secondary": "SDG 9 (Innovation)", "rationale": "Employs cutting-edge tech to safeguard human cultural heritage from destruction."},
+                "framework": {"tool": "Visualizing (TPACK)", "habit": "Responding with Wonderment and Awe", "inquiry": "Can digital simulation truly preserve the 'soul' of a physical historical site?"},
+                "stakes": {
+                    "edu": {"role": "Digital Archivist", "concern": "Future access", "arg": "Creating 3D models allows global students to experience heritage without damaging the physical site."},
+                    "env": {"role": "Heritage Preservationist", "concern": "Climate threats", "arg": "Ancient monuments are defenseless against the rising threat of extreme floods and weather."},
+                    "eco": {"role": "Tourism Minister", "concern": "Revenue vs. Preservation", "arg": "Virtual tourism could monetize a site without the physical wear-and-tear of human footsteps."},
+                    "soc": {"role": "Local Artisan", "concern": "Loss of craft", "arg": "A laser scan captures the shape, but it cannot capture the physical struggle and soul of the stonemason who carved it."}
+                }
+            },
+            {
+                "title": "9B: Lure of the Lost City", "subject": "Archeology/Geography",
+                "summary": "Explorers use Lidar (laser pulses from aircraft) to map the jungle canopy of Honduras and find the legendary Ciudad Blanca.",
+                "facts": ["Lidar bounces hundreds of thousands of laser pulses to 'see through' the jungle, mapping ruins without cutting down trees."],
+                "task": "Explain how Lidar revolutionizes exploration, shifting it from 'conquering' nature to 'reading' it.",
+                "visuals": "Infographic showing how Lidar reflects off the canopy to map ruins below.",
+                "sdg": {"primary": "SDG 15 (Life on Land)", "secondary": "SDG 9 (Innovation)", "rationale": "Promotes non-invasive exploration that protects fragile rainforest ecosystems."},
+                "framework": {"tool": "Dimensional Thinking", "habit": "Taking Responsible Risks", "inquiry": "How does modern technology allow us to discover the past without destroying the present?"},
+                "stakes": {
+                    "edu": {"role": "Archeology Professor", "concern": "Methodological shifts", "arg": "We must teach students that modern discovery requires data analysis, not just a machete."},
+                    "env": {"role": "Rainforest Ecologist", "concern": "Canopy preservation", "arg": "Lidar is revolutionary because it allows us to map human history without bulldozing biological habitats."},
+                    "eco": {"role": "Drone Manufacturer", "concern": "Tech application", "arg": "The tools developed for the military can be highly profitable when repurposed for scientific mapping."},
+                    "soc": {"role": "Indigenous Descendant", "concern": "Looting", "arg": "Finding the 'lost city' is dangerous; publicizing its location invites looters to destroy our ancestors' graves."}
+                }
+            }
+        ],
+        "Unit 10: Healthy Living": [
+            {
+                "title": "10A: Living Longer", "subject": "Health/Genetics",
+                "summary": "Scientists study the DNA of isolated communities (the 'wellderly') to understand why some people avoid the illnesses of old age.",
+                "facts": ["People with Laron syndrome have stunted growth but are virtually immune to cancer and diabetes due to a genetic mutation."],
+                "task": "Debate the ethical implications of using gene editing to artificially extend the human lifespan.",
+                "visuals": "3D Prompt: Microscopic nanobots repairing frayed strands of human DNA.",
+                "sdg": {"primary": "SDG 3 (Good Health & Well-being)", "secondary": "SDG 10 (Reduced Inequalities)", "rationale": "Investigates the biological keys to healthy aging and disease prevention."},
+                "framework": {"tool": "Pattern Recognition", "habit": "Striving for Accuracy", "inquiry": "Will hacking our DNA to cure aging destroy the natural cycle of human life?"},
+                "stakes": {
+                    "edu": {"role": "Genetic Researcher", "concern": "Disease prevention", "arg": "Finding the specific DNA markers for longevity is the key to curing cancer."},
+                    "env": {"role": "Population Ecologist", "concern": "Resource strain", "arg": "Artificially extending human lifespans will completely collapse the Earth's carrying capacity."},
+                    "eco": {"role": "Pharmaceutical CEO", "concern": "Monetizing genetics", "arg": "Anti-aging drugs will be the most profitable commodity in the history of medicine."},
+                    "soc": {"role": "Bio-Ethicist", "concern": "The 'Wellderly' divide", "arg": "Genetic treatments for aging will only be available to the ultra-rich, creating a biological class divide."}
+                }
+            },
+            {
+                "title": "10B: In Search of Longevity", "subject": "Health/Lifestyle",
+                "summary": "Examines 'Blue Zones' (Sardinia, Okinawa, Loma Linda) where people routinely live to 100 due to healthy habits.",
+                "facts": ["Seventh-Day Adventists in Loma Linda live longer due to plant-based diets and sacred days of rest (socializing/stress relief)."],
+                "task": "Draft a 'Blue Zone' intervention for a highly stressed, digitally addicted urban school.",
+                "visuals": "An 81-year-old woman taking a cognitive and mobility test on a sensor carpet.",
+                "sdg": {"primary": "SDG 3 (Good Health & Well-being)", "secondary": "SDG 11 (Sustainable Communities)", "rationale": "Proves that community support, plant-based diets, and physical activity dictate health."},
+                "framework": {"tool": "Systems Mapping", "habit": "Thinking Interdependently", "inquiry": "Is extreme longevity the result of medical technology or simple, low-tech human connection?"},
+                "stakes": {
+                    "edu": {"role": "Physical Therapist", "concern": "Mobility", "arg": "Continuous, low-intensity movement throughout the day is better than sitting for 10 hours and hitting the gym for one."},
+                    "env": {"role": "Urban Planner", "concern": "Walkability", "arg": "Cities must be designed to force people to walk and interact, mimicking the geography of Blue Zones."},
+                    "eco": {"role": "Healthcare Economist", "concern": "Chronic disease costs", "arg": "Preventive lifestyle habits save billions of dollars compared to treating chronic, end-of-life diseases."},
+                    "soc": {"role": "Community Leader", "concern": "Elder isolation", "arg": "The true secret to living to 100 is feeling necessary and connected to a physical community, not a digital one."}
+                }
+            }
+        ],
+        "Unit 11: Green Solutions": [
+            {
+                "title": "11A: Saving Water", "subject": "Environmental Science",
+                "summary": "Focuses on global water scarcity and innovative conservation efforts in places like South Africa (Durban).",
+                "facts": ["2.1 billion people drink unsafe water.", "In Durban, wastewater is safely recycled into clean drinking water in just 12 hours."],
+                "task": "Pitch a wastewater recycling plant to a skeptical public by explaining the 'soft path' of water conservation.",
+                "visuals": "A hollowed-out Baobab tree used for storing water; women drawing water from a desert well.",
+                "sdg": {"primary": "SDG 6 (Clean Water & Sanitation)", "secondary": "SDG 13 (Climate Action)", "rationale": "Addresses the urgent crisis of water scarcity and the necessity of sustainable infrastructure."},
+                "framework": {"tool": "Systems Mapping", "habit": "Applying Past Knowledge to New Situations", "inquiry": "How do we balance human economic expansion with the finite natural systems that sustain life?"},
+                "stakes": {
+                    "edu": {"role": "Conservation Educator", "concern": "Public perception", "arg": "We must overcome the psychological 'yuck factor' of drinking recycled wastewater through scientific education."},
+                    "env": {"role": "Wetlands Ecologist", "concern": "Aquifer depletion", "arg": "Pumping water faster than it replenishes turns vibrant rivers into dead, moon-like landscapes."},
+                    "eco": {"role": "Municipal Engineer", "concern": "Infrastructure repair", "arg": "Fixing leaky pipes is a cheaper, more effective solution than building massive, destructive new dams."},
+                    "soc": {"role": "Rural Farmer", "concern": "Livelihood", "arg": "Illegal well-digging by massive agricultural corporations destroys the water table that small farmers rely on to survive."}
+                }
+            },
+            {
+                "title": "11B: Technology As Trash", "subject": "Environmental Science",
+                "summary": "Exposes the crisis of 'e-waste' dumped in Ghana, and highlights Australia's 'microfactories' as a circular economy solution.",
+                "facts": ["Children in Ghana burn plastic off computer wires, inhaling toxic gas.", "Microfactories use robots to safely extract valuable metals."],
+                "task": "Design a GRASPS proposal for your local school board to ethically process their obsolete iPads instead of throwing them away.",
+                "visuals": "E-waste market in Ghana; A microfactory robotic arm disassembling smartphones.",
+                "sdg": {"primary": "SDG 12 (Responsible Consumption & Production)", "secondary": "SDG 8 (Decent Work)", "rationale": "Confronts the toxic aftermath of digital consumption and proposes sustainable industrial solutions."},
+                "framework": {"tool": "Ethical Reasoning", "habit": "Thinking Flexibly", "inquiry": "Who pays the hidden, deadly price for our addiction to upgrading technology?"},
+                "stakes": {
+                    "edu": {"role": "Environmental Chemist", "concern": "Toxic exposure", "arg": "We must scientifically map how the lead and copper from discarded computers physically poisons children."},
+                    "env": {"role": "Circular Economy Advocate", "concern": "Landfill waste", "arg": "It is no longer possible to 'throw things away'; waste must be transitioned into reusable raw material."},
+                    "eco": {"role": "Microfactory Entrepreneur", "concern": "Local processing", "arg": "Decentralized, local recycling facilities are highly profitable and eliminate the need to ship toxic waste overseas."},
+                    "soc": {"role": "E-waste Worker", "concern": "Survival vs. Health", "arg": "Workers sacrifice their lungs to extract copper because the global economy offers them no other way to survive."}
+                }
+            }
+        ],
+        "Unit 12: Earth and Beyond": [
+            {
+                "title": "12A: Planet Hunters", "subject": "Astronomy",
+                "summary": "Astronomers use advanced telescopes to find exoplanets in the 'habitable zone' where liquid water could exist.",
+                "facts": ["Kepler-186f is an Earth-size planet that could potentially hold water, though we do not know its exact composition."],
+                "task": "Analyze data from a newly discovered exoplanet, strictly differentiating between proven physics and romantic speculation.",
+                "visuals": "Infographic mapping 'Exoplanet Temperatures' based on distance from their stars.",
+                "sdg": {"primary": "SDG 9 (Innovation)", "secondary": "SDG 4 (Quality Education)", "rationale": "Highlights the peak of human technological achievement in mapping the cosmos."},
+                "framework": {"tool": "Dimensional Thinking", "habit": "Striving for Accuracy", "inquiry": "Does finding another Earth diminish the unique sacredness of our own planet?"},
+                "stakes": {
+                    "edu": {"role": "Astrophysicist", "concern": "Data accuracy", "arg": "We must separate the sensational media headlines of 'alien life' from the cold, hard atmospheric data."},
+                    "env": {"role": "Earth-First Advocate", "concern": "Escapism", "arg": "Dreaming of colonizing Kepler-186f is a dangerous distraction from saving the dying planet we already live on."},
+                    "eco": {"role": "Telescope Engineer", "concern": "Funding", "arg": "The massive financial cost of space observation yields optical technologies that eventually benefit earth-bound industries."},
+                    "soc": {"role": "Philosopher", "concern": "Human significance", "arg": "Discovering we are not alone in the universe will completely shatter and rebuild human religious and social structures."}
+                }
+            },
+            {
+                "title": "12B: The Threat from Space", "subject": "Astronomy/Physics",
+                "summary": "Scientists track the trajectory of Asteroid Apophis, calculating the odds of a catastrophic collision with Earth in 2029.",
+                "facts": ["Apophis is bigger than a sports arena.", "A collision would be equivalent to thousands of atomic weapons."],
+                "task": "Draft a collaborative, international 'deflection scenario' requiring rival nations to share technology.",
+                "visuals": "A digital rendering of a fiery asteroid hitting a major coastal city.",
+                "sdg": {"primary": "SDG 17 (Partnerships for the Goals)", "secondary": "SDG 9 (Innovation)", "rationale": "Proves that existential threats require absolute global cooperation and shared technology."},
+                "framework": {"tool": "Futures Thinking", "habit": "Thinking Interdependently", "inquiry": "How do we coordinate a unified global defense against an apocalyptic threat?"},
+                "stakes": {
+                    "edu": {"role": "Astronomy Teacher", "concern": "Scale comprehension", "arg": "We must use analogies to help the public understand the unimaginable kinetic energy of a space impact."},
+                    "env": {"role": "Planetary Defender", "concern": "Extinction events", "arg": "The Earth's biosphere is utterly defenseless against cosmic impacts unless humans intervene."},
+                    "eco": {"role": "Space Mining CEO", "concern": "Resource capture", "arg": "The technology built to deflect an asteroid can also be used to capture it and mine it for trillions of dollars in rare metals."},
+                    "soc": {"role": "UN Treaty Negotiator", "concern": "Global collaboration", "arg": "We must establish international laws now so rival nations don't fight over who controls the weapon meant to deflect the asteroid."}
+                }
+            }
+        ]
+    };
+
+    function renderTree() {
+        const root = document.getElementById('treeRoot');
+        let html = '<ul>';
+        for (const [unit, readings] of Object.entries(curriculumData)) {
+            html += `<li><div class="node sdg" onclick="toggleNode(this)"><span class="node-icon">📚</span>${unit}</div><ul>`;
+            readings.forEach((r, idx) => {
+                const rNum = idx === 0 ? "A" : "B";
+                html += `<li><div class="node tool" onclick="openModal('${unit}', ${idx})"><span class="node-icon">📄</span>${rNum}: ${r.title}</div></li>`;
+            });
+            html += `</ul></li>`;
+        }
+        html += '</ul>';
+        root.innerHTML = html;
+    }
+
+    function openModal(unit, idx) {
+        const data = curriculumData[unit][idx];
+        document.getElementById('modalTitle').innerText = `${unit} - ${data.title}`;
+        document.getElementById('modalSubtitle').innerText = `${data.subject} | ${data.sdg.primary}`;
+        
+        // Overview
+        document.getElementById('readSummary').innerText = data.summary;
+        document.getElementById('keyFacts').innerHTML = data.facts.map(f => `<li>${f}</li>`).join('');
+        document.getElementById('critTask').innerText = data.task;
+        document.getElementById('visElements').innerText = data.visuals;
+        
+        // Inquiry
+        document.getElementById('cogTool').innerText = data.framework.tool;
+        document.getElementById('cogHabit').innerText = data.framework.habit;
+        document.getElementById('coreInquiry').innerText = data.framework.inquiry;
+        document.getElementById('sdgPrimary').innerText = data.sdg.primary;
+        document.getElementById('sdgSecondary').innerText = data.sdg.secondary;
+        document.getElementById('sdgRationale').innerText = data.sdg.rationale;
+        
+        // Stakeholders
+        document.getElementById('stakeEduRole').innerText = data.stakes.edu.role;
+        document.getElementById('stakeEduConcern').innerText = data.stakes.edu.concern;
+        document.getElementById('stakeEduArg').innerText = data.stakes.edu.arg;
+        document.getElementById('stakeEnvRole').innerText = data.stakes.env.role;
+        document.getElementById('stakeEnvConcern').innerText = data.stakes.env.concern;
+        document.getElementById('stakeEnvArg').innerText = data.stakes.env.arg;
+        document.getElementById('stakeEcoRole').innerText = data.stakes.eco.role;
+        document.getElementById('stakeEcoConcern').innerText = data.stakes.eco.concern;
+        document.getElementById('stakeEcoArg').innerText = data.stakes.eco.arg;
+        document.getElementById('stakeSocRole').innerText = data.stakes.soc.role;
+        document.getElementById('stakeSocConcern').innerText = data.stakes.soc.concern;
+        document.getElementById('stakeSocArg').innerText = data.stakes.soc.arg;
+
+        document.getElementById('detailModal').style.display = "block";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+
+    function openTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function toggleNode(el) {
+        el.style.transform = "scale(1.05)";
+        setTimeout(() => el.style.transform = "scale(1)", 200);
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('detailModal')) closeModal();
+    }
+
+    renderTree();
+</script>
+</body>
+</html>
