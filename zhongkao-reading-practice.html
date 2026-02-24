@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中考英语阅读练习 | Zhongkao Reading</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f5f5f5; padding: 10px; line-height: 1.6; }
+        .wechat-banner { background: linear-gradient(135deg, #07c160 0%, #06ad56 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; display: none; box-shadow: 0 2px 10px rgba(7,193,96,0.3); }
+        .wechat-banner.show { display: block; }
+        .wechat-banner h3 { font-size: 16px; margin-bottom: 8px; }
+        .wechat-banner p { font-size: 13px; opacity: 0.9; }
+        .container { max-width: 100%; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .progress-bar { background: #fff; padding: 12px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .progress-text { font-weight: bold; color: #2c3e50; font-size: 14px; }
+        .timer { font-size: 14px; color: #e74c3c; font-weight: bold; }
+        .passage-section { padding: 15px; display: none; }
+        .passage-section.active { display: block; }
+        .passage-title { color: #2980b9; font-size: 18px; margin-bottom: 12px; font-weight: bold; }
+        .passage-text { background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 4px solid #2980b9; margin-bottom: 20px; font-size: 16px; line-height: 1.7; color: #333; }
+        .question-box { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+        .question-text { font-size: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .options { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+        @media (max-width: 500px) { .options { grid-template-columns: 1fr; } }
+        .option-btn { padding: 10px; border: 1px solid #3498db; background: white; border-radius: 4px; cursor: pointer; font-size: 14px; text-align: left; }
+        .option-btn:active { background: #ebf5fb; }
+        .option-btn.correct { background: #27ae60; border-color: #27ae60; color: white; }
+        .option-btn.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        .feedback { margin-top: 8px; padding: 8px; border-radius: 4px; display: none; font-size: 13px; }
+        .feedback.correct { background: #d4edda; border: 1px solid #27ae60; color: #155724; }
+        .feedback.incorrect { background: #f8d7da; border: 1px solid #e74c3c; color: #721c24; }
+        .speaking-section { background: #2c3e50; color: #ffffff; padding: 15px; border-radius: 6px; margin-top: 20px; display: none; }
+        .speaking-section.active { display: block; }
+        .speaking-title { font-size: 16px; margin-bottom: 8px; font-weight: bold; color: #f1c40f; }
+        .speaking-questions { list-style: none; padding-left: 5px; }
+        .speaking-questions li { padding: 6px 0; border-bottom: 1px solid #34495e; font-size: 14px; }
+        .speaking-questions li:last-child { border-bottom: none; }
+        .navigation { padding: 12px 15px; background: #f8f9fa; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; }
+        .nav-btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; }
+        .nav-btn.prev { background: #95a5a6; }
+        .nav-btn.next { background: #2980b9; }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .score-section { text-align: center; padding: 30px 15px; display: none; }
+        .score-section.active { display: block; }
+        .score-circle { width: 100px; height: 100px; border-radius: 50%; background: #27ae60; color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px; }
+        .score-message { font-size: 20px; color: #2c3e50; margin-bottom: 12px; }
+        .score-details { color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }
+        .result-actions { display: flex; gap: 8px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+        .action-btn { padding: 10px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; }
+        .btn-copy { background: #3498db; }
+        .btn-restart { background: #e74c3c; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #2c3e50; color: white; padding: 10px 20px; border-radius: 4px; display: none; z-index: 1000; font-size: 14px; }
+        .question-counter { background: #3498db; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 6px; }
+        .passage-complete { background: #27ae60; color: white; padding: 4px 8px; border-radius: 3px; font-size: 11px; margin-left: 8px; display: none; }
+        .passage-complete.visible { display: inline-block; }
+    </style>
+</head>
+<body>
+
+<div class="wechat-banner" id="wechat-banner">
+    <h3>📱 温馨提示</h3>
+    <p>微信浏览器可能限制部分功能<br>建议点击右上角 ··· 选择在浏览器中打开</p>
+</div>
+
+<div class="container">
+    <div class="progress-bar">
+        <span class="progress-text">Passage: <span id="passage-num">1</span>/5 <span class="passage-complete" id="passage-complete">✓</span> | Q: <span id="q-num">0</span>/20</span>
+        <span class="timer" id="timer">⏱ 00:00</span>
+    </div>
+
+    <!-- Passage 1 -->
+    <div class="passage-section active" data-passage="1">
+        <h2 class="passage-title">Passage A: School Clubs</h2>
+        <div class="passage-text">
+            <p>Welcome to our school club fair! Here are four popular clubs looking for new members.</p>
+            <p><strong>Robotics Club:</strong> Mon & Thu, 4:00-5:30 PM. Build robots; coding practice. Grades 7-9; no experience needed.</p>
+            <p><strong>Chinese Calligraphy:</strong> Tue, 3:30-5:00 PM. Learn brush techniques; write poems. All levels; materials provided.</p>
+            <p><strong>Eco-Warriors:</strong> Wed, 4:00-5:00 PM. Campus recycling; tree planting. Anyone who cares about nature.</p>
+            <p><strong>Drama Stage:</strong> Fri, 3:30-5:30 PM. Act in plays; learn stage skills. Must attend ≥80% of practices.</p>
+            <p><strong>Sign up:</strong> Visit www.sunshineschool.edu/clubs → Submit by <strong>March 20</strong>. First meeting: March 25.</p>
+        </div>
+        <div class="question-box" id="qbox-1"><p class="question-text"><span class="question-counter">Q1</span>Which club teaches brush writing?</p><div class="options"><button class="option-btn" onclick="checkAnswer(1, 'A', this)">A. Robotics Club</button><button class="option-btn" onclick="checkAnswer(1, 'B', this)">B. Chinese Calligraphy</button><button class="option-btn" onclick="checkAnswer(1, 'C', this)">C. Drama Stage</button><button class="option-btn" onclick="checkAnswer(1, 'D', this)">D. Eco-Warriors</button></div><div class="feedback" id="feedback-1"></div></div>
+        <div class="question-box" id="qbox-2"><p class="question-text"><span class="question-counter">Q2</span>When is the registration deadline?</p><div class="options"><button class="option-btn" onclick="checkAnswer(2, 'A', this)">A. March 20</button><button class="option-btn" onclick="checkAnswer(2, 'B', this)">B. March 25</button><button class="option-btn" onclick="checkAnswer(2, 'C', this)">C. April 1</button><button class="option-btn" onclick="checkAnswer(2, 'D', this)">D. Every Friday</button></div><div class="feedback" id="feedback-2"></div></div>
+        <div class="question-box" id="qbox-3"><p class="question-text"><span class="question-counter">Q3</span>Which club needs 80% attendance?</p><div class="options"><button class="option-btn" onclick="checkAnswer(3, 'A', this)">A. Robotics Club</button><button class="option-btn" onclick="checkAnswer(3, 'B', this)">B. Chinese Calligraphy</button><button class="option-btn" onclick="checkAnswer(3, 'C', this)">C. Drama Stage</button><button class="option-btn" onclick="checkAnswer(3, 'D', this)">D. Eco-Warriors</button></div><div class="feedback" id="feedback-3"></div></div>
+        <div class="question-box" id="qbox-4"><p class="question-text"><span class="question-counter">Q4</span>Who can join Robotics Club?</p><div class="options"><button class="option-btn" onclick="checkAnswer(4, 'A', this)">A. Only Grade 9</button><button class="option-btn" onclick="checkAnswer(4, 'B', this)">B. Experience needed</button><button class="option-btn" onclick="checkAnswer(4, 'C', this)">C. Grades 7-9, no experience</button><button class="option-btn" onclick="checkAnswer(4, 'D', this)">D. Teachers only</button></div><div class="feedback" id="feedback-4"></div></div>
+        <div class="speaking-section" id="speaking-1"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. Which club would YOU join? Why?</li><li>2. What skills do you want to learn?</li></ul></div>
+    </div>
+
+    <!-- Passage 2 -->
+    <div class="passage-section" data-passage="2">
+        <h2 class="passage-title">Passage B: Paper-Cutting</h2>
+        <div class="passage-text">
+            <p>Last winter, my grandmother taught me <em>jianzhi</em>—Chinese paper-cutting. "It carries wishes for good luck," she said.</p>
+            <p>I chose a red butterfly pattern. "Cut slowly," Grandma reminded me. "Let your hands follow your heart."</p>
+            <p>My first cut was too deep. The wing tore. "Try again," Grandma smiled. "Mistakes are part of learning."</p>
+            <p>I tried again. This time, I focused. The butterfly took shape—a <strong>delicate</strong> red butterfly, wings spread wide.</p>
+            <p>I learned patience. I learned traditions connect us to loved ones.</p>
+        </div>
+        <div class="question-box" id="qbox-5"><p class="question-text"><span class="question-counter">Q5</span>What does paper-cutting carry?</p><div class="options"><button class="option-btn" onclick="checkAnswer(5, 'A', this)">A. Money</button><button class="option-btn" onclick="checkAnswer(5, 'B', this)">B. Good luck wishes</button><button class="option-btn" onclick="checkAnswer(5, 'C', this)">C. Homework</button><button class="option-btn" onclick="checkAnswer(5, 'D', this)">D. Pictures</button></div><div class="feedback" id="feedback-5"></div></div>
+        <div class="question-box" id="qbox-6"><p class="question-text"><span class="question-counter">Q6</span>What happened on the first try?</p><div class="options"><button class="option-btn" onclick="checkAnswer(6, 'A', this)">A. Perfect</button><button class="option-btn" onclick="checkAnswer(6, 'B', this)">B. Scissors broke</button><button class="option-btn" onclick="checkAnswer(6, 'C', this)">C. Wing tore</button><button class="option-btn" onclick="checkAnswer(6, 'D', this)">D. Grandma stopped</button></div><div class="feedback" id="feedback-6"></div></div>
+        <div class="question-box" id="qbox-7"><p class="question-text"><span class="question-counter">Q7</span>What does "delicate" mean?</p><div class="options"><button class="option-btn" onclick="checkAnswer(7, 'A', this)">A. Large</button><button class="option-btn" onclick="checkAnswer(7, 'B', this)">B. Fine and beautiful</button><button class="option-btn" onclick="checkAnswer(7, 'C', this)">C. Heavy</button><button class="option-btn" onclick="checkAnswer(7, 'D', this)">D. Plain</button></div><div class="feedback" id="feedback-7"></div></div>
+        <div class="question-box" id="qbox-8"><p class="question-text"><span class="question-counter">Q8</span>What lesson did the writer learn?</p><div class="options"><button class="option-btn" onclick="checkAnswer(8, 'A', this)">A. It's easy</button><button class="option-btn" onclick="checkAnswer(8, 'B', this)">B. Traditions connect us</button><button class="option-btn" onclick="checkAnswer(8, 'C', this)">C. Grandparents know all</button><button class="option-btn" onclick="checkAnswer(8, 'D', this)">D. Red paper is best</button></div><div class="feedback" id="feedback-8"></div></div>
+        <div class="speaking-section" id="speaking-2"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. What traditions does YOUR family have?</li><li>2. Tell me about a mistake you learned from.</li></ul></div>
+    </div>
+
+    <!-- Passage 3 -->
+    <div class="passage-section" data-passage="3">
+        <h2 class="passage-title">Passage C: Sleep Science</h2>
+        <div class="passage-text">
+            <p>Why do we sleep? Scientists found important answers.</p>
+            <p><strong>Brain rest:</strong> Sleep clears waste and strengthens memories. Students who sleep 8-9 hours remember better.</p>
+            <p><strong>Body health:</strong> Sleep repairs muscles and fights sickness. Teenagers need more sleep because bodies are growing.</p>
+            <p><strong>Not enough sleep:</strong> Hard to focus, feel irritable (easily angry), get sick often, gain weight.</p>
+            <p><strong>Tips:</strong> Same sleep time daily. No screens 1 hour before bed. Keep room dark and quiet.</p>
+        </div>
+        <div class="question-box" id="qbox-9"><p class="question-text"><span class="question-counter">Q9</span>What does sleep help the brain do?</p><div class="options"><button class="option-btn" onclick="checkAnswer(9, 'A', this)">A. Grow taller</button><button class="option-btn" onclick="checkAnswer(9, 'B', this)">B. Clear waste, strengthen memories</button><button class="option-btn" onclick="checkAnswer(9, 'C', this)">C. Digest food</button><button class="option-btn" onclick="checkAnswer(9, 'D', this)">D. See in dark</button></div><div class="feedback" id="feedback-9"></div></div>
+        <div class="question-box" id="qbox-10"><p class="question-text"><span class="question-counter">Q10</span>What does "irritable" mean?</p><div class="options"><button class="option-btn" onclick="checkAnswer(10, 'A', this)">A. Happy</button><button class="option-btn" onclick="checkAnswer(10, 'B', this)">B. Easily angry</button><button class="option-btn" onclick="checkAnswer(10, 'C', this)">C. Calm</button><button class="option-btn" onclick="checkAnswer(10, 'D', this)">D. Hungry</button></div><div class="feedback" id="feedback-10"></div></div>
+        <div class="question-box" id="qbox-11"><p class="question-text"><span class="question-counter">Q11</span>Which is NOT a sleep tip?</p><div class="options"><button class="option-btn" onclick="checkAnswer(11, 'A', this)">A. Regular schedule</button><button class="option-btn" onclick="checkAnswer(11, 'B', this)">B. No screens before bed</button><button class="option-btn" onclick="checkAnswer(11, 'C', this)">C. Drink coffee at night</button><button class="option-btn" onclick="checkAnswer(11, 'D', this)">D. Dark room</button></div><div class="feedback" id="feedback-11"></div></div>
+        <div class="question-box" id="qbox-12"><p class="question-text"><span class="question-counter">Q12</span>Why do teenagers need more sleep?</p><div class="options"><button class="option-btn" onclick="checkAnswer(12, 'A', this)">A. Watch more TV</button><button class="option-btn" onclick="checkAnswer(12, 'B', this)">B. Bodies are growing</button><button class="option-btn" onclick="checkAnswer(12, 'C', this)">C. Eat more</button><button class="option-btn" onclick="checkAnswer(12, 'D', this)">D. Walk more</button></div><div class="feedback" id="feedback-12"></div></div>
+        <div class="speaking-section" id="speaking-3"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. How many hours do you sleep?</li><li>2. Do you use phone before bed?</li></ul></div>
+    </div>
+
+    <!-- Passage 4 -->
+    <div class="passage-section" data-passage="4">
+        <h2 class="passage-title">Passage D: Mobile Payment</h2>
+        <div class="passage-text">
+            <p>Ten years ago, people carried cash. Today, many use phones. Alipay and WeChat Pay changed shopping.</p>
+            <p><strong>How:</strong> Link bank card → Scan QR code → Enter amount → Confirm.</p>
+            <p><strong>Benefits:</strong> Convenient, Fast, Safe, Track spending.</p>
+            <p><strong>Warnings:</strong> Use strong password. Watch for fake QR codes. Don't overspend.</p>
+            <p>92% of students have used mobile payment. Teachers say: "Use technology wisely."</p>
+        </div>
+        <div class="question-box" id="qbox-13"><p class="question-text"><span class="question-counter">Q13</span>What is the first step?</p><div class="options"><button class="option-btn" onclick="checkAnswer(13, 'A', this)">A. Scan QR</button><button class="option-btn" onclick="checkAnswer(13, 'B', this)">B. Link bank card</button><button class="option-btn" onclick="checkAnswer(13, 'C', this)">C. Enter password</button><button class="option-btn" onclick="checkAnswer(13, 'D', this)">D. Ask friend</button></div><div class="feedback" id="feedback-13"></div></div>
+        <div class="question-box" id="qbox-14"><p class="question-text"><span class="question-counter">Q14</span>Which is NOT a benefit?</p><div class="options"><button class="option-btn" onclick="checkAnswer(14, 'A', this)">A. Convenient</button><button class="option-btn" onclick="checkAnswer(14, 'B', this)">B. Fast</button><button class="option-btn" onclick="checkAnswer(14, 'C', this)">C. Makes you richer</button><button class="option-btn" onclick="checkAnswer(14, 'D', this)">D. Tracks spending</button></div><div class="feedback" id="feedback-14"></div></div>
+        <div class="question-box" id="qbox-15"><p class="question-text"><span class="question-counter">Q15</span>What is the QR code warning?</p><div class="options"><button class="option-btn" onclick="checkAnswer(15, 'A', this)">A. Too big</button><button class="option-btn" onclick="checkAnswer(15, 'B', this)">B. Fake codes steal info</button><button class="option-btn" onclick="checkAnswer(15, 'C', this)">C. No iPhone</button><button class="option-btn" onclick="checkAnswer(15, 'D', this)">D. Too expensive</button></div><div class="feedback" id="feedback-15"></div></div>
+        <div class="question-box" id="qbox-16"><p class="question-text"><span class="question-counter">Q16</span>What % of students used it?</p><div class="options"><button class="option-btn" onclick="checkAnswer(16, 'A', this)">A. 50%</button><button class="option-btn" onclick="checkAnswer(16, 'B', this)">B. 75%</button><button class="option-btn" onclick="checkAnswer(16, 'C', this)">C. 92%</button><button class="option-btn" onclick="checkAnswer(16, 'D', this)">D. 100%</button></div><div class="feedback" id="feedback-16"></div></div>
+        <div class="speaking-section" id="speaking-4"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. Do you use mobile payment?</li><li>2. Cash or phone - which is safer?</li></ul></div>
+    </div>
+
+    <!-- Passage 5 -->
+    <div class="passage-section" data-passage="5">
+        <h2 class="passage-title">Passage E: Housework</h2>
+        <div class="passage-text">
+            <p>Teenagers feel busy. Some parents do all housework. Should students avoid it? Experts say: No.</p>
+            <p><strong>Life skills:</strong> Cooking, cleaning teaches responsibility. Helps you live independently.</p>
+            <p><strong>Family bonds:</strong> Sharing chores helps families talk and cooperate. Study shows closer parent relationships.</p>
+            <p><strong>Reduce stress:</strong> Physical tasks give brain a break from studying. Helps students relax.</p>
+            <p>Schools now include "life skills" in curriculum. It's about learning, contributing, and growing.</p>
+        </div>
+        <div class="question-box" id="qbox-17"><p class="question-text"><span class="question-counter">Q17</span>What do experts say?</p><div class="options"><button class="option-btn" onclick="checkAnswer(17, 'A', this)">A. Avoid it</button><button class="option-btn" onclick="checkAnswer(17, 'B', this)">B. Do some</button><button class="option-btn" onclick="checkAnswer(17, 'C', this)">C. Do all</button><button class="option-btn" onclick="checkAnswer(17, 'D', this)">D. Only clean rooms</button></div><div class="feedback" id="feedback-17"></div></div>
+        <div class="question-box" id="qbox-18"><p class="question-text"><span class="question-counter">Q18</span>What is ONE benefit?</p><div class="options"><button class="option-btn" onclick="checkAnswer(18, 'A', this)">A. More homework</button><button class="option-btn" onclick="checkAnswer(18, 'B', this)">B. Build life skills</button><button class="option-btn" onclick="checkAnswer(18, 'C', this)">C. Watch TV</button><button class="option-btn" onclick="checkAnswer(18, 'D', this)">D. Sleep more</button></div><div class="feedback" id="feedback-18"></div></div>
+        <div class="question-box" id="qbox-19"><p class="question-text"><span class="question-counter">Q19</span>How does it help stress?</p><div class="options"><button class="option-btn" onclick="checkAnswer(19, 'A', this)">A. Makes tired</button><button class="option-btn" onclick="checkAnswer(19, 'B', this)">B. Brain break from study</button><button class="option-btn" onclick="checkAnswer(19, 'C', this)">C. Takes time</button><button class="option-btn" onclick="checkAnswer(19, 'D', this)">D. Makes angry</button></div><div class="feedback" id="feedback-19"></div></div>
+        <div class="question-box" id="qbox-20"><p class="question-text"><span class="question-counter">Q20</span>Writer's attitude?</p><div class="options"><button class="option-btn" onclick="checkAnswer(20, 'A', this)">A. Against</button><button class="option-btn" onclick="checkAnswer(20, 'B', this)">B. Supportive</button><button class="option-btn" onclick="checkAnswer(20, 'C', this)">C. Doesn't care</button><button class="option-btn" onclick="checkAnswer(20, 'D', this)">D. Too difficult</button></div><div class="feedback" id="feedback-20"></div></div>
+        <div class="speaking-section" id="speaking-5"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. What housework do you do?</li><li>2. Should students do housework?</li></ul></div>
+    </div>
+
+    <!-- Score Section -->
+    <div class="score-section" id="score-section">
+        <div class="score-circle" id="score-display">0/20</div>
+        <h2 class="score-message" id="score-message">Great job!</h2>
+        <p class="score-details" id="score-details">Time: 00:00 | Accuracy: 0%</p>
+        <div class="result-actions">
+            <button class="action-btn btn-copy" onclick="copyResults()">📋 复制结果</button>
+            <button class="action-btn btn-restart" onclick="restartTest()">🔄 重新开始</button>
+        </div>
+        <p style="margin-top: 20px; color: #7f8c8d; font-size: 13px;">💡 点击复制结果，然后发送给老师</p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation" id="navigation">
+        <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← 上一页</button>
+        <button class="nav-btn next" onclick="nextSection()" id="next-btn">下一页 →</button>
+    </div>
+</div>
+
+<div class="toast" id="toast">已复制到剪贴板！</div>
+
+<script>
+    const isWeChat = /micromessenger/i.test(navigator.userAgent);
+    if (isWeChat) { document.getElementById('wechat-banner').classList.add('show'); }
+    const answers = {
+        1: { correct: 'B', explanation: '✅ 正确！文中说 Chinese Calligraphy: "Learn brush techniques"' },
+        2: { correct: 'A', explanation: '✅ 正确！文中说 "Submit by March 20"' },
+        3: { correct: 'C', explanation: '✅ 正确！Drama Stage: "Must attend ≥80%"' },
+        4: { correct: 'C', explanation: '✅ 正确！Robotics: "Grades 7-9; no experience needed"' },
+        5: { correct: 'B', explanation: '✅ 正确！Grandma: "It carries wishes for good luck"' },
+        6: { correct: 'C', explanation: '✅ 正确！文中说 "The wing tore"' },
+        7: { correct: 'B', explanation: '✅ 正确！"Delicate" 意思是精细美丽的' },
+        8: { correct: 'B', explanation: '✅ 正确！最后一段说 "traditions connect us to loved ones"' },
+        9: { correct: 'B', explanation: '✅ 正确！文中说 "clears waste and strengthens memories"' },
+        10: { correct: 'B', explanation: '✅ 正确！文中定义 "irritable (easily angry)"' },
+        11: { correct: 'C', explanation: '✅ 正确！咖啡没有提到，应该避免' },
+        12: { correct: 'B', explanation: '✅ 正确！文中说 "because their bodies are still growing"' },
+        13: { correct: 'B', explanation: '✅ 正确！第一步 "Link your bank card to the app"' },
+        14: { correct: 'C', explanation: '✅ 正确！"Makes you richer" 没有提到' },
+        15: { correct: 'B', explanation: '✅ 正确！文中警告 "fake QR codes can steal information"' },
+        16: { correct: 'C', explanation: '✅ 正确！文中说 "92% of students"' },
+        17: { correct: 'B', explanation: '✅ 正确！Experts say: "No" (to avoiding completely)' },
+        18: { correct: 'B', explanation: '✅ 正确！文中说 "builds life skills"' },
+        19: { correct: 'B', explanation: '✅ 正确！文中说 "give your brain a break from studying"' },
+        20: { correct: 'B', explanation: '✅ 正确！作者支持，列出多个好处' }
+    };
+    const questionToPassage = { 1:1,2:1,3:1,4:1, 5:2,6:2,7:2,8:2, 9:3,10:3,11:3,12:3, 13:4,14:4,15:4,16:4, 17:5,18:5,19:5,20:5 };
+    let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval;
+    function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); document.getElementById('timer').textContent = `⏱ ${mins}:${secs}`; }, 1000); }
+    function checkAnswer(questionNum, selected, btn) {
+        if (answered[questionNum]) return;
+        answered[questionNum] = selected;
+        const feedback = document.getElementById(`feedback-${questionNum}`);
+        const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); allBtns.forEach(b => { if (b.textContent.startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+        feedback.innerHTML = answers[questionNum].explanation;
+        feedback.style.display = 'block';
+        document.getElementById('q-num').textContent = Object.keys(answered).length;
+        checkPassageComplete();
+        if (Object.keys(answered).length === 20) { document.getElementById('next-btn').textContent = '完成 ✓'; }
+    }
+    function checkPassageComplete() {
+        const currentPassageQuestions = [];
+        for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+        const allAnswered = currentPassageQuestions.every(q => answered[q]);
+        if (allAnswered) { document.getElementById('passage-complete').classList.add('visible'); document.getElementById(`speaking-${currentSection}`).classList.add('active'); }
+    }
+    function nextSection() {
+        if (Object.keys(answered).length === 20) { showScore(); return; }
+        const currentPassageQuestions = [];
+        for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+        const allAnswered = currentPassageQuestions.every(q => answered[q]);
+        if (!allAnswered) { alert(`请先完成本篇章的 ${currentPassageQuestions.length} 道题目`); return; }
+        if (currentSection < 5) {
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+            currentSection++;
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+            document.getElementById('passage-num').textContent = currentSection;
+            document.getElementById('passage-complete').classList.remove('visible');
+            document.getElementById('prev-btn').disabled = false;
+            if (currentSection === 5) { document.getElementById('next-btn').textContent = '完成 ✓'; }
+            window.scrollTo(0, 0);
+        }
+    }
+    function prevSection() {
+        if (currentSection > 1) {
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+            currentSection--;
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+            document.getElementById('passage-num').textContent = currentSection;
+            document.getElementById('next-btn').textContent = '下一页 →';
+            document.getElementById('passage-complete').classList.remove('visible');
+            if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+            window.scrollTo(0, 0);
+        }
+    }
+    function showScore() {
+        document.getElementById('navigation').style.display = 'none';
+        document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+        document.getElementById('score-section').classList.add('active');
+        document.getElementById('score-display').textContent = `${score}/20`;
+        const percentage = (score / 20 * 100).toFixed(0);
+        const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+        const secs = (timerSeconds % 60).toString().padStart(2, '0');
+        document.getElementById('score-details').textContent = `时间：${mins}:${secs} | 正确率：${percentage}%`;
+        const message = document.getElementById('score-message');
+        if (score >= 18) message.textContent = '🌟 完美！太棒了！';
+        else if (score >= 15) message.textContent = '✅ 很好！继续加油！';
+        else if (score >= 12) message.textContent = '👍 不错！保持练习！';
+        else message.textContent = '💪 多加练习！你会进步的！';
+        clearInterval(timerInterval);
+    }
+    function copyResults() {
+        const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+        const secs = (timerSeconds % 60).toString().padStart(2, '0');
+        const percentage = (score / 20 * 100).toFixed(0);
+        const text = `🇨🇳 中考英语阅读练习结果\n\n📊 分数：${score}/20 (${percentage}%)\n⏱ 时间：${mins}:${secs}\n📅 日期：${new Date().toLocaleDateString()}\n\n✅ 可以发送给老师查看！`;
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try { document.execCommand('copy'); const toast = document.getElementById('toast'); toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2000); } catch (err) { alert('请手动复制：\n\n' + text); }
+        document.body.removeChild(textArea);
+    }
+    function restartTest() {
+        currentSection = 1; score = 0; answered = {}; timerSeconds = 0;
+        document.getElementById('score-section').classList.remove('active');
+        document.getElementById('navigation').style.display = 'flex';
+        document.getElementById('next-btn').textContent = '下一页 →';
+        document.getElementById('prev-btn').disabled = true;
+        document.getElementById('passage-num').textContent = '1';
+        document.getElementById('q-num').textContent = '0';
+        document.getElementById('passage-complete').classList.remove('visible');
+        document.querySelectorAll('.passage-section').forEach(s => s.classList.remove('active'));
+        document.querySelector('[data-passage="1"]').classList.add('active');
+        document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.classList.remove('correct', 'incorrect'); });
+        document.querySelectorAll('.speaking-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct', 'incorrect'); b.disabled = false; });
+        startTimer();
+        window.scrollTo(0, 0);
+    }
+    startTimer();
+</script>
+</body>
+</html>
