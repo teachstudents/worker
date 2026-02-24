@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中考英语阅读练习 02 | Zhongkao Reading Practice 02</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f5f5f5; padding: 10px; line-height: 1.6; }
+        .wechat-banner { background: linear-gradient(135deg, #07c160 0%, #06ad56 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; display: none; box-shadow: 0 2px 10px rgba(7,193,96,0.3); }
+        .wechat-banner.show { display: block; }
+        .wechat-banner h3 { font-size: 16px; margin-bottom: 8px; }
+        .wechat-banner p { font-size: 13px; opacity: 0.9; }
+        .container { max-width: 100%; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .progress-bar { background: #fff; padding: 12px 15px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .progress-text { font-weight: bold; color: #2c3e50; font-size: 14px; }
+        .timer { font-size: 14px; color: #e74c3c; font-weight: bold; }
+        .passage-section { padding: 15px; display: none; }
+        .passage-section.active { display: block; }
+        .passage-title { color: #2980b9; font-size: 18px; margin-bottom: 12px; font-weight: bold; }
+        .passage-text { background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 4px solid #2980b9; margin-bottom: 20px; font-size: 16px; line-height: 1.7; color: #333; }
+        .question-box { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+        .question-text { font-size: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .options { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+        @media (max-width: 500px) { .options { grid-template-columns: 1fr; } }
+        .option-btn { padding: 10px; border: 1px solid #3498db; background: white; border-radius: 4px; cursor: pointer; font-size: 14px; text-align: left; }
+        .option-btn:active { background: #ebf5fb; }
+        .option-btn.correct { background: #27ae60; border-color: #27ae60; color: white; }
+        .option-btn.incorrect { background: #e74c3c; border-color: #e74c3c; color: white; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        .feedback { margin-top: 8px; padding: 8px; border-radius: 4px; display: none; font-size: 13px; }
+        .feedback.correct { background: #d4edda; border: 1px solid #27ae60; color: #155724; }
+        .feedback.incorrect { background: #f8d7da; border: 1px solid #e74c3c; color: #721c24; }
+        .speaking-section { background: #2c3e50; color: #ffffff; padding: 15px; border-radius: 6px; margin-top: 20px; display: none; }
+        .speaking-section.active { display: block; }
+        .speaking-title { font-size: 16px; margin-bottom: 8px; font-weight: bold; color: #f1c40f; }
+        .speaking-questions { list-style: none; padding-left: 5px; }
+        .speaking-questions li { padding: 6px 0; border-bottom: 1px solid #34495e; font-size: 14px; }
+        .speaking-questions li:last-child { border-bottom: none; }
+        .navigation { padding: 12px 15px; background: #f8f9fa; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; }
+        .nav-btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; }
+        .nav-btn.prev { background: #95a5a6; }
+        .nav-btn.next { background: #2980b9; }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .score-section { text-align: center; padding: 30px 15px; display: none; }
+        .score-section.active { display: block; }
+        .score-circle { width: 100px; height: 100px; border-radius: 50%; background: #27ae60; color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px; }
+        .score-message { font-size: 20px; color: #2c3e50; margin-bottom: 12px; }
+        .score-details { color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }
+        .result-actions { display: flex; gap: 8px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+        .action-btn { padding: 10px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; }
+        .btn-copy { background: #3498db; }
+        .btn-restart { background: #e74c3c; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #2c3e50; color: white; padding: 10px 20px; border-radius: 4px; display: none; z-index: 1000; font-size: 14px; }
+        .question-counter { background: #3498db; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 6px; }
+        .passage-complete { background: #27ae60; color: white; padding: 4px 8px; border-radius: 3px; font-size: 11px; margin-left: 8px; display: none; }
+        .passage-complete.visible { display: inline-block; }
+    </style>
+</head>
+<body>
+
+<div class="wechat-banner" id="wechat-banner">
+    <h3>📱 温馨提示</h3>
+    <p>微信浏览器可能限制部分功能<br>建议点击右上角 ··· 选择在浏览器中打开</p>
+</div>
+
+<div class="container">
+    <div class="progress-bar">
+        <span class="progress-text">Passage: <span id="passage-num">1</span>/5 <span class="passage-complete" id="passage-complete">✓</span> | Q: <span id="q-num">0</span>/20</span>
+        <span class="timer" id="timer">⏱ 00:00</span>
+    </div>
+
+    <!-- Passage 1 -->
+    <div class="passage-section active" data-passage="1">
+        <h2 class="passage-title">Passage A: Urban Gardening Movement</h2>
+        <div class="passage-text">
+            <p>Increasingly, city dwellers are embracing urban gardening as a solution to environmental concerns and food security issues. Community gardens, rooftop farms, and vertical growing systems are transforming concrete jungles into green oases.</p>
+            <p><strong>Community Gardens:</strong> Located in public spaces, these plots allow residents to grow vegetables collectively. Benefits include enhanced social connections, improved mental health, and access to fresh produce.</p>
+            <p><strong>Rooftop Farms:</strong> Professional operations on building tops maximize unused space. They reduce urban heat, manage stormwater runoff, and supply local markets with organic produce.</p>
+            <p><strong>Vertical Systems:</strong> Hydroponic towers and wall-mounted planters optimize growth in limited areas. These tech-savvy solutions require minimal water and eliminate soil-borne diseases.</p>
+            <p>Initiatives like the Green Cities Project promote sustainable urban living. Applications for community plots close by <strong>April 15</strong>, with installations beginning May 1st.</p>
+        </div>
+        <div class="question-box" id="qbox-1"><p class="question-text"><span class="question-counter">Q1</span>Which method uses technology for efficient growing?</p><div class="options"><button class="option-btn" onclick="checkAnswer(1, 'A', this)">A. Community Gardens</button><button class="option-btn" onclick="checkAnswer(1, 'B', this)">B. Vertical Systems</button><button class="option-btn" onclick="checkAnswer(1, 'C', this)">C. Rooftop Farms</button><button class="option-btn" onclick="checkAnswer(1, 'D', this)">D. Green Cities Project</button></div><div class="feedback" id="feedback-1"></div></div>
+        <div class="question-box" id="qbox-2"><p class="question-text"><span class="question-counter">Q2</span>When do applications for community plots close?</p><div class="options"><button class="option-btn" onclick="checkAnswer(2, 'A', this)">A. May 1st</button><button class="option-btn" onclick="checkAnswer(2, 'B', this)">B. April 15</button><button class="option-btn" onclick="checkAnswer(2, 'C', this)">C. March 20</button><button class="option-btn" onclick="checkAnswer(2, 'D', this)">D. June 10</button></div><div class="feedback" id="feedback-2"></div></div>
+        <div class="question-box" id="qbox-3"><p class="question-text"><span class="question-counter">Q3</span>What does vertical farming eliminate?</p><div class="options"><button class="option-btn" onclick="checkAnswer(3, 'A', this)">A. Water requirements</button><button class="option-btn" onclick="checkAnswer(3, 'B', this)">B. Soil-borne diseases</button><button class="option-btn" onclick="checkAnswer(3, 'C', this)">C. Need for technology</button><button class="option-btn" onclick="checkAnswer(3, 'D', this)">D. Social benefits</button></div><div class="feedback" id="feedback-3"></div></div>
+        <div class="question-box" id="qbox-4"><p class="question-text"><span class="question-counter">Q4</span>Which is NOT mentioned as a benefit of community gardens?</p><div class="options"><button class="option-btn" onclick="checkAnswer(4, 'A', this)">A. Enhanced social connections</button><button class="option-btn" onclick="checkAnswer(4, 'B', this)">B. Improved mental health</button><button class="option-btn" onclick="checkAnswer(4, 'C', this)">C. Reduced urban heat</button><button class="option-btn" onclick="checkAnswer(4, 'D', this)">D. Access to fresh produce</button></div><div class="feedback" id="feedback-4"></div></div>
+        <div class="speaking-section" id="speaking-1"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. Would you participate in an urban garden project? Why?</li><li>2. How can cities become more sustainable?</li></ul></div>
+    </div>
+
+    <!-- Passage 2 -->
+    <div class="passage-section" data-passage="2">
+        <h2 class="passage-title">Passage B: Cultural Heritage Preservation</h2>
+        <div class="passage-text">
+            <p>Dr. Elena Vasquez dedicated her career to preserving endangered cultural practices. "Each tradition holds centuries of wisdom," she emphasized during her field research in remote villages.</p>
+            <p>Her team documented ancient textile weaving techniques. "These patterns tell stories of ancestors," she explained. The intricate designs required months to master.</p>
+            <p>Initially, younger generations showed little interest. However, Dr. Vasquez implemented a digital archive system that made learning more accessible. Gradually, young artisans began appreciating their heritage.</p>
+            <p>Through perseverance, the project flourished. The resulting <strong>intricate</strong> tapestries became symbols of cultural identity, displayed in museums worldwide.</p>
+            <p>This initiative demonstrated how traditional knowledge adapts to contemporary preservation methods.</p>
+        </div>
+        <div class="question-box" id="qbox-5"><p class="question-text"><span class="question-counter">Q5</span>What did Dr. Vasquez emphasize about traditions?</p><div class="options"><button class="option-btn" onclick="checkAnswer(5, 'A', this)">A. They are outdated</button><button class="option-btn" onclick="checkAnswer(5, 'B', this)">B. They hold centuries of wisdom</button><button class="option-btn" onclick="checkAnswer(5, 'C', this)">C. They cause conflict</button><button class="option-btn" onclick="checkAnswer(5, 'D', this)">D. They are expensive to preserve</button></div><div class="feedback" id="feedback-5"></div></div>
+        <div class="question-box" id="qbox-6"><p class="question-text"><span class="question-counter">Q6</span>How did younger generations initially respond?</p><div class="options"><button class="option-btn" onclick="checkAnswer(6, 'A', this)">A. With great enthusiasm</button><button class="option-btn" onclick="checkAnswer(6, 'B', this)">B. With active participation</button><button class="option-btn" onclick="checkAnswer(6, 'C', this)">C. Showing little interest</button><button class="option-btn" onclick="checkAnswer(6, 'D', this)">D. With technical expertise</button></div><div class="feedback" id="feedback-6"></div></div>
+        <div class="question-box" id="qbox-7"><p class="question-text"><span class="question-counter">Q7</span>What does "intricate" mean?</p><div class="options"><button class="option-btn" onclick="checkAnswer(7, 'A', this)">A. Simple and clear</button><button class="option-btn" onclick="checkAnswer(7, 'B', this)">B. Complex and detailed</button><button class="option-btn" onclick="checkAnswer(7, 'C', this)">C. Rough and unfinished</button><button class="option-btn" onclick="checkAnswer(7, 'D', this)">D. Modern and innovative</button></div><div class="feedback" id="feedback-7"></div></div>
+        <div class="question-box" id="qbox-8"><p class="question-text"><span class="question-counter">Q8</span>What lesson can be drawn from this passage?</p><div class="options"><button class="option-btn" onclick="checkAnswer(8, 'A', this)">A. Traditional methods are always superior</button><button class="option-btn" onclick="checkAnswer(8, 'B', this)">B. Technology can help preserve traditions</button><button class="option-btn" onclick="checkAnswer(8, 'C', this)">C. Museums are unnecessary</button><button class="option-btn" onclick="checkAnswer(8, 'D', this)">D. Young people dislike learning</button></div><div class="feedback" id="feedback-8"></div></div>
+        <div class="speaking-section" id="speaking-2"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. What cultural traditions exist in your region?</li><li>2. How can we balance tradition with modernization?</li></ul></div>
+    </div>
+
+    <!-- Passage 3 -->
+    <div class="passage-section" data-passage="3">
+        <h2 class="passage-title">Passage C: Neuroscience of Learning</h2>
+        <div class="passage-text">
+            <p>Modern neuroscience reveals fascinating insights into how we acquire knowledge. Researchers have identified key mechanisms that enhance cognitive performance.</p>
+            <p><strong>Memory Consolidation:</strong> During sleep, the brain transfers information from short-term to long-term storage. Students who maintain consistent sleep schedules demonstrate superior recall abilities.</p>
+            <p><strong>Neuroplasticity:</strong> The brain's ability to form new neural pathways continues throughout life. Challenging mental activities strengthen these connections.</p>
+            <p><strong>Factors that hinder learning:</strong> Chronic stress impairs memory formation, causes difficulty concentrating, weakens immune responses, and disrupts hormonal balance.</p>
+            <p><strong>Optimal conditions:</strong> Regular physical activity, balanced nutrition, spaced repetition techniques, and mindfulness practices significantly improve learning outcomes.</p>
+        </div>
+        <div class="question-box" id="qbox-9"><p class="question-text"><span class="question-counter">Q9</span>What happens during memory consolidation?</p><div class="options"><button class="option-btn" onclick="checkAnswer(9, 'A', this)">A. Neural pathways deteriorate</button><button class="option-btn" onclick="checkAnswer(9, 'B', this)">B. Information moves between storage types</button><button class="option-btn" onclick="checkAnswer(9, 'C', this)">C. Sleep becomes less important</button><button class="option-btn" onclick="checkAnswer(9, 'D', this)">D. Hormones increase dramatically</button></div><div class="feedback" id="feedback-9"></div></div>
+        <div class="question-box" id="qbox-10"><p class="question-text"><span class="question-counter">Q10</span>What does "neuroplasticity" refer to?</p><div class="options"><button class="option-btn" onclick="checkAnswer(10, 'A', this)">A. The brain's ability to form new pathways</button><button class="option-btn" onclick="checkAnswer(10, 'B', this)">B. The deterioration of neurons</button><button class="option-btn" onclick="checkAnswer(10, 'C', this)">C. The effect of hormones on mood</button><button class="option-btn" onclick="checkAnswer(10, 'D', this)">D. The importance of nutrition</button></div><div class="feedback" id="feedback-10"></div></div>
+        <div class="question-box" id="qbox-11"><p class="question-text"><span class="question-counter">Q11</span>Which is NOT mentioned as optimal for learning?</p><div class="options"><button class="option-btn" onclick="checkAnswer(11, 'A', this)">A. Regular physical activity</button><button class="option-btn" onclick="checkAnswer(11, 'B', this)">B. Mindfulness practices</button><button class="option-btn" onclick="checkAnswer(11, 'C', this)">C. Cramming before exams</button><button class="option-btn" onclick="checkAnswer(11, 'D', this)">D. Balanced nutrition</button></div><div class="feedback" id="feedback-11"></div></div>
+        <div class="question-box" id="qbox-12"><p class="question-text"><span class="question-counter">Q12</span>How does chronic stress affect learning?</p><div class="options"><button class="option-btn" onclick="checkAnswer(12, 'A', this)">A. Improves concentration</button><button class="option-btn" onclick="checkAnswer(12, 'B', this)">B> Impairs memory formation</button><button class="option-btn" onclick="checkAnswer(12, 'C', this)">C. Strengthens neural pathways</button><button class="option-btn" onclick="checkAnswer(12, 'D', this)">D. Enhances recall abilities</button></div><div class="feedback" id="feedback-12"></div></div>
+        <div class="speaking-section" id="speaking-3"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. What learning strategies work best for you?</li><li>2. How do you manage stress while studying?</li></ul></div>
+    </div>
+
+    <!-- Passage 4 -->
+    <div class="passage-section" data-passage="4">
+        <h2 class="passage-title">Passage D: Cryptocurrency Evolution</h2>
+        <div class="passage-text">
+            <p>Over the past decade, digital currencies have evolved from experimental concepts to mainstream financial instruments. Bitcoin pioneered decentralized transactions, while newer cryptocurrencies offer enhanced features.</p>
+            <p><strong>Process:</strong> Blockchain technology verifies transactions through distributed networks. Users generate secure keys → initiate trades → network validates → records permanently.</p>
+            <p><strong>Advantages:</strong> Global accessibility, reduced transaction fees, increased transparency, and independence from traditional banking systems.</p>
+            <p><strong>Risks:</strong> Extreme price volatility, regulatory uncertainty, potential for fraudulent schemes, and energy-intensive mining processes.</p>
+            <p>Recent surveys indicate that 68% of financial experts anticipate broader adoption. Industry leaders caution: "Exercise due diligence before investing."</p>
+        </div>
+        <div class="question-box" id="qbox-13"><p class="question-text"><span class="question-counter">Q13</span>What technology verifies cryptocurrency transactions?</p><div class="options"><button class="option-btn" onclick="checkAnswer(13, 'A', this)">A. Centralized servers</button><button class="option-btn" onclick="checkAnswer(13, 'B', this)">B. Blockchain technology</button><button class="option-btn" onclick="checkAnswer(13, 'C', this)">C. Traditional banks</button><button class="option-btn" onclick="checkAnswer(13, 'D', this)">D. Government agencies</button></div><div class="feedback" id="feedback-13"></div></div>
+        <div class="question-box" id="qbox-14"><p class="question-text"><span class="question-counter">Q14</span>Which is NOT listed as an advantage?</p><div class="options"><button class="option-btn" onclick="checkAnswer(14, 'A', this)">A. Global accessibility</button><button class="option-btn" onclick="checkAnswer(14, 'B', this)">B. Reduced transaction fees</button><button class="option-btn" onclick="checkAnswer(14, 'C', this)">C. Guaranteed profits</button><button class="option-btn" onclick="checkAnswer(14, 'D', this)">D. Increased transparency</button></div><div class="feedback" id="feedback-14"></div></div>
+        <div class="question-box" id="qbox-15"><p class="question-text"><span class="question-counter">Q15</span>What do experts warn about?</p><div class="options"><button class="option-btn" onclick="checkAnswer(15, 'A', this)">A. Lack of innovation</button><button class="option-btn" onclick="checkAnswer(15, 'B', this)">B. Extreme price volatility</button><button class="option-btn" onclick="checkAnswer(15, 'C', this)">C. Insufficient accessibility</button><button class="option-btn" onclick="checkAnswer(15, 'D', this)">D. High transaction fees</button></div><div class="feedback" id="feedback-15"></div></div>
+        <div class="question-box" id="qbox-16"><p class="question-text"><span class="question-counter">Q16</span>What percentage of experts expect broader adoption?</p><div class="options"><button class="option-btn" onclick="checkAnswer(16, 'A', this)">A. 55%</button><button class="option-btn" onclick="checkAnswer(16, 'B', this)">B. 68%</button><button class="option-btn" onclick="checkAnswer(16, 'C', this)">C. 75%</button><button class="option-btn" onclick="checkAnswer(16, 'D', this)">D. 92%</button></div><div class="feedback" id="feedback-16"></div></div>
+        <div class="speaking-section" id="speaking-4"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. What are your thoughts on digital currencies?</li><li>2. How might they impact traditional finance?</li></ul></div>
+    </div>
+
+    <!-- Passage 5 -->
+    <div class="passage-section" data-passage="5">
+        <h2 class="passage-title">Passage E: Youth Leadership Development</h2>
+        <div class="passage-text">
+            <p>Contemporary educators recognize that leadership skills are essential for young people's future success. Rather than waiting until adulthood, schools now integrate leadership training into curricula.</p>
+            <p><strong>Core competencies:</strong> Critical thinking, effective communication, collaborative decision-making, and ethical responsibility. These skills prepare students for complex challenges.</p>
+            <p><strong>Program impacts:</strong> Student-led initiatives strengthen peer relationships and encourage civic engagement. Research indicates that participants develop stronger self-confidence and problem-solving abilities.</p>
+            <p><strong>Addressing challenges:</strong> Structured programs provide mental breaks from academic pressure while developing practical life skills. Students learn to balance individual goals with collective responsibilities.</p>
+            <p>Educational institutions increasingly prioritize holistic development, combining academic excellence with character building.</p>
+        </div>
+        <div class="question-box" id="qbox-17"><p class="question-text"><span class="question-counter">Q17</span>When do schools now teach leadership?</p><div class="options"><button class="option-btn" onclick="checkAnswer(17, 'A', this)">A. Only in college</button><button class="option-btn" onclick="checkAnswer(17, 'B', this)">B. After graduation</button><button class="option-btn" onclick="checkAnswer(17, 'C', this)">C. Integrated in curricula</button><button class="option-btn" onclick="checkAnswer(17, 'D', this)">D. During summer camps</button></div><div class="feedback" id="feedback-17"></div></div>
+        <div class="question-box" id="qbox-18"><p class="question-text"><span class="question-counter">Q18</span>What is a core competency for leadership?</p><div class="options"><button class="option-btn" onclick="checkAnswer(18, 'A', this)">A. Academic perfection</button><button class="option-btn" onclick="checkAnswer(18, 'B', this)">B. Competitive spirit</button><button class="option-btn" onclick="checkAnswer(18, 'C', this)">C. Critical thinking</button><button class="option-btn" onclick="checkAnswer(18, 'D', this)">D. Financial expertise</button></div><div class="feedback" id="feedback-18"></div></div>
+        <div class="question-box" id="qbox-19"><p class="question-text"><span class="question-counter">Q19</span>How do leadership programs help with academic pressure?</p><div class="options"><button class="option-btn" onclick="checkAnswer(19, 'A', this)">A. By increasing workload</button><button class="option-btn" onclick="checkAnswer(19, 'B', this)">B. Through structured breaks</button><button class="option-btn" onclick="checkAnswer(19, 'C', this)">C. By eliminating tests</button><button class="option-btn" onclick="checkAnswer(19, 'D', this)">D. With financial aid</button></div><div class="feedback" id="feedback-19"></div></div>
+        <div class="question-box" id="qbox-20"><p class="question-text"><span class="question-counter">Q20</span>What is the author's perspective?</p><div class="options"><button class="option-btn" onclick="checkAnswer(20, 'A', this)">A. Leadership is unnecessary for youth</button><button class="option-btn" onclick="checkAnswer(20, 'B', this)">B. Schools neglect character development</button><button class="option-btn" onclick="checkAnswer(20, 'C', this)">C. Leadership training is valuable</button><button class="option-btn" onclick="checkAnswer(20, 'D', this)">D. Academic subjects are more important</button></div><div class="feedback" id="feedback-20"></div></div>
+        <div class="speaking-section" id="speaking-5"><h3 class="speaking-title">🗣️ Speaking</h3><ul class="speaking-questions"><li>1. What leadership experiences have you had?</li><li>2. How can schools better develop student leaders?</li></ul></div>
+    </div>
+
+    <!-- Score Section -->
+    <div class="score-section" id="score-section">
+        <div class="score-circle" id="score-display">0/20</div>
+        <h2 class="score-message" id="score-message">Great job!</h2>
+        <p class="score-details" id="score-details">Time: 00:00 | Accuracy: 0%</p>
+        <div class="result-actions">
+            <button class="action-btn btn-copy" onclick="copyResults()">📋 复制结果</button>
+            <button class="action-btn btn-restart" onclick="restartTest()">🔄 重新开始</button>
+        </div>
+        <p style="margin-top: 20px; color: #7f8c8d; font-size: 13px;">💡 点击复制结果，然后发送给老师</p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation" id="navigation">
+        <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← 上一页</button>
+        <button class="nav-btn next" onclick="nextSection()" id="next-btn">下一页 →</button>
+    </div>
+</div>
+
+<div class="toast" id="toast">已复制到剪贴板！</div>
+
+<script>
+    const isWeChat = /micromessenger/i.test(navigator.userAgent);
+    if (isWeChat) { document.getElementById('wechat-banner').classList.add('show'); }
+    const answers = {
+        1: { correct: 'B', explanation: '✅ 正确！文中说 "tech-savvy solutions" 指垂直种植系统使用技术' },
+        2: { correct: 'B', explanation: '✅ 正确！文中说 "Applications for community plots close by April 15"' },
+        3: { correct: 'B', explanation: '✅ 正确！垂直种植消除了土壤传播疾病' },
+        4: { correct: 'C', explanation: '✅ 正确！减少城市热岛效应是屋顶农场的好处，不是社区花园' },
+        5: { correct: 'B', explanation: '✅ 正确！Dr. Vasquez强调传统承载着几个世纪的智慧' },
+        6: { correct: 'C', explanation: '✅ 正确！文中说 "young generations showed little interest"' },
+        7: { correct: 'B', explanation: '✅ 正确！"Intricate" 意思是复杂精细的' },
+        8: { correct: 'B', explanation: '✅ 正确！数字化存档帮助保护传统文化，说明技术的作用' },
+        9: { correct: 'B', explanation: '✅ 正确！记忆巩固过程中信息从短期转移到长期存储' },
+        10: { correct: 'A', explanation: '✅ 正确！神经可塑性是指大脑形成新神经通路的能力' },
+        11: { correct: 'C', explanation: '✅ 正确！临时抱佛脚没有被提及为最佳学习条件' },
+        12: { correct: 'B', explanation: '✅ 正确！文中说慢性压力会损害记忆形成' },
+        13: { correct: 'B', explanation: '✅ 正确！区块链技术验证加密货币交易' },
+        14: { correct: 'C', explanation: '✅ 正确！保证盈利没有被列为优势' },
+        15: { correct: 'B', explanation: '✅ 正确！专家警告价格波动剧烈的风险' },
+        16: { correct: 'B', explanation: '✅ 正确！文中说68%的专家预期更广泛采用' },
+        17: { correct: 'C', explanation: '✅ 正确！学校现在将领导力培训整合到课程中' },
+        18: { correct: 'C', explanation: '✅ 正确！批判性思维是核心能力之一' },
+        19: { correct: 'B', explanation: '✅ 正确！结构化项目提供精神休息' },
+        20: { correct: 'C', explanation: '✅ 正确！作者积极描述领导力培训的价值' }
+    };
+    const questionToPassage = { 1:1,2:1,3:1,4:1, 5:2,6:2,7:2,8:2, 9:3,10:3,11:3,12:3, 13:4,14:4,15:4,16:4, 17:5,18:5,19:5,20:5 };
+    let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval;
+    function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); document.getElementById('timer').textContent = `⏱ ${mins}:${secs}`; }, 1000); }
+    function checkAnswer(questionNum, selected, btn) {
+        if (answered[questionNum]) return;
+        answered[questionNum] = selected;
+        const feedback = document.getElementById(`feedback-${questionNum}`);
+        const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+        if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); allBtns.forEach(b => { if (b.textContent.startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+        feedback.innerHTML = answers[questionNum].explanation;
+        feedback.style.display = 'block';
+        document.getElementById('q-num').textContent = Object.keys(answered).length;
+        checkPassageComplete();
+        if (Object.keys(answered).length === 20) { document.getElementById('next-btn').textContent = '完成 ✓'; }
+    }
+    function checkPassageComplete() {
+        const currentPassageQuestions = [];
+        for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+        const allAnswered = currentPassageQuestions.every(q => answered[q]);
+        if (allAnswered) { document.getElementById('passage-complete').classList.add('visible'); document.getElementById(`speaking-${currentSection}`).classList.add('active'); }
+    }
+    function nextSection() {
+        if (Object.keys(answered).length === 20) { showScore(); return; }
+        const currentPassageQuestions = [];
+        for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+        const allAnswered = currentPassageQuestions.every(q => answered[q]);
+        if (!allAnswered) { alert(`请先完成本篇章的 ${currentPassageQuestions.length} 道题目`); return; }
+        if (currentSection < 5) {
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+            currentSection++;
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+            document.getElementById('passage-num').textContent = currentSection;
+            document.getElementById('passage-complete').classList.remove('visible');
+            document.getElementById('prev-btn').disabled = false;
+            if (currentSection === 5) { document.getElementById('next-btn').textContent = '完成 ✓'; }
+            window.scrollTo(0, 0);
+        }
+    }
+    function prevSection() {
+        if (currentSection > 1) {
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+            currentSection--;
+            document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+            document.getElementById('passage-num').textContent = currentSection;
+            document.getElementById('next-btn').textContent = '下一页 →';
+            document.getElementById('passage-complete').classList.remove('visible');
+            if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+            window.scrollTo(0, 0);
+        }
+    }
+    function showScore() {
+        document.getElementById('navigation').style.display = 'none';
+        document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+        document.getElementById('score-section').classList.add('active');
+        document.getElementById('score-display').textContent = `${score}/20`;
+        const percentage = (score / 20 * 100).toFixed(0);
+        const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+        const secs = (timerSeconds % 60).toString().padStart(2, '0');
+        document.getElementById('score-details').textContent = `时间：${mins}:${secs} | 正确率：${percentage}%`;
+        const message = document.getElementById('score-message');
+        if (score >= 18) message.textContent = '🌟 完美！太棒了！';
+        else if (score >= 15) message.textContent = '✅ 很好！继续加油！';
+        else if (score >= 12) message.textContent = '👍 不错！保持练习！';
+        else message.textContent = '💪 多加练习！你会进步的！';
+        clearInterval(timerInterval);
+    }
+    function copyResults() {
+        const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+        const secs = (timerSeconds % 60).toString().padStart(2, '0');
+        const percentage = (score / 20 * 100).toFixed(0);
+        const text = `🇨🇳 中考英语阅读练习 02 结果\n\n📊 分数：${score}/20 (${percentage}%)\n⏱ 时间：${mins}:${secs}\n📅 日期：${new Date().toLocaleDateString()}\n\n✅ 可以发送给老师查看！`;
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try { document.execCommand('copy'); const toast = document.getElementById('toast'); toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2000); } catch (err) { alert('请手动复制：\n\n' + text); }
+        document.body.removeChild(textArea);
+    }
+    function restartTest() {
+        currentSection = 1; score = 0; answered = {}; timerSeconds = 0;
+        document.getElementById('score-section').classList.remove('active');
+        document.getElementById('navigation').style.display = 'flex';
+        document.getElementById('next-btn').textContent = '下一页 →';
+        document.getElementById('prev-btn').disabled = true;
+        document.getElementById('passage-num').textContent = '1';
+        document.getElementById('q-num').textContent = '0';
+        document.getElementById('passage-complete').classList.remove('visible');
+        document.querySelectorAll('.passage-section').forEach(s => s.classList.remove('active'));
+        document.querySelector('[data-passage="1"]').classList.add('active');
+        document.querySelectorAll('.feedback').forEach(f => { f.style.display = 'none'; f.classList.remove('correct', 'incorrect'); });
+        document.querySelectorAll('.speaking-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('correct', 'incorrect'); b.disabled = false; });
+        startTimer();
+        window.scrollTo(0, 0);
+    }
+    startTimer();
+</script>
+</body>
+</html>
