@@ -10,10 +10,8 @@
 body { font-family: 'Inter', sans-serif; touch-action: manipulation; overflow: hidden; background-color: #f1f5f9; }
 .screen { display: none; height: 100vh; width: 100vw; }
 .screen.active { display: flex; flex-direction: column; }
-/* Menu Buttons */
 .unit-btn { transition: all 0.2s ease; border: 3px solid transparent; background-color: white; }
 .unit-btn:hover { transform: translateY(-3px); border-color: #4f46e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-/* Conversation Container */
 #convo-container {
 display: flex;
 flex-direction: column;
@@ -33,7 +31,6 @@ font-size: 1.2rem;
 line-height: 1.3;
 border-width: 3px;
 }
-/* Active highlight */
 .chat-bubble.active {
 transform: scale(1.06);
 font-weight: 800;
@@ -43,7 +40,6 @@ font-size: 1.35rem;
 }
 .chat-left { align-self: flex-start; border-bottom-left-radius: 0.2rem; }
 .chat-right { align-self: flex-end; border-bottom-right-radius: 0.2rem; text-align: right; }
-/* Font Color Themes */
 .theme-blue { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
 .theme-black { background-color: #f8fafc; color: #000000; border-color: #e2e8f0; }
 .theme-purple { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
@@ -78,10 +74,21 @@ font-size: 1.35rem;
 <div id="unit-grid" class="grid grid-cols-5 gap-4 pb-12"></div>
 </div>
 </div>
+
 <!-- Topic Selection Screen -->
 <div id="topic-screen" class="screen p-4 items-center justify-center bg-slate-100">
 <div class="bg-white rounded-[3rem] shadow-2xl p-10 max-w-4xl w-full border-8 border-indigo-200">
 <h2 id="topic-unit-title" class="text-4xl font-black text-indigo-950 mb-8 border-b-4 border-indigo-100 pb-4 text-center"></h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div class="p-6 bg-blue-50 rounded-3xl border-2 border-blue-200">
+<h3 class="text-blue-700 font-black text-lg uppercase mb-2">Vocabulary 🍎</h3>
+<p id="topic-vocab" class="text-slate-800 text-lg font-bold leading-snug"></p>
+</div>
+<div class="p-6 bg-purple-50 rounded-3xl border-2 border-purple-200">
+<h3 class="text-purple-700 font-black text-lg uppercase mb-2">Grammar ✏️</h3>
+<p id="topic-grammar" class="text-slate-800 text-lg font-bold leading-snug"></p>
+</div>
+</div>
 <div class="mt-10 flex justify-center gap-4 flex-wrap">
 <button onclick="startConversationFlow(1)" class="bg-indigo-600 text-white font-black py-5 px-8 rounded-full shadow-2xl hover:bg-indigo-700 transform hover:scale-110 transition-all text-lg">
 CONVO 1 🗣️
@@ -98,21 +105,27 @@ CONVO 4 🗣️
 </div>
 </div>
 </div>
+
 <!-- Conversation Screen -->
 <div id="conversation-screen" class="screen bg-white">
 <header class="p-4 border-b-2 flex justify-between items-center bg-slate-50">
 <button onclick="goToTopic()" class="bg-white border-2 border-slate-200 px-6 py-2 rounded-2xl font-black text-slate-700 flex items-center gap-2 hover:bg-slate-100">
 ⬅ BACK
 </button>
-<button onclick="goToMenu()" class="bg-indigo-100 border-2 border-indigo-300 px-6 py-2 rounded-2xl font-black text-indigo-700 flex items-center gap-2 hover:bg-indigo-200">
-🏠 HOME
-</button>
-<button id="repeat-btn" onclick="repeatConversation()" class="bg-indigo-600 text-white font-black py-2 px-6 rounded-2xl flex items-center gap-2 hover:bg-indigo-700 shadow-lg">
-🔄 REPEAT
-</button>
+<!-- Added missing ID here so JS doesn't crash! -->
+<h2 id="convo-unit-header" class="text-xl font-black text-indigo-900 mx-4 hidden sm:block text-center flex-grow"></h2>
+<div class="flex gap-2">
+    <button onclick="goToMenu()" class="bg-indigo-100 border-2 border-indigo-300 px-6 py-2 rounded-2xl font-black text-indigo-700 flex items-center gap-2 hover:bg-indigo-200">
+    🏠 HOME
+    </button>
+    <button id="repeat-btn" onclick="repeatConversation()" class="bg-indigo-600 text-white font-black py-2 px-6 rounded-2xl flex items-center gap-2 hover:bg-indigo-700 shadow-lg">
+    🔄 REPEAT
+    </button>
+</div>
 </header>
 <div id="convo-container" class="flex-grow"></div>
 </div>
+
 <script>
 const lessons = {
 "Family": {
@@ -964,11 +977,11 @@ let convoIndex = 0;
 let isTtsActive = false;
 let currentConvoType = 1;
 let currentTopicKey = null;
+let voicesLoaded = false;
 
-// Emoji regex pattern - matches most emoji characters
-const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2300}-\u{23FF}]|[\u{25A0}-\u{25FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2900}-\u{297F}]|[\u{2B00}-\u{2BFF}]|[\u{3030}]|[\u{303D}]|[\u{3297}]|[\u{3299}]/gu;
+// Emoji regex pattern
+const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2300}-\u{23FF}]|[\u{25A0}-\u{25FF}]|[\u{2900}-\u{297F}]|[\u{2B00}-\u{2BFF}]|[\u{3030}]|[\u{303D}]|[\u{3297}]|[\u{3299}]/gu;
 
-// Wrap emojis in span for display, strip for TTS
 function wrapEmojis(text) {
     return text.replace(emojiRegex, (emoji) => `<span class="emoji-wrapper">${emoji}</span>`);
 }
@@ -991,18 +1004,31 @@ function initVoices() {
     if (!brianVoice) brianVoice = voices.find(v => v.name.includes("Brian") || v.name.includes("Male")) || voices[1] || voices[0];
     if (!emmaVoice) emmaVoice = voices.find(v => v.name.includes("Emma") || v.name.includes("Female")) || voices[0];
     if (!avaVoice) avaVoice = voices.find(v => v.name.includes("Ava") || v.name.includes("Female")) || voices[1] || voices[0];
+    
+    voicesLoaded = true;
+    console.log('Voices loaded:', { williamVoice, andrewVoice, brianVoice, emmaVoice, avaVoice });
 }
 
 if (synth.onvoiceschanged !== undefined) {
     synth.onvoiceschanged = initVoices;
 }
 
+// Load voices immediately
+setTimeout(initVoices, 100);
+
 function speak(text, voice, onEnd) {
     if (synth.speaking) synth.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.voice = voice;
-    utter.rate = 1.0; // Changed to 1x speed
+    
+    // Rate set to 100% as requested
+    utter.rate = 1.0; 
+    
     utter.onend = onEnd;
+    utter.onerror = (e) => console.error('TTS Error:', e);
+    
+    // Save reference globally to avoid occasional browser garbage collection bugs
+    window.activeUtterance = utter; 
     synth.speak(utter);
 }
 
@@ -1021,7 +1047,7 @@ function goToMenu() {
 function goToTopic() {
     synth.cancel();
     isTtsActive = false;
-    if (currentTopicKey) {
+    if (currentTopicKey && lessons[currentTopicKey]) {
         selectUnit(currentTopicKey);
     } else {
         showScreen('main-menu');
@@ -1031,31 +1057,54 @@ function goToTopic() {
 function selectUnit(unitKey) {
     currentLessonData = lessons[unitKey];
     currentTopicKey = unitKey;
-    if(!currentLessonData) return;
+    if(!currentLessonData) {
+        console.error('Lesson not found:', unitKey);
+        return;
+    }
     
     document.getElementById('topic-unit-title').textContent = `${unitKey}: ${currentLessonData.title}`;
+    document.getElementById('topic-vocab').textContent = currentLessonData.vocab;
+    document.getElementById('topic-grammar').textContent = currentLessonData.grammar;
     
     showScreen('topic-screen');
+    console.log('Topic selected:', unitKey, 'Conversations:', currentLessonData.conversations.length);
 }
 
 function startConversationFlow(convoType) {
+    if (!currentLessonData) {
+        console.error('No lesson data!');
+        return;
+    }
+    
+    if (!currentLessonData.conversations || !currentLessonData.conversations[convoType - 1]) {
+        console.error('Conversation not found:', convoType);
+        return;
+    }
+    
     currentConvoType = convoType;
     synth.cancel();
     showScreen('conversation-screen');
+    
+    // This is the line that was breaking because convo-unit-header didn't exist in the HTML!
     document.getElementById('convo-unit-header').textContent = currentLessonData.title + ` (Conversation ${convoType})`;
+    
     const container = document.getElementById('convo-container');
     container.innerHTML = '';
     convoIndex = 0;
     isTtsActive = true;
+    console.log('Starting conversation:', convoType, 'Lines:', currentLessonData.conversations[convoType - 1].length);
     nextTurn();
 }
 
 function nextTurn() {
-    if (!isTtsActive) return;
+    if (!isTtsActive || !currentLessonData) return;
     
     let conversation = currentLessonData.conversations[currentConvoType - 1];
     
-    if (convoIndex >= conversation.length) return;
+    if (!conversation || convoIndex >= conversation.length) {
+        console.log('Conversation ended');
+        return;
+    }
     
     const turn = conversation[convoIndex];
     const container = document.getElementById('convo-container');
@@ -1106,7 +1155,7 @@ function init() {
         grid.appendChild(btn);
     });
     
-    initVoices();
+    console.log('App initialized with', topics.length, 'topics');
 }
 
 window.onload = init;
