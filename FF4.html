@@ -10,8 +10,10 @@
 body { font-family: 'Inter', sans-serif; touch-action: manipulation; overflow: hidden; background-color: #f1f5f9; }
 .screen { display: none; height: 100vh; width: 100vw; }
 .screen.active { display: flex; flex-direction: column; }
+/* Menu Buttons */
 .unit-btn { transition: all 0.2s ease; border: 3px solid transparent; background-color: white; }
 .unit-btn:hover { transform: translateY(-3px); border-color: #4f46e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+/* Conversation Container */
 #convo-container {
 display: flex;
 flex-direction: column;
@@ -28,19 +30,23 @@ border-radius: 1.5rem;
 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 opacity: 1;
 transform: scale(1);
-font-size: 1.5rem;
+/* Increased 25% from 1.2rem */
+font-size: 1.5rem; 
 line-height: 1.3;
 border-width: 3px;
 }
+/* Active highlight */
 .chat-bubble.active {
 transform: scale(1.06);
 font-weight: 800;
 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 z-index: 10;
-font-size: 1.8rem;
+/* Increased 25% from 1.35rem */
+font-size: 1.8rem; 
 }
 .chat-left { align-self: flex-start; border-bottom-left-radius: 0.2rem; }
 .chat-right { align-self: flex-end; border-bottom-right-radius: 0.2rem; text-align: right; }
+/* Font Color Themes */
 .theme-blue { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
 .theme-black { background-color: #f8fafc; color: #000000; border-color: #e2e8f0; }
 .theme-purple { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
@@ -49,9 +55,12 @@ font-size: 1.8rem;
 @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .chat-bubble { animation: slideIn 0.4s ease forwards; }
 ::-webkit-scrollbar { display: none; }
+/* Emoji wrapper - visible but ignored by TTS */
 .emoji-wrapper { display: inline-block; }
+/* Header Reduction - 50% smaller padding */
 header { padding: 0.5rem 1rem; }
 .header-btn { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+/* Review Modal */
 #review-modal {
 display: none;
 position: fixed;
@@ -74,6 +83,7 @@ border: 4px solid #indigo;
 </style>
 </head>
 <body>
+<!-- Main Menu -->
 <div id="main-menu" class="screen active p-6 overflow-y-auto">
 <div class="max-w-6xl mx-auto w-full">
 <h1 class="text-5xl font-black text-center text-indigo-950 mb-4">English Dialogue Practice</h1>
@@ -95,6 +105,7 @@ border: 4px solid #indigo;
 <div id="unit-grid" class="grid grid-cols-5 gap-4 pb-12"></div>
 </div>
 </div>
+<!-- Objective Screen -->
 <div id="objective-screen" class="screen p-4 items-center justify-center bg-slate-100">
 <div class="bg-white rounded-[3rem] shadow-2xl p-10 max-w-4xl w-full border-8 border-indigo-200">
 <h2 id="obj-unit-title" class="text-4xl font-black text-indigo-950 mb-8 border-b-4 border-indigo-100 pb-4 text-center"></h2>
@@ -107,6 +118,7 @@ border: 4px solid #indigo;
 </div>
 </div>
 </div>
+<!-- Conversation Screen -->
 <div id="conversation-screen" class="screen bg-white">
 <header class="border-b-2 flex justify-between items-center bg-slate-50 gap-2">
 <button onclick="goToMenu()" class="header-btn bg-white border-2 border-slate-200 rounded-xl font-black text-slate-700 hover:bg-slate-100">🏠</button>
@@ -117,6 +129,7 @@ border: 4px solid #indigo;
 </header>
 <div id="convo-container" class="flex-grow"></div>
 </div>
+<!-- Review Modal -->
 <div id="review-modal" onclick="if(event.target === this) toggleReview()">
 <div class="review-content">
 <h2 id="review-title" class="text-3xl font-black text-indigo-950 mb-4"></h2>
@@ -1133,6 +1146,7 @@ let convoIndex = 0;
 let isTtsActive = false;
 let currentConvoType = 1;
 let currentTopicKey = null;
+let voicesReady = false;
 
 const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2300}-\u{23FF}]|[\u{25A0}-\u{25FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2900}-\u{297F}]|[\u{2B00}-\u{2BFF}]|[\u{3030}]|[\u{303D}]|[\u{3297}]|[\u{3299}]/gu;
 
@@ -1144,30 +1158,47 @@ function stripEmojis(text) {
 return text.replace(emojiRegex, '').trim();
 }
 
+// UPDATED: Specific Microsoft Edge Online Voice Matching
 function initVoices() {
-try {
 const voices = synth.getVoices();
-williamVoice = voices.find(v => v.name.includes("William")) || voices.find(v => v.name.includes("Male")) || voices[0];
-andrewVoice = voices.find(v => v.name.includes("Andrew")) || voices.find(v => v.name.includes("Male")) || voices[0];
-brianVoice = voices.find(v => v.name.includes("Brian")) || voices.find(v => v.name.includes("Male")) || voices[1] || voices[0];
-emmaVoice = voices.find(v => v.name.includes("Emma")) || voices.find(v => v.name.includes("Female")) || voices[0];
-avaVoice = voices.find(v => v.name.includes("Ava")) || voices.find(v => v.name.includes("Female")) || voices[1] || voices[0];
-} catch(e) {
-console.error('Voice init error:', e);
-}
+console.log('Available voices:', voices.map(v => v.name));
+
+// Match Microsoft Online Natural voices specifically
+williamVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("William") && v.name.includes("Online"));
+andrewVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Andrew") && v.name.includes("Online"));
+brianVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Brian") && v.name.includes("Online"));
+emmaVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Emma") && v.name.includes("Online"));
+avaVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Ava") && v.name.includes("Online"));
+
+// Fallback to any English voice if Microsoft Online not found
+if (!williamVoice) williamVoice = voices.find(v => v.name.includes("William") || (v.name.includes("Male") && v.lang.startsWith("en"))) || voices[0];
+if (!andrewVoice) andrewVoice = voices.find(v => v.name.includes("Andrew") || (v.name.includes("Male") && v.lang.startsWith("en"))) || voices[0];
+if (!brianVoice) brianVoice = voices.find(v => v.name.includes("Brian") || (v.name.includes("Male") && v.lang.startsWith("en"))) || voices[1] || voices[0];
+if (!emmaVoice) emmaVoice = voices.find(v => v.name.includes("Emma") || (v.name.includes("Female") && v.lang.startsWith("en"))) || voices[0];
+if (!avaVoice) avaVoice = voices.find(v => v.name.includes("Ava") || (v.name.includes("Female") && v.lang.startsWith("en"))) || voices[1] || voices[0];
+
+voicesReady = true;
+console.log('Voices initialized:', { williamVoice: williamVoice?.name, andrewVoice: andrewVoice?.name, brianVoice: brianVoice?.name, emmaVoice: emmaVoice?.name, avaVoice: avaVoice?.name });
 }
 
+// Wait for voices to load (critical for Microsoft Online voices)
 if (synth.onvoiceschanged !== undefined) {
 synth.onvoiceschanged = initVoices;
 }
+// Also call immediately in case voices are already loaded
 initVoices();
 
 function speak(text, voice, onEnd) {
+// Wait for voices to be ready
+if (!voicesReady) {
+setTimeout(() => speak(text, voice, onEnd), 100);
+return;
+}
 try {
 if (synth.speaking) synth.cancel();
 const utter = new SpeechSynthesisUtterance(text);
 utter.voice = voice;
-utter.rate = 1.0;
+utter.rate = 1.0; // 100% speed (was 0.85)
 utter.onend = onEnd;
 synth.speak(utter);
 } catch(e) {
@@ -1202,6 +1233,10 @@ console.error('Select unit error:', e);
 
 function startConversationFlow(convoType) {
 try {
+if (!voicesReady) {
+alert('Voices are still loading. Please wait a moment and try again.');
+return;
+}
 currentConvoType = convoType;
 synth.cancel();
 showScreen('conversation-screen');
