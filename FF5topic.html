@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESL Conversation Practice - A2/B1 Level</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Inter', sans-serif; touch-action: manipulation; overflow: hidden; background-color: #f1f5f9; }
+.screen { display: none; height: 100vh; width: 100vw; }
+.screen.active { display: flex; flex-direction: column; }
+.unit-btn { transition: all 0.2s ease; border: 3px solid transparent; background-color: white; }
+.unit-btn:hover { transform: translateY(-3px); border-color: #4f46e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+#convo-container {
+display: flex;
+flex-direction: column;
+justify-content: center;
+height: 100%;
+padding: 0.5rem 1rem;
+gap: 0.4rem;
+overflow-y: auto;
+}
+.chat-bubble {
+max-width: 80%;
+padding: 0.6rem 1.2rem;
+border-radius: 1.5rem;
+transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+opacity: 1;
+transform: scale(1);
+font-size: 1.5rem;
+line-height: 1.3;
+border-width: 3px;
+}
+.chat-bubble.active {
+transform: scale(1.06);
+font-weight: 800;
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+z-index: 10;
+font-size: 1.8rem;
+}
+.chat-left { align-self: flex-start; border-bottom-left-radius: 0.2rem; }
+.chat-right { align-self: flex-end; border-bottom-right-radius: 0.2rem; text-align: right; }
+.theme-blue { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+.theme-black { background-color: #f8fafc; color: #000000; border-color: #e2e8f0; }
+.theme-purple { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
+.theme-emerald { background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+.speaker-name { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.05em; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.chat-bubble { animation: slideIn 0.4s ease forwards; }
+::-webkit-scrollbar { display: none; }
+.emoji-wrapper { display: inline-block; }
+header { padding: 0.5rem 1rem; }
+.header-btn { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+#review-modal {
+display: none;
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0,0,0,0.5);
+z-index: 50;
+align-items: center;
+justify-content: center;
+}
+#review-modal.active { display: flex; }
+.review-content {
+background: white;
+padding: 2rem;
+border-radius: 2rem;
+max-width: 90%;
+max-height: 80vh;
+overflow-y: auto;
+border: 4px solid #indigo;
+}
+.level-badge {
+background: linear-gradient(135deg, #6366f1, #8b5cf6);
+color: white;
+padding: 0.25rem 0.75rem;
+border-radius: 9999px;
+font-weight: 700;
+font-size: 0.85rem;
+}
+</style>
+</head>
+<body>
+<div id="main-menu" class="screen active p-6 overflow-y-auto">
+<div class="max-w-6xl mx-auto w-full">
+<h1 class="text-5xl font-black text-center text-indigo-950 mb-2">English Dialogue Practice</h1>
+<div class="flex justify-center mb-4"><span class="level-badge">A2/B1 Level</span></div>
+<p class="text-center text-slate-600 mb-10 text-xl font-semibold italic text-balance">Develop fluency with natural conversations and advanced vocabulary.</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="p-6 bg-blue-50 rounded-3xl border-2 border-blue-200">
+<h3 class="text-blue-700 font-black text-lg uppercase mb-2">Vocabulary 🍎</h3>
+<p class="text-slate-800 text-xl font-bold">Expand your word bank with collocations & idioms</p>
+</div>
+<div class="p-6 bg-purple-50 rounded-3xl border-2 border-purple-200">
+<h3 class="text-purple-700 font-black text-lg uppercase mb-2">Grammar ✏️</h3>
+<p class="text-slate-800 text-xl font-bold">Master present perfect, conditionals & modals</p>
+</div>
+<div class="p-6 bg-emerald-50 rounded-3xl border-2 border-emerald-200">
+<h3 class="text-emerald-700 font-black text-lg uppercase mb-2">Skills 💡</h3>
+<p class="text-slate-800 text-xl font-bold">Practice agreeing, suggesting & expressing opinions</p>
+</div>
+</div>
+<div id="unit-grid" class="grid grid-cols-5 gap-4 pb-12"></div>
+</div>
+</div>
+<div id="objective-screen" class="screen p-4 items-center justify-center bg-slate-100">
+<div class="bg-white rounded-[3rem] shadow-2xl p-10 max-w-4xl w-full border-8 border-indigo-200">
+<h2 id="obj-unit-title" class="text-4xl font-black text-indigo-950 mb-8 border-b-4 border-indigo-100 pb-4 text-center"></h2>
+<div class="mt-10 flex justify-center gap-4 flex-wrap">
+<button onclick="startConversationFlow(1)" class="bg-indigo-600 text-white font-black py-5 px-8 rounded-full shadow-2xl hover:bg-indigo-700 transform hover:scale-110 transition-all text-lg">#1 🗣️</button>
+<button onclick="startConversationFlow(2)" class="bg-purple-600 text-white font-black py-5 px-8 rounded-full shadow-2xl hover:bg-purple-700 transform hover:scale-110 transition-all text-lg">#2 🗣️</button>
+<button onclick="startConversationFlow(3)" class="bg-emerald-600 text-white font-black py-5 px-8 rounded-full shadow-2xl hover:bg-emerald-700 transform hover:scale-110 transition-all text-lg">#3 🗣️</button>
+<button onclick="startConversationFlow(4)" class="bg-pink-600 text-white font-black py-5 px-8 rounded-full shadow-2xl hover:bg-pink-700 transform hover:scale-110 transition-all text-lg">#4 🗣️</button>
+<button onclick="startConversationFlow(5)" class="bg-orange-600 text-white font-black py-5 px-8 rounded-full shadow-2xl hover:bg-orange-700 transform hover:scale-110 transition-all text-lg">#5 🗣️</button>
+</div>
+</div>
+</div>
+<div id="conversation-screen" class="screen bg-white">
+<header class="border-b-2 flex justify-between items-center bg-slate-50 gap-2">
+<button onclick="goToMenu()" class="header-btn bg-white border-2 border-slate-200 rounded-xl font-black text-slate-700 hover:bg-slate-100">🏠</button>
+<button onclick="prevConversation()" class="header-btn bg-white border-2 border-slate-200 rounded-xl font-black text-slate-700 hover:bg-slate-100">⬅</button>
+<h2 id="convo-unit-header" class="text-xl font-black text-indigo-900 flex-grow text-center"></h2>
+<button onclick="nextConversation()" class="header-btn bg-white border-2 border-slate-200 rounded-xl font-black text-slate-700 hover:bg-slate-100">➡</button>
+<button onclick="toggleReview()" class="header-btn bg-indigo-600 border-2 border-indigo-600 rounded-xl font-black text-white hover:bg-indigo-700">📝</button>
+</header>
+<div id="convo-container" class="flex-grow"></div>
+</div>
+<div id="review-modal" onclick="if(event.target === this) toggleReview()">
+<div class="review-content">
+<h2 id="review-title" class="text-3xl font-black text-indigo-950 mb-4"></h2>
+<div class="mb-6">
+<h3 class="text-xl font-bold text-indigo-700 mb-2">🔑 A2/B1 Keywords</h3>
+<p id="review-keywords" class="text-lg text-slate-700"></p>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-bold text-indigo-700 mb-2">✏️ Grammar Focus</h3>
+<p id="review-grammar" class="text-lg text-slate-700"></p>
+</div>
+<button onclick="toggleReview()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700">CLOSE</button>
+</div>
+</div>
+
+<script>
+const lessons = {
+"Family": {
+title: "Family 👨‍👩‍👧‍👦", emoji: "👨‍👩‍👧‍👦",
+review: { 
+keywords: "relatives, extended family, get along with, look up to, family reunion, generation, upbringing, values, support system, role model", 
+grammar: "Present perfect for experiences, Relative clauses (who/which/that), Comparatives with modifiers (much/far/a bit)" 
+},
+conversations: [
+[
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I've been looking through these old family photos. They really bring back memories, don't they? 📸" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "They certainly do! Who's that in the background? Is that a relative I haven't met? 👤" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That's my cousin Jake, who lives abroad now. We've kept in touch through video calls, though. 👨‍👩‍👧‍👦" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "That's wonderful! My sister is much taller than me now, but we still get along really well. 🚗" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Family dynamics can be complex, but having that support system is invaluable. How old were you in this picture? 🤔" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "I must have been about seven. My birthday's in March, so I'd just turned seven. When's yours? 📅" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Mine's in August. My grandparents are in their nineties now, which is remarkable. 👴👵" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "That's amazing! Do they still live independently, or have they moved in with family? 🏠" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "They've downsized to a smaller place nearby. We visit them every Sunday, which has become a cherished tradition. 🚗" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "That sounds lovely. Maintaining those intergenerational connections is so important for everyone. ❤️" }
+],
+[
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Max, I noticed you were studying that family photo. What caught your attention? 📷" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I was wondering about the people in it. This is Mom and Dad, obviously, but Dad looks much younger here! 👨‍👩" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Time flies! And those two children? Can you identify them? 👧👦" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That's Holly and me. I was definitely smaller back then, but I've caught up height-wise! 😊" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "You certainly have. Speaking of family, I come from quite a large one myself – two brothers and a sister. 👨‍👩‍👧‍👦" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Really? What are your brothers like? Are they similar to you? 🎂" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Tommy's eight, so he's a bit older than I was at your age. Ben's six, so he's younger. They're quite different personalities. 👦" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Do you all still spend time together, or has life taken you in different directions? ⚽" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "We make a real effort to get together for soccer every weekend. It's how we stay connected. 🥅" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That's a great idea. Maybe I could join you sometime? I'd love to meet them! 🏃" }
+],
+[
+{ name: "Mom", gender: "f", voice: "emma", theme: "theme-blue", side: "left", text: "Leo, I was wondering – do you have any cousins you're particularly close to? 👨‍👩‍👧‍👦" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Actually, I do! I have three cousins. Two of them live in Canada, which is quite far, and one's in Mexico. 🌎" },
+{ name: "Mom", gender: "f", voice: "emma", theme: "theme-blue", side: "left", text: "That must make it challenging to see them regularly. Do you manage to visit? 👀" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Not as often as I'd like, unfortunately. We usually meet during summer vacation, and it's always a highlight of my year! ☀️" },
+{ name: "Mom", gender: "f", voice: "emma", theme: "theme-blue", side: "left", text: "That sounds wonderful. My cousins live much closer, so we've grown up playing together every weekend. ⚽" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "That must be great for building strong bonds. Family relationships are really important, aren't they? ❤️" },
+{ name: "Mom", gender: "f", voice: "emma", theme: "theme-blue", side: "left", text: "Absolutely. Do you and your distant cousins keep in touch through technology? 📱" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "We do! We have a group video call every Sunday. It's not the same as being there, but it helps. 📹" },
+{ name: "Mom", gender: "f", voice: "emma", theme: "theme-blue", side: "left", text: "Technology has really changed how we maintain relationships across distances, hasn't it? 🌐" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Definitely. I feel lucky to have such a supportive family, even if we're spread out. 👨‍👩‍👧‍👦" }
+],
+[
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Class, I'd like you to examine this family tree. What observations can you make? 🌳" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "Wow, it's quite extensive! How many generations does it cover, exactly? 👨‍👩‍👧‍👦" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "It spans four generations! Your grandparents had five children, which explains the large number of relatives. 👴👵" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "That's fascinating! Who would be considered the eldest member of the family? 🤔" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Your Uncle John is the eldest sibling at sixty-five. He's been a real role model for the younger generations. 👨" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "And on the other end, who's the youngest? I see some babies on here. 👶" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Your cousin Lily is the youngest at just two years old. She's growing up so quickly! 🎂" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "It's amazing how much children develop in those early years. She'll be talking soon! 📏" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Indeed. And she'll have so many relatives to learn from and look up to. 🌱" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "I'd like to be a positive influence for her. Maybe I could teach her some games when she's older. 🎮" }
+],
+[
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Max, I've been thinking – why don't we create a family portrait together? It could be a fun project. 🎨" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That's a brilliant idea! Where should we start? Should we sketch everyone individually first? 🖍️" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Perhaps we could begin with Mom and Dad in the center, since they're the foundation of our family. 👨‍👩" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Agreed. Then I could add Grandma and Grandpa. They've got such distinctive features. 👴👵" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Don't forget our cousins! They're an important part of our extended family. 👧👦" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Absolutely. It's interesting how family connections shape who we become, isn't it? ❤️" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "This is turning into quite a large artwork! Maybe we should use a bigger canvas. 🖼️" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Good point. A large family deserves a large portrait! It'll be a conversation piece. 😊" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Once it's finished, we could hang it in the living room where everyone can see it. 🧱" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Perfect. It'll remind us of our connections every time we walk by. 👀" }
+]
+]
+},
+"Animals": {
+title: "Animals 🐒", emoji: "🐒",
+review: { 
+keywords: "habitat, endangered species, conservation, biodiversity, ecosystem, adaptation, migration, predator/prey, wildlife sanctuary, ethical tourism", 
+grammar: "Present perfect for life experiences, Relative clauses (that/which/who), Modal verbs for advice (should/must)" 
+},
+conversations: [
+[
+{ name: "Dad", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "We're at the zoo! What animals have you been most excited to see today? 🦁" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "The big cats! I've always admired how powerful yet graceful they are. Have you noticed their different hunting styles? 🐅" },
+{ name: "Dad", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Great observation! Lions hunt in prides, while tigers are solitary hunters. Adaptations help them survive in their habitats. 🦁" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "That's fascinating! Do you think zoos play an important role in conservation? 🤔" },
+{ name: "Dad", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "When done ethically, yes. Many zoos participate in breeding programs for endangered species. 🌍" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "That's good to know. What can we do to help protect wildlife in the wild? 🦏" },
+{ name: "Dad", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Support conservation organizations, choose sustainable products, and educate others. Every action matters! 💪" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "I'll start by learning more about endangered species. Knowledge is the first step to action! 📚" },
+{ name: "Dad", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Exactly! And remember – ethical tourism means respecting animals' natural behaviors and habitats. 🙏" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "I'll keep that in mind on all my future travels. Thank you for this important lesson! ❤️" }
+],
+[
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Today we are learning about ecosystems. Has anyone ever seen an animal in its natural habitat? 🌳" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "I have! Last summer, my family visited a national park and we saw a herd of deer grazing. 🦌" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "That must have been amazing! Deer are a vital part of the food web. What role do they play? 🌿" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "They are herbivores, so they eat plants. That makes them primary consumers in the ecosystem, right? 🌱" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Spot on, Leo. And what happens if the predator population, like wolves, drops too low? 🐺" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "The deer population would increase too much, which could lead to overgrazing and damage the habitat. 📉" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Exactly. This balance is known as biodiversity. We must protect it to keep ecosystems healthy. 🌍" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "So, everything is connected. If one species disappears, it affects the whole environment. 🕸️" },
+{ name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "That's the perfect summary. We all share a responsibility to protect these fragile connections. 🤝" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "I definitely want to read more about wildlife sanctuaries that help maintain this balance. 📖" }
+],
+[
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Amy, have you ever considered volunteering at an animal shelter? I’m thinking about signing up. 🐕" },
+{ name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "I have actually! I volunteered last year. It was incredibly rewarding to help abandoned pets find homes. 🏡" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "That’s awesome. What kind of tasks did you have to do? Was it difficult work? 🤔" },
+{ name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "We cleaned enclosures, fed the animals, and spent time socializing with them. They need lots of affection. ❤️" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "I love dogs, so walking them sounds perfect to me. Did you work with cats as well? 🐈" },
+{ name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "Yes, the cats were in a separate room. Some were shy, so we had to be very patient and gentle with them. 🐾" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "It must be sad seeing them waiting for a family. Do most of them get adopted eventually? 🥺" },
+{ name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "Many do, thankfully! The shelter works hard to match them with responsible owners who understand their needs. 🤝" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "That settles it. I'm going to apply this weekend. I really want to make a difference. 📝" },
+{ name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "You’ll love it, Max! Let me know if you need any tips for the application process. 🌟" }
+],
+[
+{ name: "Guide", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Welcome to the bird sanctuary! If you look closely, you might spot some migratory species resting here today. 🦅" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "Wow, it’s beautiful! How far do these birds travel during their migration season? 🌍" },
+{ name: "Guide", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Some travel thousands of miles across continents! They migrate to find better climates and food sources. ☀️" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "That is incredible stamina. How do they navigate such long distances without getting lost? 🧭" },
+{ name: "Guide", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "They use the earth's magnetic field, the position of the sun, and even landmarks. It’s a remarkable adaptation. 🧠" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "Nature is so clever. Are there any specific threats they face during these long journeys? ⛈️" },
+{ name: "Guide", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Unfortunately, yes. Habitat loss, light pollution in cities, and extreme weather can disrupt their routes severely. 🏙️" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "Is that why sanctuaries like this one are so important? To give them a safe place to rest? 🌳" },
+{ name: "Guide", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Exactly! Wetlands like this provide crucial pit stops. Without them, many wouldn't survive the trip. 💧" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "I’m going to take some photos to show my class. This is a very important conservation effort! 📸" }
+],
+[
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "Have you seen that documentary about marine life? The footage of the whales was breathtaking! 🐋" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "I did! I couldn't believe how intelligent they are. They communicate using complex songs across the ocean. 🎶" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "I know, right? And they live in such tight-knit family groups, or pods, just like humans do. 👨‍👩‍👦" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "It made me realize how much noise pollution must affect them. If boats are too loud, they can't hear each other. 🚢" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "Exactly. The documentary mentioned that some species are still endangered despite bans on commercial whaling. 📉" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "Plastic pollution is another huge issue. Sea turtles often mistake plastic bags for jellyfish, their main prey. 🐢" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "That’s terrible. We really need to focus on cleaning up the oceans before more species are lost forever. 🌊" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "I agree. We should join the beach cleanup next week. It’s a small step, but it’s a start. 🗑️" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "Count me in! Protecting marine ecosystems is something we should all be actively participating in. 💪" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "Awesome. I'll send you the details. Let’s make a positive impact for the animals! 🌍" }
+]
+]
+},
+"Food": {
+title: "Food 🍽️", emoji: "🍽️",
+review: { 
+keywords: "nutrition, balanced diet, sustainable eating, food miles, organic, seasonal produce, food waste, culinary traditions, dietary preferences, mindful eating", 
+grammar: "Conditionals for hypotheticals (If I... I would...), Comparatives with quantifiers (much more/far less), Reported speech" 
+},
+conversations: [
+[
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Max, I've been thinking about our family meals. How could we make them more nutritious and sustainable? 🥗" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Great question! We could start by buying more seasonal, local produce. It's fresher and has lower food miles. 🍅" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Excellent idea! What about reducing food waste? I've read that's a major environmental issue. ♻️" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "We could plan meals better, store food properly, and get creative with leftovers. Composting helps too! 🗑️" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Those are practical steps. What about dietary balance? How can we ensure we're getting all nutrients? 🥦" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Eating a variety of colorful fruits and vegetables helps. And including different protein sources – plants, fish, lean meats. 🌈" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "That makes sense. What if someone has dietary restrictions? How can we accommodate everyone? 🤔" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Focus on whole foods that are naturally flexible – grains, beans, veggies. And always ask about preferences! 🙏" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Wise advice! Mindful eating isn't just about what we eat, but how we eat – slowly, gratefully. 🧘" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Absolutely! Food connects us to culture, health, and the planet. Every meal is a choice. 🌍" }
+],
+[
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "I tried a new vegetarian restaurant yesterday. Have you ever considered eating less meat, Amy? 🥑" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "I have! Actually, I do 'Meatless Mondays' to reduce my carbon footprint. How was the restaurant? 🍽️" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "It was incredible! I had a mushroom risotto that was much more flavorful than I expected. 🍄" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "That sounds delicious. Plant-based diets can be surprisingly diverse and really good for your health, too. 🌱" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "Exactly. The chef told me they only use organic ingredients sourced from local farms nearby. 🚜" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Supporting local agriculture is so important. It helps the local economy and ensures fresher food. 🧑‍🌾" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "If I learned how to cook like that, I would definitely eat at home more often! 👨‍🍳" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "We could take a cooking class together! Learning to use spices properly makes a huge difference. 🌶️" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "That's a fantastic idea. Let's look up some classes this weekend and expand our culinary skills. 🍳" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "I'm in! Maybe we can host a dinner party for our friends once we master a few recipes. 🎉" }
+],
+[
+{ name: "Teacher", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Today we are discussing culinary traditions. Max, what is a traditional dish in your culture? 🍲" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "My family loves making Sunday roast. It usually consists of roasted meat, potatoes, vegetables, and gravy. 🥩" },
+{ name: "Teacher", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "That sounds very hearty. Why do you think certain foods become cultural traditions? 🌍" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Historically, people cooked with whatever was locally available and in season in their region. 🗺️" },
+{ name: "Teacher", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Precisely! Climate and geography dictate agriculture. Does your family still follow the traditional recipe? 📜" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Mostly, but we’ve adapted it to be a bit healthier. We use less oil and bake the vegetables instead of frying them. 🥕" },
+{ name: "Teacher", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "That’s a smart modification. Food evolves over time as our understanding of nutrition improves. 🧠" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Definitely. Plus, sharing a meal brings everyone together to talk and connect after a busy week. 👨‍👩‍👦" },
+{ name: "Teacher", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "The social aspect of eating is incredibly important for community building across all cultures. 🤝" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I completely agree. The best conversations always happen around the dinner table! 🗣️" }
+],
+[
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "I was reading about processed foods today. It’s alarming how much added sugar is in everything! 🍬" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "I know! Even savory foods like pasta sauce and bread can be packed with hidden sugars and preservatives. 🥫" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Exactly. If people read nutrition labels more carefully, they would probably change their buying habits. 📊" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "It can be confusing, though. Sometimes the serving sizes on the packaging are completely unrealistic. 📏" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "That’s a fair point. I’m trying to stick to the outer aisles of the grocery store where the fresh food is. 🛒" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "That’s a great strategy. Whole foods like grains, nuts, and fresh produce are always a safer bet. 🥜" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "It requires more preparation time, but the long-term benefits to our health and energy levels are worth it. ⚡" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "Meal prepping on Sundays helps me save time during the week. It prevents me from ordering takeout, too. 🥡" },
+{ name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "I should try that! It would definitely be kinder to both my wallet and my health. 💰" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "Let me share some simple meal prep recipes with you later. They are a lifesaver! 🥗" }
+],
+[
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "I've been reviewing our grocery bills, and we are throwing away entirely too much food at the end of the week. 📉" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "You're right. We need to be much more mindful. Food waste in landfills produces methane, a potent greenhouse gas. 🌍" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "I didn't realize the environmental impact was so severe. How can we fix this at home? 🛠️" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "First, we should always make a strict shopping list and never go to the supermarket when we are hungry! 📝" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "Guilty as charged! What if we also started organizing the fridge so older items are moved to the front? 🧊" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "That's the 'First In, First Out' method. It works beautifully for restaurants. We should definitely adopt it. 🔄" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "And if vegetables start looking a bit wilted, we can use them to make soup or stock instead of tossing them. 🥣" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "Perfect. We can also freeze bread and fruits before they go bad. Smoothies are a great way to use up fruit. 🍓" },
+{ name: "Dad", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "These are very practical changes. It will save us money and help the environment simultaneously. 💡" },
+{ name: "Mom", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "It's a win-win situation. Let's clean out the fridge right now and take inventory of what we have! 📋" }
+]
+]
+},
+"School": {
+title: "School 🏫", emoji: "🏫",
+review: { 
+keywords: "assignment, extracurricular, curriculum, campus, presentation, tuition, scholarship, deadline, peer pressure, guidance counselor", 
+grammar: "Future continuous (I will be studying), Passive voice, First and Second Conditionals" 
+},
+conversations: [
+[
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Hey Max, are you ready for the biology presentation tomorrow? I'm feeling a bit anxious about it. 🧬" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I've finished my slides, but I still need to practice my delivery. What topic did you choose? 🎤" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "I chose cellular respiration. If I had known how complex it was, I might have picked something simpler! 🔬" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "It is challenging, but the teacher appreciates ambition. You'll do great if you explain the steps clearly. 📊" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "I hope so! The rubric says we will be graded on eye contact and body language as well as content. 👀" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Right. We should avoid reading directly from the notes. Maybe we could practice together during lunch? 🥪" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "That would be incredibly helpful! Peer feedback is usually the best way to improve a presentation. 🤝" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Exactly. I’ll meet you in the library at noon. We can book one of the study rooms. 📚" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Perfect. Don't forget your flash drive! I almost lost my files yesterday when my laptop crashed. 💻" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I backed everything up to the cloud just in case. See you at lunch, Amy! 👋" }
+],
+[
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "Welcome to the guidance office, Leo. Let's discuss your university applications. Do you have a major in mind? 🎓" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "I've been leaning toward engineering, specifically mechanical. I really enjoy physics and problem-solving. ⚙️" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "That's a very competitive field. Have you looked into the prerequisites for the programs you're interested in? 📋" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Yes, I know I need advanced calculus and physics. I'm taking those classes this semester to prepare. 📐" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "Excellent planning. Extracurricular activities are also heavily weighed by admissions committees. What are you involved in? ⚽" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "I'm the captain of the robotics club, and we recently won a regional competition. Will that help? 🤖" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "Absolutely! It demonstrates leadership and a practical application of your skills. Make sure to highlight that in your personal essay. ✍️" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "I definitely will. I'm also applying for a few scholarships to help offset the tuition costs. 💰" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-black", side: "left", text: "Smart move. If you need me to write a letter of recommendation, just give me at least two weeks' notice. ✉️" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Thank you so much, Mr. Davis. I appreciate your guidance through this process! 🙏" }
+],
+[
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "I can't believe the semester is almost over! Have you started studying for finals yet? 📅" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "A little bit. I’m focusing on history first because there are so many dates and events to memorize. 🏛️" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "History is definitely dense. I find creating flashcards really helps me retain the information better. 📝" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I should try that. I've been just re-reading the textbook, but I feel like I'm not absorbing it effectively. 📖" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Active recall is much more efficient than passive reading. Also, make sure you get enough sleep! 💤" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That’s my biggest struggle. I end up cramming late into the night, which leaves me exhausted the next day. ☕" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "If you create a study schedule now, you won't have to cram later. Consistency is key to long-term memory. 🧠" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "You’re totally right. Let’s sit down tomorrow and map out a revision timetable for the next three weeks. 🗓️" },
+{ name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Sounds like a plan! We can hold each other accountable to ensure we stay on track. 🤝" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Perfect. With a solid plan, we'll definitely ace these exams. Good luck to us both! 🍀" }
+],
+[
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "Did you hear about the new foreign exchange program? They are accepting applications for next year. 🌍" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Yes, I saw the flyer! I would love to study in Germany. The immersion would be incredible for my language skills. 🇩🇪" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "It's a fantastic opportunity to experience a different culture. However, being away from home for a year sounds intimidating. ✈️" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "It would be an adjustment, definitely. But overcoming those challenges builds independence and resilience. 💪" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "That's a very mature perspective. Are there any specific requirements to apply for the program? 📋" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "You need a recommendation from a language teacher, a strong GPA, and you have to pass an interview. 🗣️" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "The interview is probably to assess your adaptability and motivation. I think you'd be a perfect candidate! 🌟" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Thanks, Leo! I'm going to talk to Frau Schmidt tomorrow about my chances and ask for her advice. 👩‍🏫" },
+{ name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "Let me know how it goes. If you get accepted, I expect you to bring back some authentic German chocolate! 🍫" },
+{ name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Deal! First, I have to finish my application essay. Fingers crossed! 🤞" }
+],
+[
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Alright class, your final project for literature will be a collaborative group effort analyzing a classic novel. 📚" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Will we be assigned groups, or can we choose our own partners for this assignment? 🤔" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "I will be assigning the groups. In the real world, you don't always get to choose your colleagues. It’s an important skill. 🤝" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That makes sense. What exactly is the deliverable? Do we need to write an essay or just present? 📝" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Both. You will submit a ten-page research paper and conduct a 15-minute multimedia presentation. 📽️" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Wow, that's comprehensive. We'll definitely need to divide the workload fairly among the group members. ⚖️" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Exactly. I expect to see a clear outline of who is responsible for which sections by Friday. 📅" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Can we use secondary sources, like literary critiques, to support our analysis of the themes? 🔍" },
+{ name: "Teacher", gender: "m", voice: "william", theme: "theme-emerald", side: "left", text: "Yes, you must include at least five peer-reviewed academic sources. Remember to cite them properly! 📖" },
+{ name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Understood. I'll reach out to my group members today so we can start brainstorming our approach. 🧠" }
+]
+]
+}
+};
+
+const synth = window.speechSynthesis;
+let williamVoice, andrewVoice, brianVoice, emmaVoice, avaVoice;
+let currentLessonData = null;
+let convoIndex = 0;
+let isTtsActive = false;
+let currentConvoType = 1;
+let currentTopicKey = null;
+let voicesReady = false;
+
+const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2300}-\u{23FF}]|[\u{25A0}-\u{25FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2900}-\u{297F}]|[\u{2B00}-\u{2BFF}]|[\u{3030}]|[\u{303D}]|[\u{3297}]|[\u{3299}]/gu;
+
+function wrapEmojis(text) {
+return text.replace(emojiRegex, (emoji) => `<span class="emoji-wrapper">${emoji}</span>`);
+}
+
+function stripEmojis(text) {
+return text.replace(emojiRegex, '').trim();
+}
+
+function initVoices() {
+const voices = synth.getVoices();
+console.log('Available voices:', voices.map(v => v.name));
+
+williamVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("William") && v.name.includes("Online"));
+andrewVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Andrew") && v.name.includes("Online"));
+brianVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Brian") && v.name.includes("Online"));
+emmaVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Emma") && v.name.includes("Online"));
+avaVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Ava") && v.name.includes("Online"));
+
+if (!williamVoice) williamVoice = voices.find(v => v.name.includes("William") || (v.name.includes("Male") && v.lang.startsWith("en"))) || voices[0];
+if (!andrewVoice) andrewVoice = voices.find(v => v.name.includes("Andrew") || (v.name.includes("Male") && v.lang.startsWith("en"))) || voices[0];
+if (!brianVoice) brianVoice = voices.find(v => v.name.includes("Brian") || (v.name.includes("Male") && v.lang.startsWith("en"))) || voices[1] || voices[0];
+if (!emmaVoice) emmaVoice = voices.find(v => v.name.includes("Emma") || (v.name.includes("Female") && v.lang.startsWith("en"))) || voices[0];
+if (!avaVoice) avaVoice = voices.find(v => v.name.includes("Ava") || (v.name.includes("Female") && v.lang.startsWith("en"))) || voices[1] || voices[0];
+
+voicesReady = true;
+console.log('Voices initialized:', { williamVoice: williamVoice?.name, andrewVoice: andrewVoice?.name, brianVoice: brianVoice?.name, emmaVoice: emmaVoice?.name, avaVoice: avaVoice?.name });
+}
+
+if (synth.onvoiceschanged !== undefined) {
+synth.onvoiceschanged = initVoices;
+}
+initVoices();
+
+function speak(text, voice, onEnd) {
+if (!voicesReady) {
+setTimeout(() => speak(text, voice, onEnd), 100);
+return;
+}
+try {
+if (synth.speaking) synth.cancel();
+const utter = new SpeechSynthesisUtterance(text);
+utter.voice = voice;
+utter.rate = 1.0; // Restored to 100% speed
+utter.onend = onEnd;
+synth.speak(utter);
+} catch(e) {
+console.error('Speak error:', e);
+if (onEnd) onEnd();
+}
+}
+
+function showScreen(id) {
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+const screen = document.getElementById(id);
+if (screen) screen.classList.add('active');
+}
+
+function goToMenu() {
+try { synth.cancel(); } catch(e) {}
+isTtsActive = false;
+showScreen('main-menu');
+}
+
+function selectUnit(unitKey) {
+try {
+currentLessonData = lessons[unitKey];
+currentTopicKey = unitKey;
+if(!currentLessonData) return;
+document.getElementById('obj-unit-title').textContent = `${unitKey}: ${currentLessonData.title}`;
+showScreen('objective-screen');
+} catch(e) {
+console.error('Select unit error:', e);
+}
+}
+
+function startConversationFlow(convoType) {
+try {
+if (!voicesReady) {
+alert('Voices are still loading. Please wait a moment and try again.');
+return;
+}
+currentConvoType = convoType;
+synth.cancel();
+showScreen('conversation-screen');
+document.getElementById('convo-unit-header').textContent = currentLessonData.title + ` (#${convoType})`;
+const container = document.getElementById('convo-container');
+container.innerHTML = '';
+convoIndex = 0;
+isTtsActive = true;
+nextTurn();
+} catch(e) {
+console.error('Start conversation error:', e);
+}
+}
+
+function nextTurn() {
+if (!isTtsActive) return;
+try {
+if (!currentLessonData.conversations[currentConvoType - 1]) return;
+let conversation = currentLessonData.conversations[currentConvoType - 1];
+if (convoIndex >= conversation.length) return;
+const turn = conversation[convoIndex];
+const container = document.getElementById('convo-container');
+const bubble = document.createElement('div');
+const sideClass = turn.side === 'left' ? 'chat-left' : 'chat-right';
+bubble.className = `chat-bubble ${sideClass} ${turn.theme} active fade-in`;
+bubble.innerHTML = `<div class="speaker-name">${turn.name}</div>${wrapEmojis(turn.text)}`;
+container.appendChild(bubble);
+container.scrollTop = container.scrollHeight;
+const allBubbles = container.querySelectorAll('.chat-bubble');
+if (allBubbles.length > 1) allBubbles[allBubbles.length - 2].classList.remove('active');
+let voiceToUse;
+if (turn.voice === 'william') voiceToUse = williamVoice;
+else if (turn.voice === 'andrew') voiceToUse = andrewVoice;
+else if (turn.voice === 'brian') voiceToUse = brianVoice;
+else if (turn.voice === 'emma') voiceToUse = emmaVoice;
+else if (turn.voice === 'ava') voiceToUse = avaVoice;
+else voiceToUse = turn.gender === 'm' ? andrewVoice : emmaVoice;
+const cleanText = stripEmojis(turn.text);
+speak(cleanText, voiceToUse, () => {
+convoIndex++;
+if (convoIndex < conversation.length) setTimeout(nextTurn, 500);
+});
+} catch(e) {
+console.error('Next turn error:', e);
+}
+}
+
+function repeatConversation() { startConversationFlow(currentConvoType); }
+function nextConversation() { if (currentConvoType < 5) startConversationFlow(currentConvoType + 1); }
+function prevConversation() { if (currentConvoType > 1) startConversationFlow(currentConvoType - 1); }
+
+function toggleReview() {
+const modal = document.getElementById('review-modal');
+if (modal.classList.contains('active')) {
+modal.classList.remove('active');
+} else {
+if (currentLessonData && currentLessonData.review) {
+document.getElementById('review-title').textContent = currentLessonData.title;
+document.getElementById('review-keywords').textContent = currentLessonData.review.keywords;
+document.getElementById('review-grammar').textContent = currentLessonData.review.grammar;
+modal.classList.add('active');
+}
+}
+}
+
+function init() {
+try {
+const grid = document.getElementById('unit-grid');
+if (!grid) return;
+const topics = Object.keys(lessons);
+topics.forEach(key => {
+const btn = document.createElement('button');
+btn.className = 'unit-btn p-4 rounded-2xl shadow-lg text-center flex flex-col items-center justify-center';
+btn.innerHTML = `<div class="text-4xl mb-1">${lessons[key].emoji}</div><div class="font-black text-indigo-900 text-sm">${key}</div>`;
+btn.onclick = () => selectUnit(key);
+grid.appendChild(btn);
+});
+} catch(e) {
+console.error('Init error:', e);
+}
+}
+
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', init);
+} else {
+init();
+}
+window.onload = function() { init(); initVoices(); };
+</script>
+</body>
+</html>
