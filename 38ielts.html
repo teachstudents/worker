@@ -15,7 +15,6 @@
         .student-input-group label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 18px; }
         .student-input-group input { padding: 10px; font-size: 16px; width: 300px; border: 2px solid var(--primary); border-radius: 5px; }
         .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        /* Buttons are always visible */
         .test-btn { 
             background: var(--primary); 
             color: white; 
@@ -35,9 +34,15 @@
         #test-view { display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--light); padding-bottom: 20px; }
         .audio-player { background: var(--light); padding: 10px; border-radius: 5px; display: flex; align-items: center; gap: 10px; }
-        .action-btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 14px; }
-        .btn-transcript { background: #e67e22; } .btn-answers { background: #8e44ad; } .btn-back { background: #7f8c8d; } .btn-check { background: var(--success); font-size: 16px; padding: 10px 20px; margin-top: 20px; }
         
+        /* Action Buttons */
+        .action-btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 14px; transition: 0.2s; }
+        .btn-transcript { background: #e67e22; } 
+        .btn-answers { background: #8e44ad; } 
+        .btn-back { background: #7f8c8d; } 
+        .btn-check { background: var(--success); font-size: 16px; padding: 10px 20px; margin-top: 20px; }
+        .action-btn:hover { opacity: 0.9; }
+
         /* Score Header */
         #score-header { 
             display: none; 
@@ -50,7 +55,7 @@
             font-family: monospace; 
             font-size: 18px; 
             border: 2px solid var(--success);
-            user-select: all; /* Makes copying easy */
+            user-select: all; 
             -webkit-user-select: all;
         }
 
@@ -61,10 +66,24 @@
         .answer-input.correct { border-color: var(--success); background-color: #e8f8f5; }
         .answer-input.incorrect { border-color: var(--error); background-color: #fdedec; }
         
-        /* Transcript & Answer Key */
-        .hidden-section { display: none; margin-top: 20px; padding: 15px; background: var(--light); border-radius: 5px; border-left: 5px solid var(--accent); }
-        .transcript-text { white-space: pre-wrap; font-family: monospace; font-size: 14px; max-height: 400px; overflow-y: auto; background: white; padding: 10px; }
-        .answer-key-item { margin: 5px 0; font-size: 15px; }
+        /* Collapsible Panel Styles */
+        .hidden-section { 
+            display: none; /* Hidden by default */
+            margin-top: 20px; 
+            padding: 0; 
+            background: var(--light); 
+            border-radius: 5px; 
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        .panel-content {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+        }
+        .transcript-text { white-space: pre-wrap; font-family: monospace; font-size: 14px; }
+        .answer-key-item { margin: 5px 0; font-size: 15px; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
         .answer-key-item span { font-weight: bold; color: var(--success); }
         #feedback-area { margin-top: 20px; font-weight: bold; font-size: 18px; }
     </style>
@@ -93,9 +112,9 @@
                 <audio id="audio-element" controls></audio>
                 <button class="action-btn" onclick="repeatAudio()">↺ Repeat</button>
             </div>
-            <div>
-                <button class="action-btn btn-transcript" onclick="toggleSection('transcript-box')">Show Transcript</button>
-                <button class="action-btn btn-answers" onclick="toggleSection('answer-key-box')">Show Answer Key</button>
+            <div style="display:flex; gap:10px;">
+                <button class="action-btn btn-transcript" id="btn-transcript" onclick="toggleSection('transcript-box', 'btn-transcript')">▶ Show Transcript</button>
+                <button class="action-btn btn-answers" id="btn-answers" onclick="toggleSection('answer-key-box', 'btn-answers')">▶ Show Answer Key</button>
             </div>
         </div>
 
@@ -105,14 +124,20 @@
         <button class="action-btn btn-check" onclick="checkAnswers()">Submit Answers</button>
         <div id="feedback-area"></div>
 
+        <!-- Collapsible Transcript Panel -->
         <div id="transcript-box" class="hidden-section">
-            <h3>Transcript</h3>
-            <div class="transcript-text" id="transcript-content"></div>
+            <div class="panel-content">
+                <h3>Transcript</h3>
+                <div class="transcript-text" id="transcript-content"></div>
+            </div>
         </div>
 
+        <!-- Collapsible Answer Key Panel -->
         <div id="answer-key-box" class="hidden-section">
-            <h3>Answer Key</h3>
-            <div id="answer-key-content"></div>
+            <div class="panel-content">
+                <h3>Answer Key</h3>
+                <div id="answer-key-content"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -340,6 +365,12 @@ function loadTest(index) {
     scoreHeader.style.display = 'none';
     document.getElementById('feedback-area').innerText = '';
     
+    // Reset panels to hidden
+    document.getElementById('transcript-box').style.display = 'none';
+    document.getElementById('answer-key-box').style.display = 'none';
+    document.getElementById('btn-transcript').innerText = '▶ Show Transcript';
+    document.getElementById('btn-answers').innerText = '▶ Show Answer Key';
+
     document.getElementById('test-title').innerText = test.title;
     audioPlayer.src = test.audioSrc;
     audioPlayer.load();
@@ -357,7 +388,6 @@ function loadTest(index) {
     });
 
     document.getElementById('transcript-content').innerText = test.transcript;
-    document.getElementById('transcript-box').style.display = 'none';
 
     const keyContainer = document.getElementById('answer-key-content');
     keyContainer.innerHTML = '';
@@ -367,15 +397,22 @@ function loadTest(index) {
         item.innerHTML = `Question ${key}: <span>${value}</span>`;
         keyContainer.appendChild(item);
     }
-    document.getElementById('answer-key-box').style.display = 'none';
 }
 
-function toggleSection(id) {
-    const el = document.getElementById(id);
-    if (el.style.display === 'none') {
-        el.style.display = 'block';
+function toggleSection(sectionId, btnId) {
+    const section = document.getElementById(sectionId);
+    const btn = document.getElementById(btnId);
+    
+    if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        // Change button text to indicate it can be hidden
+        if(btnId === 'btn-transcript') btn.innerText = '▼ Hide Transcript';
+        if(btnId === 'btn-answers') btn.innerText = '▼ Hide Answer Key';
     } else {
-        el.style.display = 'none';
+        section.style.display = 'none';
+        // Change button text back to show
+        if(btnId === 'btn-transcript') btn.innerText = '▶ Show Transcript';
+        if(btnId === 'btn-answers') btn.innerText = '▶ Show Answer Key';
     }
 }
 
