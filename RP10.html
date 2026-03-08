@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice 10 - Advanced</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --secondary: #0d47a1;
+            --success: #2e7d32;
+            --error: #c62828;
+            --warning: #ef6c00;
+            --light: #e3f2fd;
+            --dark: #0a1929;
+            --gray: #455a64;
+            --border: #90caf9;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #263238;
+            background-color: #eceff1;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: visible;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #ffcc80;
+        }
+        
+        .score-display {
+            font-weight: bold;
+        }
+        
+        .difficulty-badge {
+            background: #ff5722;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .start-screen h2 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .difficulty-warning {
+            background: #fff3e0;
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #e65100;
+        }
+        
+        .name-input-group {
+            margin: 30px 0;
+        }
+        
+        .name-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .start-btn:hover {
+            background: #083475;
+        }
+        
+        .start-btn:disabled {
+            background: #90a4ae;
+            cursor: not-allowed;
+        }
+        
+        .instructions {
+            background: var(--light);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* Two-Column Layout for Test Content */
+        .test-layout {
+            display: none;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .test-layout.active {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            animation: fadeIn 0.4s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Left Column: Passage Text */
+        .passage-column {
+            padding-right: 15px;
+            border-right: 1px solid var(--border);
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        
+        .passage-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .passage-text {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .passage-text p {
+            margin-bottom: 15px;
+        }
+        
+        /* Right Column: Questions */
+        .questions-column {
+            padding-left: 15px;
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .question-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .skill-tag {
+            background: #bbdefb;
+            color: var(--secondary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .option-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-btn:hover {
+            background: #f5f5f5;
+            border-color: var(--secondary);
+        }
+        
+        .option-btn.correct {
+            background: #c8e6c9;
+            border-color: var(--success);
+            color: #1b5e20;
+            font-weight: 500;
+        }
+        
+        .option-btn.incorrect {
+            background: #ffcdd2;
+            border-color: var(--error);
+            color: #b71c1c;
+            font-weight: 500;
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .option-btn.correct .option-letter {
+            background: var(--success);
+        }
+        
+        .option-btn.incorrect .option-letter {
+            background: var(--error);
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #c8e6c9;
+            border: 1px solid var(--success);
+            color: #1b5e20;
+        }
+        
+        .feedback.incorrect {
+            background: #ffcdd2;
+            border: 1px solid var(--error);
+            color: #b71c1c;
+        }
+        
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+        
+        /* Navigation */
+        .navigation {
+            padding: 15px 25px;
+            background: var(--light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev {
+            background: #78909c;
+            color: white;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            background: #083475;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .passage-indicator {
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+        
+        .results-screen.active {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 25px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        
+        .results-header {
+            margin-bottom: 30px;
+        }
+        
+        .results-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .results-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .meta-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+        
+        .skills-summary {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .skills-summary h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: var(--light);
+        }
+        
+        .skill-item.missed {
+            background: #ffebee;
+            border-left: 4px solid var(--error);
+        }
+        
+        .skill-item.mastered {
+            border-left: 4px solid var(--success);
+        }
+        
+        .export-section {
+            margin: 35px 0;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-wechat {
+            background: #07c160;
+            color: white;
+        }
+        
+        .btn-email {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn-lms {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-download {
+            background: #5e35b1;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(200px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .test-layout.active {
+                grid-template-columns: 1fr;
+            }
+            
+            .passage-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+                max-height: none;
+            }
+            
+            .questions-column {
+                padding-left: 0;
+                max-height: none;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .header-stats {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .passage-text {
+                padding: 20px 15px;
+                font-size: 1rem;
+            }
+            
+            .question-box {
+                padding: 12px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .export-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                Reading Practice 10
+                <span class="difficulty-badge">ADVANCED</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span>⏱️</span>
+                    <span class="timer" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span>✅</span>
+                    <span class="score-display" id="score-display">0/20</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <h2>Welcome to Reading Practice 10</h2>
+            <p class="difficulty-warning">⚠️ <strong>Advanced Difficulty Level</strong><br>
+            This practice test features longer passages, more complex vocabulary, and challenging question types. Recommended for students who have completed Practices 01-09.</p>
+            
+            <div class="name-input-group">
+                <label for="tester-name">Your Name (Pinyin or English only)</label>
+                <input type="text" id="tester-name" class="name-input" placeholder="e.g., Zhao Min or Kevin Liu">
+                <div class="error-message" id="name-error">Please use Pinyin or English characters only. Chinese characters are not accepted.</div>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Test Instructions:</strong></p>
+                <ul>
+                    <li>Read each passage carefully before answering questions</li>
+                    <li>Select the best answer for each question</li>
+                    <li>You will receive immediate feedback after each answer</li>
+                    <li>The test has 20 questions across 5 passages</li>
+                    <li>Estimated time: 40-45 minutes (longer than previous practices)</li>
+                    <li>Passages are longer and contain more complex sentence structures</li>
+                </ul>
+            </div>
+            
+            <button class="start-btn" id="start-btn">Start Test</button>
+        </div>
+        
+        <!-- Test Layout: Two Columns -->
+        <div class="test-layout" id="test-layout">
+            <!-- Left Column: Passage Text -->
+            <div class="passage-column">
+                <!-- Passage 1: The Silk Road Legacy -->
+                <div class="passage-section active" data-passage="1">
+                    <h2 class="passage-title">Passage 1: The Enduring Legacy of the Silk Road</h2>
+                    <div class="passage-text">
+                        <p>The Silk Road was not a single road but rather an extensive network of trade routes that connected China with Central Asia, the Middle East, and Europe for over 1,500 years. Beginning during the Han Dynasty (206 BCE - 220 CE), these routes facilitated not only the exchange of goods but also the transmission of ideas, technologies, religions, and cultural practices between civilizations.</p>
+                        <p><strong>🐫 More Than Silk:</strong> Although named after the valuable Chinese silk that was highly prized in Western markets, the Silk Road carried many other commodities including spices, precious metals, ceramics, glassware, and horses. Perhaps more significantly, it enabled the spread of Buddhism from India to China, Islam across Central Asia, and technological innovations such as papermaking and printing from China to the West.</p>
+                        <p><strong>🏛️ Cultural Exchange:</strong> Cities along the Silk Road, such as Chang'an (modern Xi'an), Dunhuang, and Kashgar, became cosmopolitan centers where merchants, scholars, and travelers from diverse backgrounds interacted. These interactions led to artistic influences, architectural styles, and culinary traditions that continue to shape regional cultures today.</p>
+                        <p><strong>🌍 Modern Significance:</strong> In recent years, China has launched the Belt and Road Initiative, drawing inspiration from the historical Silk Road to promote international cooperation and economic development. This demonstrates how ancient connections continue to influence contemporary global relationships.</p>
+                        <p><strong>💭 Historical Lessons:</strong> The Silk Road teaches us that cultural exchange and mutual understanding between different peoples can lead to prosperity and innovation. It reminds us that isolation limits progress, while connection and cooperation enrich all participants.</p>
+                        <p><em>Key Vocabulary: extensive, facilitated, transmission, commodities, cosmopolitan, contemporary, isolation</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 2: A Challenge Overcome -->
+                <div class="passage-section" data-passage="2">
+                    <h2 class="passage-title">Passage 2: Beyond Limitations</h2>
+                    <div class="passage-text">
+                        <p>When Hua was born with a visual impairment, doctors told her parents she would face significant challenges throughout her life. However, neither Hua nor her family accepted these limitations as permanent barriers to achievement.</p>
+                        <p>Throughout her schooling, Hua developed extraordinary compensatory skills. She learned to read Braille with remarkable speed, memorized textbook content through audio recordings, and cultivated an exceptional memory for spatial information. Her teachers noticed that while other students relied heavily on visual cues, Hua developed heightened auditory and tactile awareness that gave her unique perspectives on problems.</p>
+                        <p>At university, Hua chose to study computer science—a field that many considered unsuitable for someone with her condition. She worked with professors to develop accessible software tools and eventually created an application that helps visually impaired users navigate digital interfaces more effectively. Her innovation has since been adopted by technology companies worldwide.</p>
+                        <p>When asked about her success, Hua explained: "Challenges don't define us; our responses to them do. What others saw as limitations, I learned to view as opportunities to develop different strengths. Sometimes the obstacles we face push us to discover capabilities we never knew we had."</p>
+                        <p>Hua's story illustrates that determination, creativity, and support can transform apparent disadvantages into sources of unique strength and contribution.</p>
+                        <p><em>Key Vocabulary: impairment, compensatory, cultivated, exceptional, accessible, innovation, determination</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 3: Ocean Conservation Challenges -->
+                <div class="passage-section" data-passage="3">
+                    <h2 class="passage-title">Passage 3: Protecting Our Oceans in a Changing Climate</h2>
+                    <div class="passage-text">
+                        <p>The world's oceans face unprecedented challenges in the 21st century. Rising temperatures, acidification, pollution, and overfishing threaten marine ecosystems that have existed for millions of years. Understanding these interconnected problems is essential for developing effective conservation strategies.</p>
+                        <p><strong>🌡️ Climate Impact:</strong> Ocean temperatures have risen significantly over the past century, causing coral bleaching events that devastate reef ecosystems. Warmer waters also alter fish migration patterns, affecting both marine biodiversity and the fishing communities that depend on predictable catches. Additionally, melting ice caps contribute to rising sea levels that threaten coastal cities worldwide.</p>
+                        <p><strong>🧪 Chemical Changes:</strong> As oceans absorb excess carbon dioxide from the atmosphere, they become more acidic. This acidification makes it difficult for shellfish, corals, and other marine organisms to build and maintain their calcium carbonate structures, potentially disrupting entire food chains.</p>
+                        <p><strong>🛡️ Conservation Efforts:</strong> International cooperation has led to some progress. Marine protected areas now cover approximately 8% of ocean territory, though scientists recommend at least 30% for adequate protection. Sustainable fishing practices, plastic reduction initiatives, and carbon emission reductions are all necessary components of comprehensive ocean conservation.</p>
+                        <p><strong>👥 Individual and Collective Action:</strong> While governments and organizations must lead large-scale efforts, individual choices matter significantly. Reducing plastic consumption, choosing sustainable seafood, supporting conservation organizations, and advocating for environmental policies all contribute to ocean health. The challenge requires both systemic change and personal responsibility.</p>
+                        <p><em>Key Vocabulary: unprecedented, acidification, ecosystems, biodiversity, comprehensive, sustainable, advocating</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 4: The Science of Learning -->
+                <div class="passage-section" data-passage="4">
+                    <h2 class="passage-title">Passage 4: Understanding How We Learn</h2>
+                    <div class="passage-text">
+                        <p>Recent advances in neuroscience and educational psychology have transformed our understanding of how learning occurs. These insights challenge traditional assumptions about intelligence and offer practical strategies for improving educational outcomes.</p>
+                        <p><strong>🧠 Neuroplasticity:</strong> Research has demonstrated that the brain remains capable of forming new neural connections throughout life—a phenomenon called neuroplasticity. This discovery contradicts earlier beliefs that brain development was largely complete by adolescence. Instead, learning physically changes brain structure, strengthening pathways that are frequently used while weakening those that are neglected.</p>
+                        <p><strong>⏰ Spaced Repetition:</strong> Studies consistently show that distributing study sessions over time produces better long-term retention than cramming information in single sessions. This "spacing effect" occurs because each review session strengthens memory traces, making information more accessible when needed.</p>
+                        <p><strong>🔄 Active Retrieval:</strong> Testing oneself on material—not merely re-reading it—significantly improves learning outcomes. The effort required to retrieve information from memory strengthens neural pathways more effectively than passive review. This explains why practice tests and self-quizzing are more effective than simply highlighting text.</p>
+                        <p><strong>😴 The Role of Rest:</strong> Sleep plays a crucial role in consolidating memories and processing information learned during the day. Students who sacrifice sleep for additional study time often perform worse than those who maintain regular sleep schedules. Quality rest is not time wasted but an essential component of effective learning.</p>
+                        <p><strong>💡 Practical Applications:</strong> Understanding these principles enables students to study more efficiently. Rather than working harder, students can work smarter by applying evidence-based learning strategies that align with how the brain actually functions.</p>
+                        <p><em>Key Vocabulary: neuroscience, neuroplasticity, contradicts, consolidation, retrieval, efficiently, evidence-based</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 5: Technology and Human Connection -->
+                <div class="passage-section" data-passage="5">
+                    <h2 class="passage-title">Passage 5: Balancing Digital and Real-World Relationships</h2>
+                    <div class="passage-text">
+                        <p>In an increasingly connected world, the relationship between technology and human connection has become complex. While digital tools enable communication across vast distances, concerns arise about whether they enhance or diminish the quality of our relationships.</p>
+                        <p><strong>📱 Connectivity Benefits:</strong> Technology has undeniably expanded our ability to maintain relationships. Video calls allow families separated by distance to share daily moments. Social media platforms enable us to stay informed about friends' lives regardless of location. Professional networks facilitate collaboration across continents. For many, these tools have enriched relationships that would otherwise fade due to geographical separation.</p>
+                        <p><strong>⚠️ Potential Drawbacks:</strong> However, researchers have identified concerning patterns. Excessive screen time can reduce face-to-face interaction quality. The phenomenon of "phubbing" (phone-snubbing)—ignoring people present in favor of devices—damages relationship satisfaction. Additionally, curated online personas may create unrealistic expectations and reduce authentic connection.</p>
+                        <p><strong>🎯 Finding Balance:</strong> Experts suggest that technology itself is neither inherently good nor bad; rather, its impact depends on how we use it. Intentional technology use—setting boundaries, prioritizing in-person interactions, and being fully present during conversations—can maximize benefits while minimizing drawbacks.</p>
+                        <p><strong>🤝 The irreplaceable Value of Presence:</strong> Despite technological advances, research consistently shows that face-to-face interaction provides unique benefits. Nonverbal cues, shared physical experiences, and undivided attention create depth of connection that digital communication cannot fully replicate. The challenge lies in integrating technology thoughtfully without allowing it to replace irreplaceable human experiences.</p>
+                        <p><strong>💭 Moving Forward:</strong> As technology continues evolving, developing digital wisdom—knowing when to connect digitally and when to prioritize physical presence—becomes increasingly important for maintaining healthy relationships in the 21st century.</p>
+                        <p><em>Key Vocabulary: increasingly, diminish, undeniably, phenomenon, authentic, intentional, irreplaceable</em></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Questions -->
+            <div class="questions-column">
+                <!-- Questions for Passage 1 -->
+                <div class="questions-section active" data-passage="1">
+                    <div class="question-box" id="qbox-1">
+                        <div class="question-meta">
+                            <span>Q1</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what did the Silk Road primarily facilitate?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(1, 'A', this)">
+                                <span class="option-letter">A</span> Only the trade of silk products
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'B', this)">
+                                <span class="option-letter">B</span> Exchange of goods, ideas, technologies, religions, and cultural practices
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'C', this)">
+                                <span class="option-letter">C</span> Military conquests between empires
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'D', this)">
+                                <span class="option-letter">D</span> Exclusive trade between China and Europe
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-1"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-2">
+                        <div class="question-meta">
+                            <span>Q2</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "cosmopolitan" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(2, 'A', this)">
+                                <span class="option-letter">A</span> isolated and rural
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'B', this)">
+                                <span class="option-letter">B</span> containing people from many different countries and cultures
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'C', this)">
+                                <span class="option-letter">C</span> focused on a single industry
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'D', this)">
+                                <span class="option-letter">D</span> temporary and unstable
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-2"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-3">
+                        <div class="question-meta">
+                            <span>Q3</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can be inferred about the Belt and Road Initiative from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(3, 'A', this)">
+                                <span class="option-letter">A</span> It has no connection to historical trade routes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'B', this)">
+                                <span class="option-letter">B</span> It draws inspiration from historical Silk Road connections to promote modern cooperation
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'C', this)">
+                                <span class="option-letter">C</span> It only focuses on silk trade
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'D', this)">
+                                <span class="option-letter">D</span> It was established during the Han Dynasty
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-3"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-4">
+                        <div class="question-meta">
+                            <span>Q4</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message of this passage about the Silk Road?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(4, 'A', this)">
+                                <span class="option-letter">A</span> The Silk Road was only important for trading silk
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'B', this)">
+                                <span class="option-letter">B</span> The Silk Road facilitated extensive cultural and economic exchange that continues to influence global relationships today
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'C', this)">
+                                <span class="option-letter">C</span> The Silk Road was less important than modern trade routes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'D', this)">
+                                <span class="option-letter">D</span> The Silk Road only benefited China
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-4"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 2 -->
+                <div class="questions-section" data-passage="2">
+                    <div class="question-box" id="qbox-5">
+                        <div class="question-meta">
+                            <span>Q5</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">What skill did Hua develop to compensate for her visual impairment?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(5, 'A', this)">
+                                <span class="option-letter">A</span> She relied entirely on others for reading
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'B', this)">
+                                <span class="option-letter">B</span> She learned Braille, memorized content through audio, and developed exceptional memory
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'C', this)">
+                                <span class="option-letter">C</span> She avoided academic subjects
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'D', this)">
+                                <span class="option-letter">D</span> She focused only on physical activities
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-5"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-6">
+                        <div class="question-meta">
+                            <span>Q6</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can we infer about Hua's approach to challenges?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(6, 'A', this)">
+                                <span class="option-letter">A</span> She viewed limitations as permanent barriers
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'B', this)">
+                                <span class="option-letter">B</span> She transformed perceived disadvantages into opportunities to develop unique strengths
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'C', this)">
+                                <span class="option-letter">C</span> She avoided difficult subjects
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'D', this)">
+                                <span class="option-letter">D</span> She depended entirely on others for solutions
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-6"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-7">
+                        <div class="question-meta">
+                            <span>Q7</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "compensatory" most probably means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(7, 'A', this)">
+                                <span class="option-letter">A</span> making up for a disadvantage or loss
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'B', this)">
+                                <span class="option-letter">B</span> causing additional problems
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'C', this)">
+                                <span class="option-letter">C</span> unrelated to the main issue
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'D', this)">
+                                <span class="option-letter">D</span> temporary and ineffective
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-7"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-8">
+                        <div class="question-meta">
+                            <span>Q8</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message of Hua's story?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(8, 'A', this)">
+                                <span class="option-letter">A</span> Disabilities prevent people from achieving success
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'B', this)">
+                                <span class="option-letter">B</span> Determination and creativity can transform apparent disadvantages into sources of unique strength
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'C', this)">
+                                <span class="option-letter">C</span> Technology should be avoided by people with disabilities
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'D', this)">
+                                <span class="option-letter">D</span> Success depends only on natural talent
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 3 -->
+                <div class="questions-section" data-passage="3">
+                    <div class="question-box" id="qbox-9">
+                        <div class="question-meta">
+                            <span>Q9</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what percentage of ocean territory is currently protected?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(9, 'A', this)">
+                                <span class="option-letter">A</span> Approximately 8%
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'B', this)">
+                                <span class="option-letter">B</span> Approximately 30%
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'C', this)">
+                                <span class="option-letter">C</span> Approximately 50%
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'D', this)">
+                                <span class="option-letter">D</span> Approximately 1%
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-9"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-10">
+                        <div class="question-meta">
+                            <span>Q10</span>
+                            <span class="skill-tag">Reference</span>
+                        </div>
+                        <p class="question-text">In paragraph 3, what does "This acidification" refer to?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(10, 'A', this)">
+                                <span class="option-letter">A</span> oceans absorbing excess carbon dioxide and becoming more acidic
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'B', this)">
+                                <span class="option-letter">B</span> rising ocean temperatures
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'C', this)">
+                                <span class="option-letter">C</span> melting ice caps
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'D', this)">
+                                <span class="option-letter">D</span> overfishing practices
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-10"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-11">
+                        <div class="question-meta">
+                            <span>Q11</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, why might individual actions be important for ocean conservation?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(11, 'A', this)">
+                                <span class="option-letter">A</span> Because individual actions have no real impact
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'B', this)">
+                                <span class="option-letter">B</span> Because systemic change requires both large-scale efforts and personal responsibility
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'C', this)">
+                                <span class="option-letter">C</span> Because governments cannot make any difference
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'D', this)">
+                                <span class="option-letter">D</span> Because only individual actions matter
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-11"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-12">
+                        <div class="question-meta">
+                            <span>Q12</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(12, 'A', this)">
+                                <span class="option-letter">A</span> To argue that ocean problems are unsolvable
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'B', this)">
+                                <span class="option-letter">B</span> To explain interconnected ocean challenges and emphasize the need for both systemic and individual action
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'C', this)">
+                                <span class="option-letter">C</span> To promote specific conservation organizations
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'D', this)">
+                                <span class="option-letter">D</span> To criticize fishing communities
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-12"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 4 -->
+                <div class="questions-section" data-passage="4">
+                    <div class="question-box" id="qbox-13">
+                        <div class="question-meta">
+                            <span>Q13</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what does neuroplasticity refer to?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(13, 'A', this)">
+                                <span class="option-letter">A</span> the brain's inability to change after adolescence
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'B', this)">
+                                <span class="option-letter">B</span> the brain's ability to form new neural connections throughout life
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'C', this)">
+                                <span class="option-letter">C</span> the process of forgetting information
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'D', this)">
+                                <span class="option-letter">D</span> the decline of brain function with age
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-13"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-14">
+                        <div class="question-meta">
+                            <span>Q14</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "consolidating" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(14, 'A', this)">
+                                <span class="option-letter">A</span> weakening or destroying
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'B', this)">
+                                <span class="option-letter">B</span> strengthening and making more solid or stable
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'C', this)">
+                                <span class="option-letter">C</span> ignoring or forgetting
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'D', this)">
+                                <span class="option-letter">D</span> spreading out over time
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-14"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-15">
+                        <div class="question-meta">
+                            <span>Q15</span>
+                            <span class="skill-tag">Text Structure</span>
+                        </div>
+                        <p class="question-text">How is paragraph 5 related to paragraphs 2-4 in the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(15, 'A', this)">
+                                <span class="option-letter">A</span> Paragraph 5 contradicts the information in paragraphs 2-4
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'B', this)">
+                                <span class="option-letter">B</span> Paragraph 5 provides practical applications of the scientific principles explained in paragraphs 2-4
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'C', this)">
+                                <span class="option-letter">C</span> Paragraph 5 introduces a completely unrelated topic
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'D', this)">
+                                <span class="option-letter">D</span> Paragraph 5 repeats the same information as paragraphs 2-4
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-15"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-16">
+                        <div class="question-meta">
+                            <span>Q16</span>
+                            <span class="skill-tag">Author's Purpose</span>
+                        </div>
+                        <p class="question-text">What is the writer's main purpose in writing this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(16, 'A', this)">
+                                <span class="option-letter">A</span> To argue that traditional study methods are superior
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'B', this)">
+                                <span class="option-letter">B</span> To explain evidence-based learning principles and encourage students to apply them for more effective study
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'C', this)">
+                                <span class="option-letter">C</span> To promote specific educational products
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'D', this)">
+                                <span class="option-letter">D</span> To criticize students who don't study enough
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-16"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 5 -->
+                <div class="questions-section" data-passage="5">
+                    <div class="question-box" id="qbox-17">
+                        <div class="question-meta">
+                            <span>Q17</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is "phubbing"?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(17, 'A', this)">
+                                <span class="option-letter">A</span> using phones to enhance conversations
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'B', this)">
+                                <span class="option-letter">B</span> ignoring people present in favor of devices
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'C', this)">
+                                <span class="option-letter">C</span> sharing photos on social media
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'D', this)">
+                                <span class="option-letter">D</span> making video calls to distant family
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-17"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-18">
+                        <div class="question-meta">
+                            <span>Q18</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, what might be a result of excessive screen time on relationships?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(18, 'A', this)">
+                                <span class="option-letter">A</span> Improved face-to-face interaction quality
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'B', this)">
+                                <span class="option-letter">B</span> Reduced quality of in-person interactions and relationship satisfaction
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'C', this)">
+                                <span class="option-letter">C</span> Increased authentic connection
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'D', this)">
+                                <span class="option-letter">D</span> Better nonverbal communication
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-18"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-19">
+                        <div class="question-meta">
+                            <span>Q19</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "irreplaceable" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(19, 'A', this)">
+                                <span class="option-letter">A</span> easily substituted with something else
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'B', this)">
+                                <span class="option-letter">B</span> so valuable or unique that it cannot be replaced
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'C', this)">
+                                <span class="option-letter">C</span> temporary and unimportant
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'D', this)">
+                                <span class="option-letter">D</span> common and ordinary
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-19"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-20">
+                        <div class="question-meta">
+                            <span>Q20</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message of this passage about technology and relationships?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(20, 'A', this)">
+                                <span class="option-letter">A</span> Technology should be completely avoided in relationships
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'B', this)">
+                                <span class="option-letter">B</span> Technology offers relationship benefits but requires intentional use to balance digital and face-to-face connection
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'C', this)">
+                                <span class="option-letter">C</span> Digital communication is superior to face-to-face interaction
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'D', this)">
+                                <span class="option-letter">D</span> Technology has only negative effects on relationships
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation" id="navigation">
+            <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← Previous</button>
+            <span class="passage-indicator" id="passage-indicator">Passage 1 of 5</span>
+            <button class="nav-btn next" onclick="nextSection()" id="next-btn">Next →</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="results-screen" id="results-screen">
+            <div class="results-header">
+                <h2>Test Completed!</h2>
+                <p>Here are your results for Reading Practice 10 (Advanced)</p>
+            </div>
+            
+            <div class="score-circle" id="final-score">0/20</div>
+            
+            <div class="results-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Tester Name</div>
+                    <div class="meta-value" id="result-name">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Date & Time</div>
+                    <div class="meta-value" id="result-datetime">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Time Taken</div>
+                    <div class="meta-value" id="result-duration">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Accuracy</div>
+                    <div class="meta-value" id="result-accuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="skills-summary">
+                <h3>Reading Skills Analysis</h3>
+                <div id="skills-breakdown">
+                    <!-- Skills breakdown inserted by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <h3>Share Your Results</h3>
+                <div class="export-buttons">
+                    <button class="export-btn btn-wechat" onclick="copyForWeChat()">
+                        💬 Copy for WeChat
+                    </button>
+                    <button class="export-btn btn-email" onclick="emailResults()">
+                        📧 Email Results
+                    </button>
+                    <button class="export-btn btn-lms" onclick="downloadForLMS()">
+                        📤 Download for LMS
+                    </button>
+                    <button class="export-btn btn-download" onclick="downloadPDF()">
+                        📄 Save as PDF
+                    </button>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartTest()" style="margin-top: 20px;">
+                🔄 Take Another Practice Test
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Results copied to clipboard!</div>
+    
+    <script>
+        // Answer Key with Advanced vocabulary explanations
+        const answers = {
+            1: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states the Silk Road "facilitated not only the exchange of goods but also the transmission of ideas, technologies, religions, and cultural practices between civilizations."<br><br>❌ A: Silk was important but not the only commodity.<br>❌ C: Military conquests aren\'t the focus.<br>❌ D: Routes connected many regions, not just China and Europe.',
+                skill: 'Detail Comprehension'
+            },
+            2: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Cosmopolitan" describes cities with people from many different countries and cultures—fitting the description of Silk Road cities where "merchants, scholars, and travelers from diverse backgrounds interacted."<br><br>❌ A: Opposite meaning.<br>❌ C: Not about single industry focus.<br>❌ D: These cities were stable trade centers.',
+                skill: 'Vocabulary in Context'
+            },
+            3: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "China has launched the Belt and Road Initiative, drawing inspiration from the historical Silk Road to promote international cooperation and economic development."<br><br>❌ A: Directly contradicts the passage.<br>❌ C: Far broader than silk trade.<br>❌ D: Modern initiative, not Han Dynasty.',
+                skill: 'Inference'
+            },
+            4: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage covers the Silk Road\'s extensive exchange of goods and culture, its historical significance, and its continuing influence on modern initiatives—the comprehensive impact across time.<br><br>❌ A: Too narrow; silk was one of many commodities.<br>❌ C: Passage emphasizes historical importance.<br>❌ D: Benefited all participating regions.',
+                skill: 'Main Idea'
+            },
+            5: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 2 states Hua "learned to read Braille with remarkable speed, memorized textbook content through audio recordings, and cultivated an exceptional memory for spatial information."<br><br>❌ A: She developed independence.<br>❌ C: She excelled academically.<br>❌ D: She pursued computer science.',
+                skill: 'Detail Comprehension'
+            },
+            6: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Hua stated: "What others saw as limitations, I learned to view as opportunities to develop different strengths"—showing she transformed disadvantages into unique capabilities.<br><br>❌ A: Opposite of her approach.<br>❌ C: She chose challenging computer science.<br>❌ D: She created her own solutions.',
+                skill: 'Inference'
+            },
+            7: { 
+                correct: 'A', 
+                explanation: '✅ Correct! "Compensatory skills" are abilities developed to make up for a disadvantage—in Hua\'s case, heightened auditory and tactile awareness compensating for visual impairment.<br><br>❌ B: These skills solved problems.<br>❌ C: Directly related to her impairment.<br>❌ D: Skills were highly effective.',
+                skill: 'Vocabulary in Context'
+            },
+            8: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Final paragraph states: "determination, creativity, and support can transform apparent disadvantages into sources of unique strength and contribution"—the central message about overcoming limitations.<br><br>❌ A: Directly contradicted by Hua\'s success.<br>❌ C: Hua embraced technology.<br>❌ D: Story emphasizes effort over natural talent.',
+                skill: 'Main Idea'
+            },
+            9: { 
+                correct: 'A', 
+                explanation: '✅ Correct! The passage states: "Marine protected areas now cover approximately 8% of ocean territory, though scientists recommend at least 30% for adequate protection."<br><br>❌ B: 30% is the recommended amount, not current coverage.<br>❌ C, D: Not mentioned in the passage.',
+                skill: 'Detail Comprehension'
+            },
+            10: { 
+                correct: 'A', 
+                explanation: '✅ Correct! Sentence: "As oceans absorb excess carbon dioxide from the atmosphere, they become more acidic. This acidification makes it difficult for shellfish..." — "This acidification" refers to oceans becoming more acidic from absorbing CO2.<br><br>❌ B, C, D: Related to climate change but not what "this acidification" refers to.',
+                skill: 'Reference'
+            },
+            11: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Final paragraph states: "While governments and organizations must lead large-scale efforts, individual choices matter significantly"—indicating both systemic and personal action are necessary.<br><br>❌ A: Contradicts "individual choices matter significantly."<br>❌ C: Governments must lead large-scale efforts.<br>❌ D: Both levels are needed.',
+                skill: 'Inference'
+            },
+            12: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage explains multiple interconnected ocean challenges (temperature, acidification, pollution) and emphasizes need for both international cooperation and individual action—comprehensive approach to conservation.<br><br>❌ A: Passage emphasizes progress is possible.<br>❌ C: No specific organizations promoted.<br>❌ D: Fishing communities are affected, not criticized.',
+                skill: 'Main Idea'
+            },
+            13: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage defines neuroplasticity: "the brain remains capable of forming new neural connections throughout life—a phenomenon called neuroplasticity."<br><br>❌ A: Directly contradicted by the passage.<br>❌ C: About learning, not forgetting.<br>❌ D: About brain\'s adaptability, not decline.',
+                skill: 'Detail Comprehension'
+            },
+            14: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Consolidating memories" means strengthening and making memories more solid or stable during sleep—making information more accessible when needed.<br><br>❌ A: Opposite meaning.<br>❌ C: About strengthening, not ignoring.<br>❌ D: About making stable, not spreading out.',
+                skill: 'Vocabulary in Context'
+            },
+            15: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraphs 2-4 explain scientific principles (neuroplasticity, spaced repetition, retrieval, sleep); paragraph 5 begins "Understanding these principles enables students to study more efficiently"—providing practical applications.<br><br>❌ A: Paragraph 5 builds on earlier information.<br>❌ C: Directly related as application.<br>❌ D: New content about implementation.',
+                skill: 'Text Structure'
+            },
+            16: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage presents research on learning science and concludes: "students can work smarter by applying evidence-based learning strategies that align with how the brain actually functions"—encouraging practical application.<br><br>❌ A: Passage challenges traditional assumptions.<br>❌ C: No products promoted.<br>❌ D: Tone is informative and encouraging.',
+                skill: 'Author\'s Purpose'
+            },
+            17: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage defines phubbing: "The phenomenon of \'phubbing\' (phone-snubbing)—ignoring people present in favor of devices—damages relationship satisfaction."<br><br>❌ A: Opposite of phubbing.<br>❌ C: Different activity.<br>❌ D: Listed as a benefit, not phubbing.',
+                skill: 'Detail Comprehension'
+            },
+            18: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states: "Excessive screen time can reduce face-to-face interaction quality" and phubbing "damages relationship satisfaction"—indicating negative impacts on in-person connections.<br><br>❌ A: Opposite of stated effects.<br>❌ C: Curated personas may reduce authentic connection.<br>❌ D: Digital communication cannot fully replicate nonverbal cues.',
+                skill: 'Inference'
+            },
+            19: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: "face-to-face interaction provides unique benefits... that digital communication cannot fully replicate. The challenge lies in... not allowing it to replace irreplaceable human experiences"—irreplaceable means so valuable it cannot be replaced.<br><br>❌ A: Opposite meaning.<br>❌ C: These experiences are valuable.<br>❌ D: These experiences are unique, not ordinary.',
+                skill: 'Vocabulary in Context'
+            },
+            20: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage acknowledges technology benefits ("expanded our ability to maintain relationships") while noting drawbacks, concluding we need "digital wisdom—knowing when to connect digitally and when to prioritize physical presence"—balanced, intentional approach.<br><br>❌ A: Passage acknowledges benefits.<br>❌ C: Face-to-face provides unique benefits digital cannot replicate.<br>❌ D: Passage presents both benefits and drawbacks.',
+                skill: 'Main Idea'
+            }
+        };
+
+        const questionToPassage = {
+            1:1, 2:1, 3:1, 4:1,
+            5:2, 6:2, 7:2, 8:2,
+            9:3, 10:3, 11:3, 12:3,
+            13:4, 14:4, 15:4, 16:4,
+            17:5, 18:5, 19:5, 20:5
+        };
+
+        let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval, testerName = '', testStartTime, testEndTime;
+
+        const startScreen = document.getElementById('start-screen'), testLayout = document.getElementById('test-layout'), resultsScreen = document.getElementById('results-screen'), nameInput = document.getElementById('tester-name'), nameError = document.getElementById('name-error'), startBtn = document.getElementById('start-btn'), timerDisplay = document.getElementById('timer'), scoreDisplay = document.getElementById('score-display'), passageIndicator = document.getElementById('passage-indicator'), toast = document.getElementById('toast');
+
+        document.addEventListener('DOMContentLoaded', () => { startBtn.addEventListener('click', startTest); nameInput.addEventListener('input', validateName); });
+
+        function validateName() {
+            const name = nameInput.value.trim();
+            const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\uf900-\ufaff\u3300-\u33ff\ufe30-\ufe4f\uf900-\ufaff\u{2f800}-\u{2fa1f}]/u.test(name);
+            if (hasChinese) { nameError.classList.add('show'); startBtn.disabled = true; } else { nameError.classList.remove('show'); startBtn.disabled = name === ''; }
+        }
+
+        function startTest() {
+            testerName = nameInput.value.trim() || 'Anonymous';
+            testStartTime = new Date();
+            startScreen.style.display = 'none';
+            testLayout.classList.add('active');
+            document.querySelector(`[data-passage="1"]`).classList.add('active');
+            document.querySelector(`.questions-section[data-passage="1"]`).classList.add('active');
+            startTimer();
+            updateHeader();
+        }
+
+        function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${mins}:${secs}`; }, 1000); }
+
+        function checkAnswer(questionNum, selected, btn) {
+            if (answered[questionNum]) return;
+            answered[questionNum] = selected;
+            const feedback = document.getElementById(`feedback-${questionNum}`);
+            const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); feedback.innerHTML = `<div class="feedback-title">✅ Correct!</div>${answers[questionNum].explanation}`; } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); feedback.innerHTML = `<div class="feedback-title">❌ Incorrect</div>${answers[questionNum].explanation}`; allBtns.forEach(b => { if (b.textContent.trim().startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+            feedback.style.display = 'block';
+            updateScoreDisplay();
+            checkPassageComplete();
+        }
+
+        function checkPassageComplete() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (allAnswered && currentSection < 5) { document.getElementById('next-btn').textContent = 'Next Passage →'; }
+        }
+
+        function nextSection() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (!allAnswered) { alert(`Please answer all ${currentPassageQuestions.length} questions in this passage before continuing.`); return; }
+            if (Object.keys(answered).length === 20) { showResults(); return; }
+            if (currentSection < 5) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection++;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('prev-btn').disabled = false;
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 1) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection--;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('next-btn').textContent = 'Next →';
+                if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function updateHeader() { passageIndicator.textContent = `Passage ${currentSection} of 5`; updateScoreDisplay(); }
+        function updateScoreDisplay() { scoreDisplay.textContent = `${score}/${Object.keys(answered).length}`; }
+
+        function showResults() {
+            testEndTime = new Date();
+            clearInterval(timerInterval);
+            testLayout.classList.remove('active');
+            document.getElementById('navigation').style.display = 'none';
+            resultsScreen.classList.add('active');
+            document.getElementById('result-name').textContent = testerName;
+            document.getElementById('result-datetime').textContent = testEndTime.toLocaleString();
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            document.getElementById('result-duration').textContent = `${durationMins}m ${durationSecs.toString().padStart(2, '0')}s`;
+            document.getElementById('final-score').textContent = `${score}/20`;
+            document.getElementById('result-accuracy').textContent = `${Math.round((score / 20) * 100)}%`;
+            generateSkillsBreakdown();
+        }
+
+        function generateSkillsBreakdown() {
+            const skillsBreakdown = document.getElementById('skills-breakdown');
+            skillsBreakdown.innerHTML = '';
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) {
+                const skill = answers[q].skill;
+                if (!skillGroups[skill]) { skillGroups[skill] = { total: 0, correct: 0, questions: [] }; }
+                skillGroups[skill].total++;
+                if (answered[q] === answers[q].correct) { skillGroups[skill].correct++; } else { skillGroups[skill].questions.push(q); }
+            }
+            Object.entries(skillGroups).forEach(([skill, data]) => {
+                const isMastered = data.correct === data.total;
+                const skillItem = document.createElement('div');
+                skillItem.className = `skill-item ${isMastered ? 'mastered' : 'missed'}`;
+                let missedInfo = '';
+                if (!isMastered && data.questions.length > 0) { missedInfo = `<br><small style="color: #b71c1c">Missed: Q${data.questions.join(', Q')}</small>`; }
+                skillItem.innerHTML = `<div><strong>${skill}</strong><div style="font-size: 0.9rem; color: #616161">${data.correct}/${data.total} correct</div>${missedInfo}</div><div style="font-weight: bold; color: ${isMastered ? '#2e7d32' : '#c62828'}">${isMastered ? '✓ Mastered' : '⚠ Review'}</div>`;
+                skillsBreakdown.appendChild(skillItem);
+            });
+        }
+
+        function copyForWeChat() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 20) * 100);
+            let text = `📚 Reading Practice 10 Results (ADVANCED)\n\n👤 Name: ${testerName}\n📅 Date: ${testEndTime.toLocaleDateString()}\n⏱️ Time: ${durationMins}m ${durationSecs}s\n✅ Score: ${score}/20 (${accuracy}%)\n\n📊 Skills Review:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { const status = data.correct === data.total ? '✓' : '⚠'; text += `${status} ${skill}: ${data.correct}/${data.total}\n`; });
+            text += `\n💡 Focus on skills marked with ⚠ for improvement.`;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); showToast('Results copied! Paste in WeChat to share.'); } catch (err) { alert('Please manually copy these results:\n\n' + text); }
+            document.body.removeChild(textArea);
+        }
+
+        function emailResults() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 20) * 100);
+            let emailBody = `Reading Practice 10 Results (ADVANCED)\n\nStudent: ${testerName}\nDate Completed: ${testEndTime.toLocaleString()}\nTime Taken: ${durationMins} minutes, ${durationSecs} seconds\nScore: ${score} out of 20 questions (${accuracy}% accuracy)\n\nDetailed Results:\n----------------\n`;
+            for (let q = 1; q <= 20; q++) { const isCorrect = answered[q] === answers[q].correct; emailBody += `Q${q} [${answers[q].skill}]: ${isCorrect ? '✓ Correct' : '✗ Incorrect'}\n`; }
+            emailBody += `\nSkills Analysis:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { emailBody += `- ${skill}: ${data.correct}/${data.total} correct\n`; });
+            const subject = encodeURIComponent(`Reading Practice 10 Results - ${testerName}`);
+            const body = encodeURIComponent(emailBody);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function downloadForLMS() {
+            const resultsData = { testName: "Reading Practice 10 - Advanced", studentName: testerName, completedAt: testEndTime.toISOString(), durationSeconds: timerSeconds, totalQuestions: 20, correctAnswers: score, accuracyPercent: Math.round((score / 20) * 100), questionResults: [], skillsAnalysis: {} };
+            for (let q = 1; q <= 20; q++) { resultsData.questionResults.push({ questionNumber: q, skill: answers[q].skill, selectedAnswer: answered[q], correctAnswer: answers[q].correct, isCorrect: answered[q] === answers[q].correct }); }
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) { skillGroups[skill] = { totalQuestions: 0, correctAnswers: 0, missedQuestions: [] }; } skillGroups[skill].totalQuestions++; if (answered[q] === answers[q].correct) { skillGroups[skill].correctAnswers++; } else { skillGroups[skill].missedQuestions.push(q); } }
+            resultsData.skillsAnalysis = skillGroups;
+            const dataStr = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resultsData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `reading_practice_10_advanced_${testerName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Results downloaded for LMS upload!');
+        }
+
+        function downloadPDF() { alert(`PDF generation requires additional libraries. For this demo:\n\n1. Copy your results using the "Copy for WeChat" button\n2. Paste into a document\n3. Save as PDF using your browser's print function (Ctrl+P → Save as PDF)\n\nIn a production version, this would generate a professional PDF report automatically.`); }
+        function showToast(message) { toast.textContent = message; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+
+        function restartTest() {
+            currentSection = 1; score = 0; answered = {}; timerSeconds = 0; testerName = '';
+            nameInput.value = ''; nameError.classList.remove('show'); startBtn.disabled = true;
+            document.getElementById('next-btn').textContent = 'Next →'; document.getElementById('prev-btn').disabled = true;
+            document.getElementById('passage-indicator').textContent = 'Passage 1 of 5';
+            document.querySelectorAll('.feedback').forEach(fb => { fb.style.display = 'none'; fb.classList.remove('correct', 'incorrect'); });
+            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('correct', 'incorrect'); btn.disabled = false; });
+            resultsScreen.classList.remove('active'); startScreen.style.display = 'block';
+            timerDisplay.textContent = '00:00'; scoreDisplay.textContent = '0/0';
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>

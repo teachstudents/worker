@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1A-1B Interactive Vocabulary Explorer | 词汇探索器</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 1.2em;
+        }
+
+        .header-chinese {
+            color: var(--secondary);
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-btn.category {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .nav-btn.category:hover, .nav-btn.category.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* Search Bar */
+        .search-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--gray);
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Word Cards */
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .word-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 5px solid var(--primary);
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .word-card h3 {
+            color: var(--primary);
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .word-card .chinese {
+            color: var(--secondary);
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .word-card .pos {
+            background: var(--light);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: var(--gray);
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Word Detail Page */
+        .word-detail {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .word-detail.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .word-header {
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .word-title {
+            font-size: 3em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .word-chinese {
+            font-size: 2em;
+            color: var(--secondary);
+        }
+
+        /* Word Family Tree */
+        .word-family {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            color: white;
+        }
+
+        .word-family h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .family-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .family-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .family-item .word {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        /* Etymology Section */
+        .etymology {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .etymology h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .etymology-tree {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+
+        .etymology-step {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .arrow {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Example Sentences */
+        .examples {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .example-item {
+            background: white;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .example-item .english {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .example-item .chinese {
+            color: var(--gray);
+            font-size: 1em;
+        }
+
+        .keyword {
+            background: var(--warning);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Stakeholder Perspectives */
+        .stakeholder {
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .stakeholder.citizen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stakeholder.professional {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .stakeholder.subject {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stakeholder h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stakeholder-frame {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        /* Essential Questions Connection */
+        .questions-connection {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .questions-connection h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .question-tag {
+            display: inline-block;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Progress Tracker */
+        .progress-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            background: var(--light);
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--success), var(--accent));
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Quiz Section */
+        .quiz-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .quiz-question {
+            margin: 20px 0;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quiz-option {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+        }
+
+        .quiz-option.correct {
+            background: #d1fae5;
+            border-color: var(--success);
+        }
+
+        .quiz-option.incorrect {
+            background: #fee2e2;
+            border-color: var(--danger);
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: var(--gray);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--dark);
+            transform: translateX(-5px);
+        }
+
+        /* Synonyms Section */
+        .synonyms {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .synonym-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .synonym-tag {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .word-title {
+                font-size: 2em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 100%;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .nav-tabs, .search-container, .back-btn, .quiz-container {
+                display: none;
+            }
+            
+            .word-detail {
+                display: block !important;
+                page-break-after: always;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted var(--gray);
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Collapse Sections */
+        .collapse-header {
+            background: var(--light);
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .collapse-header:hover {
+            background: #e2e8f0;
+        }
+
+        .collapse-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 10px;
+        }
+
+        .collapse-content.active {
+            display: block;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s;
+        }
+
+        .collapse-header.active .collapse-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Download Button */
+        .download-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 20px 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        /* Bookmark Feature */
+        .bookmark-btn {
+            background: none;
+            border: 2px solid var(--warning);
+            color: var(--warning);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .bookmark-btn.active {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Audio Button */
+        .audio-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Unit 1A-1B Vocabulary Explorer</h1>
+            <p>Photography, Truth & Digital Culture | Grade 11 EFL</p>
+            <p class="header-chinese">第一单元词汇探索器 | 摄影、真相与数字文化</p>
+            <div style="margin-top: 20px;">
+                <button class="download-btn" onclick="exportToPDF()">📥 Download as PDF | 下载PDF</button>
+                <button class="download-btn" style="background: var(--primary);" onclick="resetProgress()">🔄 Reset Progress | 重置进度</button>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-container">
+            <h3>📊 Learning Progress | 学习进度</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="wordsLearned">0</div>
+                    <div class="stat-label">Words Mastered<br>已掌握词汇</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="quizzesCompleted">0</div>
+                    <div class="stat-label">Quizzes Completed<br>完成的测验</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="questionsAnswered">0</div>
+                    <div class="stat-label">Questions Answered<br>回答的问题</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="studyTime">0</div>
+                    <div class="stat-label">Minutes Studied<br>学习分钟数</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overallProgress" style="width: 0%;">0%</div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" 
+                   placeholder="🔍 Search vocabulary words... | 搜索词汇..."
+                   onkeyup="filterWords()">
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs" id="navTabs">
+            <button class="nav-btn active" onclick="showAllWords()">All Words | 全部词汇 (25)</button>
+            <button class="nav-btn category" onclick="filterByCategory('photography')">📷 Photography | 摄影 (5)</button>
+            <button class="nav-btn category" onclick="filterByCategory('quality')">🎨 Quality & Impact (5)</button>
+            <button class="nav-btn category" onclick="filterByCategory('ethics')">⚖️ Ethics & Consent (5)</button>
+            <button class="nav-btn category" onclick="filterByCategory('technology')">🌐 Technology & Society (5)</button>
+            <button class="nav-btn category" onclick="filterByCategory('thinking')">💭 Critical Thinking (5)</button>
+        </div>
+
+        <!-- Word Grid -->
+        <div class="word-grid" id="wordGrid">
+            <!-- Words will be dynamically inserted here -->
+        </div>
+
+        <!-- Word Detail Pages -->
+        <div id="wordDetails">
+            <!-- Detailed word pages will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Complete Vocabulary Database - 25 Words with Full Details
+        const vocabularyDB = [
+            {
+                id: 1,
+                word: "document",
+                chinese: "记录；文件",
+                category: "photography",
+                pos: ["(v.) to record", "(n.) a written/photographic record"],
+                synonyms: ["record", "capture", "chronicle", "preserve", "archive"],
+                wordFamily: {
+                    noun: "documentation",
+                    verb: "document",
+                    adjective: "documentary",
+                    adverb: "documentarily"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "documentum",
+                    meaning: "lesson, proof",
+                    evolution: ["Latin: documentum (proof)", "Old French: document", "English: document (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "Citizen journalists **document** protests to share truth with the world.",
+                        chinese: "公民记者**记录**抗议活动，向世界分享真相。",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "Does **documenting** everything mean we **remember** less?",
+                        chinese: "**记录**一切是否意味着我们**记得**更少？",
+                        question: "If we photograph everything, do we remember less?"
+                    },
+                    {
+                        english: "Photos **document** important moments in our lives.",
+                        chinese: "照片**记录**我们生活中的重要时刻。",
+                        question: "How does digital sharing change how we remember our personal history?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "As a citizen journalist, I **document** life **instantly** to share my perspective.",
+                        frame: "I use my phone to ______ because ______, which helps me ______.",
+                        chinese: "作为公民记者，我**即时****记录**生活以分享我的观点。"
+                    },
+                    professional: {
+                        perspective: "Professional photojournalists must **document** events accurately to maintain public **trust**.",
+                        frame: "We must ______ to ensure ______, otherwise ______.",
+                        chinese: "专业新闻摄影师必须准确**记录**事件以维持公众**信任**。"
+                    },
+                    subject: {
+                        perspective: "When someone **documents** me without **consent**, I feel my **privacy** is violated.",
+                        frame: "I feel ______ when ______ without ______, so I hope ______.",
+                        chinese: "当有人未经**同意****记录**我时，我感到我的**隐私**被侵犯。"
+                    }
+                },
+                questions: [1, 2, 3, 5, 8, 12],
+                mastered: false
+            },
+            {
+                id: 2,
+                word: "represent",
+                chinese: "代表；反映；表现",
+                category: "photography",
+                pos: ["(v.) to show, depict, or stand for"],
+                synonyms: ["depict", "portray", "symbolize", "reflect", "express"],
+                wordFamily: {
+                    noun: "representation",
+                    verb: "represent",
+                    adjective: "representative",
+                    adverb: "representatively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "repraesentare",
+                    meaning: "to present again, make present",
+                    evolution: ["Latin: re- (again) + praesentare (present)", "Old French: representer", "English: represent (1400s)"]
+                },
+                examples: [
+                    {
+                        english: "A photo can **represent** a moment, but can it ever fully **represent** the truth?",
+                        chinese: "照片可以**代表**一个瞬间，但它能完全**代表**真相吗？",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "Photos should **represent** reality fairly without **alter**ing the image.",
+                        chinese: "照片应该公平地**反映**现实，而不**修改**图像。",
+                        question: "Can a photo be both artistic and truthful?"
+                    },
+                    {
+                        english: "Does this image **represent** the community accurately?",
+                        chinese: "这张图像是否准确**代表**了社区？",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I want my photos to **represent** my authentic self, not a filtered version.",
+                        frame: "My photos should ______ because ______, not ______.",
+                        chinese: "我希望我的照片**代表**真实的我，而不是过滤后的版本。"
+                    },
+                    professional: {
+                        perspective: "We must **represent** subjects with **dignity** and accuracy.",
+                        frame: "It's essential to ______ with ______, otherwise ______.",
+                        chinese: "我们必须以**尊严**和准确性**表现**被摄者。"
+                    },
+                    subject: {
+                        perspective: "I want to be **represent**ed fairly, not **exploit**ed for clicks.",
+                        frame: "I hope to be ______ rather than ______, so photographers should ______.",
+                        chinese: "我希望被公平**代表**，而不是为点击量被**利用**。"
+                    }
+                },
+                questions: [1, 10, 11, 13],
+                mastered: false
+            },
+            {
+                id: 3,
+                word: "alter",
+                chinese: "修改；改变",
+                category: "technology",
+                pos: ["(v.) to change or modify", "(n.) alteration"],
+                synonyms: ["modify", "edit", "manipulate", "transform", "adjust"],
+                wordFamily: {
+                    noun: "alteration",
+                    verb: "alter",
+                    adjective: "alternative",
+                    adverb: "alternatively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "alterare",
+                    meaning: "to change, make other",
+                    evolution: ["Latin: alter (other)", "Latin: alterare (to change)", "English: alter (1500s)"]
+                },
+                examples: [
+                    {
+                        english: "When filters **alter** war photos, do they deepen impact or **distort** reality?",
+                        chinese: "当滤镜**修改**战争照片时，它们是加深影响还是**扭曲**现实？",
+                        question: "Do filters that beautify war photos distort reality or deepen emotional impact?"
+                    },
+                    {
+                        english: "Digital images can be **alter**ed in ways the naked eye might never notice.",
+                        chinese: "数字图像可以以肉眼永远注意不到的方式被**修改**。",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    },
+                    {
+                        english: "Any image can be **alter**ed to create an 'improved' picture of reality.",
+                        chinese: "任何图像都可以被**修改**以创建"改善"的现实画面。",
+                        question: "Can a photo be both artistic and truthful?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I sometimes **alter** my photos with filters to make them more **dramatic**.",
+                        frame: "I use filters to ______, but I avoid ______ because ______.",
+                        chinese: "我有时用滤镜**修改**照片使其更**引人注目**。"
+                    },
+                    professional: {
+                        perspective: "We should not **alter** news photos as it damages **trust** and creates **controversy**.",
+                        frame: "______ should never be ______ because it risks ______.",
+                        chinese: "我们不应**修改**新闻照片，因为这损害**信任**并引发**争议**。"
+                    },
+                    subject: {
+                        perspective: "When my image is **alter**ed without **consent**, it feels like **exploitation**.",
+                        frame: "My image shouldn't be ______ without ______ because ______.",
+                        chinese: "当我的图像未经**同意**被**修改**时，感觉像**剥削**。"
+                    }
+                },
+                questions: [4, 9, 10, 11, 14],
+                mastered: false
+            },
+            {
+                id: 4,
+                word: "capture",
+                chinese: "捕捉；拍摄；捕获",
+                category: "photography",
+                pos: ["(v.) to record or seize", "(n.) the act of capturing"],
+                synonyms: ["seize", "record", "catch", "preserve", "grab"],
+                wordFamily: {
+                    noun: "capture",
+                    verb: "capture",
+                    adjective: "captured",
+                    adverb: "capturingly"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "captura",
+                    meaning: "a catching, taking",
+                    evolution: ["Latin: capere (to take)", "Latin: captura (catching)", "English: capture (1400s)"]
+                },
+                examples: [
+                    {
+                        english: "Smartphones let us **capture** unguarded moments **instantly**.",
+                        chinese: "智能手机让我们能**即时****捕捉**无防备的瞬间。",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    },
+                    {
+                        english: "Does **capturing** everything mean we **remember** less?",
+                        chinese: "**捕捉**一切是否意味着我们**记得**更少？",
+                        question: "If we photograph everything, do we remember less?"
+                    },
+                    {
+                        english: "Photojournalists **capture** important events for historical record.",
+                        chinese: "新闻摄影师**捕捉**重要事件作为历史记录。",
+                        question: "Was trust in photojournalists in the past justified or naïve?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I **capture** daily moments to preserve **memories** for later.",
+                        frame: "I capture ______ to remember ______, which helps me ______.",
+                        chinese: "我**捕捉**日常瞬间以保存**记忆**供日后回忆。"
+                    },
+                    professional: {
+                        perspective: "We **capture** images that **represent** truth, not just dramatic moments.",
+                        frame: "We must capture ______ that ______, not just ______.",
+                        chinese: "我们**捕捉****代表**真相的图像，而不仅仅是戏剧性瞬间。"
+                    },
+                    subject: {
+                        perspective: "When someone **capture**s my image, I want **consent** and **respect**.",
+                        frame: "When my image is ______, I expect ______ and ______.",
+                        chinese: "当有人**捕捉**我的图像时，我希望得到**同意**和**尊重**。"
+                    }
+                },
+                questions: [2, 3, 5, 6, 8],
+                mastered: false
+            },
+            {
+                id: 5,
+                word: "frame",
+                chinese: "画面；构图；框架",
+                category: "photography",
+                pos: ["(n.) the boundary of a photo", "(v.) to compose a shot"],
+                synonyms: ["border", "composition", "structure", "context", "boundary"],
+                wordFamily: {
+                    noun: "frame",
+                    verb: "frame",
+                    adjective: "framed",
+                    adverb: "framingly"
+                },
+                etymology: {
+                    origin: "Old English",
+                    root: "framian",
+                    meaning: "to be useful, avail",
+                    evolution: ["Old English: fram (from)", "Old English: framian (to construct)", "English: frame (1200s)"]
+                },
+                examples: [
+                    {
+                        english: "What a photographer chooses to include in the **frame** is always **subjective**.",
+                        chinese: "摄影师选择在**画面**中包含的内容总是**主观的**。",
+                        question: "Can a photo be both artistic and truthful? Where is the line?"
+                    },
+                    {
+                        english: "The **frame** determines what viewers see and what remains hidden.",
+                        chinese: "**构图**决定观众看到什么以及什么被隐藏。",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "Different **frame**s tell different stories about the same event.",
+                        chinese: "不同的**构图**讲述同一事件的不同故事。",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I choose my **frame** to show what matters to me personally.",
+                        frame: "I frame my photos to show ______ because ______ matters to me.",
+                        chinese: "我选择**构图**来展示对我个人重要的内容。"
+                    },
+                    professional: {
+                        perspective: "Our **frame** choices must be ethical and **represent** the full context.",
+                        frame: "We must consider ______ when framing to ensure ______.",
+                        chinese: "我们的**构图**选择必须合乎伦理并**代表**完整语境。"
+                    },
+                    subject: {
+                        perspective: "I want control over how I'm **frame**d in photos shared publicly.",
+                        frame: "I should have ______ over how I'm ______ in public photos.",
+                        chinese: "我希望控制在公开分享的照片中如何被**构图**。"
+                    }
+                },
+                questions: [1, 10, 11, 21],
+                mastered: false
+            },
+            {
+                id: 6,
+                word: "dramatic",
+                chinese: "戏剧性的；引人注目的",
+                category: "quality",
+                pos: ["(adj.) striking, powerful, sudden", "(n.) drama"],
+                synonyms: ["striking", "vivid", "intense", "theatrical", "spectacular"],
+                wordFamily: {
+                    noun: "drama",
+                    verb: "dramatize",
+                    adjective: "dramatic",
+                    adverb: "dramatically"
+                },
+                etymology: {
+                    origin: "Greek",
+                    root: "drama",
+                    meaning: "action, deed",
+                    evolution: ["Greek: dran (to do)", "Greek: drama (action)", "English: dramatic (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "That **dramatic** photo of the wave went viral—but does it create genuine connection?",
+                        chinese: "那张**引人注目的**海浪照片走红网络——但它能创造真正的连接吗？",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "Filters make photos more **dramatic**, but do they **distort** reality?",
+                        chinese: "滤镜让照片更**引人注目**，但它们会**扭曲**现实吗？",
+                        question: "Do filters enhance or destroy communication?"
+                    },
+                    {
+                        english: "Citizen journalists often **capture** the most **dramatic** moments first.",
+                        chinese: "公民记者通常最先**捕捉**到最**戏剧性的**瞬间。",
+                        question: "Does removing editors and publishers lead to better access or more misinformation?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I prefer **dramatic** photos because they get more attention on social media.",
+                        frame: "Dramatic photos get more ______, so I try to make my photos ______.",
+                        chinese: "我更喜欢**引人注目的**照片，因为它们在社交媒体上获得更多关注。"
+                    },
+                    professional: {
+                        perspective: "While **dramatic** images attract viewers, we must prioritize accuracy.",
+                        frame: "Although ______ attracts attention, we must prioritize ______.",
+                        chinese: "虽然**引人注目的**图像吸引观众，但我们必须优先考虑准确性。"
+                    },
+                    subject: {
+                        perspective: "I don't want my suffering to look **dramatic** for others' entertainment.",
+                        frame: "My experiences shouldn't be made ______ for ______.",
+                        chinese: "我不希望我的苦难看起来**戏剧化**以供他人娱乐。"
+                    }
+                },
+                questions: [4, 7, 9, 12],
+                mastered: false
+            },
+            {
+                id: 7,
+                word: "profound",
+                chinese: "深刻的；深远的",
+                category: "quality",
+                pos: ["(adj.) deep, meaningful, intense", "(n.) profundity"],
+                synonyms: ["deep", "meaningful", "significant", "thoughtful", "intense"],
+                wordFamily: {
+                    noun: "profundity",
+                    verb: "profund",
+                    adjective: "profound",
+                    adverb: "profoundly"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "profundus",
+                    meaning: "deep, bottomless",
+                    evolution: ["Latin: pro- (forward) + fundus (bottom)", "Latin: profundus (deep)", "English: profound (1300s)"]
+                },
+                examples: [
+                    {
+                        english: "A **profound** image can change how we see the world.",
+                        chinese: "一张**深刻的**图像可以改变我们看待世界的方式。",
+                        question: "Can a photo be both artistic and truthful?"
+                    },
+                    {
+                        english: "Does oversaturation make us numb to **profound** effects of well-made images?",
+                        chinese: "过度饱和是否让我们对精心制作图像的**深刻**影响变得麻木？",
+                        question: "Does the oversaturation of digital images devalue individual memories?"
+                    },
+                    {
+                        english: "Annie Griffiths learned **profound** lessons about humanity through photography.",
+                        chinese: "安妮·格里菲斯通过摄影学到了关于人类的**深刻**教训。",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I want my photos to have **profound** meaning, not just be **superficial**.",
+                        frame: "I strive for ______ photos rather than ______ ones because ______.",
+                        chinese: "我希望我的照片有**深刻**意义，而不仅仅是**表面的**。"
+                    },
+                    professional: {
+                        perspective: "We seek **profound** images that create lasting social impact.",
+                        frame: "Our goal is to create ______ images that ______.",
+                        chinese: "我们寻求创造持久社会影响的**深刻**图像。"
+                    },
+                    subject: {
+                        perspective: "I want my story to be told with **profound** respect, not **exploit**ed.",
+                        frame: "My story deserves ______, not ______.",
+                        chinese: "我希望我的故事被**深刻**尊重地讲述，而不是被**利用**。"
+                    }
+                },
+                questions: [2, 5, 6, 11],
+                mastered: false
+            },
+            {
+                id: 8,
+                word: "superficial",
+                chinese: "表面的；肤浅的",
+                category: "quality",
+                pos: ["(adj.) shallow, surface-level", "(n.) superficiality"],
+                synonyms: ["shallow", "surface", "trivial", "cursory", "surface-level"],
+                wordFamily: {
+                    noun: "superficiality",
+                    verb: "superficialize",
+                    adjective: "superficial",
+                    adverb: "superficially"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "superficies",
+                    meaning: "surface",
+                    evolution: ["Latin: super- (above) + facies (face)", "Latin: superficies (surface)", "English: superficial (1500s)"]
+                },
+                examples: [
+                    {
+                        english: "If we only take **superficial** selfies for likes, are we documenting or performing?",
+                        chinese: "如果我们只为点赞拍**表面的**自拍，我们是在记录还是表演？",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "**Superficial** photo sharing may reduce **profound** memory formation.",
+                        chinese: "**表面的**照片分享可能减少**深刻**记忆的形成。",
+                        question: "If we photograph everything, do we remember less?"
+                    },
+                    {
+                        english: "Social media encourages **superficial** engagement over meaningful connection.",
+                        chinese: "社交媒体鼓励**表面的**参与而非有意义的连接。",
+                        question: "Do filters enhance or destroy communication?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I worry my photos are too **superficial** for real **communication**.",
+                        frame: "I worry my photos are too ______ for real ______.",
+                        chinese: "我担心我的照片对真正**沟通**来说太**表面**了。"
+                    },
+                    professional: {
+                        perspective: "We avoid **superficial** coverage that misses deeper truths.",
+                        frame: "We avoid ______ coverage that misses ______.",
+                        chinese: "我们避免错过更深层真相的**表面**报道。"
+                    },
+                    subject: {
+                        perspective: "I don't want to be reduced to a **superficial** image online.",
+                        frame: "I don't want to be reduced to ______ online.",
+                        chinese: "我不想在网上被简化为**表面的**图像。"
+                    }
+                },
+                questions: [2, 5, 6, 7],
+                mastered: false
+            },
+            {
+                id: 9,
+                word: "authentic",
+                chinese: "真实的；可信的；真诚的",
+                category: "ethics",
+                pos: ["(adj.) genuine, real, trustworthy", "(n.) authenticity"],
+                synonyms: ["genuine", "real", "truthful", "sincere", "honest"],
+                wordFamily: {
+                    noun: "authenticity",
+                    verb: "authenticate",
+                    adjective: "authentic",
+                    adverb: "authentically"
+                },
+                etymology: {
+                    origin: "Greek",
+                    root: "authentikos",
+                    meaning: "original, genuine",
+                    evolution: ["Greek: authentes (author)", "Greek: authentikos (original)", "English: authentic (1300s)"]
+                },
+                examples: [
+                    {
+                        english: "Viewers crave **authentic** images, but how can we **verify** what's real?",
+                        chinese: "观众渴望**真实的**图像，但我们如何**核实**什么是真实的？",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    },
+                    {
+                        english: "Is **authentic** photography possible in the age of filters and editing?",
+                        chinese: "在滤镜和编辑时代，**真实的**摄影是否可能？",
+                        question: "Can a photo be both artistic and truthful?"
+                    },
+                    {
+                        english: "Annie Griffiths values **authentic** connections with her subjects.",
+                        chinese: "安妮·格里菲斯重视与被摄者的**真诚**连接。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I try to keep my photos **authentic** even when using filters.",
+                        frame: "I try to keep my photos ______ even when ______.",
+                        chinese: "即使用滤镜，我也尽量保持照片**真实**。"
+                    },
+                    professional: {
+                        perspective: "**Authentic** reporting is essential for maintaining public **trust**.",
+                        frame: "______ is essential for maintaining ______.",
+                        chinese: "**真实**报道对维持公众**信任**至关重要。"
+                    },
+                    subject: {
+                        perspective: "I want **authentic** representation, not an **alter**ed version of me.",
+                        frame: "I want ______ representation, not ______ version of me.",
+                        chinese: "我希望**真实**的代表，而不是被**修改**过的我。"
+                    }
+                },
+                questions: [1, 10, 11, 14],
+                mastered: false
+            },
+            {
+                id: 10,
+                word: "manipulate",
+                chinese: "操纵；篡改；影响",
+                category: "technology",
+                pos: ["(v.) to control or alter cleverly", "(n.) manipulation"],
+                synonyms: ["control", "alter", "influence", "distort", "tamper"],
+                wordFamily: {
+                    noun: "manipulation",
+                    verb: "manipulate",
+                    adjective: "manipulative",
+                    adverb: "manipulatively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "manipulus",
+                    meaning: "handful, bundle",
+                    evolution: ["Latin: manus (hand) + plere (fill)", "Latin: manipulus (handful)", "English: manipulate (1800s)"]
+                },
+                examples: [
+                    {
+                        english: "When governments **manipulate** images, should we stop trusting photos altogether?",
+                        chinese: "当政府**操纵**图像时，我们应该完全停止信任照片吗？",
+                        question: "Will society develop new ways to verify images or stop trusting them altogether?"
+                    },
+                    {
+                        english: "Filters can **manipulate** emotions by changing colors and lighting.",
+                        chinese: "滤镜可以通过改变颜色和光线来**操纵**情绪。",
+                        question: "Do filters enhance or destroy communication?"
+                    },
+                    {
+                        english: "Photo editing software makes it easy to **manipulate** reality.",
+                        chinese: "照片编辑软件使**操纵**现实变得容易。",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I should be careful not to **manipulate** images when sharing news.",
+                        frame: "I should be careful not to ______ when sharing ______.",
+                        chinese: "分享新闻时我应该小心不要**操纵**图像。"
+                    },
+                    professional: {
+                        perspective: "We must never **manipulate** images as it destroys **trust** and **democracy**.",
+                        frame: "We must never ______ as it destroys ______.",
+                        chinese: "我们绝不能**操纵**图像，因为这会摧毁**信任**和**民主**。"
+                    },
+                    subject: {
+                        perspective: "I feel violated when my image is **manipulate**d without my knowledge.",
+                        frame: "I feel ______ when my image is ______ without my knowledge.",
+                        chinese: "当我的图像在不知情的情况下被**操纵**时，我感到被侵犯。"
+                    }
+                },
+                questions: [1, 9, 10, 12, 14],
+                mastered: false
+            },
+            {
+                id: 11,
+                word: "consent",
+                chinese: "同意；许可",
+                category: "ethics",
+                pos: ["(n.) permission, agreement", "(v.) to agree"],
+                synonyms: ["permission", "approval", "agreement", "authorization", "accord"],
+                wordFamily: {
+                    noun: "consent",
+                    verb: "consent",
+                    adjective: "consensual",
+                    adverb: "consensually"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "consentire",
+                    meaning: "to feel together, agree",
+                    evolution: ["Latin: con- (together) + sentire (feel)", "Latin: consentire (agree)", "English: consent (1300s)"]
+                },
+                examples: [
+                    {
+                        english: "Is it ethical to photograph strangers without **consent**?",
+                        chinese: "未经**同意**拍摄陌生人是否符合伦理？",
+                        question: "Is it ethical to photograph people without permission?"
+                    },
+                    {
+                        english: "Subjects deserve **consent** before their images are shared publicly.",
+                        chinese: "被摄者在图像公开分享前应获得**同意**。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "Asking for **consent** shows **respect** and builds **trust**.",
+                        chinese: "征求**同意**显示**尊重**并建立**信任**。",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I try to ask for **consent** when photographing people I know.",
+                        frame: "I try to ask for ______ when photographing ______.",
+                        chinese: "拍摄认识的人时我尽量征求**同意**。"
+                    },
+                    professional: {
+                        perspective: "Professional ethics require **consent** except in public interest situations.",
+                        frame: "Professional ethics require ______ except in ______.",
+                        chinese: "专业伦理要求**同意**，除非涉及公共利益情况。"
+                    },
+                    subject: {
+                        perspective: "I want to give **consent** before my photo is shared online.",
+                        frame: "I want to give ______ before my photo is ______.",
+                        chinese: "我希望在我的照片在线分享前给予**同意**。"
+                    }
+                },
+                questions: [3, 7, 11, 13],
+                mastered: false
+            },
+            {
+                id: 12,
+                word: "dignity",
+                chinese: "尊严；自尊",
+                category: "ethics",
+                pos: ["(n.) worth, respect, honor"],
+                synonyms: ["respect", "honor", "worth", "pride", "self-respect"],
+                wordFamily: {
+                    noun: "dignity",
+                    verb: "dignify",
+                    adjective: "dignified",
+                    adverb: "dignifiedly"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "dignitas",
+                    meaning: "worthiness, merit",
+                    evolution: ["Latin: dignus (worthy)", "Latin: dignitas (worthiness)", "English: dignity (1200s)"]
+                },
+                examples: [
+                    {
+                        english: "Photographing vulnerable people requires protecting their **dignity**.",
+                        chinese: "拍摄弱势群体需要保护他们的**尊严**。",
+                        question: "Is it ethical to photograph people without permission?"
+                    },
+                    {
+                        english: "Do filters that beautify war photos respect or violate **dignity**?",
+                        chinese: "美化战争照片的滤镜是尊重还是侵犯**尊严**？",
+                        question: "Do filters that beautify war photos distort reality or deepen emotional impact?"
+                    },
+                    {
+                        english: "Annie Griffiths treats all subjects with **dignity** and **respect**.",
+                        chinese: "安妮·格里菲斯以**尊严**和**尊重**对待所有被摄者。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I should consider **dignity** when sharing photos of others.",
+                        frame: "I should consider ______ when sharing photos of ______.",
+                        chinese: "分享他人照片时我应该考虑**尊严**。"
+                    },
+                    professional: {
+                        perspective: "Protecting subject **dignity** is more important than getting the shot.",
+                        frame: "Protecting ______ is more important than ______.",
+                        chinese: "保护被摄者**尊严**比拍到照片更重要。"
+                    },
+                    subject: {
+                        perspective: "I want my **dignity** respected even in difficult circumstances.",
+                        frame: "I want my ______ respected even in ______.",
+                        chinese: "即使在困难情况下，我也希望我的**尊严**得到尊重。"
+                    }
+                },
+                questions: [3, 9, 11, 13],
+                mastered: false
+            },
+            {
+                id: 13,
+                word: "exploit",
+                chinese: "利用；剥削；滥用",
+                category: "ethics",
+                pos: ["(v.) to use unfairly for benefit", "(n.) exploitation"],
+                synonyms: ["misuse", "abuse", "take advantage of", "manipulate", "use"],
+                wordFamily: {
+                    noun: "exploitation",
+                    verb: "exploit",
+                    adjective: "exploitative",
+                    adverb: "exploitatively"
+                },
+                etymology: {
+                    origin: "French",
+                    root: "exploit",
+                    meaning: "achievement, feat",
+                    evolution: ["Old French: esploit (success)", "French: exploiter (to use)", "English: exploit (1800s)"]
+                },
+                examples: [
+                    {
+                        english: "When media **exploit** suffering for clicks, does this create **misinformation**?",
+                        chinese: "当媒体为点击量**利用**苦难时，这是否制造**虚假信息**？",
+                        question: "Does removing editors and publishers lead to better access or more misinformation?"
+                    },
+                    {
+                        english: "Photographing vulnerable people without **consent** can be **exploit**ation.",
+                        chinese: "未经**同意**拍摄弱势群体可能是**剥削**。",
+                        question: "Is it ethical to photograph people without permission?"
+                    },
+                    {
+                        english: "We must avoid **exploit**ing subjects for **dramatic** images.",
+                        chinese: "我们必须避免为**戏剧性的**图像**利用**被摄者。",
+                        question: "Can a photo be both artistic and truthful?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I should avoid **exploit**ing others' pain for social media attention.",
+                        frame: "I should avoid ______ others' ______ for ______.",
+                        chinese: "我应该避免为社交媒体关注**利用**他人的痛苦。"
+                    },
+                    professional: {
+                        perspective: "**Exploit**ing subjects damages **trust** and professional reputation.",
+                        frame: "______ subjects damages ______ and ______.",
+                        chinese: "**利用**被摄者损害**信任**和职业声誉。"
+                    },
+                    subject: {
+                        perspective: "I feel **exploit**ed when my suffering is shared without my **consent**.",
+                        frame: "I feel ______ when my ______ is shared without my ______.",
+                        chinese: "当我的苦难未经**同意**被分享时，我感到被**利用**。"
+                    }
+                },
+                questions: [3, 9, 11, 12],
+                mastered: false
+            },
+            {
+                id: 14,
+                word: "empathy",
+                chinese: "共情；同理心",
+                category: "ethics",
+                pos: ["(n.) understanding others' feelings", "(adj.) empathetic"],
+                synonyms: ["compassion", "understanding", "sensitivity", "connection", "sympathy"],
+                wordFamily: {
+                    noun: "empathy",
+                    verb: "empathize",
+                    adjective: "empathetic",
+                    adverb: "empathetically"
+                },
+                etymology: {
+                    origin: "Greek",
+                    root: "empatheia",
+                    meaning: "passion, state of emotion",
+                    evolution: ["Greek: en- (in) + pathos (feeling)", "Greek: empatheia (feeling in)", "English: empathy (1900s)"]
+                },
+                examples: [
+                    {
+                        english: "Showing **empathy** for photo subjects helps build **trust**.",
+                        chinese: "对照片被摄者显示**共情**有助于建立**信任**。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "Can a photo truly convey another person's experience with **empathy**?",
+                        chinese: "照片能否用**共情**真正传达另一个人的经历？",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "Annie Griffiths learned that **empathy** transcends language barriers.",
+                        chinese: "安妮·格里菲斯了解到**共情**超越语言障碍。",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I try to show **empathy** when photographing people in difficult situations.",
+                        frame: "I try to show ______ when photographing people in ______.",
+                        chinese: "拍摄困难情况下的人时我尽量显示**共情**。"
+                    },
+                    professional: {
+                        perspective: "**Empathy** guides our ethical decisions about what to publish.",
+                        frame: "______ guides our ethical decisions about ______.",
+                        chinese: "**共情**指导我们关于发布内容的伦理决定。"
+                    },
+                    subject: {
+                        perspective: "I appreciate photographers who show **empathy** for my situation.",
+                        frame: "I appreciate photographers who show ______ for my ______.",
+                        chinese: "我感激对我的处境显示**共情**的摄影师。"
+                    }
+                },
+                questions: [3, 7, 9, 11],
+                mastered: false
+            },
+            {
+                id: 15,
+                word: "privacy",
+                chinese: "隐私；私密",
+                category: "ethics",
+                pos: ["(n.) the right to be left alone", "(adj.) private"],
+                synonyms: ["confidentiality", "solitude", "secrecy", "personal space", "privacy"],
+                wordFamily: {
+                    noun: "privacy",
+                    verb: "privatize",
+                    adjective: "private",
+                    adverb: "privately"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "privatus",
+                    meaning: "set apart, private",
+                    evolution: ["Latin: privus (individual)", "Latin: privatus (private)", "English: privacy (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "In the Visual Village, does constant sharing erode **privacy**?",
+                        chinese: "在视觉村庄中，持续分享是否侵蚀**隐私**？",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "Sharing photos without **consent** violates **privacy** rights.",
+                        chinese: "未经**同意**分享照片侵犯**隐私**权。",
+                        question: "Is it ethical to photograph people without permission?"
+                    },
+                    {
+                        english: "Digital sharing makes **privacy** harder to maintain than physical albums.",
+                        chinese: "数字分享使**隐私**比实体相册更难维护。",
+                        question: "How does digital sharing change how we remember our personal history?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I balance sharing with protecting my **privacy** and others'.",
+                        frame: "I balance ______ with protecting ______.",
+                        chinese: "我在分享与保护自己和他人**隐私**之间取得平衡。"
+                    },
+                    professional: {
+                        perspective: "We respect **privacy** unless public interest justifies disclosure.",
+                        frame: "We respect ______ unless ______ justifies disclosure.",
+                        chinese: "我们尊重**隐私**，除非公共利益证明披露合理。"
+                    },
+                    subject: {
+                        perspective: "I want control over my **privacy** when photos of me are shared.",
+                        frame: "I want control over my ______ when photos of me are ______.",
+                        chinese: "当我的照片被分享时，我希望控制我的**隐私**。"
+                    }
+                },
+                questions: [3, 7, 8, 11],
+                mastered: false
+            },
+            {
+                id: 16,
+                word: "verify",
+                chinese: "核实；验证；确认",
+                category: "technology",
+                pos: ["(v.) to confirm truth", "(n.) verification"],
+                synonyms: ["confirm", "check", "validate", "authenticate", "prove"],
+                wordFamily: {
+                    noun: "verification",
+                    verb: "verify",
+                    adjective: "verifiable",
+                    adverb: "verifiably"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "verus",
+                    meaning: "true",
+                    evolution: ["Latin: verus (true) + facere (make)", "Latin: verificare (make true)", "English: verify (1400s)"]
+                },
+                examples: [
+                    {
+                        english: "Will society develop new tools to **verify** images?",
+                        chinese: "社会会开发新工具来**核实**图像吗？",
+                        question: "Will society develop new ways to verify images or stop trusting them altogether?"
+                    },
+                    {
+                        english: "How can we **verify** what's real if digital edits are invisible?",
+                        chinese: "如果数字修改不可见，我们如何**核实**什么是真实的？",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    },
+                    {
+                        english: "Professional journalists **verify** images before publishing.",
+                        chinese: "专业记者在发布前**核实**图像。",
+                        question: "Does removing editors and publishers lead to better access or more misinformation?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I should **verify** images before sharing them as news.",
+                        frame: "I should ______ images before sharing them as ______.",
+                        chinese: "我应该将图像作为新闻分享前先**核实**。"
+                    },
+                    professional: {
+                        perspective: "**Verify**ing images is essential for maintaining **trust** and **democracy**.",
+                        frame: "______ images is essential for maintaining ______.",
+                        chinese: "**核实**图像对维持**信任**和**民主**至关重要。"
+                    },
+                    subject: {
+                        perspective: "I want platforms to **verify** photos of me before they go viral.",
+                        frame: "I want platforms to ______ photos of me before they ______.",
+                        chinese: "我希望平台在我的照片走红前**核实**。"
+                    }
+                },
+                questions: [1, 10, 12, 14],
+                mastered: false
+            },
+            {
+                id: 17,
+                word: "misinformation",
+                chinese: "虚假信息；错误信息",
+                category: "technology",
+                pos: ["(n.) false or misleading information"],
+                synonyms: ["disinformation", "falsehood", "inaccuracy", "deception", "fake news"],
+                wordFamily: {
+                    noun: "misinformation",
+                    verb: "misinform",
+                    adjective: "misinformed",
+                    adverb: "misinformationally"
+                },
+                etymology: {
+                    origin: "English",
+                    root: "mis- + information",
+                    meaning: "wrong information",
+                    evolution: ["Latin: informare (to shape)", "English: information (1300s)", "English: misinformation (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "Does removing editors lead to better access or more **misinformation**?",
+                        chinese: "移除编辑是带来更好访问还是更多**虚假信息**？",
+                        question: "Does removing editors and publishers lead to better access or more misinformation?"
+                    },
+                    {
+                        english: "**Misinformation** spreads faster than truth on social media.",
+                        chinese: "**虚假信息**在社交媒体上比真相传播更快。",
+                        question: "Will society develop new ways to verify images or stop trusting them altogether?"
+                    },
+                    {
+                        english: "Altered images can create **misinformation** about important events.",
+                        chinese: "修改后的图像可能制造关于重要事件的**虚假信息**。",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I should check for **misinformation** before sharing images.",
+                        frame: "I should check for ______ before sharing ______.",
+                        chinese: "分享图像前我应该检查**虚假信息**。"
+                    },
+                    professional: {
+                        perspective: "Fighting **misinformation** is a core responsibility of photojournalists.",
+                        frame: "Fighting ______ is a core responsibility of ______.",
+                        chinese: "打击**虚假信息**是新闻摄影师的核心责任。"
+                    },
+                    subject: {
+                        perspective: "**Misinformation** about my image can harm my reputation.",
+                        frame: "______ about my image can harm my ______.",
+                        chinese: "关于我图像的**虚假信息**可能损害我的声誉。"
+                    }
+                },
+                questions: [1, 10, 12, 14],
+                mastered: false
+            },
+            {
+                id: 18,
+                word: "democracy",
+                chinese: "民主；民主制度",
+                category: "technology",
+                pos: ["(n.) government by the people", "(adj.) democratic"],
+                synonyms: ["self-government", "participation", "equality", "freedom", "representation"],
+                wordFamily: {
+                    noun: "democracy",
+                    verb: "democratize",
+                    adjective: "democratic",
+                    adverb: "democratically"
+                },
+                etymology: {
+                    origin: "Greek",
+                    root: "demokratia",
+                    meaning: "rule by the people",
+                    evolution: ["Greek: demos (people) + kratos (power)", "Greek: demokratia (people power)", "English: democracy (1500s)"]
+                },
+                examples: [
+                    {
+                        english: "Citizen photography can strengthen **democracy** by holding power accountable.",
+                        chinese: "公民摄影可以通过问责权力来加强**民主**。",
+                        question: "Does removing editors and publishers lead to better access or more misinformation?"
+                    },
+                    {
+                        english: "The increase in photographers might be good for **democracy** itself.",
+                        chinese: "摄影师数量的增加可能对**民主**本身有益。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "**Democracy** requires informed citizens with access to truthful images.",
+                        chinese: "**民主**需要能获得真实图像的知情公民。",
+                        question: "Was trust in photojournalists in the past justified or naïve?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I use photography to participate in **democracy** by documenting issues.",
+                        frame: "I use photography to participate in ______ by ______.",
+                        chinese: "我通过摄影记录问题来参与**民主**。"
+                    },
+                    professional: {
+                        perspective: "Photojournalism supports **democracy** through accurate **represent**ation.",
+                        frame: "Photojournalism supports ______ through accurate ______.",
+                        chinese: "新闻摄影通过准确**代表**支持**民主**。"
+                    },
+                    subject: {
+                        perspective: "In a **democracy**, I should have control over my image.",
+                        frame: "In a ______, I should have control over my ______.",
+                        chinese: "在**民主**社会中，我应该控制我的图像。"
+                    }
+                },
+                questions: [7, 12, 13, 14],
+                mastered: false
+            },
+            {
+                id: 19,
+                word: "irreversible",
+                chinese: "不可逆的；无法挽回的",
+                category: "technology",
+                pos: ["(adj.) cannot be undone", "(n.) irreversibility"],
+                synonyms: ["permanent", "unchangeable", "final", "lasting", "irrevocable"],
+                wordFamily: {
+                    noun: "irreversibility",
+                    verb: "reverse",
+                    adjective: "irreversible",
+                    adverb: "irreversibly"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "revertere",
+                    meaning: "to turn back",
+                    evolution: ["Latin: re- (back) + vertere (turn)", "Latin: irreversibilis (not turnable back)", "English: irreversible (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "The shift to digital photography is **irreversible**.",
+                        chinese: "向数字摄影的转变是**不可逆的**。",
+                        question: "Will society develop new ways to verify images or stop trusting them altogether?"
+                    },
+                    {
+                        english: "Once shared online, images have **irreversible** consequences.",
+                        chinese: "一旦在线分享，图像会产生**不可逆的**后果。",
+                        question: "How does digital sharing change how we remember our personal history?"
+                    },
+                    {
+                        english: "The change in how we **document** life is **irreversible**.",
+                        chinese: "我们**记录**生活方式的改变是**不可逆的**。",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I understand that sharing photos has **irreversible** effects.",
+                        frame: "I understand that sharing photos has ______ effects.",
+                        chinese: "我理解分享照片有**不可逆的**影响。"
+                    },
+                    professional: {
+                        perspective: "We must consider **irreversible** consequences before publishing sensitive images.",
+                        frame: "We must consider ______ before publishing ______.",
+                        chinese: "发布敏感图像前我们必须考虑**不可逆的**后果。"
+                    },
+                    subject: {
+                        perspective: "Once my image is online, the damage may be **irreversible**.",
+                        frame: "Once my image is online, the damage may be ______.",
+                        chinese: "一旦我的图像上网，损害可能是**不可逆的**。"
+                    }
+                },
+                questions: [5, 8, 10, 14],
+                mastered: false
+            },
+            {
+                id: 20,
+                word: "universal",
+                chinese: "普遍的；通用的；全球的",
+                category: "technology",
+                pos: ["(adj.) applying to all", "(n.) universality"],
+                synonyms: ["global", "widespread", "common", "all-encompassing", "worldwide"],
+                wordFamily: {
+                    noun: "universality",
+                    verb: "universalize",
+                    adjective: "universal",
+                    adverb: "universally"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "universus",
+                    meaning: "all together, whole",
+                    evolution: ["Latin: unus (one) + vertere (turn)", "Latin: universus (turned into one)", "English: universal (1300s)"]
+                },
+                examples: [
+                    {
+                        english: "Could photography become a **universal** visual language?",
+                        chinese: "摄影能否成为**通用的**视觉语言？",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    },
+                    {
+                        english: "**Universal** themes connect us across cultures through images.",
+                        chinese: "**普遍的**主题通过图像连接跨文化的我们。",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "Annie Griffiths found **universal** hopes and fears in all cultures.",
+                        chinese: "安妮·格里菲斯在所有文化中发现了**普遍的**希望和恐惧。",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I use photography to connect with **universal** human experiences.",
+                        frame: "I use photography to connect with ______ human experiences.",
+                        chinese: "我用摄影连接**普遍的**人类体验。"
+                    },
+                    professional: {
+                        perspective: "We seek **universal** stories that resonate across cultures.",
+                        frame: "We seek ______ stories that resonate across ______.",
+                        chinese: "我们寻找跨文化共鸣的**普遍**故事。"
+                    },
+                    subject: {
+                        perspective: "My story is part of a **universal** human experience.",
+                        frame: "My story is part of a ______ human experience.",
+                        chinese: "我的故事是**普遍**人类体验的一部分。"
+                    }
+                },
+                questions: [1, 5, 7, 11],
+                mastered: false
+            },
+            {
+                id: 21,
+                word: "subjective",
+                chinese: "主观的；个人的",
+                category: "thinking",
+                pos: ["(adj.) based on personal view", "(n.) subjectivity"],
+                synonyms: ["personal", "biased", "individual", "interpretive", "partial"],
+                wordFamily: {
+                    noun: "subjectivity",
+                    verb: "subjectivize",
+                    adjective: "subjective",
+                    adverb: "subjectively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "subjectivus",
+                    meaning: "pertaining to the subject",
+                    evolution: ["Latin: sub- (under) + jacere (lie)", "Latin: subjectus (underlying)", "English: subjective (1700s)"]
+                },
+                examples: [
+                    {
+                        english: "All photography is **subjective** because the photographer chooses the frame.",
+                        chinese: "所有摄影都是**主观的**，因为摄影师选择构图。",
+                        question: "Can a photo be both artistic and truthful? Where is the line?"
+                    },
+                    {
+                        english: "**Subjective** choices affect what truth a photo tells.",
+                        chinese: "**主观**选择影响照片讲述的真相。",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "Is **subjective** editing acceptable if it's disclosed to viewers?",
+                        chinese: "如果向观众披露，**主观**编辑可以接受吗？",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I acknowledge my photos are **subjective** interpretations.",
+                        frame: "I acknowledge my photos are ______ interpretations.",
+                        chinese: "我承认我的照片是**主观**诠释。"
+                    },
+                    professional: {
+                        perspective: "We minimize **subjective** bias while acknowledging it exists.",
+                        frame: "We minimize ______ while acknowledging it exists.",
+                        chinese: "我们最小化**主观**偏见同时承认其存在。"
+                    },
+                    subject: {
+                        perspective: "I want photographers to acknowledge their **subjective** perspective.",
+                        frame: "I want photographers to acknowledge their ______.",
+                        chinese: "我希望摄影师承认他们的**主观**视角。"
+                    }
+                },
+                questions: [1, 10, 11, 21],
+                mastered: false
+            },
+            {
+                id: 22,
+                word: "objective",
+                chinese: "客观的；无偏见的",
+                category: "thinking",
+                pos: ["(adj.) based on facts, not feelings", "(n.) objectivity"],
+                synonyms: ["factual", "neutral", "unbiased", "impartial", "fair"],
+                wordFamily: {
+                    noun: "objectivity",
+                    verb: "objectify",
+                    adjective: "objective",
+                    adverb: "objectively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "objectivus",
+                    meaning: "pertaining to the object",
+                    evolution: ["Latin: ob- (toward) + jacere (throw)", "Latin: objectus (thrown toward)", "English: objective (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "Photojournalists strive for **objective** reporting, but can any image be completely free of perspective?",
+                        chinese: "新闻摄影师努力**客观**报道，但任何图像能完全免于视角吗？",
+                        question: "Can a photo be both artistic and truthful?"
+                    },
+                    {
+                        english: "**Objective** truth in photography may be impossible to achieve.",
+                        chinese: "摄影中的**客观**真相可能无法实现。",
+                        question: "Do photos tell the truth?"
+                    },
+                    {
+                        english: "We should view images with **objective** critical thinking.",
+                        chinese: "我们应该以**客观**批判性思维观看图像。",
+                        question: "Will society develop new ways to verify images or stop trusting them altogether?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I try to view images **objective**ly, questioning what I see.",
+                        frame: "I try to view images ______, questioning what I see.",
+                        chinese: "我尽量**客观**地观看图像，质疑我所看到的。"
+                    },
+                    professional: {
+                        perspective: "**Objective** accuracy is our goal, even if perfect objectivity is impossible.",
+                        frame: "______ accuracy is our goal, even if perfect ______ is impossible.",
+                        chinese: "**客观**准确性是我们的目标，即使完美客观性不可能。"
+                    },
+                    subject: {
+                        perspective: "I want **objective** representation, not biased portrayal.",
+                        frame: "I want ______ representation, not ______ portrayal.",
+                        chinese: "我希望**客观**代表，而非偏见描绘。"
+                    }
+                },
+                questions: [1, 10, 11, 13],
+                mastered: false
+            },
+            {
+                id: 23,
+                word: "obsessed",
+                chinese: "着迷的；沉迷的；执着的",
+                category: "thinking",
+                pos: ["(adj.) fixated, preoccupied", "(v.) obsess", "(n.) obsession"],
+                synonyms: ["fixated", "preoccupied", "addicted", "consumed", "compulsive"],
+                wordFamily: {
+                    noun: "obsession",
+                    verb: "obsess",
+                    adjective: "obsessed",
+                    adverb: "obsessively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "obsidere",
+                    meaning: "to besiege, occupy",
+                    evolution: ["Latin: ob- (against) + sedere (sit)", "Latin: obsessus (besieged)", "English: obsessed (1500s)"]
+                },
+                examples: [
+                    {
+                        english: "Are we **obsessed** with documenting daily life from creativity or fear?",
+                        chinese: "我们**沉迷**于记录日常生活是出于创造力还是恐惧？",
+                        question: "Is our obsession with documenting daily life driven by creativity or fear of forgetting?"
+                    },
+                    {
+                        english: "Being **obsessed** with capturing everything may make experiences **superficial**.",
+                        chinese: "**沉迷**于捕捉一切可能使体验变得**表面**。",
+                        question: "If we photograph everything, do we remember less?"
+                    },
+                    {
+                        english: "Social media makes us **obsessed** with likes and shares.",
+                        chinese: "社交媒体让我们**沉迷**于点赞和分享。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I worry I'm **obsessed** with documenting instead of experiencing.",
+                        frame: "I worry I'm ______ with documenting instead of ______.",
+                        chinese: "我担心我**沉迷**于记录而非体验。"
+                    },
+                    professional: {
+                        perspective: "We channel **obsession** into meaningful **document**ation.",
+                        frame: "We channel ______ into meaningful ______.",
+                        chinese: "我们将**沉迷**转化为有意义的**记录**。"
+                    },
+                    subject: {
+                        perspective: "I don't want to be part of someone's **obsession** with content.",
+                        frame: "I don't want to be part of someone's ______ with ______.",
+                        chinese: "我不想成为某人对内容**沉迷**的一部分。"
+                    }
+                },
+                questions: [2, 5, 6, 7],
+                mastered: false
+            },
+            {
+                id: 24,
+                word: "collective",
+                chinese: "集体的；共同的",
+                category: "thinking",
+                pos: ["(adj.) shared by a group", "(n.) collectivity"],
+                synonyms: ["shared", "communal", "group", "joint", "common"],
+                wordFamily: {
+                    noun: "collectivity",
+                    verb: "collectivize",
+                    adjective: "collective",
+                    adverb: "collectively"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "collectivus",
+                    meaning: "gathered together",
+                    evolution: ["Latin: col- (together) + legere (gather)", "Latin: collectus (gathered)", "English: collective (1600s)"]
+                },
+                examples: [
+                    {
+                        english: "Does sharing billions of photos create a richer **collective** archive?",
+                        chinese: "分享数十亿张照片是否创造更丰富的**集体**档案？",
+                        question: "Does the oversaturation of digital images devalue individual memories or create a richer collective archive?"
+                    },
+                    {
+                        english: "**Collective** memory is shaped by which images survive and spread.",
+                        chinese: "**集体**记忆由哪些图像幸存和传播塑造。",
+                        question: "How does digital sharing change how we remember our personal history?"
+                    },
+                    {
+                        english: "We build **collective** understanding through shared visual experiences.",
+                        chinese: "我们通过共享视觉体验建立**集体**理解。",
+                        question: "Is the Visual Village a space for genuine connection or social performance?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I contribute to **collective** memory through my photo sharing.",
+                        frame: "I contribute to ______ through my photo sharing.",
+                        chinese: "我通过照片分享为**集体**记忆做贡献。"
+                    },
+                    professional: {
+                        perspective: "We preserve **collective** history through careful image selection.",
+                        frame: "We preserve ______ through careful image selection.",
+                        chinese: "我们通过仔细图像选择保存**集体**历史。"
+                    },
+                    subject: {
+                        perspective: "My image becomes part of **collective** memory when shared.",
+                        frame: "My image becomes part of ______ when shared.",
+                        chinese: "我的图像分享后成为**集体**记忆的一部分。"
+                    }
+                },
+                questions: [2, 5, 7, 8],
+                mastered: false
+            },
+            {
+                id: 25,
+                word: "controversy",
+                chinese: "争议；争论",
+                category: "thinking",
+                pos: ["(n.) public disagreement", "(adj.) controversial"],
+                synonyms: ["debate", "dispute", "disagreement", "conflict", "contention"],
+                wordFamily: {
+                    noun: "controversy",
+                    verb: "controversy",
+                    adjective: "controversial",
+                    adverb: "controversially"
+                },
+                etymology: {
+                    origin: "Latin",
+                    root: "controversia",
+                    meaning: "turned against",
+                    evolution: ["Latin: contra- (against) + vertere (turn)", "Latin: controversia (dispute)", "English: controversy (1500s)"]
+                },
+                examples: [
+                    {
+                        english: "Using filters on war photos sparks **controversy**.",
+                        chinese: "在战争照片上使用滤镜引发**争议**。",
+                        question: "Do filters that beautify war photos distort reality or deepen emotional impact?"
+                    },
+                    {
+                        english: "**Controversy** arises when images are **alter**ed without disclosure.",
+                        chinese: "当图像未经披露被**修改**时引发**争议**。",
+                        question: "If digital edits are invisible, how do we define truth in photography?"
+                    },
+                    {
+                        english: "Public **controversy** helps us examine photography ethics.",
+                        chinese: "公众**争议**帮助我们审视摄影伦理。",
+                        question: "Does removing editors and publishers lead to better access or more misinformation?"
+                    }
+                ],
+                stakeholders: {
+                    citizen: {
+                        perspective: "I engage in **controversy** discussions to learn different perspectives.",
+                        frame: "I engage in ______ discussions to learn different perspectives.",
+                        chinese: "我参与**争议**讨论以学习不同观点。"
+                    },
+                    professional: {
+                        perspective: "We anticipate **controversy** and prepare ethical justifications.",
+                        frame: "We anticipate ______ and prepare ethical justifications.",
+                        chinese: "我们预期**争议**并准备伦理论证。"
+                    },
+                    subject: {
+                        perspective: "**Controversy** around my image can affect my life negatively.",
+                        frame: "______ around my image can affect my life negatively.",
+                        chinese: "围绕我图像的**争议**可能对我的生活产生负面影响。"
+                    }
+                },
+                questions: [4, 9, 11, 12],
+                mastered: false
+            }
+        ];
+
+        // State Management
+        let currentView = 'grid';
+        let currentWord = null;
+        let progress = {
+            wordsLearned: 0,
+            quizzesCompleted: 0,
+            questionsAnswered: 0,
+            studyTime: 0,
+            masteredWords: []
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+            renderWordGrid();
+            startStudyTimer();
+            updateStats();
+        });
+
+        // Load Progress from LocalStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('vocabProgress');
+            if (saved) {
+                progress = JSON.parse(saved);
+            }
+        }
+
+        // Save Progress
+        function saveProgress() {
+            localStorage.setItem('vocabProgress', JSON.stringify(progress));
+            updateStats();
+        }
+
+        // Render Word Grid
+        function renderWordGrid(filter = 'all') {
+            const grid = document.getElementById('wordGrid');
+            grid.innerHTML = '';
+
+            vocabularyDB.forEach(word => {
+                if (filter === 'all' || word.category === filter) {
+                    const card = document.createElement('div');
+                    card.className = 'word-card';
+                    card.onclick = () => showWordDetail(word.id);
+                    card.innerHTML = `
+                        <h3>${word.word}</h3>
+                        <div class="chinese">${word.chinese}</div>
+                        <div class="pos">${word.pos[0]}</div>
+                        <div style="margin-top: 10px; color: var(--gray);">
+                            ${word.synonyms.slice(0, 3).join(' • ')}
+                        </div>
+                        <button class="bookmark-btn ${progress.masteredWords.includes(word.id) ? 'active' : ''}" 
+                                onclick="event.stopPropagation(); toggleMastered(${word.id})">
+                            ${progress.masteredWords.includes(word.id) ? '✓ Mastered' : '○ Learn'}
+                        </button>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        // Show Word Detail
+        function showWordDetail(id) {
+            const word = vocabularyDB.find(w => w.id === id);
+            currentWord = word;
+            currentView = 'detail';
+
+            const detailContainer = document.getElementById('wordDetails');
+            document.getElementById('wordGrid').style.display = 'none';
+            document.getElementById('navTabs').style.display = 'none';
+            document.getElementById('searchInput').style.display = 'none';
+
+            // Build question tags
+            const questionTags = word.questions.map(q => 
+                `<span class="question-tag">❓ Q${q}</span>`
+            ).join('');
+
+            // Build etymology tree
+            const etymologySteps = word.etymology.evolution.map((step, i) => {
+                const arrow = i < word.etymology.evolution.length - 1 ? '<span class="arrow">→</span>' : '';
+                return `<span class="etymology-step">${step}</span>${arrow}`;
+            }).join('');
+
+            // Build stakeholder sections
+            const stakeholderHTML = `
+                <div class="stakeholder citizen">
+                    <h4>📱 Citizen Journalist | 公民记者</h4>
+                    <p>${word.stakeholders.citizen.perspective}</p>
+                    <p style="font-style: italic; margin-top: 10px;">${word.stakeholders.citizen.chinese}</p>
+                    <div class="stakeholder-frame">
+                        <strong>Frame | 句型:</strong> ${word.stakeholders.citizen.frame}
+                    </div>
+                </div>
+                <div class="stakeholder professional">
+                    <h4>📰 Professional Photojournalist | 专业新闻摄影师</h4>
+                    <p>${word.stakeholders.professional.perspective}</p>
+                    <p style="font-style: italic; margin-top: 10px;">${word.stakeholders.professional.chinese}</p>
+                    <div class="stakeholder-frame">
+                        <strong>Frame | 句型:</strong> ${word.stakeholders.professional.frame}
+                    </div>
+                </div>
+                <div class="stakeholder subject">
+                    <h4>👤 Subject of Photo | 被拍摄者</h4>
+                    <p>${word.stakeholders.subject.perspective}</p>
+                    <p style="font-style: italic; margin-top: 10px;">${word.stakeholders.subject.chinese}</p>
+                    <div class="stakeholder-frame">
+                        <strong>Frame | 句型:</strong> ${word.stakeholders.subject.frame}
+                    </div>
+                </div>
+            `;
+
+            // Build example sentences
+            const examplesHTML = word.examples.map(ex => `
+                <div class="example-item">
+                    <div class="english">${ex.english.replace(/\*\*(.*?)\*\*/g, '<span class="keyword">$1</span>')}</div>
+                    <div class="chinese">${ex.chinese}</div>
+                    <div style="margin-top: 8px; color: var(--primary); font-size: 0.9em;">
+                        💭 ${ex.question}
+                    </div>
+                </div>
+            `).join('');
+
+            detailContainer.innerHTML = `
+                <button class="back-btn" onclick="showAllWords()">← Back to All Words | 返回全部词汇</button>
+                
+                <div class="word-detail active">
+                    <div class="word-header">
+                        <h1 class="word-title">${word.word} 
+                            <button class="audio-btn" onclick="speakWord('${word.word}')">🔊</button>
+                        </h1>
+                        <div class="word-chinese">${word.chinese}</div>
+                        <div style="margin-top: 15px;">
+                            ${word.pos.map(p => `<span class="pos">${p}</span>`).join(' ')}
+                        </div>
+                    </div>
+
+                    <div class="word-family">
+                        <h3>🔄 Word Family | 词族</h3>
+                        <div class="family-grid">
+                            <div class="family-item">
+                                <div class="label">Noun | 名词</div>
+                                <div class="word">${word.wordFamily.noun}</div>
+                            </div>
+                            <div class="family-item">
+                                <div class="label">Verb | 动词</div>
+                                <div class="word">${word.wordFamily.verb}</div>
+                            </div>
+                            <div class="family-item">
+                                <div class="label">Adjective | 形容词</div>
+                                <div class="word">${word.wordFamily.adjective}</div>
+                            </div>
+                            <div class="family-item">
+                                <div class="label">Adverb | 副词</div>
+                                <div class="word">${word.wordFamily.adverb}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="etymology">
+                        <h3>📜 Etymology | 词源</h3>
+                        <p><strong>Origin | 起源:</strong> ${word.etymology.origin}</p>
+                        <p><strong>Root | 词根:</strong> ${word.etymology.root}</p>
+                        <p><strong>Original Meaning | 原意:</strong> ${word.etymology.meaning}</p>
+                        <div class="etymology-tree" style="margin-top: 15px;">
+                            ${etymologySteps}
+                        </div>
+                    </div>
+
+                    <div class="synonyms">
+                        <h3>🔤 Synonyms | 同义词</h3>
+                        <div class="synonym-cloud">
+                            ${word.synonyms.map(s => `<span class="synonym-tag">${s}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="examples">
+                        <h3>📝 Example Sentences | 例句</h3>
+                        ${examplesHTML}
+                    </div>
+
+                    <div class="questions-connection">
+                        <h3>❓ Connected to Essential Questions | 关联核心问题</h3>
+                        ${questionTags}
+                    </div>
+
+                    <div>
+                        <h3>🧭 Stakeholder Perspectives | 利益相关者视角</h3>
+                        ${stakeholderHTML}
+                    </div>
+
+                    <div class="quiz-container">
+                        <h3>📋 Quick Quiz | 快速测验</h3>
+                        <div class="quiz-question">
+                            <p><strong>What is the Chinese meaning of "${word.word}"?</strong></p>
+                            <div class="quiz-options" id="quiz-${word.id}">
+                                <div class="quiz-option" onclick="checkAnswer(${word.id}, 0, '${word.chinese}')">${word.chinese}</div>
+                                <div class="quiz-option" onclick="checkAnswer(${word.id}, 1, '错误的')">错误的</div>
+                                <div class="quiz-option" onclick="checkAnswer(${word.id}, 2, '不对的')">不对的</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; text-align: center;">
+                        <button class="download-btn" onclick="toggleMastered(${word.id})">
+                            ${progress.masteredWords.includes(word.id) ? '✓ Marked as Mastered' : '○ Mark as Mastered'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            progress.questionsAnswered++;
+            saveProgress();
+        }
+
+        // Show All Words
+        function showAllWords() {
+            currentView = 'grid';
+            currentWord = null;
+            document.getElementById('wordGrid').style.display = 'grid';
+            document.getElementById('navTabs').style.display = 'flex';
+            document.getElementById('searchInput').style.display = 'block';
+            document.getElementById('wordDetails').innerHTML = '';
+            renderWordGrid();
+        }
+
+        // Filter by Category
+        function filterByCategory(category) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderWordGrid(category);
+        }
+
+        // Search Filter
+        function filterWords() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.word-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        // Toggle Mastered
+        function toggleMastered(id) {
+            const index = progress.masteredWords.indexOf(id);
+            if (index > -1) {
+                progress.masteredWords.splice(index, 1);
+            } else {
+                progress.masteredWords.push(id);
+            }
+            progress.wordsLearned = progress.masteredWords.length;
+            saveProgress();
+            
+            if (currentView === 'detail') {
+                showWordDetail(id);
+            } else {
+                renderWordGrid();
+            }
+        }
+
+        // Check Quiz Answer
+        function checkAnswer(wordId, optionIndex, answer) {
+            const word = vocabularyDB.find(w => w.id === wordId);
+            const options = document.querySelectorAll(`#quiz-${wordId} .quiz-option`);
+            
+            options.forEach((opt, i) => {
+                if (i === 0) {
+                    opt.classList.add('correct');
+                } else {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            progress.quizzesCompleted++;
+            saveProgress();
+        }
+
+        // Speak Word (Text-to-Speech)
+        function speakWord(word) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech not supported in this browser.');
+            }
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('wordsLearned').textContent = progress.wordsLearned;
+            document.getElementById('quizzesCompleted').textContent = progress.quizzesCompleted;
+            document.getElementById('questionsAnswered').textContent = progress.questionsAnswered;
+            document.getElementById('studyTime').textContent = progress.studyTime;
+            
+            const percentage = Math.round((progress.wordsLearned / 25) * 100);
+            document.getElementById('overallProgress').style.width = percentage + '%';
+            document.getElementById('overallProgress').textContent = percentage + '%';
+        }
+
+        // Study Timer
+        function startStudyTimer() {
+            setInterval(() => {
+                progress.studyTime++;
+                saveProgress();
+            }, 60000); // Every minute
+        }
+
+        // Reset Progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? | 确定要重置所有进度吗？')) {
+                progress = {
+                    wordsLearned: 0,
+                    quizzesCompleted: 0,
+                    questionsAnswered: 0,
+                    studyTime: 0,
+                    masteredWords: []
+                };
+                saveProgress();
+                renderWordGrid();
+            }
+        }
+
+        // Export to PDF (Print)
+        function exportToPDF() {
+            window.print();
+        }
+
+        // Collapsible Sections
+        function toggleCollapse(header) {
+            header.classList.toggle('active');
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
