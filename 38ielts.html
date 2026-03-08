@@ -5,38 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IELTS Listening Practice Suite (13 Tests)</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --error: #c0392b; --light: #ecf0f1; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 0; background: #f4f4f4; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --error: #c0392b; --light: #ecf0f1; --dark: #34495e; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 0; background: #f4f4f4; color: #333; }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-        #main-menu { text-align: center; }
+        
+        /* Main Menu Styles */
+        #main-menu { text-align: center; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .student-input-group { margin-bottom: 30px; }
+        .student-input-group label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 18px; }
+        .student-input-group input { padding: 10px; font-size: 16px; width: 300px; border: 2px solid var(--primary); border-radius: 5px; }
         .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        .test-btn { background: var-primary; color: white; border: none; padding: 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        /* Buttons are always visible */
+        .test-btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.3s; 
+            opacity: 1; 
+            visibility: visible;
+            display: block;
+        }
         .test-btn:hover { background: var(--accent); transform: translateY(-2px); }
+
+        /* Test View Styles */
         #test-view { display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--light); padding-bottom: 20px; }
         .audio-player { background: var(--light); padding: 10px; border-radius: 5px; display: flex; align-items: center; gap: 10px; }
         .action-btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 14px; }
-        .btn-transcript { background: #e67e22; } .btn-answers { background: #8e44ad; } .btn-back { background: #7f8c8d; } .btn-check { background: var(--success); font-size: 16px; padding: 10px 20px; }
+        .btn-transcript { background: #e67e22; } .btn-answers { background: #8e44ad; } .btn-back { background: #7f8c8d; } .btn-check { background: var(--success); font-size: 16px; padding: 10px 20px; margin-top: 20px; }
+        
+        /* Score Header */
+        #score-header { 
+            display: none; 
+            background: var(--dark); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+            text-align: center; 
+            font-family: monospace; 
+            font-size: 18px; 
+            border: 2px solid var(--success);
+            user-select: all; /* Makes copying easy */
+            -webkit-user-select: all;
+        }
+
+        /* Question Styles */
         .question-block { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .question-label { font-weight: bold; display: block; margin-bottom: 5px; }
-        .answer-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+        .question-label { font-weight: bold; display: block; margin-bottom: 5px; color: var(--dark); }
+        .answer-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px; font-size: 16px; }
         .answer-input.correct { border-color: var(--success); background-color: #e8f8f5; }
         .answer-input.incorrect { border-color: var(--error); background-color: #fdedec; }
-        .hidden-section { display: none; margin-top: 20px; padding: 15px; background: var(--light); border-radius: 5px; }
-        .transcript-text { white-space: pre-wrap; font-family: monospace; font-size: 14px; max-height: 300px; overflow-y: auto; }
-        .answer-key-item { margin: 5px 0; }
+        
+        /* Transcript & Answer Key */
+        .hidden-section { display: none; margin-top: 20px; padding: 15px; background: var(--light); border-radius: 5px; border-left: 5px solid var(--accent); }
+        .transcript-text { white-space: pre-wrap; font-family: monospace; font-size: 14px; max-height: 400px; overflow-y: auto; background: white; padding: 10px; }
+        .answer-key-item { margin: 5px 0; font-size: 15px; }
         .answer-key-item span { font-weight: bold; color: var(--success); }
-        #feedback-area { margin-top: 20px; font-weight: bold; }
+        #feedback-area { margin-top: 20px; font-weight: bold; font-size: 18px; }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- Main Menu -->
     <div id="main-menu">
         <h1>IELTS Listening Practice (13 Tests)</h1>
+        <div class="student-input-group">
+            <label for="student-name">Enter Student Name:</label>
+            <input type="text" id="student-name" placeholder="e.g. John Doe">
+        </div>
         <p>Select a test to begin. Ensure audio files are in the 'audio' folder.</p>
         <div class="test-grid" id="test-grid"></div>
     </div>
+
+    <!-- Test View -->
     <div id="test-view">
+        <!-- Copyable Score Header -->
+        <div id="score-header"></div>
+
         <div class="header-controls">
             <button class="action-btn btn-back" onclick="showMenu()">← Back to Menu</button>
             <div class="audio-player">
@@ -48,15 +98,27 @@
                 <button class="action-btn btn-answers" onclick="toggleSection('answer-key-box')">Show Answer Key</button>
             </div>
         </div>
+
         <h2 id="test-title">Test Title</h2>
         <div id="questions-container"></div>
+        
         <button class="action-btn btn-check" onclick="checkAnswers()">Submit Answers</button>
         <div id="feedback-area"></div>
-        <div id="transcript-box" class="hidden-section"><h3>Transcript</h3><div class="transcript-text" id="transcript-content"></div></div>
-        <div id="answer-key-box" class="hidden-section"><h3>Answer Key</h3><div id="answer-key-content"></div></div>
+
+        <div id="transcript-box" class="hidden-section">
+            <h3>Transcript</h3>
+            <div class="transcript-text" id="transcript-content"></div>
+        </div>
+
+        <div id="answer-key-box" class="hidden-section">
+            <h3>Answer Key</h3>
+            <div id="answer-key-content"></div>
+        </div>
     </div>
 </div>
+
 <script>
+// DATA STRUCTURE - All 13 Tests populated from Knowledge Base
 const testsData = [
     {
         id: 1, title: "Test 1: Sunshine Holidays (Section 1)", audioSrc: "audio/test1.mp3",
@@ -251,6 +313,8 @@ const menuDiv = document.getElementById('test-grid');
 const testView = document.getElementById('test-view');
 const menuView = document.getElementById('main-menu');
 const audioPlayer = document.getElementById('audio-element');
+const scoreHeader = document.getElementById('score-header');
+const studentNameInput = document.getElementById('student-name');
 
 function init() {
     testsData.forEach((test, index) => {
@@ -266,12 +330,15 @@ function showMenu() {
     testView.style.display = 'none';
     menuView.style.display = 'block';
     audioPlayer.pause();
+    scoreHeader.style.display = 'none';
 }
 
 function loadTest(index) {
     const test = testsData[index];
     menuView.style.display = 'none';
     testView.style.display = 'block';
+    scoreHeader.style.display = 'none';
+    document.getElementById('feedback-area').innerText = '';
     
     document.getElementById('test-title').innerText = test.title;
     audioPlayer.src = test.audioSrc;
@@ -301,12 +368,15 @@ function loadTest(index) {
         keyContainer.appendChild(item);
     }
     document.getElementById('answer-key-box').style.display = 'none';
-    document.getElementById('feedback-area').innerText = '';
 }
 
 function toggleSection(id) {
     const el = document.getElementById(id);
-    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
 }
 
 function repeatAudio() {
@@ -317,6 +387,7 @@ function repeatAudio() {
 function checkAnswers() {
     const inputs = document.querySelectorAll('.answer-input');
     const currentTest = testsData.find(t => t.title === document.getElementById('test-title').innerText);
+    const studentName = studentNameInput.value.trim() || "Unknown Student";
     let score = 0;
     let total = inputs.length;
 
@@ -335,9 +406,17 @@ function checkAnswers() {
         }
     });
 
+    // Generate Copyable Score Header
+    const scoreText = `Student: ${studentName} | Test: ${currentTest.title} | Score: ${score}/${total}`;
+    scoreHeader.innerText = scoreText;
+    scoreHeader.style.display = 'block';
+
     const feedback = document.getElementById('feedback-area');
     feedback.innerText = `You scored ${score} out of ${total}`;
     feedback.style.color = score === total ? 'var(--success)' : 'var(--error)';
+    
+    // Scroll to top to see score
+    window.scrollTo(0, 0);
 }
 
 init();
