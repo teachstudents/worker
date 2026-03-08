@@ -1,0 +1,357 @@
+Here is the complete, updated HTML file containing all **13 IELTS Tests** based on your document.
+
+### Important Instructions for You:
+1.  **Audio Files:** You **must** create an folder named `audio` next to this HTML file. Inside, place 13 MP3 files named `test1.mp3`, `test2.mp3`, ... `test13.mp3`.
+    *   *Why?* Since you are in China, external links (GitHub, YouTube, etc.) will likely be blocked or slow. **Local files are the fastest and most reliable method.**
+    *   *Alternative:* If you host this online, upload the MP3s to **Alibaba Cloud OSS** or **Tencent Cloud COS** and update the `audioSrc` links in the code to the full URL (e.g., `https://my-bucket.oss-cn-shanghai.aliyuncs.com/test1.mp3`).
+2.  **Transcripts:** I have cleaned the transcripts to remove the "Answer Key & Trap Analysis" sections so students cannot cheat by reading the transcript.
+3.  **Validation:** The system is case-insensitive (e.g., "Aaron" and "aaron" are both correct). For Multiple Choice, users should type the letter (A, B, or C). For Matching, users should type the letter (A-G).
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Listening Practice Suite (13 Tests)</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --error: #c0392b; --light: #ecf0f1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 0; background: #f4f4f4; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        #main-menu { text-align: center; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .test-btn { background: var-primary; color: white; border: none; padding: 20px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .test-btn:hover { background: var(--accent); transform: translateY(-2px); }
+        #test-view { display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .audio-player { background: var(--light); padding: 10px; border-radius: 5px; display: flex; align-items: center; gap: 10px; }
+        .action-btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 14px; }
+        .btn-transcript { background: #e67e22; } .btn-answers { background: #8e44ad; } .btn-back { background: #7f8c8d; } .btn-check { background: var(--success); font-size: 16px; padding: 10px 20px; }
+        .question-block { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .question-label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .answer-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+        .answer-input.correct { border-color: var(--success); background-color: #e8f8f5; }
+        .answer-input.incorrect { border-color: var(--error); background-color: #fdedec; }
+        .hidden-section { display: none; margin-top: 20px; padding: 15px; background: var(--light); border-radius: 5px; }
+        .transcript-text { white-space: pre-wrap; font-family: monospace; font-size: 14px; max-height: 300px; overflow-y: auto; }
+        .answer-key-item { margin: 5px 0; }
+        .answer-key-item span { font-weight: bold; color: var(--success); }
+        #feedback-area { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="main-menu">
+        <h1>IELTS Listening Practice (13 Tests)</h1>
+        <p>Select a test to begin. Ensure audio files are in the 'audio' folder.</p>
+        <div class="test-grid" id="test-grid"></div>
+    </div>
+    <div id="test-view">
+        <div class="header-controls">
+            <button class="action-btn btn-back" onclick="showMenu()">← Back to Menu</button>
+            <div class="audio-player">
+                <audio id="audio-element" controls></audio>
+                <button class="action-btn" onclick="repeatAudio()">↺ Repeat</button>
+            </div>
+            <div>
+                <button class="action-btn btn-transcript" onclick="toggleSection('transcript-box')">Show Transcript</button>
+                <button class="action-btn btn-answers" onclick="toggleSection('answer-key-box')">Show Answer Key</button>
+            </div>
+        </div>
+        <h2 id="test-title">Test Title</h2>
+        <div id="questions-container"></div>
+        <button class="action-btn btn-check" onclick="checkAnswers()">Submit Answers</button>
+        <div id="feedback-area"></div>
+        <div id="transcript-box" class="hidden-section"><h3>Transcript</h3><div class="transcript-text" id="transcript-content"></div></div>
+        <div id="answer-key-box" class="hidden-section"><h3>Answer Key</h3><div id="answer-key-content"></div></div>
+    </div>
+</div>
+<script>
+const testsData = [
+    {
+        id: 1, title: "Test 1: Sunshine Holidays (Section 1)", audioSrc: "audio/test1.mp3",
+        transcript: `AGENT: Good morning, Sunshine Holidays. How can I help you? \nCUSTOMER: Oh, hello. I'm looking to book a holiday to Malta. (Example) \nAGENT: Great, we have some excellent packages for Malta. Can I take your name first, please? \nCUSTOMER: Yes, it's Aaron Smith. \nAGENT: Is that A-R-O-N? \nCUSTOMER: Actually, it's double A, R, O, N. \nAGENT: Got it. And do you have a contact number? \nCUSTOMER: Yes, let me see... it's 078 433... wait a minute, I just got a new phone. Sorry, it's 078 432 219. \nAGENT: 078 432 219. Excellent. Now, when are you looking to travel? \nCUSTOMER: Well, I originally wanted to go on the 15th of July, but unfortunately my boss won't give me the time off then, so I'll have to leave on the 22nd. \nAGENT: The 22nd of July. That's a Saturday. And how much are you willing to spend per person? \nCUSTOMER: I saw a promotional package online for £450, but I'm willing to upgrade. My absolute maximum is £500. \nAGENT: We can definitely find something under £500. Do you have any special requirements for the hotel room? Some of our places offer a daily cleaning service. \nCUSTOMER: I probably won't need that. But I do like to sit outside in the evenings, so what I really need is a balcony. \nAGENT: A balcony. No problem. Now, would you like to book any excursions while you're there? We offer a guided bushwalk, or a boat trip to the caves. \nCUSTOMER: Oh, I think I'd prefer the boat trip to the bushwalk. \nAGENT: Excellent choice. So, that specific package includes your flight, the hotel, and insurance. \nCUSTOMER: That sounds great. Does it include meals? \nAGENT: No, I'm afraid not, but it does include the insurance. \nCUSTOMER: That's fine. What are the next steps? \nAGENT: To secure the booking, you'll need to give us a deposit by next Tuesday. \nCUSTOMER: A deposit, sure. How should I pay? Can I use my credit card? \nAGENT: If you've got cash, that's best. We've found that our card machine sometimes breaks. \nCUSTOMER: Cash is fine. I'll bring it into the branch. \nAGENT: Fantastic. Finally, for our records, how did you hear about us? Normally people see our website, but did a friend recommend us? \nCUSTOMER: Normally you'd expect me to say I saw it on the internet, but actually, I heard an advert on the radio.`,
+        answers: {1:"Aaron", 2:"078 432 219", 3:"22nd", 4:"500", 5:"balcony", 6:"boat trip", 7:"insurance", 8:"deposit", 9:"cash", 10:"radio"},
+        questions: [
+            {id:1, label:"1. Name: ______ Smith"}, {id:2, label:"2. Contact Number: ______"}, {id:3, label:"3. Preferred Departure Date: ______"},
+            {id:4, label:"4. Maximum budget (per person): £______"}, {id:5, label:"5. Accommodation requirement: Must have a ______"},
+            {id:6, label:"6. Extra activity booked: ______"}, {id:7, label:"7. Included in the price: flight, hotel, and ______"},
+            {id:8, label:"8. Must pay the ______ by next Tuesday."}, {id:9, label:"9. Preferred method of payment: ______"},
+            {id:10, label:"10. Where did the customer hear about the agency? On the ______"}
+        ]
+    },
+    {
+        id: 2, title: "Test 2: Rapid Moves (Section 1)", audioSrc: "audio/test2.mp3",
+        transcript: `AGENT: Good afternoon, Rapid Moves. This is Sarah speaking. How can I help you? \nCUSTOMER: Hi there. I'd like to get a quote for a house removal, please. We are currently living in London and moving out to the suburbs. (Example) \nAGENT: Certainly, I can help you with that. Can I take your name first, please? \nCUSTOMER: Yes, it's Darren Keeley. \nAGENT: Is that spelt K-E-L-E-Y? \nCUSTOMER: Actually, it's K, double E, L, E, Y. \nAGENT: Great, I've got that. And a contact telephone number? \nCUSTOMER: Sure. It's 079 432... wait a minute, I've just been given a work phone and I keep forgetting it. Sorry, it's 079 433 118. \nAGENT: 079 433 118. Perfect. Now, what date were you looking to move? \nCUSTOMER: Well, I originally wanted to move on the 15th of April, but unfortunately our landlord needs the keys back earlier, so we will have to do it on the 12th. \nAGENT: The 12th of April. Let me just check the system... Yes, we have a van available. And what is the address of the new property? \nCUSTOMER: It's 42 Bramble Street. \nAGENT: Bramble... is that B-R-A-M-B-L-E? \nCUSTOMER: Yes, that's correct. \nAGENT: Now, do you have any particularly fragile items that will need special care during the move? We often transport pianos and large mirrors. \nCUSTOMER: We do have a large mirror, but I'll be taking that in my own car. However, I am really worried about my computer, so I'd need you to handle that with extra padding. \nAGENT: Not a problem. And will you need us to provide packing boxes? \nCUSTOMER: Yes, please. \nAGENT: We have heavy-duty plastic ones available to rent... \nCUSTOMER: Right. Well, if you've got strong cardboard boxes, that's best. I've found that plastic ones sometimes crack if they get dropped. \nAGENT: Cardboard it is. We will drop those off on Friday. Do you require any extra services? One helpful thing is that we also do end-of-tenancy cleaning for customers. \nCUSTOMER: Oh, I see. I probably won't need that as my wife is doing it. But we definitely don't want to build all the beds again, so we'd like to add unpacking to the service. \nAGENT: Excellent. Let me just calculate your total. Normally, a full house move on a weekend is around £500. But since you are moving on a Tuesday, the final quote comes down to £420. \nCUSTOMER: £420. That sounds reasonable. How do I go about paying? Can I write you a cheque? \nAGENT: We do accept them, but if you've got a credit card, that's best. We've found that cheques take a bit too long to clear with our bank. \nCUSTOMER: Credit card is fine. I'll read you the numbers in a moment. \nAGENT: Fantastic. Just for our marketing records, how did you hear about us? Normally people expect to find movers on the internet these days... \nCUSTOMER: Yes, normally you'd expect me to say the internet, but actually, I was waiting at the dentist and saw your advert in a magazine.`,
+        answers: {1:"Keeley", 2:"079 433 118", 3:"12th", 4:"Bramble", 5:"computer", 6:"cardboard", 7:"unpacking", 8:"420", 9:"credit card", 10:"magazine"},
+        questions: [
+            {id:1, label:"1. Full Name: Darren ______"}, {id:2, label:"2. Contact Number: ______"}, {id:3, label:"3. Confirmed Moving Date: ______"},
+            {id:4, label:"4. New Address: 42 ______ Street"}, {id:5, label:"5. Item requiring special care: The ______"},
+            {id:6, label:"6. Type of packing boxes requested: ______"}, {id:7, label:"7. Extra service booked: ______"},
+            {id:8, label:"8. Final quoted price: £______"}, {id:9, label:"9. Preferred payment method: ______"},
+            {id:10, label:"10. How did the customer hear about Rapid Moves? In a ______"}
+        ]
+    },
+    {
+        id: 3, title: "Test 3: Riverside Community Centre (Section 1)", audioSrc: "audio/test3.mp3",
+        transcript: `MANAGER: Good afternoon, Riverside Community Centre. This is David speaking. How can I help you? \nCUSTOMER: Oh, hello David. I'm ringing to enquire about hiring a room for an upcoming event. We are hosting a birthday party for my daughter. (Example) \nMANAGER: Fantastic. We host a lot of parties here. Let me just open a booking form. Can I take your full name first, please? \nCUSTOMER: Yes, it's Michael Bennett. \nMANAGER: Is that spelt B-E-N-E-T? \nCUSTOMER: Actually, it's B-E, double N, E, double T. \nMANAGER: Thank you, I've got that. And a contact telephone number? \nCUSTOMER: Sure. It's 076 544... wait a minute, I've just been given a new mobile by my company and I haven't memorized it yet. Sorry, it's 076 544 890. \nMANAGER: 076 544 890. Excellent. Now, what date were you looking to hold the party? \nCUSTOMER: Well, her actual birthday is on the 7th of November, and I originally wanted to have it then, but unfortunately my wife is travelling for work that week, so we will have to move it to the 14th. \nMANAGER: The 14th of November. Let me just check the diary... Yes, we have availability. Now, we have two spaces. There's our Main Hall, which seats 200 people, or we have the Charlton Room, which is a bit smaller. \nCUSTOMER: The Main Hall will be far too big for us, so the Charlton Room sounds perfect. \nMANAGER: Excellent. Do you need any special facilities in the room? We can set up a digital projector if you want to show photos. \nCUSTOMER: I probably won't need that. But we are planning to prepare some of the snacks ourselves, so what I really need is a kitchen. \nMANAGER: No problem, that room has one attached. Let's discuss the cost. Normally, the evening rate for that room is £50 an hour. However, because you are a local resident, the final quote comes down to £45. \nCUSTOMER: £45 an hour is great. Now, you mentioned snacks. Do you also provide catering? \nMANAGER: We do. We can provide a sit-down hot meal, or a cold buffet. \nCUSTOMER: Right. Well, if you've got a cold buffet, that's best. We've found that hot meals are a bit too formal for children's parties. \nMANAGER: I completely agree. We will supply the tables, chairs, and all the plates for that. Are you bringing anything yourselves? \nCUSTOMER: We will bring the birthday cake, of course, and I'll be bringing my own decorations to put up on the walls. \nMANAGER: That's absolutely fine, just please use sticky tape and not pins. Oh, one other thing. Will you be playing music? \nCUSTOMER: Yes, we have a playlist ready. \nMANAGER: In that case, according to local council rules, you'll need to purchase a music license. It's a small standard fee. \nCUSTOMER: Oh, I didn't realize that, but I'll add it to the budget. \nMANAGER: Brilliant. Finally, just for our records, how did you find out about the centre? Normally people see our flyer in the local library... \nCUSTOMER: Yes, normally you'd expect people to find local things that way, but actually, it was a neighbour who recommended you. They had a party there last year.`,
+        answers: {1:"Bennett", 2:"076 544 890", 3:"14th", 4:"Charlton", 5:"kitchen", 6:"45", 7:"cold buffet", 8:"decorations", 9:"license", 10:"neighbour"},
+        questions: [
+            {id:1, label:"1. Full Name: Michael ______"}, {id:2, label:"2. Contact Number: ______"}, {id:3, label:"3. Confirmed Date: ______"},
+            {id:4, label:"4. Room booked: The ______ Room"}, {id:5, label:"5. Must have access to the: ______"},
+            {id:6, label:"6. Agreed hourly rate: £______"}, {id:7, label:"7. Catering style requested: ______"},
+            {id:8, label:"8. Customer will provide their own: ______"}, {id:9, label:"9. Additional requirement: Must purchase a music ______"},
+            {id:10, label:"10. How did the customer hear about the centre? From a ______"}
+        ]
+    },
+    {
+        id: 4, title: "Test 4: Explorer Tours (Section 1)", audioSrc: "audio/test4.mp3",
+        transcript: `AGENT: Good morning, Explorer Tours. How can I help you? \nCUSTOMER: Hi, I'm calling to get some information about your weekend excursions. \nAGENT: Certainly, I can help you with that. Before we begin, could you tell me how you heard about us? \nCUSTOMER: Sure. I originally saw a poster at my university, but it was actually a friend who recommended you. They went on a trip last month. \nAGENT: Oh, word of mouth is always the best. Now, are you looking to travel this coming Saturday? \nCUSTOMER: Normally I'd be free on a Saturday, but I have a sports competition this weekend, so it'll have to be Sunday. \nAGENT: Sunday is fine, we run all our routes then. Just as a quick note for all our tours—you don't need to bring your own food as we stop at cafes, but since there is quite a bit of walking on uneven ground, comfortable walking shoes are absolutely essential. \nCUSTOMER: Good to know. Should I bring my university card? \nAGENT: You can, but I'm afraid we don't offer student discounts. Now, let me tell you about the Sunday options. Our first tour is the Silver Lake tour. \nCUSTOMER: Sounds lovely. What do we do there? \nAGENT: Well, after we park the bus, the main activity involves hiking up to the waterfall. \nCUSTOMER: And how much is that? \nAGENT: That one is £45. That covers your bus travel, and a picnic. Oh, wait a minute, sorry, my system just updated. The catering has changed for the summer. It includes a barbecue. \nCUSTOMER: That sounds great. What else do you have? \nAGENT: We also have the Historic Castle tour. \nCUSTOMER: Oh, I like history. What's the cost for that one? \nAGENT: It used to be £35, but it recently went up to £40 to help cover the maintenance of the ruins. \nCUSTOMER: And does that £40 include lunch? \nAGENT: No, I'm afraid not. But it does include your entry ticket and an expert guide. \nCUSTOMER: Okay. And is there a third option? \nAGENT: Yes, the River Valley tour. It costs £55 and you spend the afternoon taking a boat trip.`,
+        answers: {1:"C", 2:"A", 3:"B", 4:"C", 5:"waterfall", 6:"barbecue", 7:"Castle", 8:"40", 9:"guide", 10:"boat"},
+        questions: [
+            {id:1, label:"1. What is the main purpose of the man's phone call? (Type A, B, or C)"},
+            {id:2, label:"2. How did the man find out about the tour company? (Type A, B, or C)"},
+            {id:3, label:"3. The man cannot travel on the upcoming Saturday because... (Type A, B, or C)"},
+            {id:4, label:"4. What must the man bring on the tour? (Type A, B, or C)"},
+            {id:5, label:"5. Hiking to the ______"}, {id:6, label:"6. Bus travel and a ______"},
+            {id:7, label:"7. Historic ______"}, {id:8, label:"8. £______"}, {id:9, label:"9. Entry ticket and an expert ______"},
+            {id:10, label:"10. Taking a ______ trip"}
+        ]
+    },
+    {
+        id: 5, title: "Test 5: Highfield Community (Section 1)", audioSrc: "audio/test5.mp3",
+        transcript: `RECEPTIONIST: Good morning, Highfield Community Centre. How can I help you? \nCUSTOMER: Hello there. I'm calling because I wanted to book a tennis court for this weekend... Oh, wait a minute, sorry, I'm looking at my wife's notes and she already did that this morning! What I actually need is to ask about your evening classes. \nRECEPTIONIST: Certainly, I can help you with that. We have a new schedule starting next month. \nCUSTOMER: Great. Before we look at the classes, do you offer any discounts? I have my university student ID. \nRECEPTIONIST: No, I'm afraid we don't offer student rates anymore. But if you have a resident's permit for the local council area, we can give you 10% off. \nCUSTOMER: Oh, I do have one of those. I'll bring it with me. Can I pay by credit card over the phone to secure my place? \nRECEPTIONIST: Normally you'd expect to be able to do that, but our machine is currently broken, so if you've got cash, that's best. You can drop it off at reception when you show your permit. \nCUSTOMER: Cash it is. I'll come by tomorrow. \nRECEPTIONIST: Excellent. Just for our records, how did you find out about our centre? Did you see our flyer in the library? \nCUSTOMER: I did see one there yesterday, but it was actually a neighbour who recommended you first. They took a class last year. \nRECEPTIONIST: Word of mouth is always our best advertisement! Now, let's look at the classes. On Tuesdays at 6:30 pm, we have Pottery. \nCUSTOMER: How much is that? I see £30 listed on the website. \nRECEPTIONIST: It used to be £30, but it recently went up to £32 to cover the rising cost of running the kiln. \nCUSTOMER: £32 is fine. Do I need to buy my own clay? \nRECEPTIONIST: No, all materials are included in the price. However, it gets very messy in the studio, so you must bring an apron to protect your clothes. \nCUSTOMER: Good to know. What about Wednesdays? Is there a cooking class? \nRECEPTIONIST: We used to run a cooking class, but the kitchen is being renovated. So instead, on Wednesdays at 7:00 pm, we are offering Woodwork. \nCUSTOMER: Woodwork. I've never tried that. Do I need to bring my own tools? \nRECEPTIONIST: No, we supply the hammers and saws. But for safety, you must wear strong boots. Trainers or sandals simply aren't allowed in the workshop. \nCUSTOMER: That makes sense. What is the last option? \nRECEPTIONIST: We have Photography. That one costs £40. \nCUSTOMER: And is that on Thursday evenings? \nRECEPTIONIST: Let me check the schedule... Ah, no, sorry, my screen just updated. It has been moved to Friday evenings due to a room clash. \nCUSTOMER: Friday works for me. Will the course teach us how to use digital editing software? \nRECEPTIONIST: I'm afraid that's one thing we can't do, as we don't have a computer lab. The tutor will mainly focus on landscapes, taking you out into the local parks to shoot.`,
+        answers: {1:"B", 2:"C", 3:"C", 4:"A", 5:"32", 6:"apron", 7:"Woodwork", 8:"boots", 9:"Friday", 10:"landscapes"},
+        questions: [
+            {id:1, label:"1. What is the main reason for the man's phone call? (Type A, B, or C)"},
+            {id:2, label:"2. To receive a discount on the fees, the man must show a (Type A, B, or C)"},
+            {id:3, label:"3. How will the man pay for his registration? (Type A, B, or C)"},
+            {id:4, label:"4. How did the man first find out about the community centre? (Type A, B, or C)"},
+            {id:5, label:"5. £______"}, {id:6, label:"6. Materials are included, but students must bring an ______"},
+            {id:7, label:"7. ______"}, {id:8, label:"8. For safety reasons, you must wear strong ______"},
+            {id:9, label:"9. ______ evenings"}, {id:10, label:"10. The course will mainly focus on ______"}
+        ]
+    },
+    {
+        id: 6, title: "Test 6: Riverside Market (Section 1)", audioSrc: "audio/test6.mp3",
+        transcript: `MANAGER: Good morning, Riverside Market Office. \nWOMAN: Hello. I was calling because I wanted to volunteer to help with the set-up this weekend... oh, wait a minute, sorry, I'm looking at the wrong notes! I actually need to ask about renting a stall to sell my crafts. \nMANAGER: No problem, I can help you with that. Are you planning to sell hot food? \nWOMAN: No, just some homemade jams and perhaps some baked goods. \nMANAGER: Alright. Well, if you were selling meat, you'd need to use our special fridges. But for baked goods, that's not necessary. You will, however, be strictly required to show us a valid hygiene certificate before you can open. \nWOMAN: I have one of those from my cafe. Just for your records, I know you advertise a lot in the local newspaper... \nMANAGER: Yes, most people see our ads there. \nWOMAN: Normally you'd expect me to say that's where I saw it, but I actually saw a poster up at my local gym. \nMANAGER: Great. Now, for the day itself, we do provide the main wooden tables for everyone. \nWOMAN: Oh, that's helpful. Should I bring a rubbish bag? \nMANAGER: We actually collect the rubbish for you. But we don't have enough seating, so bringing a folding chair is absolutely essential if you want to sit down. \nWOMAN: Got it. Now, can you tell me about the different types of stalls? \nMANAGER: Certainly. We have three tiers. The first is the Standard Stall. It costs £25. \nWOMAN: And where is that located? Is it in the community hall? \nMANAGER: It used to be, but the hall is under repair. So now it is located inside the tent. \nWOMAN: Okay. And does the £25 include a table cover? \nMANAGER: I'm afraid not. You must provide your own cloth to protect the wood. \nWOMAN: Fine. What is the next tier? \nMANAGER: That's the Produce stall. That's P-R-O-D-U-C-E. \nWOMAN: And where are those? \nMANAGER: They are positioned right near the main entrance, so they get a lot of foot traffic. They cost £35. \nWOMAN: That sounds good. Do they have any extras? \nMANAGER: Yes, because they are outside, the price includes a protective canopy in case it rains. \nWOMAN: A canopy, excellent. And the last option? \nMANAGER: The Premium Stall. Those are situated next to the stage where the live music plays. \nWOMAN: Sounds noisy, but fun. How much is that one? \nMANAGER: Well, normally a premium spot would be £50, but because we are trying to encourage more local artists this month, it's currently £40. \nWOMAN: £40. And I see on your website it says I get access to electricity? \nMANAGER: Yes, that's correct.`,
+        answers: {1:"B", 2:"C", 3:"B", 4:"A", 5:"tent", 6:"cloth", 7:"Produce", 8:"canopy", 9:"stage", 10:"40"},
+        questions: [
+            {id:1, label:"1. What is the woman's main reason for calling? (Type A, B, or C)"},
+            {id:2, label:"2. What is the strict rule for selling food at the market? (Type A, B, or C)"},
+            {id:3, label:"3. How did the woman first find out about the market? (Type A, B, or C)"},
+            {id:4, label:"4. What must all stallholders bring with them on the day? (Type A, B, or C)"},
+            {id:5, label:"5. Inside the ______"}, {id:6, label:"6. Must provide your own ______"},
+            {id:7, label:"7. ______"}, {id:8, label:"8. Price includes a protective ______"},
+            {id:9, label:"9. Next to the ______"}, {id:10, label:"10. £______"}
+        ]
+    },
+    {
+        id: 7, title: "Test 7: Summer Arts Festival (Section 2)", audioSrc: "audio/test7.mp3",
+        transcript: `COORDINATOR: Good morning, everyone, and welcome to the Summer Arts Festival volunteer orientation. My name is Greg, and I am the volunteer coordinator. Before we assign you to your stations, I need to go over a few important details. \nFirst, let's talk about the format of the event. In the past, we've always held the festival over a single weekend. We initially planned to expand it to a full week this year. However, due to funding cuts, we've actually decided to keep it to three days, but move it entirely indoors to the civic centre, so we don't have to worry about the rain. \nRegarding your uniform. Normally, at festivals like this, you'd expect to be given a souvenir festival t-shirt to wear, but our supplier let us down at the last minute. You don't need to wear formal suits, of course, but it is strictly required that you wear a high-visibility yellow vest at all times while on duty, which we will provide at the desk. \nYou'll also want to know your shifts. We used to just pin a master list on the noticeboard in the staff room. We thought about emailing the times to you every morning, but we found that emails often get missed or sent to the spam folder. So instead, you'll need to pick up a printed card from my desk when you arrive each day, which will have your exact hours on it. \nNow, health and safety. If there is a medical emergency with a visitor, please don't call an ambulance yourself, as having multiple people call can cause confusion for the hospital. And while your first instinct might be to find a police officer, you must actually contact the site manager on your two-way radio first, and they will coordinate the official medical team. \nFinally, I want to thank you all for giving up your time. Many people volunteer just to get free concert tickets. While that's a nice perk, the primary advantage of doing this work is that it helps you build your confidence when communicating with the public, which is something that looks fantastic on any CV. \nAlright, now let's look at where you will all be stationed today. \nSusan, your group is up first. Normally you look after the Children's Area, but unfortunately, that's closed for repairs this year. So instead, we've moved you to the Food Court to help clear tables and assist the vendors. \nNext is Mark's group. I know you requested to be at the Main Stage. Unfortunately, that's fully staffed by professionals. However, we really need your help directing vehicles, so please head over to the Car Park. \nFor the local scout troop, we usually put them in the Car Park, but they are so great at answering public questions that this year they will be stationed at the Information Tent. \nNow, the university students. Because they are studying medicine, it would make sense to put them in the First Aid Tent, right? Well, actually, the festival director specifically requested them to handle the guest lists and cater to the artists in the VIP Lounge. \nFinally, the drama club members. They originally wanted to perform, but they'll be helping out at the Main Stage setting up the microphones and helping the bands.`,
+        answers: {11:"B", 12:"C", 13:"B", 14:"C", 15:"B", 16:"B", 17:"D", 18:"A", 19:"G", 20:"C"},
+        questions: [
+            {id:11, label:"11. What is the main change to the festival this year? (Type A, B, or C)"},
+            {id:12, label:"12. What item of clothing must all volunteers wear? (Type A, B, or C)"},
+            {id:13, label:"13. How will volunteers receive their daily schedules? (Type A, B, or C)"},
+            {id:14, label:"14. If a visitor has a medical emergency, volunteers should first (Type A, B, or C)"},
+            {id:15, label:"15. According to the speaker, the primary benefit of volunteering is (Type A, B, or C)"},
+            {id:16, label:"16. Susan's group (Type A-G)"}, {id:17, label:"17. Mark's group (Type A-G)"},
+            {id:18, label:"18. The local scout troop (Type A-G)"}, {id:19, label:"19. The university students (Type A-G)"},
+            {id:20, label:"20. The drama club members (Type A-G)"}
+        ]
+    },
+    {
+        id: 8, title: "Test 8: Riverside Centre Reopening (Section 2)", audioSrc: "audio/test8.mp3",
+        transcript: `MANAGER: Good morning, everyone, and welcome to the grand reopening of the Riverside Community Arts Centre. We are absolutely thrilled to welcome the public back through our doors. \nBefore you explore, I want to give you a bit of background and run through some basic information. You know we've been closed for the last six months. We originally planned the closure because we desperately wanted to increase the overall size of the building by adding an extension. However, the town planners denied our building permit. So instead, the real driving force behind the six-month closure was the urgent need to upgrade the heating and lighting systems, which were completely outdated. Luckily, while the electricians were working, we also managed to repair some old storm damage to the roof. \nYou might be wondering how we keep this beautiful place running. We used to rely entirely on your annual membership fees to cover our costs. But as expenses rose, we had to look elsewhere. Normally, places like ours receive annual grants from the local council, but unfortunately, they cut our budget to zero last year. So now, the only way we keep our doors open is actually through generous private donations from the public. We are incredibly grateful for that support. \nNow, let's talk about the facilities. The computer room is open on the first floor. In the past, sessions were limited to one hour to ensure everyone got a turn, but we've purchased ten more machines, so that rule has been abolished. You might expect that you need to book a computer a day in advance now, but actually, it's just a simple drop-in system. We do, however, have one strict condition: because of previous accidents ruining the keyboards, food and drink are completely forbidden in that room. \nRegarding your membership cards, please keep them safe. However, if you do lose your card, don't panic. You don't need to go to the police and report it. And while some libraries charge a £5 replacement fee, we've decided to waive that cost. All you actually need to do is bring a photo ID to the reception desk, and we'll print you a new one on the spot. \nFinally, getting here can be tricky. We do have a car park, but there are massive roadworks on the High Street right now, so I'd avoid driving if you can. We've found that the local bus service is very unreliable on weekends. So, if you've got a bicycle, that's best. We have plenty of secure racks right outside the front door. \nRight, let's look at the schedule of upcoming events. \nFirst is the Photography Workshop. We had originally planned to run this on Tuesday evenings. But unfortunately, the tutor had a sudden scheduling clash, so it has been moved to Thursday evenings instead. \nNext is Children's Storytime. This is always incredibly popular. We were hoping to hold it in the main hall as usual, but because the weather is so beautiful this week, we've decided it will be held in the outdoor pavilion to give the kids some fresh air. \nYou might be interested in the Local History Talk. I know several of you were asking about this. Sadly, the guest speaker has caught a very bad flu, so I'm afraid that event has been completely cancelled for this month. \nWe also have the new Yoga Class. Just a quick note on this one: normally we provide all the mats, but our supplier hasn't delivered them yet. So for the first three weeks, it requires you to bring your own extra equipment. \nFinally, the Pottery Course. Many people think this is only for advanced levels, but beginners are completely welcome. However, if you haven't put your name down yet, I'm afraid it's too late. There are absolutely no spots left.`,
+        answers: {11:"C", 12:"B", 13:"B", 14:"C", 15:"B", 16:"A", 17:"D", 18:"C", 19:"E", 20:"B"},
+        questions: [
+            {id:11, label:"11. What was the main reason for the recent closure of the centre? (Type A, B, or C)"},
+            {id:12, label:"12. How is the centre primarily funded today? (Type A, B, or C)"},
+            {id:13, label:"13. What strict rule applies to the computer room? (Type A, B, or C)"},
+            {id:14, label:"14. What must members do if they lose their membership card? (Type A, B, or C)"},
+            {id:15, label:"15. The speaker suggests the best way to travel to the centre is (Type A, B, or C)"},
+            {id:16, label:"16. Photography Workshop (Type A-G)"}, {id:17, label:"17. Children's Storytime (Type A-G)"},
+            {id:18, label:"18. Local History Talk (Type A-G)"}, {id:19, label:"19. Yoga Class (Type A-G)"},
+            {id:20, label:"20. Pottery Course (Type A-G)"}
+        ]
+    },
+    {
+        id: 9, title: "Test 9: Furniture Rental (Section 1)", audioSrc: "audio/test9.mp3",
+        transcript: `AGENT: Good morning, City Relocations. How can I help you? \nSHELLY: Hi, this is Shelly Meyer. I'm renting your house on Archwood Avenue for 12 months. (Example) \nAGENT: Ah yes, Shelly. Is your surname spelt M-E-Y-E-R? \nSHELLY: Yes, that's right. \nAGENT: Great. And just to confirm the property, that was 14 Archwood Avenue? \nSHELLY: Correct. That's spelt A-R-C-H-W-O-O-D. \nAGENT: Thank you. How can I help you today? \nSHELLY: Well, when I viewed the house I told you I'll most probably need to rent some furniture. I'm not bringing much with me. \nAGENT: Yes, of course. Well, the biggest company is called Peak Rentals. Oh, and their brochure says that there's a special offer at the moment. If you rent living room furniture, I believe that's a set of chairs and a TV table, you'll also get a lamp at no extra cost. \nSHELLY: Okay, but you know that price range you gave me earlier is more than I was hoping to pay. \nAGENT: Then you could try Aaron and Oliver. \nSHELLY: Sorry, what? And Oliver? \nAGENT: Aaron. A-R-O-N. \nSHELLY: Okay. Are they... er... \nAGENT: I'd say they're a mid-price company, but if you chose them, you need to be aware that they charge an extra 12% every month in case of damage. \nSHELLY: Oh, I see. I'd have to do the math carefully then, right? \nAGENT: But one helpful thing is that they also do cleaning for customers. For the house. \nSHELLY: Oh, I see. I probably won't need that. \nAGENT: There's another company called Larch Furniture. It's quite new and it has the lowest prices in town. \nSHELLY: Well, that would be good. I won't have much time to go shopping after I start my job. \nAGENT: There are two things you need to know about Larch Furniture. First of all, you have to take out insurance on the furniture and you need to organize that yourself. \nSHELLY: That wouldn't be too hard. \nAGENT: Also, you can't take out a contract for less than 6 months. \nSHELLY: I figure that might not be a problem for me. I'm renting the house for 12 months after all. \nAGENT: Yes. Okay. Well, sorry to interrupt. I just thought of another furniture rental company. It's called Space Rentals, and it's located very near to the house. \nSHELLY: Okay. \nAGENT: I don't have any information about their charges. So, it's best to use their app to find out what it would cost you to use them.`,
+        answers: {1:"Meyer", 2:"Archwood", 3:"lamp", 4:"Aaron", 5:"12", 6:"cleaning", 7:"prices", 8:"insurance", 9:"6", 10:"app"},
+        questions: [
+            {id:1, label:"1. Name: Shelly ______"}, {id:2, label:"2. Address: 14 ______ Avenue"},
+            {id:3, label:"3. Special offer: rent living room furniture and get a free ______"},
+            {id:4, label:"4. ______ and Oliver"}, {id:5, label:"5. Extra charge: ______ % for damage"},
+            {id:6, label:"6. Additional service: they also do ______ for customers"},
+            {id:7, label:"7. Advantage: has the lowest ______ in town"},
+            {id:8, label:"8. Requirement: customer must arrange their own ______"},
+            {id:9, label:"9. Minimum contract length: ______ months"},
+            {id:10, label:"10. To find out charges, the customer should use their ______"}
+        ]
+    },
+    {
+        id: 10, title: "Test 10: Elite Catering (Section 1)", audioSrc: "audio/test10.mp3",
+        transcript: `MALE: Good morning, Elite Catering. Mark speaking. How can I help you? \nFEMALE: Oh, hello Mark. I'm calling to enquire about the temporary jobs you advertised. (Example) \nMALE: Fantastic. We are always looking for new staff. I can take your details right now. What is your full name, please? \nFEMALE: It's Sarah Woodhouse. \nMALE: Is that spelt W-O-D-H-O-U-S-E? \nFEMALE: Actually, it's W-O, double O, D-H-O-U-S-E. \nMALE: Thank you. And your address? \nFEMALE: I live at 42 Brampton Road. \nMALE: Got it. And could I have a contact phone number? \nFEMALE: Sure. It's 077 452 998... oh, wait a minute, I just got a new mobile plan yesterday. Sorry, it's 077 452 995. \nMALE: 077 452 995. Excellent. Now, we have a few different vacancies. We are looking for cooks, and we also need waiters. \nFEMALE: Well, I've never cooked professionally before, so I'll apply for the waiter position, if that's okay. \nMALE: That's absolutely fine. Now, let's talk about the pay. Normally, we pay £9.00 an hour for staff who work on the weekends. However, for this beginner role, the starting rate is £8.50 an hour. \nFEMALE: £8.50 is fine with me. Do I need to buy a uniform? \nMALE: You need to wear black trousers. We will provide you with a company apron, but you must bring your own white shirt. \nFEMALE: I have one of those in my wardrobe. Are there any specific days I need to be available? \nMALE: We ideally need people for Thursdays and Fridays. \nFEMALE: Oh, I have college classes on Thursdays, so I couldn't do that. \nMALE: That's a pity, but Fridays are our absolute busiest day, so as long as you can do Fridays, we can still take you on. \nFEMALE: Perfect. \nMALE: Let's arrange an interview. Can you come into the office on the 14th of October? \nFEMALE: I'm actually away visiting my parents on the 14th. How about the 16th? \nMALE: Let me check the diary... yes, the 16th works well. I'll put you down for 10:00 AM. \nFEMALE: Great. Is there anything I need to bring? \nMALE: Yes. Some people just bring their driving licence, but our head office strictly needs a copy of your passport for our records. \nFEMALE: No problem, I'll make a copy tonight. Is there parking at your office? \nMALE: There is, but it's very expensive. And I wouldn't take the bus as the roadworks cause huge delays. If you've got a bicycle, that's best. We have secure racks outside. \nFEMALE: I'll do that. Oh, by the way, I know you asked earlier about where I saw the advert. I didn't actually see it online; it was a friend who told me about the job.`,
+        answers: {1:"Woodhouse", 2:"077 452 995", 3:"waiter", 4:"8.50", 5:"shirt", 6:"Fridays", 7:"16th", 8:"passport", 9:"bicycle", 10:"friend"},
+        questions: [
+            {id:1, label:"1. Name: Sarah ______"}, {id:2, label:"2. Contact Number: ______"},
+            {id:3, label:"3. Position applied for: ______"}, {id:4, label:"4. Starting pay rate: £______ per hour"},
+            {id:5, label:"5. Uniform: Must provide own black trousers and a white ______"},
+            {id:6, label:"6. Mandatory working day: Must be available to work on ______"},
+            {id:7, label:"7. Interview Date: ______ of October"},
+            {id:8, label:"8. Document to bring: a copy of her ______"},
+            {id:9, label:"9. Recommended method of transport: ______"},
+            {id:10, label:"10. How did the applicant hear about the job? From a ______"}
+        ]
+    },
+    {
+        id: 11, title: "Test 11: Research Project (Section 3)", audioSrc: "audio/test11.mp3",
+        transcript: `MALE: Right. Anyway, let's think about our assignment. Last time I had problems with the final stage where we had to describe and justify how successful we thought we'd been. I struggled a bit with the action plan, too. \nFEMALE: I was okay with the planning, but I got marked down for the self-assessment as well. And I had big problems with the statistical stuff. That's where I really lost marks. \nMALE: Right... So shall we plan what we have to do for this assignment? \nFEMALE: Okay. First we have to decide on our research question. So how about: 'is there a relationship between hours of sleep and number of dreams'? \nMALE: Okay, then we need to think about who we'll do the study on. About 12 people, right? And shall we use other psychology students? \nFEMALE: Let's use people from a different department. What about history? \nMALE: Yes, they might have interesting dreams. Or literature students? \nFEMALE: I don't really know any. \nMALE: Okay, forget that idea. Then we have to think about our methodology. So, we could use observation, but that doesn't seem appropriate. \nFEMALE: No, it needs to be self-reporting, I think. And we could ask them to answer questions online. \nMALE: But in this case, paper might be better as they'll be doing it straight after they wake up. In fact, while they're still half asleep, right? \nFEMALE: Yes, exactly. And we'll have to check the ethical guidelines for this sort of research because our experiment involves humans, so there are special regulations. \nMALE: Yes, I had a look at those for another assignment I did. There's a whole section on risk assessment and another section on making sure they aren't put under any unnecessary stress. \nFEMALE: Right. So, for the paper diary itself, what do they need to record? Obviously, the time they went to bed and the time they woke up. \nMALE: Yes. And they should write down a brief description of the dream. But we also need to know if they consumed any caffeine before bed, as that definitely affects sleep. \nFEMALE: Good point. We should also ask about the temperature of their room, as being too hot or cold can cause nightmares. \nMALE: I think that's getting too complicated. Let's stick to their diet. What about alcohol? \nFEMALE: No, let's keep it simple. Caffeine is enough. Then, after we collect the diaries in two weeks, we'll need to analyze the data. \nMALE: I'm a bit worried about the software we have to use for that. I've never used it before. \nFEMALE: Don't worry, the university provides a free tutorial online. I'll send you the link. \nMALE: Thanks. Once we have the results, we have to prepare the presentation. We need to create some visual aids. I can make some charts to show the correlation. \nFEMALE: That would be great. And we must remember to include a section on the limitations of our study. The tutor is always very strict about acknowledging what we couldn't control. \nMALE: Yes, like the fact that self-reporting isn't one hundred percent reliable. Finally, we need to submit the written report by the 25th. \nFEMALE: Wait, I originally thought the deadline was the 25th, but the syllabus says it has been extended to the 28th because of the library closure. \nMALE: Oh, what a relief! We should still aim to finish the first draft early so we have time to proofread it. \nFEMALE: Agreed. Oh, one last thing: we have to attach the completed consent forms to the back of the report, otherwise they won't mark it.`,
+        answers: {21:"C", 22:"A", 23:"B", 24:"A", 25:"caffeine", 26:"software", 27:"charts", 28:"limitations", 29:"28th", 30:"consent forms"},
+        questions: [
+            {id:21, label:"21. What did the female student lose the most marks for? (Type A, B, or C)"},
+            {id:22, label:"22. Who do the students decide to use as subjects? (Type A, B, or C)"},
+            {id:23, label:"23. Why use paper diaries instead of online questionnaire? (Type A, B, or C)"},
+            {id:24, label:"24. Which part of the ethical guidelines is highly relevant? (Type A, B, or C)"},
+            {id:25, label:"25. Must also record any intake of ______ before going to sleep."},
+            {id:26, label:"26. Need to learn how to use the required ______ for data analysis."},
+            {id:27, label:"27. Male student will create visual aids, specifically some ______."},
+            {id:28, label:"28. Ensure the final report acknowledges the study's ______."},
+            {id:29, label:"29. Hand in the final written assignment by the ______."},
+            {id:30, label:"30. Ensure that the completed ______ are attached to the back of the report."}
+        ]
+    },
+    {
+        id: 12, title: "Test 12: Self-Access Centre (Section 3)", audioSrc: "audio/test12.mp3",
+        transcript: `JUDY: Hi Alan, have you managed to collate the results from our research into the Self-Access Centre? \nALAN: Yes, I have. Before we look at the data, we need to write the introduction. We should state why we chose the centre as our topic. I originally thought about choosing it just because our course tutor recommended it, but actually, the main reason we went with it is that it is highly relevant to our own studies. \nJUDY: Right, I'll write that down. Now, for the methodology. We need to explain why we didn't use a questionnaire. \nALAN: Well, we thought about it, but designing one just takes too much time. \nJUDY: No, that wasn't the main issue, remember? We realized that students just throw them away, so we were worried about a low response rate. \nALAN: Ah, yes, exactly. So instead, we conducted face-to-face interviews with the students. And we also needed the staff's perspective. \nJUDY: I originally tried to speak to the university librarian, but she was away at a conference, so I managed to get a 30-minute interview with the centre manager instead. That gave us some great insights. \nALAN: Excellent. Now, looking at the student feedback, what did they want changed about the opening times? I know some students wanted it to stay open later in the evenings. \nJUDY: Yes, but looking at the charts, the biggest request by far was for weekend opening hours. At the moment it's closed on Saturday and Sunday, which is really frustrating for people doing assignments. \nALAN: That seems like a valid point. So, how are we going to present all this to the class? A formal written report? \nJUDY: I think a written report is a bit boring. Why don't we do a PowerPoint presentation? \nALAN: We could, but the projector in our classroom is currently broken. I've decided we should create a poster display. It's much more visual and people can walk around and look at our charts. \nJUDY: Okay, a poster it is. Let's list our recommendations for the resources. First, the CD collection. It's a complete mess. \nALAN: It really is. It's impossible to find anything. We should just get rid of them. \nJUDY: I don't think we can throw them away. They just need re-organising completely so students can actually browse them properly. \nALAN: Fine. What about the reference books? \nJUDY: Well, the encyclopedias are in good condition, but the dictionaries are absolutely ancient. We need to replace them with brand new editions. \nALAN: Agreed. And the headphones in the listening lab? I checked them yesterday. \nJUDY: Do we need to buy new ones? \nALAN: No, they're very high quality, but half of them don't work because of loose wires. They definitely need repairing. \nJUDY: I'll note that down. The newspapers are also very popular, but there are never enough copies for everyone in the morning. \nALAN: So our recommendation is clearly to buy more copies of the daily news. \nJUDY: Finally, the seating. Those old wooden study chairs... \nALAN: Oh, they are terrible. Uncomfortable and squeaky. We should definitely just get rid of them. The modern plastic ones are much better.`,
+        answers: {21:"A", 22:"B", 23:"C", 24:"B", 25:"C", 26:"E", 27:"D", 28:"C", 29:"A", 30:"F"},
+        questions: [
+            {id:21, label:"21. Why did Judy and Alan choose the Self-Access Centre? (Type A, B, or C)"},
+            {id:22, label:"22. Why did the students decide against using a questionnaire? (Type A, B, or C)"},
+            {id:23, label:"23. Who did they interview to get the staff's perspective? (Type A, B, or C)"},
+            {id:24, label:"24. What was the most frequent student request regarding hours? (Type A, B, or C)"},
+            {id:25, label:"25. How will Judy and Alan present their findings? (Type A, B, or C)"},
+            {id:26, label:"26. The CD collection (Type A-F)"}, {id:27, label:"27. The reference dictionaries (Type A-F)"},
+            {id:28, label:"28. The listening lab headphones (Type A-F)"},
+            {id:29, label:"29. The daily newspapers (Type A-F)"}, {id:30, label:"30. The wooden study chairs (Type A-F)"}
+        ]
+    },
+    {
+        id: 13, title: "Test 13: Inclusive Design (Section 4)", audioSrc: "audio/test13.mp3",
+        transcript: `LECTURER: Good morning. Today we are looking at the fascinating field of Inclusive Design. It's only relatively recently that designers have become aware of the need to truly be inclusive. What does this mean? Well, it simply means designing products that span economic, social, and cultural barriers. It means making sure products are completely accessible to everyone right out of the box, without any type of adaptation having to be made. \nUnfortunately, historically, design has heavily favoured one demographic. For decades, everything from tools to office spaces was designed around the dimensions of an average male. A classic example is the automotive industry. For years, cars were crash-tested using a dummy based on males, which had severe safety implications for all women. \nLet's look at the modern workplace. In construction and manufacturing, workers require personal protective equipment, or PPE. But a recent study found that most PPE is designed to fit men. Giving women protective gear that is simply scaled down from male proportions is not just uncomfortable; it can actively put women at risk. In fact, in a recent survey, many female workers stated that their PPE often hampered their work, making it difficult to operate heavy machinery safely. \nThis bias isn't just found in physical labor. Think about your typical office. Have you ever wondered why offices always feel so cold to some people? Well, standard air conditioning systems are calibrated using a formula devised in the 1960s, setting the ideal temperature of 21 degrees. But this calculation was based on the resting metabolic rate of a 40-year-old man. It completely ignores the fact that women have different metabolic rates, meaning they typically require a slightly warmer environment. \nSo, how do we fix this? The first step is for designers to collect far more comprehensive data before they even begin the sketching phase. If we only study a narrow segment of society, our products will only serve that segment. Furthermore, corporations must stop making blind assumptions about their target audience. True inclusive design means acknowledging the vast diversity of the human population from the very beginning of the creative process.`,
+        answers: {31:"cultural", 32:"adaptation", 33:"average", 34:"PPE", 35:"risk", 36:"hampered", 37:"21", 38:"metabolic", 39:"data", 40:"audience"},
+        questions: [
+            {id:31, label:"31. Goal: To create products that span economic, social, and ______ barriers."},
+            {id:32, label:"32. Products must be fully accessible without the need for any ______."},
+            {id:33, label:"33. Historically, equipment and spaces were designed around the dimensions of an ______ male."},
+            {id:34, label:"34. In manufacturing, female workers are often given scaled-down ______ (Personal Protective Equipment)."},
+            {id:35, label:"35. Providing unsuitable protective gear can actively put women at ______."},
+            {id:36, label:"36. A recent survey revealed that poorly fitting equipment frequently ______ their daily work."},
+            {id:37, label:"37. The standard office air conditioning is typically set to a temperature of ______ degrees."},
+            {id:38, label:"38. This calculation ignores the fact that women have different ______ rates than men."},
+            {id:39, label:"39. Designers must collect far more comprehensive ______ before beginning the sketching phase."},
+            {id:40, label:"40. Corporations must stop making blind assumptions about their target ______."}
+        ]
+    }
+];
+
+const menuDiv = document.getElementById('test-grid');
+const testView = document.getElementById('test-view');
+const menuView = document.getElementById('main-menu');
+const audioPlayer = document.getElementById('audio-element');
+
+function init() {
+    testsData.forEach((test, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'test-btn';
+        btn.innerText = test.title;
+        btn.onclick = () => loadTest(index);
+        menuDiv.appendChild(btn);
+    });
+}
+
+function showMenu() {
+    testView.style.display = 'none';
+    menuView.style.display = 'block';
+    audioPlayer.pause();
+}
+
+function loadTest(index) {
+    const test = testsData[index];
+    menuView.style.display = 'none';
+    testView.style.display = 'block';
+    
+    document.getElementById('test-title').innerText = test.title;
+    audioPlayer.src = test.audioSrc;
+    audioPlayer.load();
+
+    const qContainer = document.getElementById('questions-container');
+    qContainer.innerHTML = '';
+    test.questions.forEach(q => {
+        const div = document.createElement('div');
+        div.className = 'question-block';
+        div.innerHTML = `
+            <label class="question-label">${q.label}</label>
+            <input type="text" class="answer-input" data-id="${q.id}" placeholder="Type answer here">
+        `;
+        qContainer.appendChild(div);
+    });
+
+    document.getElementById('transcript-content').innerText = test.transcript;
+    document.getElementById('transcript-box').style.display = 'none';
+
+    const keyContainer = document.getElementById('answer-key-content');
+    keyContainer.innerHTML = '';
+    for (const [key, value] of Object.entries(test.answers)) {
+        const item = document.createElement('div');
+        item.className = 'answer-key-item';
+        item.innerHTML = `Question ${key}: <span>${value}</span>`;
+        keyContainer.appendChild(item);
+    }
+    document.getElementById('answer-key-box').style.display = 'none';
+    document.getElementById('feedback-area').innerText = '';
+}
+
+function toggleSection(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function repeatAudio() {
+    audioPlayer.currentTime = 0;
+    audioPlayer.play();
+}
+
+function checkAnswers() {
+    const inputs = document.querySelectorAll('.answer-input');
+    const currentTest = testsData.find(t => t.title === document.getElementById('test-title').innerText);
+    let score = 0;
+    let total = inputs.length;
+
+    inputs.forEach(input => {
+        const qId = input.getAttribute('data-id');
+        const userAnswer = input.value.trim().toLowerCase();
+        const correctAnswer = currentTest.answers[qId] ? currentTest.answers[qId].toLowerCase() : "";
+
+        if (userAnswer === correctAnswer) {
+            input.classList.remove('incorrect');
+            input.classList.add('correct');
+            score++;
+        } else {
+            input.classList.remove('correct');
+            input.classList.add('incorrect');
+        }
+    });
+
+    const feedback = document.getElementById('feedback-area');
+    feedback.innerText = `You scored ${score} out of ${total}`;
+    feedback.style.color = score === total ? 'var(--success)' : 'var(--error)';
+}
+
+init();
+</script>
+</body>
+</html>
+```
