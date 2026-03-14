@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Grade 6 English | Complete Gamified Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            padding: 10px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: var(--shadow);
+            height: 60px;
+            gap: 5px;
+        }
+
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn:active { transform: scale(0.95); }
+        .nav-btn:disabled { opacity: 0; pointer-events: none; }
+
+        .xp-badge {
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 10px;
+            padding-top: 70px; /* Account for header */
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Unit Grid (Home) */
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding-bottom: 20px;
+        }
+
+        .unit-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            text-align: center;
+        }
+        .unit-card.completed { border-color: var(--success); }
+        .unit-emoji { font-size: 2em; margin-bottom: 5px; }
+        .unit-title { font-size: 0.9em; font-weight: 700; color: var(--text-primary); }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        .mode-selector::-webkit-scrollbar { display: none; }
+
+        .mode-btn {
+            flex: 0 0 auto;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* TTS Clickable Areas */
+        .tts-clickable {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .tts-clickable:active { transform: scale(0.98); }
+        .tts-active { border-color: var(--accent) !important; box-shadow: 0 0 8px var(--accent); }
+
+        /* Vocabulary Cards */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .vocab-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+        .vocab-emoji-bg {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+        .vocab-emoji { font-size: 2em; line-height: 1; }
+        .vocab-word { font-size: 0.95em; font-weight: 700; color: var(--text-primary); }
+        .vocab-pronunciation { color: var(--text-secondary); font-size: 0.75em; }
+
+        /* Grammar Box & Games */
+        .grammar-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border);
+        }
+        .grammar-title { font-size: 0.95em; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .grammar-rule, .grammar-example {
+            background: var(--bg-input);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 4px 0;
+            font-size: 0.85em;
+            border-left: 3px solid var(--primary);
+            color: var(--text-primary);
+        }
+        .grammar-exercise {
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px dashed var(--border);
+        }
+        .grammar-q { font-size: 0.9em; font-weight: 600; margin-bottom: 8px; }
+        .grammar-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+        .grammar-opt {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        .grammar-opt.correct { background: var(--success); border-color: var(--success); }
+        .grammar-opt.wrong { background: #ef4444; border-color: #ef4444; }
+
+        /* Reading Box */
+        .reading-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.95em;
+            line-height: 1.5;
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Conversations */
+        .convo-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .convo-tab {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .convo-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .conversation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px 0;
+            min-height: 220px;
+        }
+        .message-bubble {
+            max-width: 85%;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            line-height: 1.4;
+            opacity: 0;
+            animation: popIn 0.3s forwards;
+            cursor: pointer;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-left {
+            align-self: flex-start;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        .message-right {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Flashcards */
+        .flashcard-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            perspective: 1000px;
+        }
+        .flashcard {
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+        .flashcard-front { background: var(--bg-card); }
+        .flashcard-back { background: var(--primary); transform: rotateY(180deg); color: white; border-color: var(--primary); }
+
+        /* Quiz & Spelling */
+        .interactive-container {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .quiz-option {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .quiz-option.correct { background: var(--success); border-color: var(--success); }
+        .quiz-option.wrong { background: #ef4444; border-color: #ef4444; }
+
+        .spelling-wrapper { position: relative; display: inline-block; width: 100%; margin: 10px 0; }
+        .spelling-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            text-align: center;
+        }
+        .btn-full {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .btn-repeat {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        /* Glitter Effect */
+        .glitter {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #fbbf24;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: sparkle 0.6s linear forwards;
+        }
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="header">
+        <div class="header-group">
+            <button class="nav-btn secondary" id="homeBtn" onclick="showHome()">🏠 Home</button>
+            <button class="nav-btn secondary" id="backBtn" onclick="navigateBack()" disabled>⬅ Back</button>
+        </div>
+        <div class="header-title" id="headerTitle">Grade 6 English</div>
+        <div class="header-group">
+            <div class="xp-badge">⭐ <span id="xpValue">0</span></div>
+            <button class="nav-btn" id="nextBtn" onclick="navigateForward()" disabled>Next ➡</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Home View -->
+        <div id="homeView">
+            <div class="section-title">Semester 1 (上册)</div>
+            <div class="units-grid" id="sem1Grid"></div>
+            
+            <div class="section-title" style="margin-top: 10px;">Semester 2 (下册)</div>
+            <div class="units-grid" id="sem2Grid"></div>
+        </div>
+
+        <!-- Content View -->
+        <div id="contentView" style="display: none;">
+            <!-- Mode Selector (Reordered: Vocab -> Grammar -> Reading -> Quiz -> Convo -> Flashcards -> Spell) -->
+            <div class="mode-selector" id="modeSelector">
+                <button class="mode-btn active" onclick="setMode('vocab')">Vocab</button>
+                <button class="mode-btn" onclick="setMode('grammar')">Grammar</button>
+                <button class="mode-btn" onclick="setMode('reading')">Reading</button>
+                <button class="mode-btn" onclick="setMode('quiz')">Quiz</button>
+                <button class="mode-btn" onclick="setMode('convo')">Convo</button>
+                <button class="mode-btn" onclick="setMode('flashcards')">Cards</button>
+                <button class="mode-btn" onclick="setMode('spell')">Spell</button>
+            </div>
+            
+            <div id="contentArea"></div>
+        </div>
+    </div>
+
+    <script>
+        // Full Grade 6 Curriculum Data with Grammar Games & Expanded Conversations
+        const grade6Data = {
+            units: [
+                // SEMESTER 1
+                {
+                    number: 1, semester: 1, title: "How can I get there?", emoji: "🗺️",
+                    vocabulary: [
+                        { word: "science museum", emoji: "🏛️", pronunciation: "/ˈsaɪəns mjuˈziːəm/" },
+                        { word: "post office", emoji: "📮", pronunciation: "/poʊst ˈɔːfɪs/" },
+                        { word: "bookstore", emoji: "📚", pronunciation: "/ˈbʊkstɔːr/" },
+                        { word: "cinema", emoji: "🎬", pronunciation: "/ˈsɪnəmə/" },
+                        { word: "hospital", emoji: "🏥", pronunciation: "/ˈhɑːspɪtl/" },
+                        { word: "crossing", emoji: "🚸", pronunciation: "/ˈkrɔːsɪŋ/" },
+                        { word: "turn left", emoji: "⬅️", pronunciation: "/tɜːrn left/" },
+                        { word: "go straight", emoji: "⬆️", pronunciation: "/goʊ streɪt/" },
+                        { word: "restaurant", emoji: "🍕", pronunciation: "/ˈrestərənt/" }
+                    ],
+                    grammar: [
+                        { title: "Asking Directions", rule: "Use 'Where' or 'How can I get to...'?", examples: ["How can I get to the library?", "Where is the post office?"] },
+                        { title: "Giving Directions", rule: "Use prepositions of place and movement.", examples: ["Go straight and turn left.", "It's next to the cinema."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Excuse me, ___ can I get to the hospital?", options: ["How", "What", "Who"], correct: 0 },
+                        { q: "Go straight and ___ left at the crossing.", options: ["turn", "turns", "turning"], correct: 0 }
+                    ],
+                    reading: "Tom and his classmates are working on a science project. They want to visit the science museum. Tom asks a police officer, 'Excuse me, how can I get to the science museum?' The officer points down the street: 'Go straight for two blocks. Then turn left at the Italian restaurant. It is next to the library.'",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Hey, do you want to study at the bookstore?" },
+                            { speaker: "right", text: "Sure! How can I get there from the school?" },
+                            { speaker: "left", text: "Go straight and turn right at the crossing." },
+                            { speaker: "right", text: "Okay, I will see you there!" }
+                        ],
+                        [
+                            { speaker: "left", text: "Excuse me, where is the Italian restaurant?" },
+                            { speaker: "right", text: "It's near the cinema. Turn left here." },
+                            { speaker: "left", text: "Is it far from here?" },
+                            { speaker: "right", text: "No, only five minutes away." }
+                        ],
+                        [
+                            { speaker: "left", text: "Oh no, I think I'm lost. I need to find the hospital." },
+                            { speaker: "right", text: "Don't worry. Go straight, then turn right at the post office." },
+                            { speaker: "left", text: "Thank you so much!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Where do Tom and his classmates want to go?", options: ["The park", "The science museum", "The bank"], correct: 1 },
+                        { question: "What should you say to ask for directions?", options: ["Where are you?", "How can I get to...?", "What is this?"], correct: 1 }
+                    ],
+                    spelling: ["museum", "cinema", "hospital", "straight"]
+                },
+                {
+                    number: 2, semester: 1, title: "Ways to go to school", emoji: "🚌",
+                    vocabulary: [
+                        { word: "on foot", emoji: "🚶", pronunciation: "/ɑːn fʊt/" },
+                        { word: "by bus", emoji: "🚌", pronunciation: "/baɪ bʌs/" },
+                        { word: "plane", emoji: "✈️", pronunciation: "/pleɪn/" },
+                        { word: "subway", emoji: "🚇", pronunciation: "/ˈsʌbweɪ/" },
+                        { word: "train", emoji: "🚆", pronunciation: "/treɪn/" },
+                        { word: "slow down", emoji: "🐌", pronunciation: "/sloʊ daʊn/" },
+                        { word: "traffic light", emoji: "🚦", pronunciation: "/ˈtræfɪk laɪt/" },
+                        { word: "helmet", emoji: "⛑️", pronunciation: "/ˈhelmɪt/" }
+                    ],
+                    grammar: [
+                        { title: "Transportation", rule: "Use 'by + transport' or 'on foot'.", examples: ["I go to school by bus.", "She goes on foot."] },
+                        { title: "Traffic Rules", rule: "Use 'must' for rules and commands.", examples: ["You must stop at a red light.", "Slow down and wait."] }
+                    ],
+                    grammarExercises: [
+                        { q: "I live near the school, so I go ___ foot.", options: ["by", "on", "in"], correct: 1 },
+                        { q: "You ___ wear a helmet when riding a bike.", options: ["can", "must", "are"], correct: 1 }
+                    ],
+                    reading: "Many secondary students take the subway to school because it is fast. Li Ming goes by subway and it takes 20 minutes. Zhang Wei lives closer, so he goes on foot. Both boys always obey the traffic lights, stop at red, and are never late.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "How do you usually go to school?" },
+                            { speaker: "right", text: "I go by bike. How about you?" },
+                            { speaker: "left", text: "I take the bus. Do you wear a helmet?" },
+                            { speaker: "right", text: "Yes, we must wear a helmet to be safe." }
+                        ],
+                        [
+                            { speaker: "left", text: "The traffic light is yellow. What should we do?" },
+                            { speaker: "right", text: "We must slow down and wait." },
+                            { speaker: "left", text: "You're right. Safety first!" }
+                        ],
+                        [
+                            { speaker: "left", text: "I am taking a plane to Beijing next week." },
+                            { speaker: "right", text: "Wow! How long does it take by plane?" },
+                            { speaker: "left", text: "Only about two hours. It's very fast." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "How does Li Ming travel to school?", options: ["By bus", "By subway", "On foot"], correct: 1 },
+                        { question: "What must you do at a yellow light?", options: ["Go fast", "Slow down and wait", "Turn around"], correct: 1 }
+                    ],
+                    spelling: ["subway", "traffic", "helmet", "train"]
+                },
+                {
+                    number: 3, semester: 1, title: "My weekend plan", emoji: "📅",
+                    vocabulary: [
+                        { word: "visit", emoji: "👥", pronunciation: "/ˈvɪzɪt/" },
+                        { word: "see a film", emoji: "🎥", pronunciation: "/siː ə fɪlm/" },
+                        { word: "supermarket", emoji: "🛒", pronunciation: "/ˈsuːpərmɑːrkɪt/" },
+                        { word: "tonight", emoji: "🌃", pronunciation: "/təˈnaɪt/" },
+                        { word: "tomorrow", emoji: "📆", pronunciation: "/təˈmɑːroʊ/" },
+                        { word: "dictionary", emoji: "📖", pronunciation: "/ˈdɪkʃəneri/" },
+                        { word: "comic book", emoji: "🗯️", pronunciation: "/ˈkɑːmɪk bʊk/" },
+                        { word: "mooncake", emoji: "🥮", pronunciation: "/ˈmuːnkeɪk/" }
+                    ],
+                    grammar: [
+                        { title: "Future Plans", rule: "Use 'be going to + verb' for plans.", examples: ["I am going to take a trip.", "She is going to visit her aunt."] },
+                        { title: "Time Expressions", rule: "Use words like tonight, tomorrow, next week.", examples: ["We are going tomorrow."] }
+                    ],
+                    grammarExercises: [
+                        { q: "We ___ going to see a film tonight.", options: ["am", "is", "are"], correct: 2 },
+                        { q: "What are you going to ___ tomorrow?", options: ["do", "doing", "did"], correct: 0 }
+                    ],
+                    reading: "This weekend is the Mid-Autumn Festival. Sarah and her classmates have great plans. She is going to visit her grandparents. They are going to eat mooncakes together and read a poem about the moon.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What are your plans for the weekend?" },
+                            { speaker: "right", text: "I'm going to buy a new dictionary at the bookstore." },
+                            { speaker: "left", text: "Oh, I need a comic book. Can I come with you?" },
+                            { speaker: "right", text: "Sure! Let's go together tomorrow morning." }
+                        ],
+                        [
+                            { speaker: "left", text: "Are you going to the supermarket tonight?" },
+                            { speaker: "right", text: "Yes, I am going to buy ingredients for a pizza." },
+                            { speaker: "left", text: "Sounds delicious!" }
+                        ],
+                        [
+                            { speaker: "left", text: "It's the Mid-Autumn Festival next week!" },
+                            { speaker: "right", text: "I know! We are going to eat mooncakes with my family." },
+                            { speaker: "left", text: "Enjoy your holiday!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is Sarah going to do?", options: ["Study", "Visit grandparents", "Play games"], correct: 1 },
+                        { question: "Which indicates a future plan?", options: ["I went", "I am going to", "I go"], correct: 1 }
+                    ],
+                    spelling: ["visit", "tonight", "tomorrow", "mooncake"]
+                },
+                {
+                    number: 4, semester: 1, title: "I have a pen pal", emoji: "✉️",
+                    vocabulary: [
+                        { word: "studies", emoji: "📖", pronunciation: "/ˈstʌdiz/" },
+                        { word: "puzzle", emoji: "🧩", pronunciation: "/ˈpʌzl/" },
+                        { word: "hiking", emoji: "🥾", pronunciation: "/ˈhaɪkɪŋ/" },
+                        { word: "pen pal", emoji: "✉️", pronunciation: "/pen pæl/" },
+                        { word: "hobby", emoji: "🎨", pronunciation: "/ˈhɑːbi/" },
+                        { word: "Canberra", emoji: "🇦🇺", pronunciation: "/ˈkænbərə/" },
+                        { word: "club", emoji: "🏫", pronunciation: "/klʌb/" },
+                        { word: "share", emoji: "📤", pronunciation: "/ʃer/" }
+                    ],
+                    grammar: [
+                        { title: "Third-Person Singular", rule: "Add -s or -es to present verbs for he/she/it.", examples: ["He lives in Canberra.", "She studies hard."] },
+                        { title: "Discussing Hobbies", rule: "Use 'like + verb-ing' to talk about interests.", examples: ["I like hiking.", "He likes doing puzzles."] }
+                    ],
+                    grammarExercises: [
+                        { q: "My pen pal Jack ___ in Australia.", options: ["live", "lives", "living"], correct: 1 },
+                        { q: "She likes ___ emails to her friends.", options: ["write", "wrote", "writing"], correct: 2 }
+                    ],
+                    reading: "Tom has a pen pal named Jack. Jack lives in Canberra, Australia. He likes reading comic books and doing puzzles. Jack studies Chinese at his secondary school because his goal is to visit China. They share ideas online.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Do you have a pen pal?" },
+                            { speaker: "right", text: "Yes, her name is Jasmine. She lives in Canada." },
+                            { speaker: "left", text: "What are her hobbies?" },
+                            { speaker: "right", text: "She likes hiking and joining science clubs." }
+                        ],
+                        [
+                            { speaker: "left", text: "My pen pal studies English every day." },
+                            { speaker: "right", text: "That's a great goal. Does he like reading?" },
+                            { speaker: "left", text: "Yes, he likes reading novels and sharing ideas." }
+                        ],
+                        [
+                            { speaker: "left", text: "I want to join the pen pal club at school." },
+                            { speaker: "right", text: "That's an amazing idea! You can learn about different countries." },
+                            { speaker: "left", text: "Exactly! I hope to find a pen pal from Australia." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Where does Jack live?", options: ["China", "Canberra", "UK"], correct: 1 },
+                        { question: "Choose the correct verb: He ___ Chinese.", options: ["study", "studies", "studying"], correct: 1 }
+                    ],
+                    spelling: ["puzzle", "hiking", "hobby", "share"]
+                },
+                {
+                    number: 5, semester: 1, title: "What does he do?", emoji: "👨‍⚕️",
+                    vocabulary: [
+                        { word: "factory worker", emoji: "🏭", pronunciation: "/ˈfæktri ˈwɜːrkər/" },
+                        { word: "businessman", emoji: "💼", pronunciation: "/ˈbɪznəsmæn/" },
+                        { word: "scientist", emoji: "🔬", pronunciation: "/ˈsaɪəntɪst/" },
+                        { word: "pilot", emoji: "✈️", pronunciation: "/ˈpaɪlət/" },
+                        { word: "coach", emoji: "🏃", pronunciation: "/koʊtʃ/" },
+                        { word: "reporter", emoji: "🎤", pronunciation: "/rɪˈpɔːrtər/" },
+                        { word: "secretary", emoji: "📝", pronunciation: "/ˈsekrəteri/" },
+                        { word: "university", emoji: "🎓", pronunciation: "/ˌjuːnɪˈvɜːrsəti/" }
+                    ],
+                    grammar: [
+                        { title: "Asking about Jobs", rule: "Use 'What does he/she do?'", examples: ["What does your father do?", "He is a pilot."] },
+                        { title: "Workplaces", rule: "Use 'Where does he work?'", examples: ["He works at a university."] }
+                    ],
+                    grammarExercises: [
+                        { q: "___ does your mother do?", options: ["Where", "What", "How"], correct: 1 },
+                        { q: "She is a scientist. She ___ at a university.", options: ["work", "works", "working"], correct: 1 }
+                    ],
+                    reading: "Li Ming's uncle is a pilot. He flies planes to different countries over the sea. Li Ming wants to be a scientist when he grows up. He wants to study at a top university and invent things quickly.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What does your father do?" },
+                            { speaker: "right", text: "He is a reporter. He writes news quickly." },
+                            { speaker: "left", text: "Where does he work?" },
+                            { speaker: "right", text: "He works for a TV station in the city." }
+                        ],
+                        [
+                            { speaker: "left", text: "My mom is a secretary." },
+                            { speaker: "right", text: "What does she do at work?" },
+                            { speaker: "left", text: "She types letters and answers phone calls." }
+                        ],
+                        [
+                            { speaker: "left", text: "Our new sports coach is very strict." },
+                            { speaker: "right", text: "Yes, but he helps us play better." },
+                            { speaker: "left", text: "I know. He works hard at the school gym." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What does Li Ming's uncle do?", options: ["Coach", "Pilot", "Scientist"], correct: 1 },
+                        { question: "A person who types quickly in an office is a...", options: ["Secretary", "Fisherman", "Pilot"], correct: 0 }
+                    ],
+                    spelling: ["worker", "pilot", "coach", "scientist"]
+                },
+                {
+                    number: 6, semester: 1, title: "How do you feel?", emoji: "😊",
+                    vocabulary: [
+                        { word: "angry", emoji: "😠", pronunciation: "/ˈæŋɡri/" },
+                        { word: "afraid", emoji: "😨", pronunciation: "/əˈfreɪd/" },
+                        { word: "sad", emoji: "😢", pronunciation: "/sæd/" },
+                        { word: "worried", emoji: "😰", pronunciation: "/ˈwɜːrid/" },
+                        { word: "happy", emoji: "😄", pronunciation: "/ˈhæpi/" },
+                        { word: "ill", emoji: "🤒", pronunciation: "/ɪl/" },
+                        { word: "deep breath", emoji: "😮‍💨", pronunciation: "/diːp breθ/" },
+                        { word: "count to ten", emoji: "🔟", pronunciation: "/kaʊnt tʊ ten/" }
+                    ],
+                    grammar: [
+                        { title: "Expressing Feelings", rule: "Use 'feel + adjective'.", examples: ["I feel sad.", "He feels ill because he ate bad pizza."] },
+                        { title: "Giving Advice", rule: "Use 'should + base verb' to give advice.", examples: ["You should see a doctor.", "You should take a deep breath."] }
+                    ],
+                    grammarExercises: [
+                        { q: "You look sick. You ___ see a doctor.", options: ["mustn't", "should", "are"], correct: 1 },
+                        { q: "He ___ very worried about the math test.", options: ["feel", "feels", "feeling"], correct: 1 }
+                    ],
+                    reading: "Secondary school can be stressful. Today, Amy feels ill. Her head hurts. Her teacher says, 'You should see a doctor.' The doctor tells Amy not to worry, 'You just have a cold. You should rest well and drink water.'",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "You look sad. How do you feel?" },
+                            { speaker: "right", text: "I feel worried. I failed my science test." },
+                            { speaker: "left", text: "Don't be afraid. You should talk to the teacher." },
+                            { speaker: "right", text: "You are right. I will study harder." }
+                        ],
+                        [
+                            { speaker: "left", text: "Why is John so angry?" },
+                            { speaker: "right", text: "His bike is broken, and he is stuck in the mud." },
+                            { speaker: "left", text: "He should take a deep breath and count to ten." }
+                        ],
+                        [
+                            { speaker: "left", text: "I feel very happy today!" },
+                            { speaker: "right", text: "Why? Did something good happen?" },
+                            { speaker: "left", text: "Yes! We won the basketball game!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "How does Amy feel today?", options: ["Angry", "Ill", "Happy"], correct: 1 },
+                        { question: "If you are stressed, you ___ take a deep breath.", options: ["should", "shouldn't", "cant"], correct: 0 }
+                    ],
+                    spelling: ["angry", "afraid", "worried", "breath"]
+                },
+                // SEMESTER 2
+                {
+                    number: 7, semester: 2, title: "How tall are you?", emoji: "📏",
+                    vocabulary: [
+                        { word: "younger", emoji: "👶", pronunciation: "/ˈjʌŋɡər/" },
+                        { word: "older", emoji: "👴", pronunciation: "/ˈoʊldər/" },
+                        { word: "taller", emoji: "📐", pronunciation: "/ˈtɔːlər/" },
+                        { word: "shorter", emoji: "📏", pronunciation: "/ˈʃɔːrtər/" },
+                        { word: "heavier", emoji: "⚖️", pronunciation: "/ˈheviər/" },
+                        { word: "stronger", emoji: "💪", pronunciation: "/ˈstrɔːŋɡər/" },
+                        { word: "smarter", emoji: "🧠", pronunciation: "/ˈsmɑːrtər/" },
+                        { word: "dinosaur", emoji: "🦖", pronunciation: "/ˈdaɪnəsɔːr/" }
+                    ],
+                    grammar: [
+                        { title: "Comparatives", rule: "Add -er to short adjectives to compare two things.", examples: ["I am taller than my brother.", "This bag is heavier."] },
+                        { title: "Asking Measurements", rule: "How + adjective + be verb?", examples: ["How tall are you?", "How heavy is it?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "My backpack is ___ than yours.", options: ["heavy", "heavier", "heaviest"], correct: 1 },
+                        { q: "___ tall is your older brother?", options: ["What", "Where", "How"], correct: 2 }
+                    ],
+                    reading: "Tom is 1.5 metres tall. Jack is 1.6 metres. Jack is taller than Tom. On a school trip, they saw a dinosaur skeleton in the hall. It was bigger and stronger than anything they had ever seen!",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "How tall are you now?" },
+                            { speaker: "right", text: "I'm 1.55 metres. I grew a lot this year." },
+                            { speaker: "left", text: "I'm 1.6 metres. I'm taller than you!" },
+                            { speaker: "right", text: "Yes, but I am younger!" }
+                        ],
+                        [
+                            { speaker: "left", text: "Look at that dog. It is so big." },
+                            { speaker: "right", text: "My dog is smaller, but much smarter." },
+                            { speaker: "left", text: "Really? Does it do tricks?" }
+                        ],
+                        [
+                            { speaker: "left", text: "I am lifting 5 kilograms." },
+                            { speaker: "right", text: "I am lifting 10. I am stronger than you." },
+                            { speaker: "left", text: "Just wait, I will practice and get stronger!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Who is taller, Tom (1.5m) or Jack (1.6m)?", options: ["Tom", "Jack", "They are the same"], correct: 1 },
+                        { question: "To compare two things, we usually add:", options: ["-est", "-er", "-ing"], correct: 1 }
+                    ],
+                    spelling: ["taller", "heavier", "stronger", "smarter"]
+                },
+                {
+                    number: 8, semester: 2, title: "Last weekend", emoji: "⏪",
+                    vocabulary: [
+                        { word: "cleaned", emoji: "🧹", pronunciation: "/kliːnd/" },
+                        { word: "stayed", emoji: "🏠", pronunciation: "/steɪd/" },
+                        { word: "washed", emoji: "🧼", pronunciation: "/wɔːʃt/" },
+                        { word: "watched", emoji: "📺", pronunciation: "/wɔːtʃt/" },
+                        { word: "slept", emoji: "😴", pronunciation: "/slept/" },
+                        { word: "read", emoji: "📖", pronunciation: "/red/" },
+                        { word: "drank", emoji: "🥛", pronunciation: "/dræŋk/" },
+                        { word: "fixed", emoji: "🔧", pronunciation: "/fɪkst/" }
+                    ],
+                    grammar: [
+                        { title: "Simple Past (Regular)", rule: "Add -ed to verbs to talk about the past.", examples: ["I cleaned my room yesterday."] },
+                        { title: "Simple Past (Irregular)", rule: "Some verbs change completely.", examples: ["sleep -> slept", "drink -> drank", "read -> read (red)"] }
+                    ],
+                    grammarExercises: [
+                        { q: "Yesterday, I ___ a great magazine.", options: ["read", "reading", "readed"], correct: 0 },
+                        { q: "She ___ milk before bed last night.", options: ["drinks", "drink", "drank"], correct: 2 }
+                    ],
+                    reading: "Last weekend, Li Ming stayed at a hotel with his family. Before bed, he read a magazine and drank some milk. The next day, he fixed a broken lamp for his mom. He felt very helpful.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What did you do last weekend?" },
+                            { speaker: "right", text: "I washed my clothes and cleaned my room." },
+                            { speaker: "left", text: "Did you enjoy your weekend?" },
+                            { speaker: "right", text: "Yes, I watched a great comedy show!" }
+                        ],
+                        [
+                            { speaker: "left", text: "I slept for ten hours yesterday." },
+                            { speaker: "right", text: "Why? Were you very tired?" },
+                            { speaker: "left", text: "Yes, I had a cold and felt bad." }
+                        ],
+                        [
+                            { speaker: "left", text: "Who fixed the broken lamp in the hall?" },
+                            { speaker: "right", text: "My dad fixed it yesterday." },
+                            { speaker: "left", text: "He is so fast!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is the past tense of 'drink'?", options: ["drinked", "drank", "drunk"], correct: 1 },
+                        { question: "What did Li Ming do before bed?", options: ["Fixed a lamp", "Drank milk", "Cleaned"], correct: 1 }
+                    ],
+                    spelling: ["cleaned", "watched", "slept", "fixed"]
+                },
+                {
+                    number: 9, semester: 2, title: "Where did you go?", emoji: "✈️",
+                    vocabulary: [
+                        { word: "went", emoji: "🚶", pronunciation: "/went/" },
+                        { word: "rode", emoji: "🚲", pronunciation: "/roʊd/" },
+                        { word: "ate", emoji: "🍽️", pronunciation: "/eɪt/" },
+                        { word: "took", emoji: "📸", pronunciation: "/tʊk/" },
+                        { word: "bought", emoji: "🛍️", pronunciation: "/bɔːt/" },
+                        { word: "fell", emoji: "🤕", pronunciation: "/fel/" },
+                        { word: "camp", emoji: "⛺", pronunciation: "/kæmp/" },
+                        { word: "beach", emoji: "🏖️", pronunciation: "/biːtʃ/" }
+                    ],
+                    grammar: [
+                        { title: "Asking about Past Travel", rule: "Use 'Where did you go?'", examples: ["Where did you go?", "I went to Turpan."] },
+                        { title: "Describing Past Activities", rule: "Use irregular past tense verbs.", examples: ["I rode a horse.", "I took beautiful pictures."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Where ___ you go on Labour Day?", options: ["do", "did", "does"], correct: 1 },
+                        { q: "We ___ fish at the restaurant yesterday.", options: ["eat", "ate", "eated"], correct: 1 }
+                    ],
+                    reading: "For Labour Day, Tom went camping. He rode a bike near the beach and took beautiful pictures. Unfortunately, he fell off his bike, but he was okay. Later, he bought a lovely gift for his best friend.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Where did you go on holiday?" },
+                            { speaker: "right", text: "I went to the beach with my family." },
+                            { speaker: "left", text: "What did you do there?" },
+                            { speaker: "right", text: "I swam and bought a nice gift." }
+                        ],
+                        [
+                            { speaker: "left", text: "Did you go camping last month?" },
+                            { speaker: "right", text: "Yes, we went to a forest and took pictures." },
+                            { speaker: "left", text: "Did you see any animals?" },
+                            { speaker: "right", text: "We saw a mule and some birds." }
+                        ],
+                        [
+                            { speaker: "left", text: "Ouch, your leg looks hurt." },
+                            { speaker: "right", text: "I fell off my bike yesterday." },
+                            { speaker: "left", text: "You should be more careful!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is the past tense of 'buy'?", options: ["buyed", "bought", "bring"], correct: 1 },
+                        { question: "What did Tom do near the beach?", options: ["Rode a bike", "Slept", "Ate fish"], correct: 0 }
+                    ],
+                    spelling: ["went", "bought", "beach", "camp"]
+                },
+                {
+                    number: 10, semester: 2, title: "Then and now", emoji: "🔄",
+                    vocabulary: [
+                        { word: "dining hall", emoji: "🍽️", pronunciation: "/ˈdaɪnɪŋ hɔːl/" },
+                        { word: "gym", emoji: "🏋️", pronunciation: "/dʒɪm/" },
+                        { word: "cycling", emoji: "🚴", pronunciation: "/ˈsaɪklɪŋ/" },
+                        { word: "ice-skate", emoji: "⛸️", pronunciation: "/ˈaɪs skeɪt/" },
+                        { word: "Internet", emoji: "🌐", pronunciation: "/ˈɪntərnet/" },
+                        { word: "different", emoji: "🔀", pronunciation: "/ˈdɪfrənt/" },
+                        { word: "active", emoji: "⚡", pronunciation: "/ˈæktɪv/" },
+                        { word: "cheetah", emoji: "🐆", pronunciation: "/ˈtʃiːtə/" }
+                    ],
+                    grammar: [
+                        { title: "Past vs Present", rule: "Contrast using 'There was' (past) and 'There is' (now).", examples: ["There was no gym before.", "Now there is a gym."] },
+                        { title: "Describing Changes", rule: "Use past and present verbs together.", examples: ["I was short. Now I am tall."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Ten years ___, there was no Internet here.", options: ["before", "ago", "last"], correct: 1 },
+                        { q: "There ___ no dining hall in 2010. Now there is one.", options: ["was", "is", "were"], correct: 0 }
+                    ],
+                    reading: "Our school is very different now. Five years ago, there was no Internet. Now we look up everything online. There was no gym. Now we are very active; we go cycling and play badminton. The students dream big like stars and run fast like a cheetah!",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Look at this old photo of our school." },
+                            { speaker: "right", text: "Wow! There was no dining hall back then." },
+                            { speaker: "left", text: "Yes, things are very different now." },
+                            { speaker: "right", text: "Now we have a great gym and Internet!" }
+                        ],
+                        [
+                            { speaker: "left", text: "I didn't like sports years ago." },
+                            { speaker: "right", text: "Really? But you are so active now." },
+                            { speaker: "left", text: "Yes, now I love cycling and ice-skating." }
+                        ],
+                        [
+                            { speaker: "left", text: "Was the test easy for you?" },
+                            { speaker: "right", text: "No, I thought it was hard, but I felt good after." },
+                            { speaker: "left", text: "Because we can look up answers on the Internet now to learn!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What word shows something happened in the past?", options: ["Now", "Ago", "Tomorrow"], correct: 1 },
+                        { question: "How is the school different now?", options: ["It has no Internet", "It has a gym", "It is smaller"], correct: 1 }
+                    ],
+                    spelling: ["gym", "cycling", "different", "active"]
+                }
+            ]
+        };
+
+        // State variables
+        let xp = 0;
+        let completedUnits = [];
+        let currentUnit = null;
+        let currentMode = 'vocab';
+        let voices = [];
+        const SPEECH_RATE = 0.85; 
+
+        // Initialization
+        function init() {
+            loadVoices();
+            renderMainMenu();
+        }
+
+        function loadVoices() {
+            if ('speechSynthesis' in window) {
+                voices = speechSynthesis.getVoices();
+                if (voices.length === 0) setTimeout(loadVoices, 100);
+            }
+        }
+
+        // TTS function attach to clickables
+        function speak(text, voiceName = "Emma") {
+            if (!('speechSynthesis' in window)) return;
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = SPEECH_RATE; 
+            
+            const voice = voices.find(v => v.name.includes(voiceName));
+            if (voice) utterance.voice = voice;
+            
+            // Visual feedback on the clicked element
+            document.querySelectorAll('.tts-active').forEach(el => el.classList.remove('tts-active'));
+            if(event && event.currentTarget && event.currentTarget.classList.contains('tts-clickable')) {
+                event.currentTarget.classList.add('tts-active');
+                utterance.onend = () => event.currentTarget.classList.remove('tts-active');
+            }
+
+            speechSynthesis.speak(utterance);
+        }
+
+        // Success Sound
+        function playSuccessSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+        }
+
+        // Glitter Animation
+        function createGlitter(targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            for(let i=0; i<15; i++) {
+                const glitter = document.createElement('div');
+                glitter.className = 'glitter';
+                glitter.style.left = (rect.left + rect.width/2) + 'px';
+                glitter.style.top = (rect.top + rect.height/2) + 'px';
+                
+                // random outward translation
+                const tx = (Math.random() * 120 - 60) + 'px';
+                const ty = (Math.random() * 80 - 40) + 'px';
+                glitter.style.setProperty('--tx', tx);
+                glitter.style.setProperty('--ty', ty);
+                
+                document.body.appendChild(glitter);
+                setTimeout(() => glitter.remove(), 600);
+            }
+        }
+
+        function addXP(pts) {
+            xp += pts;
+            document.getElementById('xpValue').innerText = xp;
+        }
+
+        // Navigation & Display
+        function renderMainMenu() {
+            const sem1 = document.getElementById('sem1Grid');
+            const sem2 = document.getElementById('sem2Grid');
+            sem1.innerHTML = ''; sem2.innerHTML = '';
+            
+            document.getElementById('headerTitle').innerText = "Grade 6 English";
+            document.getElementById('backBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = true;
+
+            grade6Data.units.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = `unit-card ${completedUnits.includes(unit.number) ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="unit-emoji">${unit.emoji}</div>
+                    <div class="unit-title">U${unit.number}: ${unit.title}</div>
+                `;
+                card.onclick = () => loadUnit(unit);
+                if(unit.semester === 1) sem1.appendChild(card);
+                else sem2.appendChild(card);
+            });
+        }
+
+        function showHome() {
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            document.getElementById('homeView').style.display = 'block';
+            document.getElementById('contentView').style.display = 'none';
+            renderMainMenu();
+        }
+
+        function loadUnit(unit) {
+            currentUnit = unit;
+            currentMode = 'vocab';
+            updateModeButtons();
+            
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('contentView').style.display = 'block';
+            document.getElementById('headerTitle').innerText = `U${unit.number} (Sem ${unit.semester})`;
+            
+            document.getElementById('backBtn').disabled = false;
+            
+            renderContent();
+            addXP(5);
+        }
+
+        const ALL_MODES = ['vocab', 'grammar', 'reading', 'quiz', 'convo', 'flashcards', 'spell'];
+
+        function navigateBack() {
+            let idx = ALL_MODES.indexOf(currentMode);
+            if (idx > 0) {
+                setMode(ALL_MODES[idx - 1]);
+            } else {
+                showHome();
+            }
+        }
+
+        function navigateForward() {
+            let idx = ALL_MODES.indexOf(currentMode);
+            if (idx < ALL_MODES.length - 1) {
+                setMode(ALL_MODES[idx + 1]);
+            }
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            updateModeButtons();
+            renderContent();
+        }
+
+        function updateModeButtons() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            const idx = ALL_MODES.indexOf(currentMode);
+            const buttons = document.querySelectorAll('.mode-btn');
+            
+            buttons.forEach(b => {
+                if(b.innerText.toLowerCase().includes(modeShortName(currentMode))) {
+                    b.classList.add('active');
+                    b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+            
+            document.getElementById('nextBtn').disabled = (idx === ALL_MODES.length - 1);
+        }
+
+        function modeShortName(mode) {
+            if(mode==='flashcards') return 'cards';
+            return mode;
+        }
+
+        function renderContent() {
+            const area = document.getElementById('contentArea');
+            area.innerHTML = '';
+            
+            if (currentMode === 'vocab') renderVocabulary(area);
+            if (currentMode === 'grammar') renderGrammar(area);
+            if (currentMode === 'reading') renderReading(area);
+            if (currentMode === 'convo') renderConversation(area);
+            if (currentMode === 'flashcards') renderFlashcards(area);
+            if (currentMode === 'spell') renderSpelling(area);
+            if (currentMode === 'quiz') renderQuiz(area);
+        }
+
+        // --- View Renderers ---
+
+        function renderVocabulary(container) {
+            const grid = document.createElement('div');
+            grid.className = 'vocab-grid';
+            currentUnit.vocabulary.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card tts-clickable';
+                card.onclick = (e) => { speak(item.word, i%2===0?'Emma':'Brian'); addXP(1); };
+                card.innerHTML = `
+                    <div class="vocab-emoji-bg"><div class="vocab-emoji">${item.emoji}</div></div>
+                    <div class="vocab-word">${item.word}</div>
+                    <div class="vocab-pronunciation">${item.pronunciation}</div>
+                `;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        function renderGrammar(container) {
+            // Rules
+            currentUnit.grammar.forEach(item => {
+                const box = document.createElement('div');
+                box.className = 'grammar-box';
+                let html = `<div class="grammar-title">${item.title}</div>`;
+                html += `<div class="grammar-rule tts-clickable" onclick="speak('${item.rule.replace(/'/g,"\\'")}'); addXP(1);">${item.rule}</div>`;
+                item.examples.forEach(ex => {
+                    html += `<div class="grammar-example tts-clickable" onclick="speak('${ex.replace(/'/g,"\\'")}'); addXP(1);">${ex}</div>`;
+                });
+                box.innerHTML = html;
+                container.appendChild(box);
+            });
+
+            // Interactive Grammar Games
+            if(currentUnit.grammarExercises && currentUnit.grammarExercises.length > 0) {
+                const exContainer = document.createElement('div');
+                exContainer.innerHTML = `<div class="section-title" style="margin-top:20px;">Grammar Games</div>`;
+                
+                currentUnit.grammarExercises.forEach((ex, i) => {
+                    const qBox = document.createElement('div');
+                    qBox.className = 'grammar-exercise';
+                    
+                    let html = `<div class="grammar-q">${i+1}. ${ex.q}</div><div class="grammar-opts">`;
+                    ex.options.forEach((opt, optIdx) => {
+                        html += `<button class="grammar-opt" onclick="checkGrammar(this, ${optIdx}, ${ex.correct})">${opt}</button>`;
+                    });
+                    html += `</div>`;
+                    qBox.innerHTML = html;
+                    exContainer.appendChild(qBox);
+                });
+                container.appendChild(exContainer);
+            }
+        }
+
+        window.checkGrammar = function(btn, selected, correct) {
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('.grammar-opt');
+            buttons.forEach(b => b.style.pointerEvents = 'none'); // disable all
+
+            if(selected === correct) {
+                btn.classList.add('correct');
+                addXP(5);
+                playSuccessSound();
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+        }
+
+        function renderReading(container) {
+            const box = document.createElement('div');
+            box.className = 'reading-box tts-clickable';
+            box.innerText = currentUnit.reading;
+            box.onclick = () => { speak(currentUnit.reading, 'Brian'); addXP(2); };
+            container.appendChild(box);
+        }
+
+        // Conversation Logic (Text Message Style + 3 Tabs)
+        let isConvoPlaying = false;
+        let activeConvoIdx = 0;
+
+        function renderConversation(container) {
+            activeConvoIdx = 0;
+            
+            // Build tabs
+            let html = `<div class="convo-tabs">`;
+            currentUnit.conversations.forEach((_, i) => {
+                html += `<button class="convo-tab ${i===0?'active':''}" onclick="switchConvo(${i}, this)">Convo ${i+1}</button>`;
+            });
+            html += `</div>`;
+            html += `<div class="conversation-container" id="chatContainer"></div>`;
+            html += `<button class="btn-full" style="margin-top:10px;" onclick="startConversation()">▶️ Play Audio</button>`;
+            
+            container.innerHTML = html;
+            
+            // Render first convo text statically first
+            renderStaticChat();
+        }
+
+        window.switchConvo = function(idx, btnElement) {
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            activeConvoIdx = idx;
+            document.querySelectorAll('.convo-tab').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderStaticChat();
+        };
+
+        function renderStaticChat() {
+            const chatBox = document.getElementById('chatContainer');
+            chatBox.innerHTML = '';
+            const convo = currentUnit.conversations[activeConvoIdx];
+            convo.forEach((line) => {
+                const msgBubble = document.createElement('div');
+                msgBubble.className = `message-bubble message-${line.speaker} tts-clickable`;
+                msgBubble.textContent = line.text;
+                msgBubble.style.opacity = 1; // fully visible
+                msgBubble.onclick = () => speak(line.text, line.speaker === "left" ? "Emma" : "Brian");
+                chatBox.appendChild(msgBubble);
+            });
+        }
+
+        function startConversation() {
+            speechSynthesis.cancel();
+            isConvoPlaying = true;
+            document.getElementById('chatContainer').innerHTML = '';
+            playConvoLine(0);
+        }
+
+        function playConvoLine(idx) {
+            const convo = currentUnit.conversations[activeConvoIdx];
+            if (!isConvoPlaying || idx >= convo.length) {
+                isConvoPlaying = false;
+                return;
+            }
+
+            const line = convo[idx];
+            const chatBox = document.getElementById('chatContainer');
+            
+            const msgBubble = document.createElement('div');
+            msgBubble.className = `message-bubble message-${line.speaker} tts-clickable`;
+            msgBubble.textContent = line.text;
+            msgBubble.onclick = () => speak(line.text, line.speaker === "left" ? "Emma" : "Brian");
+            
+            chatBox.appendChild(msgBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const utterance = new SpeechSynthesisUtterance(line.text);
+            utterance.rate = SPEECH_RATE;
+            const voice = voices.find(v => v.name.includes(line.speaker === "left" ? "Emma" : "Brian"));
+            if (voice) utterance.voice = voice;
+
+            utterance.onend = () => {
+                if(isConvoPlaying) {
+                    setTimeout(() => playConvoLine(idx + 1), 400);
+                }
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // Flashcards
+        function renderFlashcards(container) {
+            const grid = document.createElement('div');
+            grid.className = 'flashcard-container';
+            
+            currentUnit.vocabulary.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'flashcard tts-clickable';
+                card.innerHTML = `
+                    <div class="flashcard-front">
+                        <div style="font-size:2.5em;">${item.emoji}</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div style="font-size:1.1em; font-weight:bold;">${item.word}</div>
+                    </div>
+                `;
+                card.onclick = (e) => {
+                    card.classList.toggle('flipped');
+                    if(card.classList.contains('flipped')) {
+                        speak(item.word);
+                        addXP(1);
+                    }
+                };
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        // Spelling Game with Glitter & Sound
+        let spellIndex = 0;
+        function renderSpelling(container) {
+            spellIndex = 0;
+            container.innerHTML = `<div id="spellArea" class="interactive-container"></div>`;
+            showSpellingWord();
+        }
+
+        function showSpellingWord() {
+            const area = document.getElementById('spellArea');
+            if(spellIndex >= currentUnit.spelling.length) {
+                area.innerHTML = `<h3>🎉 Spelling Complete!</h3><button class="btn-full" style="margin-top:10px;" onclick="setMode('spell')">Try Again</button>`;
+                addXP(10);
+                return;
+            }
+            
+            const word = currentUnit.spelling[spellIndex];
+            const emoji = currentUnit.vocabulary.find(v => v.word === word)?.emoji || '📝';
+            
+            area.innerHTML = `
+                <div style="font-size: 3em;">${emoji}</div>
+                <button class="btn-full btn-repeat" onclick="speak('${word}')">🔁 Repeat Audio</button>
+                <div class="spelling-wrapper">
+                    <input type="text" id="spellInput" class="spelling-input" placeholder="Type here..." autocomplete="off">
+                </div>
+                <button class="btn-full" onclick="checkSpelling('${word}')">Check</button>
+            `;
+            setTimeout(() => speak(word), 300);
+        }
+
+        window.checkSpelling = function(word) {
+            const input = document.getElementById('spellInput');
+            if(input.value.trim().toLowerCase() === word.toLowerCase()) {
+                input.style.borderColor = 'var(--success)';
+                input.style.color = 'var(--success)';
+                addXP(5);
+                playSuccessSound();
+                createGlitter(input);
+                
+                setTimeout(() => {
+                    spellIndex++;
+                    showSpellingWord();
+                }, 1200);
+            } else {
+                input.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    input.style.borderColor = 'var(--border)';
+                    input.value = '';
+                }, 800);
+            }
+        };
+
+        // Quiz
+        let quizIdx = 0;
+        function renderQuiz(container) {
+            quizIdx = 0;
+            container.innerHTML = `<div id="quizArea" class="interactive-container"></div>`;
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            const area = document.getElementById('quizArea');
+            if(quizIdx >= currentUnit.quiz.length) {
+                area.innerHTML = `<h3>🎉 Quiz Complete!</h3><button class="btn-full" style="margin-top:10px;" onclick="setMode('quiz')">Try Again</button>`;
+                addXP(10);
+                return;
+            }
+            
+            const q = currentUnit.quiz[quizIdx];
+            let html = `<div style="font-size: 1.05em; font-weight: bold;">${q.question}</div><div class="quiz-options">`;
+            
+            q.options.forEach((opt, i) => {
+                html += `<button class="quiz-option" onclick="checkQuizAnswer(${i}, ${q.correct}, this)">${opt}</button>`;
+            });
+            html += `</div>`;
+            area.innerHTML = html;
+        }
+
+        window.checkQuizAnswer = function(selected, correct, btn) {
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons.forEach(b => b.disabled = true);
+            
+            if(selected === correct) {
+                btn.classList.add('correct');
+                addXP(5);
+                playSuccessSound();
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+            setTimeout(() => {
+                quizIdx++;
+                showQuizQuestion();
+            }, 1200);
+        };
+
+        window.onload = init;
+    </script>
+</body>
+</html>
