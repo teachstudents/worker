@@ -131,24 +131,24 @@
         /* Mode Selector */
         .mode-selector {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             margin-bottom: 12px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: none;
+            width: 100%;
+            justify-content: space-between;
         }
-        .mode-selector::-webkit-scrollbar { display: none; }
 
         .mode-btn {
-            flex: 0 0 auto;
+            flex: 1;
             background: var(--bg-input);
             color: var(--text-secondary);
             border: 2px solid var(--border);
             border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 0.85em;
-            font-weight: 600;
+            padding: 8px 0;
+            font-size: 1em; /* Increased font size */
+            font-weight: 700;
             cursor: pointer;
+            text-align: center;
+            letter-spacing: -0.2px; /* Slight spacing adjustment to ensure fit on small screens */
         }
         .mode-btn.active {
             background: var(--primary);
@@ -945,10 +945,19 @@
             
             // Visual feedback on the clicked element
             document.querySelectorAll('.tts-active').forEach(el => el.classList.remove('tts-active'));
-            if(event && event.currentTarget && event.currentTarget.classList.contains('tts-clickable')) {
-                event.currentTarget.classList.add('tts-active');
-                utterance.onend = () => event.currentTarget.classList.remove('tts-active');
+            
+            // Synchronously capture the element that triggered the event to avoid "event is undefined" errors later
+            let activeEl = null;
+            if (typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.contains('tts-clickable')) {
+                activeEl = event.currentTarget;
+                activeEl.classList.add('tts-active');
             }
+
+            utterance.onend = () => {
+                if (activeEl) {
+                    activeEl.classList.remove('tts-active');
+                }
+            };
 
             speechSynthesis.speak(utterance);
         }
@@ -1074,7 +1083,6 @@
             buttons.forEach(b => {
                 if(b.innerText.toLowerCase().includes(modeShortName(currentMode))) {
                     b.classList.add('active');
-                    b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
             });
             
