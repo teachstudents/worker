@@ -248,9 +248,9 @@
             </div>
         </div>
 
-        <!-- 15 Minute Roles & Teams Prep -->
+        <!-- 14 Minute Roles & Teams Prep -->
         <div id="prepRolesScreen" class="content-section">
-            <h2 style="font-size: 32px; margin-bottom: 5px;">⏳ Prep Phase 2: Role & Pitch Planning (15 Mins)</h2>
+            <h2 style="font-size: 32px; margin-bottom: 5px;">⏳ Prep Phase 2: Role & Pitch Planning (14 Mins)</h2>
             
             <div class="compact-roles">
                 <div class="compact-role-box">
@@ -300,24 +300,24 @@
             { id: 5, name: "Group 5", bird: "Bowerbird", birdDesc: "The decorator. Builds structures with items.", members: ["Julia", "Fafnir", "Abby"] }
         ];
 
-        // Lesson Phases
+        // Lesson Phases - Total Class Time exactly 2400s (40 minutes)
         const phases = [
-            { id: 'introMain', name: 'Introduction', duration: 40, screen: 'introMainScreen', autoAdvance: true },
-            { id: 'roleDir', name: 'Role: Director', duration: 40, screen: 'roleDirScreen', autoAdvance: true },
-            { id: 'roleExp', name: 'Role: Expert', duration: 40, screen: 'roleExpScreen', autoAdvance: true },
-            { id: 'roleCons', name: 'Role: Conservationist', duration: 40, screen: 'roleConsScreen', autoAdvance: true },
+            { id: 'introMain', name: 'Introduction', duration: 30, screen: 'introMainScreen', autoAdvance: true },
+            { id: 'roleDir', name: 'Role: Director', duration: 30, screen: 'roleDirScreen', autoAdvance: true },
+            { id: 'roleExp', name: 'Role: Expert', duration: 30, screen: 'roleExpScreen', autoAdvance: true },
+            { id: 'roleCons', name: 'Role: Conservationist', duration: 30, screen: 'roleConsScreen', autoAdvance: true },
             { id: 'formation', name: 'Group Formation', duration: 120, screen: 'formationScreen' }, // 2 mins
             { id: 'prepRubric', name: 'Rubric Review', duration: 180, screen: 'prepRubricScreen' }, // 3 mins
-            { id: 'prepRoles', name: 'Pitch Planning', duration: 900, screen: 'prepRolesScreen' }, // 15 mins
-            { id: 'pitch1', name: 'Pitch: Grp 1', duration: 180, screen: 'presentationScreen', groupIdx: 0 },
+            { id: 'prepRoles', name: 'Pitch Planning', duration: 810, screen: 'prepRolesScreen' }, // 13.5 mins
+            { id: 'pitch1', name: 'Pitch: Grp 1', duration: 210, screen: 'presentationScreen', groupIdx: 0 }, // 3.5 mins
             { id: 'trans1', name: 'Transition', duration: 30, screen: 'transitionScreen', nextGroup: 2 },
-            { id: 'pitch2', name: 'Pitch: Grp 2', duration: 180, screen: 'presentationScreen', groupIdx: 1 },
+            { id: 'pitch2', name: 'Pitch: Grp 2', duration: 210, screen: 'presentationScreen', groupIdx: 1 },
             { id: 'trans2', name: 'Transition', duration: 30, screen: 'transitionScreen', nextGroup: 3 },
-            { id: 'pitch3', name: 'Pitch: Grp 3', duration: 180, screen: 'presentationScreen', groupIdx: 2 },
+            { id: 'pitch3', name: 'Pitch: Grp 3', duration: 210, screen: 'presentationScreen', groupIdx: 2 },
             { id: 'trans3', name: 'Transition', duration: 30, screen: 'transitionScreen', nextGroup: 4 },
-            { id: 'pitch4', name: 'Pitch: Grp 4', duration: 180, screen: 'presentationScreen', groupIdx: 3 },
+            { id: 'pitch4', name: 'Pitch: Grp 4', duration: 210, screen: 'presentationScreen', groupIdx: 3 },
             { id: 'trans4', name: 'Transition', duration: 30, screen: 'transitionScreen', nextGroup: 5 },
-            { id: 'pitch5', name: 'Pitch: Grp 5', duration: 180, screen: 'presentationScreen', groupIdx: 4 }
+            { id: 'pitch5', name: 'Pitch: Grp 5', duration: 210, screen: 'presentationScreen', groupIdx: 4 }
         ];
 
         let currentPhaseIndex = 0;
@@ -448,42 +448,34 @@
         }
 
         function handlePhaseEvents(phaseObj) {
-            // 15 Min Prep Roles & Teams - Periodic Targeted Questions
+            // Group Formation (120s)
+            if (phaseObj.id === 'formation') {
+                if (phaseRemaining === 90) speak("トーマ、第3グループに移動しましたか？ Toma, have you moved to Group 3?");
+                if (phaseRemaining === 60) speak("Jim, hast du dich zu Gruppe 2 bewegt? Hurry up, like rushing to your next class.");
+                if (phaseRemaining === 30) speak("Olivia und Roselia, schaut ihr TikTok-Videos auf euren Handys? Hört auf! Move to your group immediately!");
+            }
+            
+            // 13.5 Min Prep Roles & Teams - 15 Periodic Targeted Questions
             if (phaseObj.id === 'prepRoles') {
-                // 14m left
-                if (phaseRemaining === 840) speak("Attention Group 1! The German Zoo Director: I see many birds in my zoo. You say this bird looks like a 'ballerina'. Why is a dancing bird so important that I must spend my zoo's money to protect its forest?");
-                // 13m left
-                if (phaseRemaining === 780) speak("Group 1 Field Expert: To attract a female, the male Carola's parotia spreads his feathers out like a dress. How will you physically act out this ballerina dance without speaking, ensuring the Director understands the complexity and absurdity of this display?");
-                // 12m left
-                if (phaseRemaining === 720) speak("Group 1 Conservationist: How will you use simple English to explain the ballerina metaphor and convince the Director that logging and farming in New Guinea threaten this specific bird's survival?");
+                if (phaseRemaining === 780) speak("Dreizehn Minuten übrig! Thirteen minutes left! Attention Group 1! The German Zoo Director: I see many birds in my zoo. You say this bird looks like a 'ballerina'. Why is a dancing bird so important that I must spend my zoo's money to protect its forest?");
+                if (phaseRemaining === 720) speak("Zwölf Minuten! Twelve minutes! Group 1 Field Expert: To attract a female, the male Carola's parotia spreads his feathers out like a dress. How will you physically act out this ballerina dance without speaking, ensuring the Director understands the complexity and absurdity of this display?");
+                if (phaseRemaining === 660) speak("Elf Minuten! Eleven minutes! Group 1 Conservationist: How will you use simple English to explain the ballerina metaphor and convince the Director that logging and farming in New Guinea threaten this specific bird's survival?");
                 
-                // 11m left
-                if (phaseRemaining === 660) speak("Group 2 Director: You say he moves like a butterfly. But it is a bird! Why do the local people in New Guinea want to hunt this bird for its feathers?");
-                // 10m left
-                if (phaseRemaining === 600) speak("Zehn Minuten übrig! Ten minutes left! Group 2 Field Expert: The Red Bird of Paradise spreads and flaps its wings intensely. How will you use props and gestures to show both this butterfly dance and how the local people use these feathers in ceremonial costumes to capture the animal's life force?");
-                // 9m left
-                if (phaseRemaining === 540) speak("Group 2 Conservationist: If the Director doesn't understand the cultural importance of the costumes, how will you mediate the Field Expert's actions to explain the danger of the modern, illegal feather market in simple, accessible terms?");
+                if (phaseRemaining === 600) speak("Zehn Minuten übrig! Ten minutes left! Group 2 Director: You say he moves like a butterfly. But it is a bird! Why do the local people in New Guinea want to hunt this bird for its feathers?");
+                if (phaseRemaining === 540) speak("Neun Minuten! Nine minutes! Group 2 Field Expert: The Red Bird of Paradise spreads and flaps its wings intensely. How will you use props and gestures to show both this butterfly dance and how the local people use these feathers in ceremonial costumes to capture the animal's life force?");
+                if (phaseRemaining === 480) speak("Acht Minuten! Eight minutes! Group 2 Conservationist: If the Director doesn't understand the cultural importance of the costumes, how will you mediate the Field Expert's actions to explain the danger of the modern, illegal feather market in simple, accessible terms?");
                 
-                // 8m left
-                if (phaseRemaining === 480) speak("Group 3 Director: You tell me this bird cleans the floor of leaves. Why should my zoo pay to protect a bird just because it cleans its stage?");
-                // 7m left
-                if (phaseRemaining === 420) speak("Group 3 Field Expert: The Wahnes's parotia clears a stage of leaves and bows deeply like a gentleman to show off its iridescent breast plate. How will you physically act out this exact sequence of clearing and bowing to captivate the Director?");
-                // 6m left
-                if (phaseRemaining === 360) speak("Group 3 Conservationist: How can you translate the concept of evolution and this gentleman behavior into basic English, so the Director realizes this bird is a masterpiece of nature that needs a protected reserve?");
+                if (phaseRemaining === 420) speak("Sieben Minuten! Seven minutes! Group 3 Director: You tell me this bird cleans the floor of leaves. Why should my zoo pay to protect a bird just because it cleans its stage?");
+                if (phaseRemaining === 360) speak("Sechs Minuten! Six minutes! Group 3 Field Expert: The Wahnes's parotia clears a stage of leaves and bows deeply like a gentleman to show off its iridescent breast plate. How will you physically act out this exact sequence of clearing and bowing to captivate the Director?");
+                if (phaseRemaining === 300) speak("Noch fünf Minuten! Five minutes left! Group 3 Conservationist: How can you translate the concept of evolution and this gentleman behavior into basic English, so the Director realizes this bird is a masterpiece of nature that needs a protected reserve?");
                 
-                // 5m left
-                if (phaseRemaining === 300) speak("Noch fünf Minuten! Five minutes left! Group 4 Director: This bird slides backward on a branch. That is funny, but is it a good reason to spend money on a nature reserve in Central and South America?");
-                // 4m left
-                if (phaseRemaining === 240) speak("Group 4 Field Expert: The red-capped manakin selects a leafless branch as a stage and performs a rapid, sliding backward moonwalk. How will you use your body and the classroom space to safely and effectively demonstrate this absurd dance to someone who doesn't speak English well?");
-                // 3m left
-                if (phaseRemaining === 180) speak("Group 4 Conservationist: How will you explain to the Director that this highly entertaining moonwalk makes the manakin perfect for an interactive zoo exhibit, and how will you tie this back to funding the protection of its habitat?");
+                if (phaseRemaining === 240) speak("Vier Minuten! Four minutes left! Group 4 Director: This bird slides backward on a branch. That is funny, but is it a good reason to spend money on a nature reserve in Central and South America?");
+                if (phaseRemaining === 180) speak("Drei Minuten! Three minutes! Group 4 Field Expert: The red-capped manakin selects a leafless branch as a stage and performs a rapid, sliding backward moonwalk. How will you use your body and the classroom space to safely and effectively demonstrate this absurd dance to someone who doesn't speak English well?");
+                if (phaseRemaining === 120) speak("Zwei Minuten! Two minutes left! Wrap up your planning! Group 4 Conservationist: How will you explain to the Director that this highly entertaining moonwalk makes the manakin perfect for an interactive zoo exhibit, and how will you tie this back to funding the protection of its habitat?");
                 
-                // 2m left
-                if (phaseRemaining === 120) speak("Zwei Minuten! Two minutes left! Wrap up your planning! Group 5 Director: This bird does not have beautiful, colorful feathers like the others. It only builds things with dead bugs and shells. Why will tourists want to see this?");
-                // 1m left
-                if (phaseRemaining === 60) speak("Group 5 Field Expert: Unlike the other birds, the male Bowerbird becomes an interior decorator, building and decorating a complex structure using shells, leaves, and berries. What classroom items will you use as props to build this structure live in front of the Director?");
-                // 30s left
-                if (phaseRemaining === 30) speak("Group 5 Conservationist: Because this bird does not rely on a physical dance, how will you use visual aids and simple language to explain the interior decorator metaphor and persuade the Director to fund the protection of the forest where it gathers its decorations?");
+                if (phaseRemaining === 90)  speak("Group 5 Director: This bird does not have beautiful, colorful feathers like the others. It only builds things with dead bugs and shells. Why will tourists want to see this?");
+                if (phaseRemaining === 60)  speak("Noch eine Minute! One minute! Group 5 Field Expert: Unlike the other birds, the male Bowerbird becomes an interior decorator, building and decorating a complex structure using shells, leaves, and berries. What classroom items will you use as props to build this structure live in front of the Director?");
+                if (phaseRemaining === 30)  speak("Dreißig Sekunden! Thirty seconds! Group 5 Conservationist: Because this bird does not rely on a physical dance, how will you use visual aids and simple language to explain the interior decorator metaphor and persuade the Director to fund the protection of the forest where it gathers its decorations?");
             }
 
             if (phaseObj.id.startsWith('pitch')) {
@@ -519,23 +511,20 @@
             else if (phase.id === 'roleCons') { speak("Role three! The Conservationist. Translate the Expert's actions into simple English for the Director, and ask for the money!", onSpeechComplete); }
             else if (phase.id === 'formation') {
                 populateGroups();
-                let announcement = "Achtung! You have two minutes to find your group! ";
+                let announcement = "Achtung! You have a short time to find your group! ";
                 groups.forEach(g => {
                     const last = g.members[g.members.length-1];
                     const others = g.members.slice(0, -1).join(', ');
                     announcement += `${g.name} is ${others}, and ${last}. Welcome your group! `;
                 });
                 announcement += "Move to your groups now and decide your roles! Sind Sie in Ihren Gruppen? Schnell! ";
-                announcement += "Olivia und Roselia, schaut ihr TikTok-Videos auf euren Handys? Hört auf! Move to your group immediately! ";
-                announcement += "Jim, hast du dich zu Gruppe 2 bewegt? Hurry up, like rushing to your next class. ";
-                announcement += "トーマ、第3グループに移動しましたか？ Toma, have you moved to Group 3?";
                 speak(announcement);
             }
             else if (phase.id === 'prepRubric') {
                 speak("Gut gemacht! Look at the KASEC rubric on the board. You have 3 minutes to understand the scoring and plan how to maximize your points, just like reviewing a grading rubric before a big project. Let's read the criteria. K, Knowledge. 5 points. Expertly demonstrates the specific courtship dance. Explains lack of predators. Integrates indigenous cultural context naturally. A, Application. 5 points. Brilliantly articulates environmental threats like logging or farming. Proposes realistic plan advancing SDG 15, Life on Land. S, Skills. 5 points. Expertly utilizes Analogizing, for example, moves like a butterfly. Powerfully employs physical acting and props to communicate easily. E, Ethics. 5 points. Grounded in Humanistic Knowledge. Respects the life force. Advocates for the bird's intrinsic value as an evolutionary masterpiece. C, Communication. 5 points. Masterfully simplifies scientific English for the German Director. Director actively demands clarification. Unscripted negotiation handled seamlessly.");
             }
             else if (phase.id === 'prepRoles') {
-                speak("Fünfzehn Minuten übrig! Fifteen minutes left! You can now see the roles and your teams on the screen again. I will walk around to help. If you have any questions, just raise your hand. Listen closely as I will ask specific questions to challenge your team.");
+                speak("You have thirteen and a half minutes left! You can now see the roles and your teams on the screen again. I will walk around to help. Listen closely as I will ask specific questions to challenge your team.");
             }
             else if (phase.id.startsWith('trans')) {
                 document.getElementById('transitionMessage').textContent = `Group ${phase.nextGroup}, you are up next!`;
