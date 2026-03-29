@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zhongkao Grammar Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #000000;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .selection-blue::selection {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+
+        .animate-pop {
+            animation: pop 0.3s cubic-bezier(0.26, 0.53, 0.74, 1.48);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .option-btn:focus {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #facc15;
+            animation: fall 3s linear forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .completion-screen {
+            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden selection-blue">
+
+    <!-- App Container -->
+    <div id="app" class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between shrink-0 z-50">
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <div id="nav-back-container" class="hidden">
+                    <button id="btn-back" class="p-2 rounded-lg text-slate-300 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Previous question">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                </div>
+                <button id="btn-home" class="flex items-center space-x-2 text-black hover:bg-slate-100 p-2 rounded-lg transition-colors font-black" aria-label="Return to dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span class="hidden sm:inline">HOME</span>
+                </button>
+            </div>
+
+            <div class="text-center flex-1 px-4 overflow-hidden">
+                <h1 id="header-title" class="font-black text-lg truncate text-black uppercase tracking-tight">Grammar Mastery</h1>
+            </div>
+
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <div class="bg-black text-white px-3 md:px-4 py-1.5 rounded-full font-black text-sm flex items-center shadow-lg" aria-live="polite">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                    <span id="score-display">0</span> <span class="ml-1 opacity-70">pts</span>
+                </div>
+                <div id="nav-next-container" class="hidden">
+                    <button id="btn-next" class="p-2 rounded-lg text-slate-300 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Next question">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center custom-scrollbar">
+                <div class="max-w-5xl w-full space-y-8 animate-pop">
+                    <div class="text-center space-y-2">
+                        <h2 class="text-3xl md:text-5xl font-black text-black">Master Your Grammar 🚀</h2>
+                        <p class="text-black font-medium opacity-80">150 Zhongkao-aligned questions. Focus on logic, beat the traps.</p>
+                    </div>
+
+                    <div id="topic-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-8">
+                        <!-- Topic cards will be injected here -->
+                    </div>
+                    
+                    <!-- Stats Footer -->
+                    <div class="text-center pt-4 border-t border-slate-200">
+                        <p class="text-sm text-black opacity-70">Aligned with <span class="font-bold">China's Zhongkao English Standards</span> • Updated 2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice View -->
+            <div id="view-practice" class="hidden flex-1 flex flex-col overflow-hidden">
+                <!-- Teacher's Tab -->
+                <div class="w-full bg-white border-b border-slate-200 shadow-sm shrink-0">
+                    <button id="btn-toggle-exp" class="w-full p-3 flex items-center justify-between hover:bg-slate-50 transition-colors group" aria-expanded="false" aria-controls="exp-content">
+                        <div class="flex items-center space-x-2 text-black font-black text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <span class="group-hover:text-blue-600 transition-colors">TEACHER'S EXPLANATION</span>
+                        </div>
+                        <span id="exp-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </span>
+                    </button>
+                    <div id="exp-content" class="hidden p-4 bg-blue-50 border-t border-blue-100" role="region" aria-live="polite">
+                        <p id="exp-text" class="text-black font-bold leading-relaxed italic text-sm md:text-base">
+                            Select an answer to unlock the grammar logic for this problem.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Question Stage -->
+                <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 bg-slate-50 overflow-hidden">
+                    <div class="max-w-3xl w-full bg-white rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-slate-100 flex flex-col relative animate-pop">
+                        <div class="mb-4 flex justify-between items-center">
+                            <span id="question-counter" class="text-xs font-black bg-black text-white px-3 py-1 rounded-full uppercase tracking-widest">Question 1/25</span>
+                            <span id="topic-badge" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Topic</span>
+                        </div>
+                        
+                        <h2 id="question-text" class="text-xl md:text-3xl font-black text-black leading-snug mb-8 min-h-[3rem]">
+                            Loading question...
+                        </h2>
+
+                        <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4" role="radiogroup" aria-label="Answer choices">
+                            <!-- Options will be injected here -->
+                        </div>
+                        
+                        <!-- Feedback Area -->
+                        <div id="feedback-area" class="mt-6 min-h-[2rem]">
+                            <!-- Dynamic feedback injected here -->
+                        </div>
+                        
+                        <div id="next-action-container" class="mt-8 flex justify-center hidden">
+                            <button id="btn-footer-next" class="flex items-center space-x-2 bg-black text-white px-8 py-4 rounded-2xl font-black hover:bg-slate-800 transition-all shadow-xl hover:scale-[1.02] focus:ring-4 focus:ring-blue-300">
+                                <span id="btn-footer-text">Next Question</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Completion Modal (Hidden by default) -->
+            <div id="completion-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div class="completion-screen rounded-3xl p-8 max-w-md w-full text-center text-white animate-pop">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h3 class="text-2xl font-black mb-2">Module Completed!</h3>
+                    <p class="opacity-90 mb-6">You scored <span id="final-score" class="font-black text-yellow-300">0</span> points!</p>
+                    <div class="space-y-3">
+                        <button id="btn-review" class="w-full bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-bold transition-colors">
+                            Review Answers
+                        </button>
+                        <button id="btn-new-topic" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-3 rounded-xl font-black transition-colors">
+                            Try Another Topic
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Data: Expanded to 25 questions per topic (150 total) ---
+        const topics = [
+            { id: 'tenses', name: 'Tenses', icon: 'History', color: 'bg-blue-600', desc: 'Present, Past, Future & Continuous forms.' },
+            { id: 'state_action', name: 'State vs Action', icon: 'Sparkles', color: 'bg-rose-600', desc: 'When verbs change meaning in -ing form.' },
+            { id: 'mental_states', name: 'Mental States', icon: 'Brain', color: 'bg-emerald-600', desc: 'Cognition verbs: simple vs continuous nuance.' },
+            { id: 'performative', name: 'Performative', icon: 'MessageSquare', color: 'bg-violet-600', desc: 'Speech acts that perform actions.' },
+            { id: 'passive', name: 'Passive Voice', icon: 'Target', color: 'bg-purple-600', desc: 'Focus on receiver; agent optional.' },
+            { id: 'modals', name: 'Modals', icon: 'Zap', color: 'bg-red-600', desc: 'Ability, permission, deduction, advice.' }
+        ];
+
+        const allQuestions = {
+            'tenses': [
+                // Original 15 + 10 new Zhongkao-aligned questions
+                { q: "I _____ my homework when the phone suddenly rang.", options: ["did", "was doing", "have done", "am doing"], correct: 1, exp: "Interrupted past action: Past Continuous (-ing) for the ongoing action when interrupted." },
+                { q: "Our school _____ a sports meeting every autumn since 2010.", options: ["holds", "held", "has held", "is holding"], correct: 2, exp: "'Since' + past time point → Present Perfect (has/have + past participle)." },
+                { q: "By the time he arrived, the train _____ already left.", options: ["has", "was", "had", "is"], correct: 2, exp: "Past Perfect (had + p.p.) for action completed before another past action." },
+                { q: "Look! The bus _____.", options: ["comes", "is coming", "came", "has come"], correct: 1, exp: "'Look!' signals immediate present → Present Continuous." },
+                { q: "He _____ to Beijing twice so far.", options: ["has been", "has gone", "went", "goes"], correct: 0, exp: "'Has been to' = visited and returned; 'has gone to' = still there." },
+                { q: "I _____ my keys. I can't find them anywhere.", options: ["lose", "lost", "have lost", "am losing"], correct: 2, exp: "Present Perfect: past action with present result/relevance." },
+                { q: "Next Sunday, we _____ a picnic if it doesn't rain.", options: ["will have", "have", "had", "are having"], correct: 0, exp: "First conditional: 'will' + base verb for future prediction." },
+                { q: "Water _____ at 100 degrees Celsius.", options: ["boil", "boils", "is boiling", "boiled"], correct: 1, exp: "Universal truths/scientific facts → Present Simple." },
+                { q: "While my mom _____ dinner, I was cleaning my room.", options: ["cooks", "cooked", "is cooking", "was cooking"], correct: 3, exp: "Two simultaneous past actions → both Past Continuous." },
+                { q: "I _____ the book for three days. It's very interesting.", options: ["have read", "read", "have been reading", "am reading"], correct: 2, exp: "Duration up to now with emphasis on continuity → Present Perfect Continuous." },
+                { q: "The plane _____ at 9:00 tomorrow morning.", options: ["takes off", "is taking off", "will take off", "took off"], correct: 0, exp: "Scheduled events (timetables) → Present Simple for future." },
+                { q: "I _____ my old friend in the street yesterday.", options: ["meet", "met", "have met", "was meeting"], correct: 1, exp: "Specific past time marker ('yesterday') → Past Simple." },
+                { q: "We _____ English for five years by the end of this term.", options: ["will study", "study", "will have studied", "have studied"], correct: 2, exp: "Future Perfect: action completed before a future time point." },
+                { q: "He _____ always _____ questions. It's so annoying!", options: ["is; asking", "has; asked", "does; ask", "was; asking"], correct: 0, exp: "Present Continuous + 'always' expresses repeated annoying habits." },
+                { q: "When I was young, I _____ swimming every weekend.", options: ["go", "went", "have gone", "was going"], correct: 1, exp: "Past habitual action → Past Simple." },
+                // NEW Zhongkao questions
+                { q: "She _____ in this company since she graduated.", options: ["worked", "has worked", "is working", "works"], correct: 1, exp: "'Since' + past event → Present Perfect for duration to present." },
+                { q: "I _____ TV when the power went out last night.", options: ["watched", "was watching", "have watched", "am watching"], correct: 1, exp: "Background action interrupted by sudden event → Past Continuous." },
+                { q: "By next year, I _____ here for ten years.", options: ["will work", "will have worked", "have worked", "worked"], correct: 1, exp: "Future Perfect for duration completed at future time point." },
+                { q: "Listen! Someone _____ the piano upstairs.", options: ["plays", "played", "is playing", "has played"], correct: 2, exp: "'Listen!' indicates action happening now → Present Continuous." },
+                { q: "He _____ his homework before he went out to play.", options: ["finished", "has finished", "had finished", "finishes"], correct: 2, exp: "Action completed before another past action → Past Perfect." },
+                { q: "I _____ to the museum three times this month.", options: ["go", "went", "have gone", "have been"], correct: 3, exp: "'Have been to' for experiences; 'this month' (unfinished time) → Present Perfect." },
+                { q: "The students _____ a test when the fire alarm rang.", options: ["take", "took", "were taking", "have taken"], correct: 2, exp: "Ongoing past action interrupted → Past Continuous." },
+                { q: "She _____ her keys. Can you help her look for them?", options: ["loses", "lost", "has lost", "is losing"], correct: 2, exp: "Present result of past action → Present Perfect." },
+                { q: "My father _____ to Shanghai on business next week.", options: ["goes", "went", "will go", "has gone"], correct: 2, exp: "Future plan with 'next week' → 'will' or 'be going to'." },
+                { q: "I _____ breakfast when you called me this morning.", options: ["have", "had", "was having", "have had"], correct: 2, exp: "Action in progress at specific past time → Past Continuous." }
+            ],
+            'state_action': [
+                // Original 15 + 10 new
+                { q: "The soup _____ delicious. Who made it?", options: ["tastes", "is tasting", "tasted", "has tasted"], correct: 0, exp: "Sense verb describing permanent quality → Present Simple." },
+                { q: "She _____ the soup to see if it needs more salt.", options: ["tastes", "is tasting", "tasted", "has tasted"], correct: 1, exp: "Physical action of tasting → Present Continuous." },
+                { q: "I _____ you are right about the exam.", options: ["think", "am thinking", "thought", "have thought"], correct: 0, exp: "'Think' = opinion (state) → Simple Tense." },
+                { q: "Be quiet! I _____ about a difficult math problem.", options: ["think", "am thinking", "thought", "thinks"], correct: 1, exp: "'Think' = mental activity (action) → Continuous." },
+                { q: "This suitcase _____ 20 kilograms.", options: ["weighs", "is weighing", "weigh", "weighed"], correct: 0, exp: "Weight as inherent property → Simple Tense." },
+                { q: "The butcher _____ the meat now.", options: ["weighs", "is weighing", "weigh", "weighed"], correct: 1, exp: "Physical act of weighing → Continuous." },
+                { q: "You _____ like your father when you smile.", options: ["look", "are looking", "looked", "looks"], correct: 0, exp: "'Look' = appear/seem (state) → Simple." },
+                { q: "What are you _____ at? There's nothing there.", options: ["look", "looking", "looked", "looks"], correct: 1, exp: "'Look at' = direct eyes (action) → Continuous." },
+                { q: "The car _____ to my uncle.", options: ["belongs", "is belonging", "belong", "belonged"], correct: 0, exp: "Ownership verbs (belong, own, possess) are always states." },
+                { q: "I _____ a great time at the party right now!", options: ["have", "am having", "had", "has"], correct: 1, exp: "'Have' = experience (action) → Continuous; 'have' = possess (state) → Simple." },
+                { q: "The flowers _____ wonderful in the morning sun.", options: ["smell", "are smelling", "smelled", "smells"], correct: 0, exp: "Describing inherent quality → Present Simple." },
+                { q: "He _____ the roses in the garden right now.", options: ["smells", "is smelling", "smelled", "has smelled"], correct: 1, exp: "Active physical action → Continuous." },
+                { q: "This dress _____ you perfectly.", options: ["fits", "is fitting", "fit", "fitted"], correct: 0, exp: "Size/fit as permanent characteristic → Simple." },
+                { q: "I _____ what you mean.", options: ["see", "am seeing", "saw", "sees"], correct: 0, exp: "'See' = understand (mental state) → Simple." },
+                { q: "He _____ the doctor tomorrow morning.", options: ["sees", "is seeing", "saw", "has seen"], correct: 1, exp: "'See' = meet/visit (action) → Continuous for arrangements." },
+                // NEW
+                { q: "This fabric _____ very soft.", options: ["feels", "is feeling", "felt", "has felt"], correct: 0, exp: "Sense verb describing texture (state) → Simple." },
+                { q: "The doctor _____ the patient's pulse carefully.", options: ["feels", "is feeling", "felt", "has felt"], correct: 1, exp: "Physical action of examining → Continuous." },
+                { q: "I _____ this is the best solution.", options: ["believe", "am believing", "believed", "believes"], correct: 0, exp: "'Believe' = hold an opinion (state) → Simple." },
+                { q: "She _____ the fabric to check its quality.", options: ["touches", "is touching", "touched", "has touched"], correct: 1, exp: "Physical contact action → Continuous." },
+                { q: "The room _____ empty.", options: ["appears", "is appearing", "appeared", "appears"], correct: 0, exp: "'Appear' = seem (state) → Simple." },
+                { q: "The actor _____ on stage tonight.", options: ["appears", "is appearing", "appeared", "has appeared"], correct: 1, exp: "'Appear' = perform (action) → Continuous for scheduled event." },
+                { q: "I _____ a new car last month.", options: ["have", "am having", "had", "has"], correct: 2, exp: "'Have' = possess (state); past time → Past Simple." },
+                { q: "We _____ dinner at 7 PM every day.", options: ["have", "are having", "had", "has"], correct: 0, exp: "Routine action with 'have' (eat) → Present Simple." },
+                { q: "This idea _____ promising.", options: ["sounds", "is sounding", "sounded", "has sounded"], correct: 0, exp: "'Sound' = seem (state) → Simple." },
+                { q: "The band _____ a new album next month.", options: ["releases", "is releasing", "released", "has released"], correct: 1, exp: "Scheduled future event → Present Continuous for arrangements." }
+            ],
+            'mental_states': [
+                // Original 15 + 10 new
+                { q: "I _____ why he was so angry yesterday.", options: ["understand", "am understanding", "understood", "was understanding"], correct: 0, exp: "Mental state (understanding) → Present Simple." },
+                { q: "I _____ my decision to skip the meeting.", options: ["regret", "am regretting", "regretted", "was regretting"], correct: 1, exp: "Continuous shows emerging/emotional feeling in the moment." },
+                { q: "Now I _____ that I was wrong all along.", options: ["realize", "am realizing", "realized", "was realizing"], correct: 1, exp: "Moment of realization as it unfolds → Continuous." },
+                { q: "We _____ taking a trip to Japan this summer.", options: ["consider", "are considering", "considered", "considers"], correct: 1, exp: "'Consider' = actively thinking about → often Continuous." },
+                { q: "I _____ he is a very honest person.", options: ["believe", "am believing", "believed", "was believing"], correct: 0, exp: "Firm belief/preference → state verb (Simple)." },
+                { q: "I _____ what you mean, but I don't agree.", options: ["see", "am seeing", "saw", "was seeing"], correct: 0, exp: "'See' = understand (state) → Simple." },
+                { q: "The doctor _____ a patient right now.", options: ["sees", "is seeing", "saw", "has seen"], correct: 1, exp: "'See' = consult/meet (action) → Continuous." },
+                { q: "I _____ to go home now.", options: ["want", "am wanting", "wanted", "wants"], correct: 0, exp: "Desire ('want') is a state verb." },
+                { q: "She _____ coffee to tea.", options: ["prefers", "is preferring", "preferred", "prefer"], correct: 0, exp: "Permanent preference → state (Simple)." },
+                { q: "I _____ my keys are in the car.", options: ["suppose", "am supposing", "supposed", "was supposing"], correct: 0, exp: "Supposition/assumption → state (Simple)." },
+                { q: "I _____ exactly how you feel.", options: ["know", "am knowing", "knew", "knows"], correct: 0, exp: "'Know' is almost never used in -ing form (state verb)." },
+                { q: "He _____ his mistake now.", options: ["recognizes", "is recognizing", "recognized", "recognize"], correct: 1, exp: "Mental process happening in the moment → Continuous." },
+                { q: "I _____ with everything you said.", options: ["agree", "am agreeing", "agreed", "agrees"], correct: 0, exp: "Agreement as firm stance → state (Simple)." },
+                { q: "I _____ that you are tired.", options: ["imagine", "am imagining", "imagined", "imagines"], correct: 0, exp: "'Imagine' = suppose/guess (state) → Simple." },
+                { q: "Stop! I _____ about something important.", options: ["think", "am thinking", "thought", "thinks"], correct: 1, exp: "Active mental processing → action (Continuous)." },
+                // NEW
+                { q: "I _____ you will succeed.", options: ["hope", "am hoping", "hoped", "hopes"], correct: 0, exp: "'Hope' expressing wish → state (Simple); 'am hoping' possible for emphasis." },
+                { q: "Scientists _____ that climate change is accelerating.", options: ["doubt", "are doubting", "doubted", "doubts"], correct: 0, exp: "'Doubt' = uncertainty (state) → Simple." },
+                { q: "I _____ we should leave early.", options: ["suggest", "am suggesting", "suggested", "suggests"], correct: 0, exp: "Performative suggestion → Simple (also see performative category)." },
+                { q: "She _____ the answer now.", options: ["remembers", "is remembering", "remembered", "remembers"], correct: 1, exp: "Mental act of recalling in the moment → Continuous." },
+                { q: "I _____ your point, but I disagree.", options: ["appreciate", "am appreciating", "appreciated", "appreciates"], correct: 0, exp: "'Appreciate' = understand/value (state) → Simple." },
+                { q: "He _____ about changing jobs.", options: ["dreams", "is dreaming", "dreamed", "dreams"], correct: 1, exp: "'Dream about' = actively imagining → Continuous." },
+                { q: "We _____ the plan is feasible.", options: ["assume", "are assuming", "assumed", "assumes"], correct: 0, exp: "'Assume' = suppose (state) → Simple." },
+                { q: "I _____ what you're saying.", options: ["follow", "am following", "followed", "follows"], correct: 1, exp: "'Follow' = understand in real-time → Continuous." },
+                { q: "They _____ the results will be positive.", options: ["expect", "are expecting", "expected", "expects"], correct: 0, exp: "'Expect' = anticipate (state) → Simple." },
+                { q: "I _____ we made the right choice.", options: ["trust", "am trusting", "trusted", "trusts"], correct: 0, exp: "'Trust' = have confidence (state) → Simple." }
+            ],
+            'performative': [
+                // Original 15 + 10 new (Zhongkao focuses on formal speech acts)
+                { q: "I _____ for being late to class.", options: ["apologise", "am apologising", "apologised", "was apologising"], correct: 0, exp: "Performative: uttering 'apologise' performs the act → Present Simple." },
+                { q: "I _____ taking the money. It wasn't me!", options: ["deny", "am denying", "denied", "was denying"], correct: 0, exp: "Affirmative performatives → Simple Tense." },
+                { q: "I _____ denying taking the money.", options: ["don't", "am not", "wasn't", "doesn't"], correct: 1, exp: "Negative exception: both 'don't deny' and 'am not denying' acceptable." },
+                { q: "We _____ you to arrive at least 15 minutes early.", options: ["advise", "are advising", "advised", "were advising"], correct: 0, exp: "Formal advice as speech act → Simple." },
+                { q: "I _____ you not to go into that room.", options: ["warn", "am warning", "warned", "was warning"], correct: 0, exp: "Warning as performative act → Simple." },
+                { q: "I _____ that the work will be finished on time.", options: ["guarantee", "am guaranteeing", "guaranteed", "guarantees"], correct: 0, exp: "Formal guarantee → performative Simple." },
+                { q: "I _____ to tell you the truth from now on.", options: ["promise", "am promising", "promised", "promises"], correct: 0, exp: "Promise = classic performative → Simple." },
+                { q: "I _____ you for your kind help.", options: ["thank", "am thanking", "thanked", "thanks"], correct: 0, exp: "Thanking as speech act → Simple." },
+                { q: "I _____ that we should leave immediately.", options: ["suggest", "am suggesting", "suggested", "suggests"], correct: 0, exp: "Suggestion as performative → Simple." },
+                { q: "We _____ that you return the books by Friday.", options: ["request", "are requesting", "requested", "requests"], correct: 0, exp: "Formal request → performative Simple." },
+                { q: "I _____ that I was wrong to shout at you.", options: ["confess", "am confessing", "confessed", "was confessing"], correct: 0, exp: "Confession as speech act → Simple." },
+                { q: "We _____ that you have made a mistake.", options: ["conclude", "are concluding", "concluded", "concludes"], correct: 0, exp: "Formal conclusion → performative Simple." },
+                { q: "I _____ you to keep this a secret.", options: ["beg", "am begging", "begged", "begs"], correct: 0, exp: "Urgent request → performative Simple." },
+                { q: "I _____ that we made a mistake in the report.", options: ["admit", "am admitting", "admitted", "admits"], correct: 0, exp: "Admission as speech act → Simple." },
+                { q: "We _____ that you pay the bill immediately.", options: ["insist", "are insisting", "insisted", "insists"], correct: 0, exp: "Insistence as performative → Simple." },
+                // NEW Zhongkao-focused
+                { q: "I _____ you to submit your application by Friday.", options: ["remind", "am reminding", "reminded", "reminds"], correct: 0, exp: "Reminder as speech act → Simple." },
+                { q: "We _____ your participation in the ceremony.", options: ["invite", "are inviting", "invited", "invites"], correct: 0, exp: "Formal invitation → performative Simple." },
+                { q: "I _____ that the meeting is postponed.", options: ["announce", "am announcing", "announced", "announces"], correct: 0, exp: "Official announcement → performative Simple." },
+                { q: "I _____ you for your excellent work.", options: ["praise", "am praising", "praised", "praises"], correct: 0, exp: "Praise as speech act → Simple." },
+                { q: "We _____ the terms of the agreement.", options: ["accept", "are accepting", "accepted", "accepts"], correct: 0, exp: "Formal acceptance → performative Simple." },
+                { q: "I _____ that you leave the premises.", options: ["order", "am ordering", "ordered", "orders"], correct: 0, exp: "Command as speech act → Simple." },
+                { q: "I _____ you to reconsider your decision.", options: ["urge", "am urging", "urged", "urges"], correct: 0, exp: "Urging as performative → Simple." },
+                { q: "We _____ the proposal under review.", options: ["reject", "are rejecting", "rejected", "rejects"], correct: 0, exp: "Formal rejection → performative Simple." },
+                { q: "I _____ my support for your project.", options: ["declare", "am declaring", "declared", "declares"], correct: 0, exp: "Declaration as speech act → Simple." },
+                { q: "I _____ that this is confidential.", options: ["state", "am stating", "stated", "states"], correct: 0, exp: "Formal statement → performative Simple." }
+            ],
+            'passive': [
+                // Original 15 + 10 new
+                { q: "The window _____ by the boy yesterday.", options: ["broke", "is broken", "was broken", "has broken"], correct: 2, exp: "Past passive: was/were + past participle." },
+                { q: "Many trees _____ every year to protect the environment.", options: ["plant", "are planted", "were planted", "is planted"], correct: 1, exp: "Present Simple passive for habitual actions: am/is/are + p.p." },
+                { q: "Rice _____ in South China.", options: ["grows", "is grown", "is growing", "grown"], correct: 1, exp: "General fact → Present Simple Passive." },
+                { q: "The bridge _____ when we arrived there.", options: ["built", "was built", "was being built", "is being built"], correct: 2, exp: "Past action in progress → Past Continuous Passive: was/were being + p.p." },
+                { q: "A new road _____ near my house soon.", options: ["will build", "will be built", "is built", "was built"], correct: 1, exp: "Future passive: will be + p.p." },
+                { q: "The letter _____ already.", options: ["has sent", "has been sent", "was sent", "is sent"], correct: 1, exp: "Present Perfect passive: has/have been + p.p." },
+                { q: "Who was this book _____ by?", options: ["write", "wrote", "written", "writing"], correct: 2, exp: "Passive question structure: be + subject + p.p." },
+                { q: "Our classroom _____ every day.", options: ["cleans", "is cleaned", "is cleaning", "cleaned"], correct: 1, exp: "Daily routine passive: is/are + p.p." },
+                { q: "Can this problem _____ easily?", options: ["solve", "be solved", "is solved", "solved"], correct: 1, exp: "Modal passive: modal + be + p.p." },
+                { q: "Knives _____ for cutting things.", options: ["use", "are used", "used", "are using"], correct: 1, exp: "General use passive: are used for + -ing." },
+                { q: "Great changes _____ in our city in the past ten years.", options: ["have taken place", "have been taken place", "took place", "were taken place"], correct: 0, exp: "'Take place' is intransitive → NO passive form possible." },
+                { q: "The cake _____ into four pieces just now.", options: ["cut", "was cut", "is cut", "has been cut"], correct: 1, exp: "Past passive with irregular verb (cut-cut-cut)." },
+                { q: "The lost boy _____ since last Monday.", options: ["has missed", "is missing", "has been missing", "was missing"], correct: 2, exp: "Present Perfect Continuous for ongoing state." },
+                { q: "English _____ in many countries as a first language.", options: ["speaks", "is spoken", "is speaking", "spoken"], correct: 1, exp: "Language use → Present Simple Passive." },
+                { q: "Look! A new library _____ over there.", options: ["is built", "is being built", "will be built", "was built"], correct: 1, exp: "Action in progress now → Present Continuous Passive." },
+                // NEW
+                { q: "The results _____ by the committee next week.", options: ["will announce", "will be announced", "announce", "are announced"], correct: 1, exp: "Future passive for scheduled announcement." },
+                { q: "This song _____ by millions of people worldwide.", options: ["has sung", "has been sung", "sang", "is sung"], correct: 1, exp: "Present Perfect passive for experience up to now." },
+                { q: "The documents _____ before the meeting yesterday.", options: ["were prepared", "prepared", "are prepared", "have been prepared"], correct: 0, exp: "Past passive with time marker 'yesterday'." },
+                { q: "New rules _____ to improve safety.", options: ["introduced", "were introduced", "are introducing", "have introduced"], correct: 1, exp: "Past passive for completed official action." },
+                { q: "The problem _____ soon.", options: ["will solve", "will be solved", "solves", "is solved"], correct: 1, exp: "Future passive prediction." },
+                { q: "These books _____ to the library last month.", options: ["returned", "were returned", "are returned", "have returned"], correct: 1, exp: "Past passive with specific past time." },
+                { q: "The meeting _____ until next Friday.", options: ["has postponed", "has been postponed", "postponed", "is postponing"], correct: 1, exp: "Present Perfect passive for recent change with present effect." },
+                { q: "The winner _____ by a panel of judges.", options: ["will choose", "will be chosen", "chooses", "is choosing"], correct: 1, exp: "Future passive for selection process." },
+                { q: "The instructions _____ clearly on the package.", options: ["write", "are written", "wrote", "have written"], correct: 1, exp: "Present Simple passive for permanent information." },
+                { q: "The project _____ by the end of this year.", options: ["will complete", "will be completed", "completes", "is completed"], correct: 1, exp: "Future passive with deadline." }
+            ],
+            'modals': [
+                // Original 15 + 10 new
+                { q: "He _____ speak three languages fluently.", options: ["can", "must", "should", "may"], correct: 0, exp: "Ability → 'can'." },
+                { q: "You _____ finish your homework before you go out.", options: ["can", "must", "might", "may"], correct: 1, exp: "Requirement/necessity → 'must'." },
+                { q: "_____ I use your dictionary for a moment?", options: ["Must", "Should", "May", "Need"], correct: 2, exp: "Polite permission request → 'May'." },
+                { q: "It _____ rain this afternoon. Take an umbrella.", options: ["must", "might", "should", "need"], correct: 1, exp: "Possibility → 'might' or 'may'." },
+                { q: "You _____ smoke in the hospital. It's not allowed.", options: ["mustn't", "needn't", "couldn't", "shouldn't"], correct: 0, exp: "Prohibition → 'mustn't'." },
+                { q: "I _____ buy a new computer, but I haven't decided yet.", options: ["must", "might", "can", "should"], correct: 1, exp: "Uncertain future possibility → 'might'." },
+                { q: "The lights are on. He _____ be at home.", options: ["must", "can", "should", "need"], correct: 0, exp: "Logical deduction (positive) → 'must'." },
+                { q: "You _____ have told me earlier! I'm so sorry.", options: ["should", "must", "can", "may"], correct: 0, exp: "Past criticism/regret → 'should have + p.p.'." },
+                { q: "I _____ run very fast when I was a child.", options: ["can", "could", "must", "should"], correct: 1, exp: "Past ability → 'could'." },
+                { q: "Need I finish it now? No, you _____.", options: ["mustn't", "needn't", "can't", "don't"], correct: 1, exp: "Negative answer to 'Need I...?' → 'No, you needn't'." },
+                { q: "You _____ go there if you don't want to.", options: ["mustn't", "needn't", "can't", "mightn't"], correct: 1, exp: "Absence of necessity → 'needn't'." },
+                { q: "Where is my phone? It _____ be in the kitchen.", options: ["should", "could", "mustn't", "need"], correct: 1, exp: "Possibility → 'could/might/may'." },
+                { q: "The road is wet. It _____ have rained last night.", options: ["must", "can", "should", "may"], correct: 0, exp: "Strong past deduction → 'must have + p.p.'." },
+                { q: "He _____ be at school. I just saw him at the park.", options: ["mustn't", "can't", "shouldn't", "needn't"], correct: 1, exp: "Logical impossibility → 'can't'." },
+                { q: "Shall we go now? No, we _____ wait for them.", options: ["would", "should", "could", "might"], correct: 1, exp: "Advice/obligation → 'should'." },
+                // NEW Zhongkao-focused
+                { q: "Students _____ wear uniforms at this school.", options: ["can", "must", "might", "may"], correct: 1, exp: "School rule/requirement → 'must'." },
+                { q: "You _____ be tired after such a long trip.", options: ["must", "can", "should", "need"], correct: 0, exp: "Logical assumption → 'must'." },
+                { q: "_____ I borrow your pen, please?", options: ["Must", "Should", "Could", "Need"], correct: 2, exp: "Polite request → 'Could' (more polite than 'Can')." },
+                { q: "He _____ have forgotten the meeting; he's usually punctual.", options: ["must", "can't", "should", "might"], correct: 3, exp: "Weak possibility → 'might'." },
+                { q: "You _____ eat so much sugar. It's unhealthy.", options: ["mustn't", "shouldn't", "couldn't", "needn't"], correct: 1, exp: "Advice against action → 'shouldn't'." },
+                { q: "She _____ swim when she was five.", options: ["can", "could", "must", "should"], correct: 1, exp: "Past ability → 'could'." },
+                { q: "It _____ be true. I don't believe it!", options: ["mustn't", "can't", "shouldn't", "needn't"], correct: 1, exp: "Strong disbelief → 'can't'." },
+                { q: "You _____ have seen that movie; it's excellent!", options: ["should", "must", "can", "may"], correct: 0, exp: "Recommendation → 'should have + p.p.'." },
+                { q: "_____ you help me with this box?", options: ["Must", "Should", "Could", "Need"], correct: 2, exp: "Polite request for help → 'Could'." },
+                { q: "They _____ arrive late; the traffic is heavy.", options: ["must", "might", "should", "need"], correct: 1, exp: "Possible outcome → 'might'." }
+            ]
+        };
+
+        // --- SVG Icons ---
+        const icons = {
+            'History': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            'Sparkles': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
+            'Brain': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>',
+            'MessageSquare': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+            'Target': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            'Zap': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+        };
+
+        // --- State Management ---
+        const state = {
+            view: 'dashboard',
+            selectedTopic: null,
+            currentIndex: 0,
+            score: 0,
+            userAnswer: null,
+            expOpen: false,
+            reviewMode: false
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            app: document.getElementById('app'),
+            viewDashboard: document.getElementById('view-dashboard'),
+            viewPractice: document.getElementById('view-practice'),
+            topicGrid: document.getElementById('topic-grid'),
+            headerTitle: document.getElementById('header-title'),
+            scoreDisplay: document.getElementById('score-display'),
+            btnHome: document.getElementById('btn-home'),
+            btnBack: document.getElementById('btn-back'),
+            btnNext: document.getElementById('btn-next'),
+            navBackContainer: document.getElementById('nav-back-container'),
+            navNextContainer: document.getElementById('nav-next-container'),
+            btnToggleExp: document.getElementById('btn-toggle-exp'),
+            expContent: document.getElementById('exp-content'),
+            expText: document.getElementById('exp-text'),
+            expArrow: document.getElementById('exp-arrow'),
+            questionCounter: document.getElementById('question-counter'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            nextActionContainer: document.getElementById('next-action-container'),
+            btnFooterNext: document.getElementById('btn-footer-next'),
+            btnFooterText: document.getElementById('btn-footer-text'),
+            topicBadge: document.getElementById('topic-badge'),
+            feedbackArea: document.getElementById('feedback-area'),
+            completionModal: document.getElementById('completion-modal'),
+            finalScore: document.getElementById('final-score'),
+            btnReview: document.getElementById('btn-review'),
+            btnNewTopic: document.getElementById('btn-new-topic')
+        };
+
+        // --- Core Functions ---
+        function renderDashboard() {
+            els.topicGrid.innerHTML = '';
+            topics.forEach(topic => {
+                const card = document.createElement('button');
+                card.className = "group bg-white p-6 rounded-[2rem] border-2 border-slate-100 hover:border-black transition-all duration-300 text-left relative overflow-hidden flex flex-col justify-between h-48 animate-pop focus:outline-none focus:ring-4 focus:ring-blue-300";
+                card.setAttribute('aria-label', `Start ${topic.name} practice`);
+                card.innerHTML = `
+                    <div class="${topic.color} text-white p-3 rounded-2xl w-fit shadow-lg group-hover:scale-110 transition-transform">
+                        ${icons[topic.icon]}
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-black text-black mb-1">${topic.name}</h4>
+                        <p class="text-black text-sm font-medium leading-tight opacity-70">${topic.desc}</p>
+                    </div>
+                    <div class="absolute top-6 right-6 text-xs font-black text-black opacity-20 group-hover:opacity-100 transition-opacity flex items-center">
+                        START <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><path d="m9 18 6-6-6-6"/></svg>
+                    </div>
+                `;
+                card.onclick = () => startPractice(topic.id);
+                els.topicGrid.appendChild(card);
+            });
+        }
+
+        function startPractice(topicId) {
+            state.view = 'practice';
+            state.selectedTopic = topicId;
+            state.currentIndex = 0;
+            state.score = 0;
+            state.userAnswer = null;
+            state.expOpen = false;
+            state.reviewMode = false;
+            
+            updatePracticeView();
+            els.viewDashboard.classList.add('hidden');
+            els.viewPractice.classList.remove('hidden');
+            els.navBackContainer.classList.remove('hidden');
+            els.navNextContainer.classList.remove('hidden');
+            const topic = topics.find(t => t.id === topicId);
+            els.headerTitle.textContent = topic.name;
+            els.topicBadge.textContent = topic.name;
+            updateScore();
+        }
+
+        function goHome() {
+            state.view = 'dashboard';
+            els.viewPractice.classList.add('hidden');
+            els.viewDashboard.classList.remove('hidden');
+            els.navBackContainer.classList.add('hidden');
+            els.navNextContainer.classList.add('hidden');
+            els.headerTitle.textContent = "Grammar Mastery";
+            els.completionModal.classList.add('hidden');
+            renderDashboard();
+        }
+
+        function updateScore() {
+            els.scoreDisplay.textContent = state.score;
+        }
+
+        function updatePracticeView() {
+            const questions = allQuestions[state.selectedTopic];
+            const q = questions[state.currentIndex];
+            
+            // Update counter and badge
+            els.questionCounter.textContent = `Question ${state.currentIndex + 1}/${questions.length}`;
+            els.questionText.textContent = q.q;
+            
+            // Button states with accessibility
+            els.btnBack.disabled = state.currentIndex === 0;
+            els.btnBack.classList.toggle('opacity-30', state.currentIndex === 0);
+            els.btnBack.classList.toggle('cursor-not-allowed', state.currentIndex === 0);
+            
+            const isLast = state.currentIndex === questions.length - 1;
+            const answered = state.userAnswer !== null;
+            els.btnNext.disabled = isLast || !answered;
+            els.btnNext.classList.toggle('opacity-30', els.btnNext.disabled);
+            els.btnNext.classList.toggle('cursor-not-allowed', els.btnNext.disabled);
+
+            // Render options with accessibility
+            els.optionsContainer.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = "option-btn p-4 md:p-5 rounded-2xl text-left border-4 transition-all font-black text-sm md:text-lg flex justify-between items-center focus:outline-none";
+                btn.setAttribute('role', 'radio');
+                btn.setAttribute('aria-checked', state.userAnswer === i);
+                
+                if (answered) {
+                    // Show results
+                    if (i === q.correct) {
+                        btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                        btn.setAttribute('aria-checked', 'true');
+                    } else if (i === state.userAnswer) {
+                        btn.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+                    } else {
+                        btn.classList.add('border-slate-100', 'bg-white', 'opacity-40');
+                    }
+                    btn.disabled = true;
+                } else {
+                    // Interactive state
+                    btn.classList.add('border-slate-100', 'bg-white', 'hover:border-black', 'hover:bg-slate-50', 'text-black');
+                    btn.onclick = () => handleAnswer(i);
+                    btn.onkeydown = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleAnswer(i);
+                        }
+                    };
+                }
+
+                btn.innerHTML = `
+                    <span>${String.fromCharCode(65 + i)}. ${opt}</span>
+                    ${answered && i === q.correct ? 
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>' : 
+                        ''}
+                `;
+                els.optionsContainer.appendChild(btn);
+            });
+
+            // Feedback area
+            els.feedbackArea.innerHTML = '';
+            if (answered) {
+                const isCorrect = state.userAnswer === q.correct;
+                const feedback = document.createElement('div');
+                feedback.className = `p-3 rounded-xl font-bold text-center ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`;
+                feedback.textContent = isCorrect ? '✓ Correct! Well done.' : '✗ Not quite. Check the explanation.';
+                els.feedbackArea.appendChild(feedback);
+                
+                // Confetti for correct answers
+                if (isCorrect) createConfetti();
+            }
+
+            // Footer button logic
+            if (answered) {
+                els.nextActionContainer.classList.remove('hidden');
+                if (isLast) {
+                    els.btnFooterText.textContent = "Complete Module";
+                    els.btnFooterNext.onclick = showCompletion;
+                } else {
+                    els.btnFooterText.textContent = "Next Question";
+                    els.btnFooterNext.onclick = goNext;
+                }
+            } else {
+                els.nextActionContainer.classList.add('hidden');
+            }
+
+            // Explanation toggle
+            toggleExplanation(state.expOpen);
+        }
+
+        function handleAnswer(index) {
+            if (state.userAnswer !== null) return; // Prevent re-answering
+            
+            const q = allQuestions[state.selectedTopic][state.currentIndex];
+            state.userAnswer = index;
+            
+            if (index === q.correct) {
+                state.score += 10;
+                updateScore();
+            }
+            
+            // Auto-open explanation after answer
+            if (!state.expOpen) toggleExplanation(true);
+            updatePracticeView();
+        }
+
+        function toggleExplanation(force) {
+            state.expOpen = typeof force === 'boolean' ? force : !state.expOpen;
+            els.btnToggleExp.setAttribute('aria-expanded', state.expOpen);
+            
+            if (state.expOpen) {
+                els.expContent.classList.remove('hidden');
+                els.expArrow.style.transform = 'rotate(180deg)';
+                const q = allQuestions[state.selectedTopic][state.currentIndex];
+                els.expText.textContent = state.userAnswer !== null ? q.exp : "Select an answer to unlock the teacher's explanation!";
+            } else {
+                els.expContent.classList.add('hidden');
+                els.expArrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function goNext() {
+            const questions = allQuestions[state.selectedTopic];
+            if (state.currentIndex < questions.length - 1 && state.userAnswer !== null) {
+                state.currentIndex++;
+                state.userAnswer = null;
+                state.expOpen = false;
+                updatePracticeView();
+            }
+        }
+
+        function goBack() {
+            if (state.currentIndex > 0 && !state.reviewMode) {
+                state.currentIndex--;
+                // Don't reset answer in review mode; reset in practice mode
+                if (!state.reviewMode) {
+                    state.userAnswer = null;
+                    state.expOpen = false;
+                }
+                updatePracticeView();
+            }
+        }
+
+        function showCompletion() {
+            els.finalScore.textContent = state.score;
+            els.completionModal.classList.remove('hidden');
+            // Create celebration confetti
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => createConfetti(), i * 100);
+            }
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = ['#facc15', '#3b82f6', '#10b981', '#f43f5e', '#8b5cf6'][Math.floor(Math.random() * 5)];
+            confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 3000);
+        }
+
+        // --- Event Listeners ---
+        els.btnHome.onclick = goHome;
+        els.btnBack.onclick = goBack;
+        els.btnNext.onclick = goNext;
+        els.btnToggleExp.onclick = () => toggleExplanation();
+        els.btnReview.onclick = () => {
+            state.reviewMode = true;
+            state.currentIndex = 0;
+            state.userAnswer = null;
+            state.expOpen = true;
+            els.completionModal.classList.add('hidden');
+            updatePracticeView();
+        };
+        els.btnNewTopic.onclick = goHome;
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (state.view !== 'practice' || state.userAnswer !== null) return;
+            
+            // Number keys 1-4 for options
+            if (e.key >= '1' && e.key <= '4') {
+                const index = parseInt(e.key) - 1;
+                const options = els.optionsContainer.children;
+                if (options[index] && !options[index].disabled) {
+                    options[index].click();
+                }
+            }
+            // Arrow keys for navigation
+            if (e.key === 'ArrowRight' && !els.btnNext.disabled) {
+                goNext();
+            }
+            if (e.key === 'ArrowLeft' && !els.btnBack.disabled) {
+                goBack();
+            }
+        });
+
+        // Close modal on outside click
+        els.completionModal.onclick = (e) => {
+            if (e.target === els.completionModal) {
+                els.completionModal.classList.add('hidden');
+            }
+        };
+
+        // --- Initialize ---
+        renderDashboard();
+    </script>
+</body>
+</html>
