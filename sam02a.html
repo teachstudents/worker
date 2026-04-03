@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A2 Grammar Speaking Practice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Fredoka:wght@500;600&display=swap');
+
+        :root {
+            --primary-color: #FF6B6B; /* Soft Red */
+            --secondary-color: #4ECDC4; /* Teal */
+            --accent-color: #FFE66D; /* Yellow */
+            --text-color: #2C3E50;
+            --bg-color: #F7F9FC;
+            --card-bg: #FFFFFF;
+            --font-main: 'Fredoka', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#4ECDC4 2px, transparent 2px);
+            background-size: 30px 30px;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 0 #c0392b;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-family: var(--font-main);
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+            flex: 1;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            min-width: 150px;
+        }
+
+        .header-controls.right {
+            justify-content: flex-end;
+        }
+
+        .nav-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #ddd;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn.primary {
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 4px 0 #16a085;
+        }
+
+        .nav-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .nav-btn:disabled {
+            background-color: #ecf0f1;
+            color: #bdc3c7;
+            box-shadow: 0 4px 0 #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- App Container & Screens --- */
+        #app-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Cards & Grids --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 4px solid var(--secondary-color);
+            text-align: center;
+            width: 100%;
+        }
+
+        .card-title {
+            font-family: var(--font-main);
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+        }
+
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-btn {
+            background-color: var(--bg-color);
+            border: 3px solid var(--secondary-color);
+            border-radius: 16px;
+            padding: 20px;
+            font-family: var(--font-main);
+            font-size: 1.4rem;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 0 var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn.topic-btn {
+            border-color: #F1C40F;
+            box-shadow: 0 6px 0 #F1C40F;
+            background-color: #fffdf5;
+        }
+
+        .menu-btn small {
+            font-size: 0.95rem;
+            opacity: 0.7;
+            margin-top: 8px;
+            font-family: var(--font-body);
+            font-weight: 400;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            background-color: #e0f2f1;
+        }
+
+        .menu-btn.topic-btn:hover {
+            background-color: #fff9db;
+        }
+
+        .menu-btn:active {
+            transform: translateY(6px);
+            box-shadow: none;
+        }
+
+        /* --- Practice Area --- */
+        .practice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .tts-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 40px 30px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 4px solid transparent;
+            position: relative;
+        }
+
+        .tts-box:hover {
+            background: #f1f5f9;
+        }
+
+        .tts-box:active {
+            background: #e2e8f0;
+        }
+
+        .tts-box.question {
+            border-color: var(--primary-color);
+            background: #fff5f5;
+        }
+
+        .tts-box.stem {
+            border-color: var(--secondary-color);
+            background: #f0fdfa;
+        }
+
+        /* Large Child-Friendly Typography */
+        .giant-text {
+            font-family: var(--font-main);
+            font-size: 3.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .question .giant-text {
+            color: var(--primary-color);
+        }
+
+        .stem .giant-text {
+            color: var(--secondary-color);
+        }
+
+        .blank-line {
+            display: inline-block;
+            min-width: 180px;
+            border-bottom: 6px solid var(--secondary-color);
+            margin: 0 10px;
+        }
+
+        /* --- Vocab Helper --- */
+        .vocab-helper {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .vocab-helper-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .vocab-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .vocab-chip {
+            background: #f1f5f9;
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: var(--font-main);
+            border: 2px solid #e2e8f0;
+        }
+
+        /* --- Bridging Note --- */
+        .teacher-note {
+            margin-top: 30px;
+            background: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .giant-text { font-size: 2.2rem; }
+            .card { padding: 20px; }
+            .tts-box { padding: 25px 15px; }
+            .menu-btn { font-size: 1.2rem; padding: 15px; }
+            .header-controls { min-width: auto; }
+            header h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-controls">
+            <button class="nav-btn" onclick="goHome()">Home</button>
+            <button class="nav-btn" id="btn-back" onclick="goBack()" disabled>Back</button>
+        </div>
+        
+        <h1>A2 Speaking Practice</h1>
+        
+        <div class="header-controls right">
+            <button class="nav-btn primary" id="btn-next" onclick="nextQuestion()" disabled>Next</button>
+        </div>
+    </header>
+
+    <div id="app-container">
+
+        <!-- Screen 1: Select Grammar Pattern -->
+        <div id="screen-grammar" class="screen active">
+            <div class="card">
+                <h2 class="card-title">1. Choose a Grammar Pattern</h2>
+                <p class="card-subtitle">Select the sentence structure you want to practice.</p>
+                <div class="grid-menu" id="grammar-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+                
+                <div class="teacher-note">
+                    <strong style="color: #b45309;">👩‍🏫 Secondary School Bridging Note:</strong>
+                    <p style="color: #92400e; margin-top: 5px; font-size: 0.95rem;">These 8 patterns act as foundational "sentence frames". Verbs and Nouns are strictly index-aligned (e.g., index 0 verb maps to index 0 noun) to guarantee perfectly logical collocations and avoid grammatical nonsense.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Select Topic -->
+        <div id="screen-topics" class="screen">
+            <div class="card">
+                <h2 class="card-title">2. Choose a Topic</h2>
+                <p class="card-subtitle">What vocabulary do you want to use?</p>
+                <div class="grid-menu" id="topics-grid">
+                    <!-- Buttons injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Practice Interface -->
+        <div id="screen-practice" class="screen">
+            <div class="card">
+                <div class="practice-header">
+                    <span id="practice-grammar-title">Grammar Title</span>
+                    <span style="color: #94a3b8;">Prompt <span id="q-current">1</span> of 10</span>
+                </div>
+
+                <!-- Question Box -->
+                <div class="tts-box question" id="box-question" onclick="speakQuestion()">
+                    <div style="color: var(--primary-color); font-weight: bold; font-size: 1rem; margin-bottom: 5px; text-transform: uppercase;">Listen & Answer:</div>
+                    <div class="giant-text" id="text-question">Loading question...</div>
+                </div>
+
+                <!-- Answer Stem Box -->
+                <div class="tts-box stem" id="box-stem" onclick="speakStem()">
+                    <div style="color: var(--secondary-color); font-weight: bold; font-size: 1rem; margin-bottom: 5px; text-transform: uppercase;">Your Turn:</div>
+                    <div class="giant-text" id="text-stem">Loading stem...</div>
+                </div>
+
+                <!-- Vocabulary Helper -->
+                <div class="vocab-helper">
+                    <div class="vocab-helper-title">Vocabulary Helper</div>
+                    <div class="vocab-chips" id="vocab-container">
+                        <!-- Word chips injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Results -->
+        <div id="screen-results" class="screen">
+            <div class="card" style="padding: 60px 20px;">
+                <div style="font-size: 5rem; margin-bottom: 20px;">🌟</div>
+                <h2 class="card-title">Practice Complete!</h2>
+                <p class="card-subtitle" style="font-size: 1.5rem;">Great job reading and speaking out loud.</p>
+                <button class="nav-btn primary" style="margin: 30px auto 0; padding: 15px 40px; font-size: 1.5rem;" onclick="goHome()">Play Again</button>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    // --- 1. Curriculum Data & Strict Collocations ---
+
+    // Using heavily revised Templates to ensure strictly Transitive structures
+    const grammarPatterns = [
+        { 
+            id: 'present_simple', 
+            title: 'Present Simple', 
+            desc: 'Do you...?',
+            templates: [
+                { q: "Do you {verb} {noun}?", a: "Yes, I ____." },
+                { q: "Do you {verb} {noun} at school?", a: "No, I don't ____." },
+                { q: "Do you often {verb} {noun}?", a: "Yes, I often ____." },
+                { q: "Do your friends {verb} {noun}?", a: "Yes, they ____." },
+                { q: "Do you {verb} {noun} on weekends?", a: "No, I don't ____." },
+                { q: "Do you {verb} {noun} every day?", a: "Yes, I ____." },
+                { q: "Do you usually {verb} {noun} in the morning?", a: "No, I usually ____." },
+                { q: "Do people {verb} {noun} here?", a: "Yes, they ____." },
+                { q: "Do you {verb} {noun} with your family?", a: "Yes, I ____." },
+                { q: "Do you {verb} {noun} after class?", a: "No, I don't ____." }
+            ]
+        },
+        { 
+            id: 'can_ability', 
+            title: 'Can for Ability', 
+            desc: 'Can you...?',
+            templates: [
+                { q: "Can you {verb} {noun}?", a: "Yes, I can ____." },
+                { q: "Can your brother {verb} {noun}?", a: "No, he can't ____." },
+                { q: "Can you {verb} {noun} well?", a: "Yes, I can ____." },
+                { q: "Can you {verb} {noun} fast?", a: "No, I can't ____." },
+                { q: "Can we {verb} {noun} here?", a: "Yes, we can ____." },
+                { q: "Can you show me how to {verb} {noun}?", a: "Yes, I can ____." },
+                { q: "Can anyone {verb} {noun}?", a: "Yes, I can ____." },
+                { q: "Can she {verb} {noun}?", a: "No, she can't ____." },
+                { q: "Can you {verb} {noun} without help?", a: "Yes, I can ____." },
+                { q: "Can they {verb} {noun}?", a: "Yes, they can ____." }
+            ]
+        },
+        { 
+            id: 'like_ing', 
+            title: 'Like + -ing', 
+            desc: 'Do you like...ing?',
+            templates: [
+                { q: "Do you like {verb}ing {noun}?", a: "Yes, I like ____." },
+                { q: "Does he like {verb}ing {noun}?", a: "No, he doesn't like ____." },
+                { q: "Do they like {verb}ing {noun} together?", a: "Yes, they like ____." },
+                { q: "Do you like {verb}ing {noun} on weekends?", a: "No, I don't like ____." },
+                { q: "Do you enjoy {verb}ing {noun}?", a: "Yes, I enjoy ____." },
+                { q: "Does your friend like {verb}ing {noun}?", a: "Yes, she likes ____." },
+                { q: "Do you like {verb}ing {noun} at school?", a: "No, I don't like ____." },
+                { q: "Do you love {verb}ing {noun}?", a: "Yes, I love ____." },
+                { q: "Do people here like {verb}ing {noun}?", a: "Yes, they like ____." },
+                { q: "Do you really like {verb}ing {noun}?", a: "No, I don't like ____." }
+            ]
+        },
+        { 
+            id: 'have_got', 
+            title: 'Have got / There is', 
+            desc: 'Existence & Possession',
+            templates: [
+                { q: "Have you got any {noun}?", a: "Yes, I have got ____." },
+                { q: "Has she got any {noun}?", a: "No, she hasn't got ____." },
+                { q: "Have we got enough {noun}?", a: "Yes, we have got ____." },
+                { q: "Have they got any {noun}?", a: "No, they haven't got ____." },
+                { q: "Has he got his {noun}?", a: "Yes, he has got ____." },
+                { q: "Have you got your {noun} with you?", a: "No, I haven't got ____." },
+                { q: "Have you got a lot of {noun}?", a: "Yes, I have got ____." },
+                { q: "Have your friends got any {noun}?", a: "No, they haven't got ____." },
+                { q: "Has the teacher got any {noun}?", a: "Yes, he has got ____." },
+                { q: "Have you got some {noun} for me?", a: "No, I haven't got ____." }
+            ]
+        },
+        { 
+            id: 'present_continuous', 
+            title: 'Present Continuous', 
+            desc: 'Are you...ing?',
+            templates: [
+                { q: "Are you {verb}ing {noun} now?", a: "Yes, I am ____." },
+                { q: "Is she {verb}ing {noun}?", a: "No, she is not ____." },
+                { q: "Are they {verb}ing {noun} over there?", a: "Yes, they are ____." },
+                { q: "Are we {verb}ing {noun} today?", a: "No, we are not ____." },
+                { q: "Is he {verb}ing {noun} at the moment?", a: "Yes, he is ____." },
+                { q: "Are you {verb}ing {noun} outside?", a: "No, I am not ____." },
+                { q: "Are the students {verb}ing {noun}?", a: "Yes, they are ____." },
+                { q: "Is everyone {verb}ing {noun}?", a: "Yes, everyone is ____." },
+                { q: "Are you {verb}ing {noun} this afternoon?", a: "No, I am not ____." },
+                { q: "Is your friend {verb}ing {noun}?", a: "Yes, my friend is ____." }
+            ]
+        },
+        { 
+            id: 'going_to', 
+            title: 'Want to / Going to', 
+            desc: 'Plans & Desires',
+            templates: [
+                { q: "Do you want to {verb} {noun}?", a: "Yes, I want to ____." },
+                { q: "Are you going to {verb} {noun}?", a: "No, I am not going to ____." },
+                { q: "Does she want to {verb} {noun}?", a: "Yes, she wants to ____." },
+                { q: "Is he going to {verb} {noun} tomorrow?", a: "No, he is not going to ____." },
+                { q: "Do they want to {verb} {noun} with us?", a: "Yes, they want to ____." },
+                { q: "Are we going to {verb} {noun} later?", a: "No, we are not going to ____." },
+                { q: "Do you want to {verb} {noun} now?", a: "Yes, I want to ____." },
+                { q: "Are you going to {verb} {noun} this weekend?", a: "No, I am not going to ____." },
+                { q: "Does your friend want to {verb} {noun}?", a: "Yes, my friend wants to ____." },
+                { q: "Are they going to {verb} {noun} soon?", a: "No, they are not going to ____." }
+            ]
+        },
+        { 
+            id: 'comparatives', 
+            title: 'Comparatives', 
+            desc: 'Preferences & Comparisons',
+            templates: [
+                { q: "Do you like {noun} more than {noun2}?", a: "I prefer ____." },
+                { q: "Can you {verb} {noun} faster than {noun2}?", a: "Yes, I can ____." },
+                { q: "Is it harder to {verb} {noun} or {noun2}?", a: "I think it is harder to ____." },
+                { q: "Is it easier to {verb} {noun} or {noun2}?", a: "It is easier to ____." },
+                { q: "Is it better to {verb} {noun} or {noun2}?", a: "It is better to ____." },
+                { q: "Is it more fun to {verb} {noun} or {noun2}?", a: "It is more fun to ____." },
+                { q: "Do people {verb} {noun} more often than {noun2}?", a: "Yes, they ____." },
+                { q: "Is {verb}ing {noun} better than {verb}ing {noun2}?", a: "I think ____." },
+                { q: "Is {verb}ing {noun} harder than {verb}ing {noun2}?", a: "Yes, ____." },
+                { q: "Is {verb}ing {noun} more interesting than {verb}ing {noun2}?", a: "I feel that ____." }
+            ]
+        },
+        { 
+            id: 'frequency', 
+            title: 'Adverbs of Frequency', 
+            desc: 'How often do you...?',
+            templates: [
+                { q: "How often do you {verb} {noun}?", a: "I usually ____." },
+                { q: "Do you always {verb} {noun}?", a: "Yes, I always ____." },
+                { q: "Do you usually {verb} {noun} after school?", a: "No, I sometimes ____." },
+                { q: "Do you sometimes {verb} {noun} on weekends?", a: "Yes, I sometimes ____." },
+                { q: "Do you never {verb} {noun}?", a: "I never ____." },
+                { q: "How often do people {verb} {noun} here?", a: "They always ____." },
+                { q: "Do you often {verb} {noun}?", a: "Yes, I often ____." },
+                { q: "Do you rarely {verb} {noun}?", a: "No, I rarely ____." },
+                { q: "Do you usually {verb} {noun} in the morning?", a: "Yes, I usually ____." },
+                { q: "How often does your friend {verb} {noun}?", a: "My friend usually ____." }
+            ]
+        }
+    ];
+
+    // Strict Index Alignment: Verbs[i] natively collocate perfectly with Nouns[i]
+    const topicBanks = [
+        { id: 'animals', name: 'Animals',
+          nouns: ['pandas', 'dogs', 'cats', 'birds', 'fish', 'rabbits', 'monkeys', 'tigers', 'horses', 'elephants'],
+          verbs: ['feed', 'walk', 'pet', 'watch', 'catch', 'hold', 'see', 'draw', 'ride', 'wash'],
+          emojis: ['🐼', '🐶', '🐱', '🐦', '🐟', '🐰', '🐒', '🐯', '🐴', '🐘']
+        },
+        { id: 'food', name: 'Food',
+          nouns: ['apples', 'cake', 'pizza', 'rice', 'eggs', 'bread', 'soup', 'bananas', 'sandwiches', 'noodles'],
+          verbs: ['eat', 'bake', 'buy', 'cook', 'boil', 'cut', 'make', 'peel', 'share', 'order'],
+          emojis: ['🍎', '🍰', '🍕', '🍚', '🥚', '🍞', '🥣', '🍌', '🥪', '🍜']
+        },
+        { id: 'school', name: 'School',
+          nouns: ['books', 'pens', 'bags', 'rulers', 'teachers', 'desks', 'classes', 'friends', 'homework', 'tests'],
+          verbs: ['read', 'use', 'carry', 'need', 'ask', 'clean', 'attend', 'help', 'finish', 'take'],
+          emojis: ['📚', '🖊️', '🎒', '📏', '👩‍🏫', '🪑', '🏫', '👋', '📝', '💯']
+        },
+        { id: 'weather', name: 'Nature & Weather',
+          nouns: ['rain', 'sun', 'snow', 'trees', 'flowers', 'storms', 'sky', 'bugs', 'leaves', 'wind'],
+          verbs: ['watch', 'feel', 'play in', 'plant', 'pick', 'chase', 'look at', 'catch', 'rake', 'enjoy'],
+          emojis: ['🌧️', '☀️', '❄️', '🌳', '🌺', '⛈️', '🌌', '🐛', '🍂', '💨']
+        },
+        { id: 'drinks', name: 'Drinks',
+          nouns: ['water', 'milk', 'juice', 'tea', 'cola', 'coffee', 'lemonade', 'hot chocolate', 'smoothies', 'ice'],
+          verbs: ['drink', 'pour', 'sip', 'make', 'buy', 'order', 'share', 'want', 'blend', 'crush'],
+          emojis: ['💧', '🥛', '🧃', '🍵', '🥤', '☕', '🍋', '🍫', '🥤', '🧊']
+        },
+        { id: 'clothes', name: 'Clothes',
+          nouns: ['shirts', 'shoes', 'hats', 'jackets', 'socks', 'skirts', 'coats', 'uniforms', 'scarves', 'gloves'],
+          verbs: ['wear', 'buy', 'wash', 'hang', 'fold', 'try on', 'need', 'clean', 'knit', 'lose'],
+          emojis: ['👕', '👟', '🧢', '🧥', '🧦', '👗', '🧥', '🏫', '🧣', '🧤']
+        },
+        { id: 'games', name: 'Games & Toys',
+          nouns: ['balls', 'cars', 'dolls', 'robots', 'puzzles', 'kites', 'games', 'cards', 'blocks', 'dice'],
+          verbs: ['throw', 'race', 'dress', 'build', 'solve', 'fly', 'play', 'collect', 'stack', 'roll'],
+          emojis: ['⚽', '🚗', '🧸', '🤖', '🧩', '🪁', '🎮', '🃏', '🧱', '🎲']
+        },
+        { id: 'music', name: 'Music & Art',
+          nouns: ['songs', 'music', 'pictures', 'paintings', 'paper', 'pianos', 'guitars', 'colors', 'drums', 'clay'],
+          verbs: ['sing', 'listen to', 'draw', 'look at', 'cut', 'play', 'tune', 'mix', 'beat', 'mold'],
+          emojis: ['🎵', '🎧', '🖼️', '🎨', '📄', '🎹', '🎸', '🌈', '🥁', '🏺']
+        },
+        { id: 'home', name: 'Home',
+          nouns: ['rooms', 'beds', 'chairs', 'tables', 'doors', 'windows', 'TVs', 'kitchens', 'floors', 'plants'],
+          verbs: ['clean', 'make', 'move', 'wipe', 'open', 'close', 'watch', 'use', 'sweep', 'water'],
+          emojis: ['🚪', '🛏️', '🪑', '🪚', '🚪', '🪟', '📺', '🍳', '🧹', '🪴']
+        },
+        { id: 'family', name: 'Friends & Family',
+          nouns: ['moms', 'dads', 'sisters', 'brothers', 'friends', 'boys', 'girls', 'babies', 'grandpas', 'grandmas'],
+          verbs: ['help', 'hug', 'tease', 'call', 'visit', 'meet', 'greet', 'hold', 'ask', 'thank'],
+          emojis: ['👩', '👨', '👧', '👦', '🤝', '👦', '👧', '👶', '👴', '👵']
+        },
+        { id: 'hobbies', name: 'Hobbies',
+          nouns: ['books', 'bikes', 'photos', 'stamps', 'dances', 'sports', 'teams', 'clubs', 'movies', 'songs'],
+          verbs: ['read', 'ride', 'take', 'collect', 'learn', 'play', 'join', 'start', 'watch', 'record'],
+          emojis: ['📖', '🚲', '📸', '📮', '💃', '⚽', '🤝', '🏫', '🎬', '🎤']
+        },
+        { id: 'health', name: 'Health & Body',
+          nouns: ['heads', 'hands', 'feet', 'eyes', 'medicine', 'doctors', 'water', 'beds', 'teeth', 'faces'],
+          verbs: ['nod', 'wash', 'rest', 'close', 'take', 'visit', 'drink', 'make', 'brush', 'clean'],
+          emojis: ['🗣️', '👐', '🦶', '👀', '💊', '👨‍⚕️', '💧', '🛏️', '🦷', '😊']
+        }
+    ];
+
+    // --- 2. Helper Functions ---
+
+    function getIngForm(verb) {
+        let parts = verb.split(' ');
+        let v = parts[0];
+        let rest = parts.length > 1 ? ' ' + parts.slice(1).join(' ') : '';
+        
+        if (['run', 'win', 'swim', 'spin', 'sit', 'get', 'put', 'knit', 'nod'].includes(v)) v = v + v.slice(-1) + 'ing';
+        else if (v.endsWith('e') && v !== 'see') v = v.slice(0, -1) + 'ing';
+        else v = v + 'ing';
+        
+        return v + rest;
+    }
+
+    function getRandomIndex(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    // Build sentences with guaranteed accurate collocations
+    function buildSentence(template, topicData) {
+        let text = template;
+        
+        // Pick an index to guarantee that Verb maps perfectly to Noun
+        let idx1 = getRandomIndex(topicData.nouns.length);
+        let n1 = topicData.nouns[idx1];
+        let v1 = topicData.verbs[idx1];
+
+        // For comparatives needing a second distinct noun
+        let idx2 = getRandomIndex(topicData.nouns.length);
+        while (idx2 === idx1) idx2 = getRandomIndex(topicData.nouns.length);
+        let n2 = topicData.nouns[idx2];
+        let v2 = topicData.verbs[idx2]; // Stored in vocab list in case needed
+        
+        text = text.replace(/{noun}/g, n1);
+        text = text.replace(/{noun2}/g, n2);
+        
+        // Replace verbs
+        if (text.includes('{verb}ing')) {
+            text = text.replace(/{verb}ing/g, getIngForm(v1));
+        }
+        text = text.replace(/{verb}/g, v1);
+
+        return { 
+            text: text, 
+            vocabUsed: [n1, n2, v1, v2], // Return all generated words to feed the helper
+            emoji1: topicData.emojis[idx1] 
+        };
+    }
+
+    function removeBlanksForSpeech(text) {
+        // Strip visual html and emojis so TTS just speaks naturally or pauses
+        let plain = text.replace(/<span.*<\/span>/g, 'blank');
+        plain = plain.replace(/[\u{1F300}-\u{1F9FF}]/gu, ''); // removes emojis
+        return plain.replace(/_+/g, 'blank');
+    }
+
+    // --- 3. App State & Logic ---
+
+    let currentScreen = 'screen-grammar';
+    let selectedGrammar = null;
+    let selectedTopic = null;
+    let practiceQuestions = [];
+    let currentQIndex = 0;
+
+    function init() {
+        const gGrid = document.getElementById('grammar-grid');
+        grammarPatterns.forEach(g => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn';
+            btn.innerHTML = `${g.title} <small>${g.desc}</small>`;
+            btn.onclick = () => selectGrammar(g);
+            gGrid.appendChild(btn);
+        });
+
+        const tGrid = document.getElementById('topics-grid');
+        topicBanks.forEach(t => {
+            const btn = document.createElement('button');
+            btn.className = 'menu-btn topic-btn';
+            btn.innerHTML = t.name;
+            btn.onclick = () => selectTopic(t);
+            tGrid.appendChild(btn);
+        });
+    }
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        currentScreen = screenId;
+        updateHeaderNav();
+    }
+
+    function updateHeaderNav() {
+        const btnBack = document.getElementById('btn-back');
+        const btnNext = document.getElementById('btn-next');
+
+        if (currentScreen === 'screen-grammar') {
+            btnBack.disabled = true;
+            btnNext.disabled = true;
+        } else if (currentScreen === 'screen-topics') {
+            btnBack.disabled = false;
+            btnNext.disabled = true;
+        } else if (currentScreen === 'screen-practice') {
+            btnBack.disabled = false;
+            btnNext.disabled = false; 
+            btnNext.innerText = (currentQIndex === 9) ? "Finish" : "Next";
+        } else if (currentScreen === 'screen-results') {
+            btnBack.disabled = false;
+            btnNext.disabled = true;
+        }
+    }
+
+    function goHome() {
+        selectedGrammar = null;
+        selectedTopic = null;
+        switchScreen('screen-grammar');
+    }
+
+    function goBack() {
+        if (currentScreen === 'screen-topics') {
+            switchScreen('screen-grammar');
+        } else if (currentScreen === 'screen-practice') {
+            switchScreen('screen-topics');
+        } else if (currentScreen === 'screen-results') {
+            goHome();
+        }
+    }
+
+    function selectGrammar(g) {
+        selectedGrammar = g;
+        switchScreen('screen-topics');
+    }
+
+    function selectTopic(t) {
+        selectedTopic = t;
+        generatePracticeSet();
+        currentQIndex = 0;
+        loadPracticePage();
+        switchScreen('screen-practice');
+    }
+
+    function generatePracticeSet() {
+        practiceQuestions = [];
+        selectedGrammar.templates.forEach(templatePair => {
+            let qData = buildSentence(templatePair.q, selectedTopic);
+            
+            // Build stem: Student completes sentence with a long blank and thematic emoji
+            let aDataHTML = templatePair.a.replace(/____/g, '<span class="blank-line"></span>') + " " + qData.emoji1;
+            
+            practiceQuestions.push({
+                qHtml: qData.text,
+                qSpeech: qData.text,
+                aHtml: aDataHTML,
+                aSpeech: removeBlanksForSpeech(templatePair.a),
+                vocabUsed: qData.vocabUsed
+            });
+        });
+    }
+
+    function loadPracticePage() {
+        const data = practiceQuestions[currentQIndex];
+        
+        document.getElementById('practice-grammar-title').innerText = selectedGrammar.title;
+        document.getElementById('q-current').innerText = currentQIndex + 1;
+        
+        document.getElementById('text-question').innerHTML = data.qHtml;
+        document.getElementById('text-stem').innerHTML = data.aHtml;
+
+        // Render Vocab Helper (Distinct words required for this specific question)
+        const vContainer = document.getElementById('vocab-container');
+        vContainer.innerHTML = '';
+        
+        // Use a Set to ensure unique vocabulary chips
+        let wordsToShow = new Set(data.vocabUsed);
+
+        // Convert set to array and shuffle
+        let wordsArr = Array.from(wordsToShow).sort(() => Math.random() - 0.5);
+
+        wordsArr.forEach(w => {
+            const chip = document.createElement('div');
+            chip.className = 'vocab-chip';
+            chip.innerText = w;
+            vContainer.appendChild(chip);
+        });
+
+        updateHeaderNav();
+    }
+
+    function nextQuestion() {
+        if (currentQIndex < 9) {
+            currentQIndex++;
+            loadPracticePage();
+        } else {
+            switchScreen('screen-results');
+        }
+    }
+
+    // --- 4. TTS Execution (Strictly 85% Speed) ---
+    function speakQuestion() {
+        speakText(practiceQuestions[currentQIndex].qSpeech);
+    }
+
+    function speakStem() {
+        speakText(practiceQuestions[currentQIndex].aSpeech);
+    }
+
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Absolute requirement: 85% speed
+            utterance.rate = 0.85; 
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            window.speechSynthesis.speak(utterance);
+        } else {
+            console.log("TTS not supported.");
+        }
+    }
+
+    // Run initialization
+    init();
+
+</script>
+</body>
+</html>
