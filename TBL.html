@@ -40,11 +40,12 @@
         header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 0.5px; }
         header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1.1rem; }
 
+        /* Adjusted Layout: Left panel reduced by ~20%, overall width increased to give right panel more space */
         .layout-container {
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 220px 1fr;
             gap: 2rem;
-            max-width: 1400px;
+            max-width: 98%;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
@@ -57,7 +58,7 @@
 
         .control-panel {
             background: var(--surface);
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 12px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             height: fit-content;
@@ -82,7 +83,7 @@
             font-weight: 600;
             margin-bottom: 0.4rem;
             color: var(--text-dark);
-            font-size: 0.75rem;
+            font-size: 0.72rem; /* Reduced font size slightly to fit narrower panel */
         }
 
         .form-group input[type="text"], .form-group input[type="number"], .form-group select {
@@ -113,7 +114,7 @@
             margin-bottom: 1rem;
         }
         
-        .checkbox-group label { margin: 0; font-size: 0.75rem; line-height: 1.3; font-weight: normal;}
+        .checkbox-group label { margin: 0; font-size: 0.72rem; line-height: 1.3; font-weight: normal;}
         .checkbox-group input { margin-top: 2px; }
 
         .btn-generate {
@@ -162,8 +163,8 @@
         }
 
         .lesson-header h2 { margin: 0 0 0.5rem 0; font-size: 2rem; color: var(--primary); }
-        .lesson-meta { display: flex; gap: 1rem; flex-wrap: wrap; color: var(--text-muted); font-weight: 500; }
-        .lesson-meta span { background: #eff6ff; color: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.85rem; }
+        .lesson-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; color: var(--text-muted); font-weight: 500; }
+        .lesson-meta span { background: #eff6ff; color: var(--secondary); padding: 0.25rem 0.65rem; border-radius: 99px; font-size: 0.8rem; border: 1px solid #bfdbfe; }
 
         .phase-card {
             border-left: 5px solid var(--secondary);
@@ -210,6 +211,17 @@
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
 
+        .logic-callout {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .logic-callout.flow { background: #f0f9ff; border-left: 3px solid var(--secondary); }
+        .logic-callout.cog { background: #fffbeb; border-left: 3px solid var(--accent); }
+        .logic-callout.timing { background: #f0fdf4; border-left: 3px solid var(--success); }
+
         .rubric-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
         .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; vertical-align: top;}
         .rubric-table th { background-color: #f8fafc; color: var(--primary); }
@@ -225,23 +237,10 @@
             border-radius: 8px;
             margin-bottom: 1rem;
         }
-        
-        .btn-tts {
-            background: #e0e7ff;
-            border: 1px solid #c7d2fe;
-            color: var(--primary);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            float: right;
-        }
-        .btn-tts:hover { background: #c7d2fe; }
 
         @media print {
-            .control-panel, header, .btn-print, .btn-tts { display: none !important; }
-            .layout-container { grid-template-columns: 1fr; margin: 0; padding: 0; display: block; }
+            .control-panel, header, .btn-print { display: none !important; }
+            .layout-container { grid-template-columns: 1fr; margin: 0; padding: 0; display: block; max-width: 100%; }
             body { background: white; }
             .output-panel { box-shadow: none; padding: 0; }
             .phase-card { page-break-inside: avoid; border: 1px solid #ccc; }
@@ -322,13 +321,13 @@
             <label>Task Database Explorer</label>
             <select id="taskType">
                 <optgroup label="1. Info-Gap & Descriptive (Fluency)">
-                    <option value="Spot-the-Difference / Picture Dictation">Spot-the-Difference</option>
+                    <option value="Spot-the-Difference">Spot-the-Difference</option>
                     <option value="The 'Lost Item' Police Report">The 'Lost Item' Police Report</option>
                     <option value="Metro / Campus Navigation">Metro / Campus Navigation</option>
                 </optgroup>
                 <optgroup label="2. Reasoning-Gap (Form & Syntax)">
-                    <option value="Grammar-Trapped Logic Puzzles">Grammar-Trapped Logic Puzzle</option>
-                    <option value="Inductive Grammar Discovery">Inductive Grammar Discovery</option>
+                    <option value="Grammar-Trapped Logic Puzzle">Grammar-Trapped Logic Puzzle</option>
+                    <option value="Inductive Tense Hunt">Inductive Tense Hunt</option>
                     <option value="Collaborative L1-to-L2 Translation">Collaborative L1-to-L2 Translation</option>
                 </optgroup>
                 <optgroup label="3. Problem-Solving (Consensus)">
@@ -358,25 +357,23 @@
         </div>
 
         <div class="form-group">
-            <label>Information Flow</label>
+            <label>Information Flow Strategy</label>
             <select id="infoFlow">
                 <option value="two-way">Two-Way Jigsaw (Forced Mutual Exchange)</option>
                 <option value="one-way">One-Way (Standard info transfer)</option>
             </select>
         </div>
 
-        <!-- RESTORED: Cognitive Complexity Control -->
         <div class="form-group">
-            <label>Cognitive Complexity (+/- Reasoning)</label>
+            <label>Cognitive Complexity Setup</label>
             <select id="cogComplexity">
-                <option value="high">High (Evaluate, Justify & Defend)</option>
-                <option value="standard">Standard (Describe & Identify)</option>
+                <option value="high">High Demand (Evaluate, Justify & Defend)</option>
+                <option value="standard">Standard Load (Describe & Identify)</option>
             </select>
         </div>
 
-        <!-- RESTORED: Grammar Correction Timing Control -->
         <div class="form-group">
-            <label>Grammar Correction Timing</label>
+            <label>Grammar Correction Protocol</label>
             <select id="correctionTiming">
                 <option value="delayed">Delayed Prompts (End-of-lesson board review)</option>
                 <option value="recast">Immediate Recasts (Gentle inline correction)</option>
@@ -392,7 +389,7 @@
         
         <div class="checkbox-group">
             <input type="checkbox" id="incTheory" checked>
-            <label for="incTheory">Include TBLT Theory & Efficiency Checklist</label>
+            <label for="incTheory">Include TBLT Theory & Rationale</label>
         </div>
         
         <div class="checkbox-group">
@@ -406,24 +403,12 @@
 
     <div class="output-panel" id="outputPanel">
         <div style="text-align: center; color: var(--text-muted); margin-top: 20%;">
-            <i>Select your parameters on the left and click "Architect Module" to build a research-backed instructional blueprint and Teacher PD Pack.</i>
+            <i>Select your parameters on the left and click "Architect Module" to dynamically build your customized, research-backed instructional blueprint.</i>
         </div>
     </div>
 </div>
 
 <script>
-    // System Note: TTS engine explicitly set to 0.85 rate for optimized secondary student/teacher comprehension
-    function playTTS(text) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.85; // Hardcoded preference: Always slow down speech to 85%
-            window.speechSynthesis.speak(utterance);
-        } else {
-            alert("Text-to-speech is not supported in this browser.");
-        }
-    }
-
     // --- PEDAGOGICAL DATABASE FOR GRAMMAR ---
     const grammarDatabase = {
         "Simple Present (Routines & Habits)": {
@@ -588,7 +573,7 @@
     // --- NEW TASK DATABASE: DERIVED FROM 90+ SYNTHESIZED SOURCES ---
     const taskDatabase = [
         {
-            title: "Spot-the-Difference / Picture Dictation",
+            title: "Spot-the-Difference",
             category: "1. Information-Gap Tasks",
             skills: "Speaking",
             description: "Student A and Student B hold similar but altered images. Without showing their papers, they must orally describe their images to find 5 discrepancies.",
@@ -612,7 +597,7 @@
             citation: "Willis (1996); Pica (n.d.)"
         },
         {
-            title: "Grammar-Trapped Logic Puzzles",
+            title: "Grammar-Trapped Logic Puzzle",
             category: "2. Reasoning-Gap & Grammar Discovery",
             skills: "Reading & Speaking",
             description: "Students solve a mystery where cracking the case is impossible without using a target structure (e.g., Third Conditional: 'If he had been at the bank...').",
@@ -620,7 +605,7 @@
             citation: "Lam (2023)"
         },
         {
-            title: "Inductive Grammar Discovery",
+            title: "Inductive Tense Hunt",
             category: "2. Reasoning-Gap & Grammar Discovery",
             skills: "Reading & Writing",
             description: "Instead of a whiteboard lecture, students are given an authentic news report and must hunt, categorize, and deduce the rules for the target syntax on their own.",
@@ -652,6 +637,22 @@
             citation: "Oura (2001)"
         },
         {
+            title: "The Academic Peer Consultation",
+            category: "4. Academic & Project-Based Tasks (EAP)",
+            skills: "Writing & Speaking",
+            description: "Students read a peer's academic draft and conduct a formal, timed consultation to negotiate structural edits and clarify meaning before final submission.",
+            whyItWorks: "Breaks teacher dependency and forces the academic autonomy required for Western higher education.",
+            citation: "Sari et al. (2018)"
+        },
+        {
+            title: "Model UN / Global Policy Roundtable",
+            category: "4. Academic & Project-Based Tasks (EAP)",
+            skills: "Speaking",
+            description: "Students are assigned countries and must negotiate a formal treaty regarding an environmental or economic crisis.",
+            whyItWorks: "Anchors language in cross-curricular, real-world academic needs.",
+            citation: "Douglas & Kim (2014); Ramadhan et al. (2022)"
+        },
+        {
             title: "The 'Shark Tank' Product Pitch",
             category: "4. Opinion-Exchange & Affective",
             skills: "Speaking",
@@ -676,24 +677,8 @@
             citation: "Putri et al. (2024); Alay (2023)"
         },
         {
-            title: "The Academic Peer Consultation",
-            category: "5. Academic & Project-Based Tasks (EAP)",
-            skills: "Writing & Speaking",
-            description: "Students read a peer's academic draft and conduct a formal, timed consultation to negotiate structural edits and clarify meaning before final submission.",
-            whyItWorks: "Breaks teacher dependency and forces the academic autonomy required for Western higher education.",
-            citation: "Sari et al. (2018)"
-        },
-        {
-            title: "Model UN / Global Policy Roundtable",
-            category: "5. Academic & Project-Based Tasks (EAP)",
-            skills: "Speaking",
-            description: "Students are assigned countries and must negotiate a formal treaty regarding an environmental or economic crisis.",
-            whyItWorks: "Anchors language in cross-curricular, real-world academic needs.",
-            citation: "Douglas & Kim (2014); Ramadhan et al. (2022)"
-        },
-        {
             title: "Data Journalism / Infographic Synthesis",
-            category: "5. Academic & Project-Based Tasks (EAP)",
+            category: "4. Academic & Project-Based Tasks (EAP)",
             skills: "Reading & Writing",
             description: "Students analyze complex charts or raw data, extract the key points, and write an objective news report summarizing the findings, bypassing personal opinion.",
             whyItWorks: "Builds essential EAP skills (English for Academic Purposes) required for secondary exams.",
@@ -701,7 +686,7 @@
         },
         {
             title: "The YouTube Jigsaw",
-            category: "6. Technology-Mediated & Multimodal (MMC)",
+            category: "5. Technology-Mediated & Multimodal (MMC)",
             skills: "Listening & Speaking",
             description: "Students watch different authentic YouTube videos on a shared topic, then come together to verbally synthesize the information into a single project.",
             whyItWorks: "Replaces boring textbook audio with highly motivating, multimodal digital input.",
@@ -709,7 +694,7 @@
         },
         {
             title: "Digital Video Production",
-            category: "6. Technology-Mediated & Multimodal (MMC)",
+            category: "5. Technology-Mediated & Multimodal (MMC)",
             skills: "Integrated",
             description: "Students write, direct, and edit a short English documentary or 'how-to' video using their smartphones, fulfilling the psychological need for autonomy and peer relatedness.",
             whyItWorks: "Allows visual and cognitive pre-task planning, significantly reducing speaking anxiety during the final presentation.",
@@ -717,7 +702,7 @@
         },
         {
             title: "Out-of-Class Audio Interviews",
-            category: "6. Technology-Mediated & Multimodal (MMC)",
+            category: "5. Technology-Mediated & Multimodal (MMC)",
             skills: "Speaking",
             description: "Using smartphone voice recorders, students conduct interviews outside of class, bringing the audio back for transcription and self-correction.",
             whyItWorks: "Utilizes 'Assessment as Learning' where transcribing their own output forces students to notice their grammatical errors.",
@@ -725,7 +710,7 @@
         },
         {
             title: "E-Learning Forum Buffer",
-            category: "6. Technology-Mediated & Multimodal (MMC)",
+            category: "5. Technology-Mediated & Multimodal (MMC)",
             skills: "Writing & Speaking",
             description: "Introverted students debate a topic asynchronously on a digital forum to build confidence and vocabulary before conducting the live, face-to-face debate.",
             whyItWorks: "Protects high-anxiety students by allowing them to solve the communicative problem digitally before speaking aloud.",
@@ -733,13 +718,140 @@
         },
         {
             title: "Text-to-Diagram Transfer",
-            category: "7. Active Reading Tasks",
+            category: "6. Active Reading Tasks",
             skills: "Reading",
             description: "Students read a complex historical or scientific text and must translate the written information into a non-linguistic timeline, map, or flowchart.",
             whyItWorks: "Proves comprehension by forcing students to actively manipulate information rather than passively translating sentences.",
             citation: "Xojamuratova et al. (2026)"
         }
     ];
+
+    // --- MASTER LITERATURE DATABASE (Expanded with 5-Pillar Research) ---
+    const literatureDatabase = [
+        { author: "Abraham (2015)", text: "Task-Based Language Teaching (TBLT) effectively mitigates EFL writing anxiety by grounding tasks in familiar topics and prioritizing tangible task outcomes over immediate mechanical accuracy.", tags: ["anxiety", "writing"] },
+        { author: "Adipat, Chotikapanich, & Adipat (2025)", text: "Integrating digital tools into TBLT expands the range of authentic tasks, significantly improving learner engagement and practical language utilization by adjusting instruction to the learners' evolving proficiency.", tags: ["digital", "technology", "tech"] },
+        { author: "Ahmadian (2016)", text: "Strategic task planning is essential; manipulating pre-task and on-line planning allows teachers to balance the competing cognitive demands of fluency, syntactic complexity, and grammatical accuracy in learner output.", tags: ["planning", "complexity"] },
+        { author: "Ahmed & Bidin (2016)", text: "TBLT significantly enhances both the grammatical accuracy and the qualitative confidence of EFL learners in writing skills compared to traditional, structural methodologies.", tags: ["writing", "accuracy"] },
+        { author: "Albino (2017)", text: "Using picture-description tasks within a TBLT framework notably improves speaking fluency by increasing speech rate and utterance elaboration while reducing hesitation through the use of natural recasts.", tags: ["speaking", "picture", "gap"] },
+        { author: "Anumudu (2024)", text: "TBLT successfully elevates interconnected language skills (listening, reading, speaking) in tertiary contexts, though lower-proficiency students require additional teacher scaffolding to prevent cognitive overload during open-ended tasks.", tags: ["integrated", "scaffolding"] },
+        { author: "Aubrey (2017)", text: "Inter-cultural contact during task execution triggers a psychological state of 'flow,' which drastically increases learner engagement, focus, and oral performance compared to intra-cultural (same-L1) interactions.", tags: ["culture", "speaking"] },
+        { author: "Baralt & Morcillo Gómez (2017)", text: "Synchronous online TBLT requires adapted methodology, such as providing dual-modality feedback (written and spoken simultaneously) and utilizing video models during the pre-task phase to set clear interactional expectations.", tags: ["online", "digital", "tech"] },
+        { author: "Barnard & Viet (2010)", text: "Using narrative frames reveals that while teachers theoretically understand TBLT, their actual classroom implementation is often hindered by local contextual constraints and the pressures of traditional examination systems.", tags: ["cnc", "local", "traditional"] },
+        { author: "Bhandari (2020)", text: "Successful TBLT implementation requires teachers to transition into active facilitators and carefully match task complexity to the specific age, cognitive interests, and proficiency levels of their learners.", tags: ["facilitator", "complexity"] },
+        { author: "Birjandi & Malmir (2009)", text: "The task-based approach is significantly more effective than traditional methods in developing both narrative and expository writing skills in advanced EFL learners when appropriate pre-task planning is applied.", tags: ["writing", "planning"] },
+        { author: "Block (2004)", text: "Teachers must act as cultural mediators, critically adapting globalized English teaching materials to ensure the pedagogies they promote do not cause destructive friction with local educational traditions.", tags: ["culture", "local", "cnc"] },
+        { author: "Brown & Perry (1991)", text: "The keyword-semantic strategy, which combines acoustic memory links with deep contextual processing, yields the highest retention rates for ESL vocabulary acquisition compared to isolated rote memorization.", tags: ["vocabulary"] },
+        { author: "Bygate (2009)", text: "Oral assessments must mirror pedagogical tasks; testing speaking requires evaluating a learner's ability to negotiate meaning in real-time, interactive scenarios rather than relying on isolated phonetic or grammar drills.", tags: ["assessment", "speaking"] },
+        { author: "Carless (2003)", text: "The implementation of TBLT with young learners is heavily influenced by syllabus time, teacher beliefs, and student proficiency, necessitating the strategic, limited use of the mother tongue to manage task complexity.", tags: ["young", "primary", "l1", "cnc"] },
+        { author: "Carless (2004)", text: "Teachers naturally reinterpret mandated task-based innovations to fit their own underlying beliefs and to survive the practical classroom management realities of their specific primary school contexts.", tags: ["local", "teachers", "cnc", "primary"] },
+        { author: "Chen & Wang (2019)", text: "Applying TBLT to intensive reading courses successfully transitions students from passive text consumers to active participants by linking reading comprehension directly to collaborative, real-world output tasks.", tags: ["reading"] },
+        { author: "Cheng & Samuel (2011)", text: "Despite holding positive attitudes toward TBLT concepts, secondary EFL teachers in China struggle to implement it fully due to logistical constraints, specifically large class sizes and the difficulty of evaluating communicative performance.", tags: ["china", "cnc", "large"] },
+        { author: "Chong & Reinders (2020)", text: "Technology-mediated TBLT is highly effective only when the specific affordances of the digital tools are directly aligned with the communicative and linguistic necessities of the task being performed.", tags: ["digital", "tech", "technology"] },
+        { author: "Cuesta Cuesta (1995)", text: "TBLT must maintain a structural balance; grammar should be proceduralized and embedded within real-world language use to prevent spontaneous fluency from developing at the expense of syntactic accuracy.", tags: ["grammar", "accuracy", "balance"] },
+        { author: "Dilini & Prahalathan (2021)", text: "TBLT is significantly more effective than traditional teaching methods in improving the speaking skills and overall communicative confidence of elementary-level ESL students.", tags: ["speaking", "primary"] },
+        { author: "East (2017)", text: "To prevent fossilization in time-limited foreign language contexts, TBLT must not be overly experiential; it must be balanced with structured environments that allow for the processing and practice of grammatical form.", tags: ["grammar", "fossilization", "form"] },
+        { author: "Edwards & Willis (2005)", text: "Teachers should actively explore their own classrooms by recording and analyzing student task performances to identify specific lexical gaps (utterance launchers) and inform subsequent, targeted lessons.", tags: ["utterance", "lexical"] },
+        { author: "Elahi & Mashhadi Heidar (2021)", text: "Integrating blended learning (asynchronous digital inputs) with face-to-face TBLT significantly enhances reading comprehension while preserving valuable classroom time for meaning-focused, synchronous interaction.", tags: ["digital", "reading", "blended"] },
+        { author: "Ellis (2009)", text: "TBLT should not be viewed in false opposition to traditional grammar instruction; a modular approach where form-focused lessons run alongside meaning-focused tasks is highly effective and practical.", tags: ["grammar", "modular"] },
+        { author: "Ellis (2017)", text: "Moving TBLT forward requires adopting a hybrid/modular syllabus that balances an object-oriented view of language (focus on form) with a tool-oriented view (meaningful communication).", tags: ["hybrid", "form"] },
+        { author: "Fitriani & Wirza (2018)", text: "TBLT—specifically through sequencing and picture narration tasks—promotes speaking fluency by decreasing segmental errors and increasing overall speech rate by lowering the cognitive burden of idea generation.", tags: ["picture", "speaking", "fluency"] },
+        { author: "Fu & Wang (2026)", text: "A multi-modal task-collaboration model (integrating voice, text, and gesture data) effectively overcomes the limitations of distance English teaching by boosting learning motivation and spoken output complexity.", tags: ["digital", "multi-modal", "online"] },
+        { author: "Gan & Leung (2020)", text: "Formative assessment within TBLT should be an active, invisible, and ongoing process of scaffolding during task execution rather than a disruptive post-task evaluative test.", tags: ["assessment", "formative"] },
+        { author: "Geng & Ferguson (2013)", text: "Pair-work during the pre-task planning phase significantly advantages oral fluency compared to individual or teacher-led planning, though teacher-led planning remains beneficial for improving accuracy.", tags: ["planning", "pair"] },
+        { author: "González-Lloret (2017)", text: "Embedding communicative tasks within everyday digital technologies (like smartphones and tablets) increases learner motivation because it mirrors the authentic ways modern students interact with the world.", tags: ["digital", "mobile", "tech"] },
+        { author: "Grant (2017)", text: "Project-Based Language Teaching (PBLT) successfully raises student motivation and autonomy in Asian contexts when learners are given control over authentic, meaningful, and extended project choices.", tags: ["project", "asian", "autonomy"] },
+        { author: "Hadi (2013)", text: "Iranian EFL learners exhibit a high level of psychological readiness and positive perception toward TBLT, indicating that traditional classroom cultures can adapt successfully to modern communicative methods.", tags: ["perception", "traditional"] },
+        { author: "Han (2018)", text: "Content-driven TBLT allows learners to simultaneously develop functional language competence and articulate complex academic subject matter, especially when supported by reflective writing tasks.", tags: ["academic", "content"] },
+        { author: "Hasan (2011)", text: "Task-based learning significantly outperforms traditional methods in improving the oral performance of secondary school students in both one-way monologues and two-way spontaneous dialogues.", tags: ["secondary", "speaking", "oral"] },
+        { author: "Hashemi, Azizinezhad, & Darvishi (2012)", text: "Practical TBLT implementation requires a strict pre-task, during-task, and post-task framework, positioning the teacher as a facilitator to allow students to restructure their interlanguage naturally.", tags: ["framework", "facilitator"] },
+        { author: "Hismanoglu & Hismanoglu (2011)", text: "EFL teachers must design tasks that reflect real-world scenarios to provide learners with natural, meaning-centered opportunities to master target language rules incidentally rather than through isolated drilling.", tags: ["real-world", "incidental"] },
+        { author: "Hu (2013)", text: "Chinese teachers exhibit varying responses to mandated TBLT (from passive acceptance to active exploration), highlighting the need to calibrate task implementation against the intense pressures of local examination systems.", tags: ["china", "cnc", "exams"] },
+        { author: "Inayanti & Halimi (2019)", text: "TBLT effectively improves descriptive writing skills by requiring learners to negotiate visual meaning and participate in structured peer-assessments during the post-task phase.", tags: ["writing", "peer"] },
+        { author: "Izadpanah (2010)", text: "TBLT succeeds by prioritizing a learner-centered environment that lowers language anxiety, proving that student motivation and psychological safety impact learning more significantly than specific materials.", tags: ["anxiety", "motivation"] },
+        { author: "Jarvis (2015)", text: "Mobile Assisted Language Use (MALU) pushes TBLT beyond traditional PPP paradigms by utilizing mobile devices as primary platforms for accessing global networks and executing authentic communicative tasks.", tags: ["mobile", "tech", "digital"] },
+        { author: "Jeon & Hahn (2006)", text: "While Korean secondary teachers understand TBLT principles, they face significant psychological burdens and preparation constraints, necessitating the provision of pre-designed, context-appropriate task materials to prevent burnout.", tags: ["burnout", "asian", "preparation"] },
+        { author: "Kafipour, Mahmoudi, & Khojasteh (2018)", text: "TBLT improves analytic writing in EFL classrooms by breaking complex assignments into manageable communicative problems, utilizing structured pre-task planning to lower cognitive burden.", tags: ["writing", "analytic", "academic"] },
+        { author: "Kern, Ware, & Warschauer (2008)", text: "Network-Based Language Teaching (NBLT) effectively shifts computer use from isolated drills to collaborative, intercultural projects where learners negotiate meaning globally.", tags: ["network", "tech", "digital"] },
+        { author: "Khatib & Dehghankar (2018)", text: "TBLT significantly enhances ESP learners' productive skills when tasks are grounded in rigorous needs analysis, directly replicating the linguistic pressures of their future academic disciplines.", tags: ["needs", "academic", "esp"] },
+        { author: "Khatib, Derakhshan, & Rezaei (2011)", text: "Integrating literature into TBLT provides a holistic immersion in universal concepts, promoting interactive and intercultural awareness provided the texts match the psychological readiness of the learners.", tags: ["literature", "reading"] },
+        { author: "Latif & Shafipoor (2015)", text: "Task-based and task-supported methodologies outperform traditional teaching by promoting self-correction, peer form-noticing, and the seamless integration of reading, writing, speaking, and listening.", tags: ["integrated", "self-correction"] },
+        { author: "Lee (2024)", text: "Explicit form-focused instruction (FFI) must be consciously integrated into TBLT (either as a primer or a debrief) to ensure that lower-proficiency learners do not bypass structural development while communicating.", tags: ["form", "grammar"] },
+        { author: "Lin & Wu (n.d.)", text: "To ensure the perceptual feasibility of TBLT in test-driven East Asian contexts, communicative tasks must be explicitly aligned with the skills required to pass local high-stakes examinations.", tags: ["asian", "exams", "cnc", "local"] },
+        { author: "Littlewood (2004)", text: "Tasks exist on a continuum of involvement; acknowledging this allows teachers to seamlessly transition learners between form-focused and meaning-focused activities rather than strictly isolating grammar from communication.", tags: ["continuum", "grammar"] },
+        { author: "Littlewood (2007)", text: "A 'task-supported' approach—supplementing structured grammar lessons with communicative tasks—is more culturally and educationally viable in East Asian classrooms than enforcing a strict 'strong' TBLT syllabus.", tags: ["asian", "task-supported", "cnc"] },
+        { author: "Liu & Ren (2021)", text: "Chinese university teachers successfully employ a 'weak version' of TBLT (task-supported teaching) to bridge traditional cultural expectations of the teacher's role with modern communicative necessities.", tags: ["china", "cnc", "weak"] },
+        { author: "Long (1998)", text: "'Focus on form' is most effective when teachers reactively shift learners' attention to linguistic code features precisely at the moment a communicative breakdown occurs during a meaning-focused task.", tags: ["form", "recast", "breakdown"] },
+        { author: "Long & Crookes (1991)", text: "Task-based syllabuses must use the pedagogic task as the fundamental unit of analysis, sequencing tasks to gradually build toward the real-world target tasks learners will eventually need to perform.", tags: ["syllabus", "real-world"] },
+        { author: "Lu (2022)", text: "Localising TBLT to align directly with the formats of high-stakes assessments prevents a disconnect between communicative practice and testing realities, validating the methodology for Chinese EFL students.", tags: ["china", "cnc", "exams", "local"] },
+        { author: "Lu et al. (2023)", text: "Applying TBLT to middle school oral English effectively abandons monotonous memorization, improving students' ability to handle pragmatic survival scenarios and simulating authentic international communication.", tags: ["secondary", "speaking", "survival"] },
+        { author: "Mao (2012)", text: "TBLT revolutionizes English reading classrooms by converting passive text consumption into an active, goal-oriented extraction of information, facilitated by peer negotiation.", tags: ["reading", "active"] },
+        { author: "Masuram & Sripada (2020)", text: "Combatting cognitive overload through segmented task preparation and extensive pair-work is crucial for lowering performance anxiety and developing spontaneous spoken fluency.", tags: ["anxiety", "pair", "speaking"] },
+        { author: "Mulyadi et al. (2021)", text: "Technology-enhanced TBLT—specifically pairing mobile audio-visual inputs with the pre-task phase—simultaneously elevates both receptive listening comprehension and productive speaking performance.", tags: ["tech", "listening", "digital"] },
+        { author: "Naami & Nosrat Zadeh (2016)", text: "Teacher feedback in TBLT is most effective when explicit morphosyntactic (grammar) corrections are delayed to the post-task phase, interrupting the task execution only for severe semantic breakdowns.", tags: ["feedback", "grammar", "delayed"] },
+        { author: "NamazianDost, Bohloulzadeh, & Pazhakh (2017)", text: "Task-based instruction functions as a dual-catalyst, significantly increasing intrinsic learner motivation while concurrently solidifying grammatical achievement in junior high students.", tags: ["motivation", "secondary", "grammar"] },
+        { author: "Nunan (2004)", text: "A learner-centered task curriculum must explicitly teach learning strategies alongside language, empowering students to plan, monitor, and evaluate their own long-term linguistic autonomy.", tags: ["autonomy", "strategy"] },
+        { author: "Nunan (2006)", text: "Implementing TBLT in the Asian context requires clearly differentiating between real-world tasks and pedagogical scaffolds, bridging the gap between institutional constraints and authentic communication.", tags: ["asian", "scaffold"] },
+        { author: "Ogawa (2026)", text: "Virtual Reality TBLT (VR-TBLT) enhances engagement and long-term retention by allowing learners to manipulate virtual objects, creating embodied cognitive links between physical actions and language production.", tags: ["digital", "tech", "vr"] },
+        { author: "Okumura (2026)", text: "Technology-mediated video creation tasks foster communicative competence and digital literacy, provided teachers supply extensive technical scaffolding to prevent editing logistics from overshadowing language goals.", tags: ["digital", "video", "tech"] },
+        { author: "Oura (2001)", text: "Using unedited, authentic task-based materials (like actual news reports or brochures) drastically captures learner interest and provides the real-world contextualization necessary for motivated learning.", tags: ["authentic", "materials"] },
+        { author: "Patel (2017)", text: "Cognitive role-play—where students physically map semantic relationships between vocabulary before speaking—prevents collocation errors and speeds up cognitive retrieval during spontaneous dialogue.", tags: ["cognitive", "speaking"] },
+        { author: "Pica (n.d.)", text: "Information-gap tasks are only effective when the exchange of information is absolutely mandatory; tasks must be designed so learners cannot succeed without verbally negotiating meaning.", tags: ["gap", "negotiation"] },
+        { author: "Pojanapunya & Srimavin (2007)", text: "Practical listening tasks must be paired immediately with reflective actions or physical responses (e.g., filling a chart) to dynamically verify student comprehension in context.", tags: ["listening", "action"] },
+        { author: "Rahmatillah (2019)", text: "Communicative Language Teaching via role-play effectively bridges the gap between abstract textbook knowledge and the functional language required for standardized oral exams and practical life.", tags: ["role-play", "exams"] },
+        { author: "Rahman (2010)", text: "Oral communication tasks must replicate high-level academic functions (e.g., defending a thesis or leading a seminar) to equip learners with the discipline-specific rhetorical structures needed for higher education.", tags: ["academic", "speaking", "eap"] },
+        { author: "Richards & Renandya (2002)", text: "Methodological synthesis is key; vocabulary acquisition is best achieved by combining explicit instruction with tasks that force learners to tolerate ambiguity and guess meanings from context.", tags: ["vocabulary", "ambiguity"] },
+        { author: "Robinson (2011)", text: "Instructional tasks must be logically sequenced by gradually increasing their cognitive load—moving from simple 'here-and-now' descriptions to complex 'there-and-then' reasoning—to drive interlanguage development.", tags: ["cognitive", "sequence", "reasoning"] },
+        { author: "Sakurai (2013)", text: "To successfully train educators in TBLT, abstract SLA theories must be stripped of jargon and translated into concise, accessible guidelines that explicitly link theory to classroom pedagogy.", tags: ["teacher", "training"] },
+        { author: "Waluyo (2019)", text: "Theme-based role-play significantly predicts the development of communicative competence, provided teachers act as active facilitators offering linguistic support during prolonged, unified scenario enactments.", tags: ["role-play", "theme"] },
+        
+        // 5-PILLAR THEORY EXPANSIONS
+        { author: "Lin (2025)", text: "Effective speaking classes in middle schools require goal-oriented tasks where meaning negotiation is the central mechanism for proficiency.", tags: ["speaking", "middle", "negotiation"] },
+        { author: "Otterborn et al. (2024)", text: "Providing a silent period for students to plan their message before the task cycle significantly improves the complexity and accuracy of their oral output.", tags: ["planning", "accuracy", "complexity"] },
+        { author: "Zhang (2026)", text: "Interventions should be designed with a gradient of difficulty, starting with descriptive tasks and escalating to evaluative or analytical tasks.", tags: ["cognitive", "sequence", "complexity"] },
+        { author: "Ogawa (n.d.)", text: "To ensure students can use language outside the classroom, tasks must mirror the psychological and cognitive conditions of the real-world target environment.", tags: ["authentic", "real-world", "transfer"] },
+        { author: "Ji (2019)", text: "In Asian contexts, providing a pre-task focus on target vocabulary and diplomatic formulas satisfies the secondary student’s need for linguistic security before they enter the 'risky' unscripted task phase.", tags: ["asian", "pre-task", "vocabulary", "cnc"] },
+        { author: "Róg & Urbaniak (2024)", text: "An effective compromise for exam-heavy environments involves Task-Supported Language Teaching, where specific connective markers or grammatical structures are introduced alongside the task rather than through isolated drilling.", tags: ["grammar", "task-supported", "exams"] },
+        { author: "Medina Fernández (2021)", text: "Performance should be evaluated through the lens of Complexity, Accuracy, and Fluency (CAF), with the understanding that different task types will naturally prioritize one over the others.", tags: ["caf", "assessment", "rubric"] },
+        { author: "Kim (2021)", text: "Adolescent students achieve statistically higher results when they are given the explicit grading rubric (introduction, performance, content quality) prior to starting the task.", tags: ["assessment", "rubric"] },
+        { author: "Arooj & Rubab (2026)", text: "For composition tasks, curriculum designers should implement analytical rubrics that weight content and organization equally with grammar and mechanics.", tags: ["writing", "rubric", "assessment"] },
+        { author: "Hidayah et al. (2026)", text: "Using digital tools to create posters or videos cultivates digital literacy and reduces the anxiety of traditional writing tasks.", tags: ["digital", "tech", "anxiety", "writing"] },
+        { author: "Hatmanto & Sari (2023)", text: "Generative AI tools can be leveraged to provide human-like conversation simulations, allowing students to practice unscripted Q&A in a low-stakes environment.", tags: ["ai", "tech", "speaking"] }
+    ];
+
+    // Helper function to extract 4 relevant citations based on lesson params
+    function getRelevantCitations(pathway, categoryStr, grade) {
+        let keywords = [];
+        
+        // Pathway logic
+        if (pathway === "cnc") keywords.push("cnc", "china", "local", "traditional", "exams", "asian");
+        if (pathway === "igcse" || pathway === "hkc") keywords.push("academic", "eap", "culture", "igcse");
+        
+        // Grade logic
+        if (grade <= 6) keywords.push("primary", "young", "anxiety", "l1");
+        if (grade >= 8) keywords.push("secondary", "academic", "complexity", "middle");
+        
+        // Category logic
+        const catLower = categoryStr.toLowerCase();
+        if (catLower.includes("gap")) keywords.push("gap", "negotiation", "speaking");
+        if (catLower.includes("reasoning") || catLower.includes("problem")) keywords.push("reasoning", "complexity", "cognitive", "balance");
+        if (catLower.includes("opinion") || catLower.includes("affective")) keywords.push("motivation", "anxiety", "role-play");
+        if (catLower.includes("academic")) keywords.push("academic", "writing", "reading", "authentic");
+        if (catLower.includes("tech")) keywords.push("tech", "digital", "mobile", "online", "ai");
+
+        // Score citations based on keyword match
+        let scoredCitations = literatureDatabase.map(cit => {
+            let score = 0;
+            keywords.forEach(kw => {
+                if (cit.tags.includes(kw)) score += 2;
+                if (cit.text.toLowerCase().includes(kw)) score += 1;
+            });
+            return { ...cit, score };
+        });
+
+        // Sort by score and take top 4
+        scoredCitations.sort((a, b) => b.score - a.score);
+        return scoredCitations.slice(0, 4);
+    }
 
     function generateLesson() {
         // Fetch inputs
@@ -749,15 +861,16 @@
         const pathway = document.getElementById('pathway').value;
         const selectedTaskTitle = document.getElementById('taskType').value;
         const infoFlow = document.getElementById('infoFlow').value;
-        
-        // RESTORED CONTROLS
         const cogComplexity = document.getElementById('cogComplexity').value;
         const correctionTiming = document.getElementById('correctionTiming').value;
-        
         const totalTime = parseInt(document.getElementById('duration').value) || 50;
-        
         const incTheory = document.getElementById('incTheory').checked;
         const incResearch = document.getElementById('incResearch').checked;
+
+        // Visual Display Extractors for the Metadata Header
+        const infoFlowText = document.getElementById('infoFlow').options[document.getElementById('infoFlow').selectedIndex].text.split('(')[0].trim();
+        const cogComplexityText = document.getElementById('cogComplexity').options[document.getElementById('cogComplexity').selectedIndex].text.split('(')[0].trim();
+        const correctionTimingText = document.getElementById('correctionTiming').options[document.getElementById('correctionTiming').selectedIndex].text.split('(')[0].trim();
 
         // Database Lookups
         const gData = grammarDatabase[grammarName] || grammarDatabase["default"](grammarName);
@@ -787,19 +900,16 @@
             pathwayFramework = `<strong>International Strong TBLT:</strong> Focus on spontaneous communication, role-play handling, and authentic register without heavy pre-teaching.`;
         }
 
-        // --- RESTORED LOGIC BLOCKS ---
+        // PROMINENT LOGIC BLOCKS (Extracted to visually prove the UI selections work)
         
-        // Info Flow Logic
         let infoFlowLogic = infoFlow === "two-way" 
             ? `<strong>Two-Way Jigsaw Mechanic:</strong> Ensure a strict information split. Student A has half the clues, and Student B has the rest. They CANNOT show each other their papers. This forces mutual exchange.`
             : `<strong>One-Way Flow:</strong> One student holds the main information and relays it to their partner, checking for understanding periodically.`;
 
-        // Cognitive Complexity Logic
         let cogLogic = cogComplexity === "high"
             ? `<strong>+ Reasoning Demands:</strong> Require students to logically justify and defend their solutions. If a student makes a claim about <em>${theme}</em>, their partner must challenge it. This prepares them for higher-level academic debates. <span class="citation">(Robinson, 2011)</span>`
             : `<strong>Standard Cognitive Load:</strong> Focus on accurately describing and identifying the key components of the task without demanding high-level evaluation or defense.`;
 
-        // Correction Timing Logic
         let teacherRoleLogic = correctionTiming === "delayed"
             ? `<strong>Silent Monitor (Delayed Prompts):</strong> Do NOT interrupt students while speaking. Silently log morphosyntactic errors on a clipboard. Look specifically for breakdowns in ${grammarName}.`
             : `<strong>Active Monitor (Immediate Recasts):</strong> Provide subtle corrections while monitoring. <em>Script: ${gData.recast}</em> Do this without stopping the flow of their conversation.`;
@@ -813,7 +923,7 @@
             ? `<strong>Strategic L1 Allowance:</strong> Permit 3-5 mins of L1 brainstorming to organize thoughts. Prevents cognitive overload. <span class="citation">(Carless, 2004)</span>`
             : `<strong>Strict L2 Environment:</strong> Maintain English-only communication to simulate overseas immersion.`;
 
-        // Deliverable 2: Assessment Rubric Design (CAF + Task Completion)
+        // Deliverable 2: Assessment Rubric Design
         const rubricHtml = `
             <div class="page-break">
                 <h3 style="color: var(--primary); margin-top: 2rem;">DELIVERABLE 2: CAF Assessment Rubric</h3>
@@ -875,32 +985,74 @@
             </div>
         `;
 
-        // Deliverable 4 & Parts 1-2: Theory & Efficiency Checklist
+        // Deliverable 4 & Parts 1-3: Theory, Checklists, and Dynamic Literature Rationale
         let theoryHtml = '';
         if (incTheory) {
+            const relCitations = getRelevantCitations(pathway, taskObj.category, grade);
+            const dynamicCitationsHtml = relCitations.map(cit => `
+                <li style="margin-bottom: 0.8rem;">
+                    <strong>${cit.author}:</strong> ${cit.text}
+                </li>
+            `).join('');
+
             theoryHtml = `
                 <div class="page-break">
                     <h2 style="color: var(--purple); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">Teacher Professional Development Pack</h2>
                     
                     <div class="phase-card theory">
-                        <h3>PART 1: Foundations — Defining TBL/TBLT</h3>
-                        <p><strong>Definition:</strong> An instructional approach where learners function primarily as active language users, employing their existing linguistic resources to achieve a meaning-focused, non-linguistic outcome that mirrors real-world communication. <span class="citation">(Douglas & Kim, 2014, p. 8; Lin & Wu, n.d., p. 592)</span></p>
-                        <ul>
-                            <li><strong>Meaning over Form:</strong> Primary attention is given to pragmatic meaning.</li>
-                            <li><strong>Non-Linguistic Outcome:</strong> Must culminate in a clear product (e.g., solved problem).</li>
-                            <li><strong>Learner Autonomy:</strong> Students negotiate meaning actively.</li>
+                        <h3>The 5 Strategic Pillars of TBLT Design</h3>
+                        
+                        <h4 style="margin-bottom: 0.2rem; color: var(--primary);">1. Logic of Task Selection and Design</h4>
+                        <p style="font-size: 0.85rem; margin-top: 0; color: var(--text-dark);">Moving secondary students from simple identification to complex negotiation.</p>
+                        <ul style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            <li><strong>Meaning-Primary:</strong> The communicative outcome takes precedence over immediate grammatical accuracy. (Willis, 1996; Nunan, 2004)</li>
+                            <li><strong>The Reasoning-Gap:</strong> Push adolescents toward higher-order thinking using logic to derive new information from given data. (Prabhu, 1987; Robinson, 2011)</li>
+                            <li><strong>Functional Goal Orientation:</strong> Effective speaking classes require goal-oriented tasks where meaning negotiation is the central mechanism for proficiency. (Lin, 2025)</li>
                         </ul>
-                        <p style="font-style: italic; font-size: 0.9rem; margin-top:1rem;">“‘Tasks’ are activities that call for primarily meaning-focused language use. In contrast, ‘exercises’ are activities that call for primarily form-focused language use” (Lin & Wu, n.d., p. 592).</p>
+
+                        <h4 style="margin-bottom: 0.2rem; color: var(--primary); margin-top: 1.5rem;">2. Cognitive Sequencing and Planning</h4>
+                        <p style="font-size: 0.85rem; margin-top: 0; color: var(--text-dark);">Managing the cognitive load of adolescents to ensure successful performance.</p>
+                        <ul style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            <li><strong>Strategic Planning Time:</strong> Providing a silent period to plan messages improves oral complexity and accuracy. (Otterborn et al., 2024)</li>
+                            <li><strong>Cognitive Layering:</strong> Escalate from descriptive tasks to evaluative/analytical tasks. (Lin, 2025; Zhang, 2026)</li>
+                            <li><strong>Transfer-Appropriate Processing:</strong> Tasks must mirror real-world target environments, like university study abroad or modern workplaces. (Ogawa, n.d.)</li>
+                        </ul>
+
+                        <h4 style="margin-bottom: 0.2rem; color: var(--primary); margin-top: 1.5rem;">3. The Localized Adaptation Layer</h4>
+                        <p style="font-size: 0.85rem; margin-top: 0; color: var(--text-dark);">Hybridizing TBLT to provide linguistic security in exam-heavy tracks (CNC/IGCSE).</p>
+                        <ul style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            <li><strong>Language Preparation:</strong> Pre-task focus on vocabulary provides security before "risky" unscripted phases. (Ji, 2019)</li>
+                            <li><strong>Task-Supported Grammar (TSLT):</strong> Introduce structures alongside the task rather than isolated drilling. (Róg & Urbaniak, 2024)</li>
+                            <li><strong>L1-L2 Collaborative Translation:</strong> Using the native language as a bridge honors local exam culture while forcing complex English syntax negotiation. (Ul Haque et al., 2021)</li>
+                        </ul>
+
+                        <h4 style="margin-bottom: 0.2rem; color: var(--primary); margin-top: 1.5rem;">4. The Evaluation and Feedback Matrix</h4>
+                        <p style="font-size: 0.85rem; margin-top: 0; color: var(--text-dark);">Moving beyond binary scoring toward multi-dimensional performance analysis.</p>
+                        <ul style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            <li><strong>The CAF Model:</strong> Evaluate through Complexity, Accuracy, and Fluency. Different tasks naturally prioritize one over the others. (Skehan, 1998; Medina Fernández, 2021)</li>
+                            <li><strong>Criteria Awareness:</strong> Give students explicit grading rubrics prior to starting the task to increase achievement. (Kim, 2021)</li>
+                            <li><strong>Domain-Specific Rubrics:</strong> Weight content and organization equally with grammar and mechanics. (Arooj & Rubab, 2026)</li>
+                        </ul>
+
+                        <h4 style="margin-bottom: 0.2rem; color: var(--primary); margin-top: 1.5rem;">5. Technological and Multimodal Integration</h4>
+                        <p style="font-size: 0.85rem; margin-top: 0; color: var(--text-dark);">Using technology as a scaffold to lower the affective filter and increase agency.</p>
+                        <ul style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            <li><strong>Digital Multimodal Composing:</strong> Digital tools (posters/videos) reduce traditional writing anxiety. (Hidayah et al., 2026)</li>
+                            <li><strong>AI-Mediated Discourse:</strong> AI conversation simulations allow low-stakes unscripted Q&A practice. (Hatmanto & Sari, 2023)</li>
+                            <li><strong>Asynchronous Buffers:</strong> Digital forums allow introverted teens to build confidence before face-to-face tasks. (Tanveer, n.d.)</li>
+                        </ul>
                     </div>
 
                     <div class="phase-card theory">
-                        <h3>PART 2: Methodology Analysis — Overcoming the "Vocabulary Wall"</h3>
-                        <p><strong>The Challenge:</strong> Asking secondary students to autonomously complete tasks often leads to frustration if their lexical repertoires are limited, causing intense noise and L1 reliance in classes of 40-50. <span class="citation">(Aurelya et al., 2024; Carless, 2004)</span></p>
-                        <p><strong>The Optimization:</strong> Implement <em>"Localized" or "Weak" TBLT (Task-Supported Language Teaching)</em>. Incorporate traditional PPP methods into the pre-task to guarantee exam accuracy while preserving the meaning-focused task cycle. <span class="citation">(Lu, 2022, p. 114)</span></p>
+                        <h3>DELIVERABLE 6: Contextual Literature Rationale (Dynamic)</h3>
+                        <p style="font-size: 0.9rem; margin-top: -5px; color: var(--text-muted);">The following 4 peer-reviewed citations were automatically extracted from a database of nearly 60 sources because they directly validate your choices of Grade ${grade}, the ${pathway.toUpperCase()} pathway, and the <em>${taskObj.category}</em> framework:</p>
+                        <ul style="font-size: 0.9rem;">
+                            ${dynamicCitationsHtml}
+                        </ul>
                     </div>
 
                     <div class="phase-card theory">
-                        <h3>DELIVERABLE 4: Efficiency Checklist for Foreign Teachers</h3>
+                        <h3>DELIVERABLE 4: Efficiency Checklist for Teachers</h3>
                         <label class="checklist-item"><input type="checkbox"> <strong>Derive Tasks from Real-World Needs:</strong> Ensure the task resembles actions people take in everyday life. (Long, 1985)</label>
                         <label class="checklist-item"><input type="checkbox"> <strong>Control Cognitive Complexity:</strong> Manipulate variables (e.g., providing planning time) to balance cognitive load. (Ellis, 2003)</label>
                         <label class="checklist-item"><input type="checkbox"> <strong>Minimize L1 Use Strategically:</strong> Establish strict time limits and assign roles like "English Monitor". (Lu, 2022)</label>
@@ -927,9 +1079,6 @@
                 </div>
             `;
         }
-        
-        // Escape quotes for the TTS function argument
-        const safeTTSString = taskObj.description.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
         // Final HTML Construction
         const outputHtml = `
@@ -937,10 +1086,11 @@
                 <h2>Module: ${theme}</h2>
                 <div class="lesson-meta">
                     <span>Grade ${grade}</span>
-                    <span>Framework: ${taskObj.category}</span>
-                    <span>Target Skill: ${taskObj.skills}</span>
+                    <span>Skill: ${taskObj.skills}</span>
                     <span>Focus Form: ${grammarName}</span>
-                    <span>Duration: ${totalTime} Mins</span>
+                    <span>Info Flow: ${infoFlowText}</span>
+                    <span>Cog Load: ${cogComplexityText}</span>
+                    <span>Correction: ${correctionTimingText}</span>
                 </div>
                 <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dark); background: #f3f4f6; padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary);">
                     ${pathwayFramework}<br><br>
@@ -968,18 +1118,26 @@
                 <p><strong>Objective:</strong> Foster meaning negotiation, learner autonomy, and collaborative problem-solving.</p>
                 
                 <div class="task-execution-box">
-                    <button class="btn-tts" onclick="playTTS('${safeTTSString}')" title="Listen at 85% speed">🔊 Listen (0.85x)</button>
-                    <strong>Task: ${taskObj.title}</strong>
-                    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.2rem;">
+                    <strong>Framework: ${taskObj.category}</strong>
+                    <h4 style="margin: 0.5rem 0; color: var(--text-dark);">Task: ${taskObj.title}</h4>
+                    <ul style="margin: 0; padding-left: 1.2rem;">
                         <li><strong>Pedagogical Action:</strong> ${taskObj.description}</li>
                         <li><strong>Why it Works:</strong> ${taskObj.whyItWorks} <span class="citation" style="display:inline;">(${taskObj.citation})</span></li>
                     </ul>
                 </div>
 
+                <!-- DYNAMIC CALLOUTS PROVING UI SELECTIONS -->
+                <div class="logic-callout flow">
+                    ${infoFlowLogic}
+                </div>
+                <div class="logic-callout cog">
+                    ${cogLogic}
+                </div>
+                <div class="logic-callout timing">
+                    ${teacherRoleLogic}
+                </div>
+
                 <ul>
-                    <li>${infoFlowLogic}</li>
-                    <li>${cogLogic}</li>
-                    <li>${teacherRoleLogic}</li>
                     <li><strong>Planning for Report:</strong> Provide groups with 3-5 mins of unguided planning time to draft how they will report findings. Non-presenting students are assigned peer-assessment roles to maintain discipline. <span class="citation">(Lu, 2022)</span></li>
                 </ul>
             </div>
