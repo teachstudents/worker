@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TBLT Master Curriculum Architect</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --background: #f3f4f6;
+            --surface: #ffffff;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --purple: #6366f1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 0.5px; }
+        header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1.1rem; }
+
+        .layout-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        @media (max-width: 850px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-panel {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .control-panel h2 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+
+        .form-group { margin-bottom: 1.2rem; }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-dark);
+            font-size: 0.75rem;
+        }
+
+        .form-group input[type="text"], .form-group input[type="number"], .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            transition: border-color 0.2s;
+            background-color: #f9fafb;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background-color: #fff;
+        }
+        
+        optgroup { font-weight: bold; color: var(--primary); background: #f0fdf4; }
+
+        .checkbox-group {
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            background: #eff6ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-group label { margin: 0; font-size: 0.75rem; line-height: 1.3; font-weight: normal;}
+        .checkbox-group input { margin-top: 2px; }
+
+        .btn-generate {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-generate:hover { background-color: #2563eb; transform: translateY(-1px); }
+        .btn-generate:active { transform: translateY(1px); }
+
+        .btn-print {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--text-muted);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+            cursor: pointer;
+            display: none;
+        }
+        .btn-print:hover { background-color: #4b5563; }
+
+        .output-panel {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        .lesson-header {
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .lesson-header h2 { margin: 0 0 0.5rem 0; font-size: 2rem; color: var(--primary); }
+        .lesson-meta { display: flex; gap: 1rem; flex-wrap: wrap; color: var(--text-muted); font-weight: 500; }
+        .lesson-meta span { background: #eff6ff; color: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.85rem; }
+
+        .phase-card {
+            border-left: 5px solid var(--secondary);
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .phase-card h3 {
+            margin-top: 0;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        
+        .phase-card.theory { border-left-color: var(--purple); background-color: #f5f3ff; }
+        .phase-card.theory h3 { color: var(--purple); }
+
+        .time-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .citation {
+            font-size: 0.8rem;
+            color: #059669;
+            font-style: italic;
+            display: block;
+            margin-top: 0.4rem;
+        }
+        
+        .task-execution-box {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 0.5rem 0 1rem 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .rubric-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+        .rubric-table th, .rubric-table td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; vertical-align: top;}
+        .rubric-table th { background-color: #f8fafc; color: var(--primary); }
+        .rubric-table tr:nth-child(even) { background-color: #fcfcfc; }
+        
+        .checklist-item { margin-bottom: 0.5rem; display: flex; gap: 0.5rem; }
+        .checklist-item input { margin-top: 0.25rem; }
+
+        .prompt-box {
+            background: white;
+            border: 1px dashed var(--secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-tts {
+            background: #e0e7ff;
+            border: 1px solid #c7d2fe;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            float: right;
+        }
+        .btn-tts:hover { background: #c7d2fe; }
+
+        @media print {
+            .control-panel, header, .btn-print, .btn-tts { display: none !important; }
+            .layout-container { grid-template-columns: 1fr; margin: 0; padding: 0; display: block; }
+            body { background: white; }
+            .output-panel { box-shadow: none; padding: 0; }
+            .phase-card { page-break-inside: avoid; border: 1px solid #ccc; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout-container">
+    <div class="control-panel">
+        <h2>Module Parameters</h2>
+        
+        <div class="form-group">
+            <label>Theme / Topic</label>
+            <input type="text" id="theme" placeholder="e.g., School Rules, Community Issues..." value="Community Issues">
+        </div>
+
+        <div class="form-group">
+            <label>Target Grammar / Form</label>
+            <!-- Fully loaded 30 grammar targets -->
+            <select id="grammar">
+                <option value="Simple Present (Routines & Habits)">Simple Present (Routines & Habits)</option>
+                <option value="Present Continuous (Ongoing Actions)">Present Continuous (Ongoing Actions)</option>
+                <option value="Simple Past (Completed Actions)">Simple Past (Completed Actions)</option>
+                <option value="Past Continuous (Interrupted Actions)">Past Continuous (Interrupted Actions)</option>
+                <option value="Present Perfect (Experience/Recent Past)">Present Perfect (Experience/Recent Past)</option>
+                <option value="Present Perfect Continuous (Unfinished Actions)">Present Perfect Continuous (Unfinished Actions)</option>
+                <option value="Past Perfect (Before Another Past Action)">Past Perfect (Before Another Past Action)</option>
+                <option value="Simple Future (Will/Going To)">Simple Future (Will/Going To)</option>
+                <option value="Future Continuous (Actions in Progress)">Future Continuous (Actions in Progress)</option>
+                <option value="Modals of Obligation (Must, Have to, Should)" selected>Modals of Obligation (Must, Have to, Should)</option>
+                <option value="Modals of Possibility (Might, Could, Must be)">Modals of Possibility (Might, Could, Must be)</option>
+                <option value="Modals of Ability (Can, Could, Be able to)">Modals of Ability (Can, Could, Be able to)</option>
+                <option value="Zero Conditional (Facts/General Truths)">Zero Conditional (Facts/General Truths)</option>
+                <option value="First Conditional (Real Future Possibilities)">First Conditional (Real Future Possibilities)</option>
+                <option value="Second Conditional (Unreal/Hypothetical)">Second Conditional (Unreal/Hypothetical)</option>
+                <option value="Third Conditional (Past Unreal Situations)">Third Conditional (Past Unreal Situations)</option>
+                <option value="Passive Voice (Present & Past)">Passive Voice (Present & Past)</option>
+                <option value="Passive Voice (Advanced/Modals)">Passive Voice (Advanced/Modals)</option>
+                <option value="Reported Speech (Statements)">Reported Speech (Statements)</option>
+                <option value="Reported Speech (Questions & Commands)">Reported Speech (Questions & Commands)</option>
+                <option value="Defining Relative Clauses (Who, Which, That)">Defining Relative Clauses (Who, Which, That)</option>
+                <option value="Non-Defining Relative Clauses">Non-Defining Relative Clauses</option>
+                <option value="Gerunds vs. Infinitives">Gerunds vs. Infinitives</option>
+                <option value="Comparatives and Superlatives">Comparatives and Superlatives</option>
+                <option value="Tag Questions (Checking Information)">Tag Questions (Checking Information)</option>
+                <option value="Countable vs. Uncountable Nouns (Quantifiers)">Countable vs. Uncountable Nouns (Quantifiers)</option>
+                <option value="Articles (Definite vs. Indefinite)">Articles (Definite vs. Indefinite)</option>
+                <option value="Prepositions of Time and Place">Prepositions of Time and Place</option>
+                <option value="Causative Verbs (Have/Get something done)">Causative Verbs (Have/Get something done)</option>
+                <option value="Embedded Questions (Indirect Questions)">Embedded Questions (Indirect Questions)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Grade Level</label>
+            <select id="grade">
+                <option value="4">Primary 4 (Ages 9-10)</option>
+                <option value="5">Primary 5 (Ages 10-11)</option>
+                <option value="6">Primary 6 (Ages 11-12)</option>
+                <option value="7">Junior 1 / Grade 7 (Ages 12-13)</option>
+                <option value="8">Junior 2 / Grade 8 (Ages 13-14)</option>
+                <option value="9">Junior 3 / Grade 9 (Ages 14-15)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Curriculum Pathway</label>
+            <select id="pathway">
+                <option value="cnc">Shenzhen Local / CNC</option>
+                <option value="hkc">Hong Kong Curriculum (HKC)</option>
+                <option value="igcse">International / IGCSE</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Task Database Explorer</label>
+            <select id="taskType">
+                <optgroup label="1. Info-Gap & Descriptive (Fluency)">
+                    <option value="Spot-the-Difference / Picture Dictation">Spot-the-Difference</option>
+                    <option value="The 'Lost Item' Police Report">The 'Lost Item' Police Report</option>
+                    <option value="Metro / Campus Navigation">Metro / Campus Navigation</option>
+                </optgroup>
+                <optgroup label="2. Reasoning-Gap (Form & Syntax)">
+                    <option value="Grammar-Trapped Logic Puzzles">Grammar-Trapped Logic Puzzle</option>
+                    <option value="Inductive Grammar Discovery">Inductive Grammar Discovery</option>
+                    <option value="Collaborative L1-to-L2 Translation">Collaborative L1-to-L2 Translation</option>
+                </optgroup>
+                <optgroup label="3. Problem-Solving (Consensus)">
+                    <option value="The Survival Consensus" selected>The Survival Consensus</option>
+                    <option value="Budget & Itinerary Planning">Budget & Itinerary Planning</option>
+                </optgroup>
+                <optgroup label="4. Opinion-Exchange & Affective">
+                    <option value="The 'Shark Tank' Product Pitch">The 'Shark Tank' Product Pitch</option>
+                    <option value="Cultural Conflict Resolution">Cultural Conflict Resolution</option>
+                    <option value="Interest-Driven Needs Analysis">Interest-Driven Needs Analysis</option>
+                </optgroup>
+                <optgroup label="5. Academic & Project-Based (EAP)">
+                    <option value="The Academic Peer Consultation">The Academic Peer Consultation</option>
+                    <option value="Model UN / Global Policy Roundtable">Model UN / Policy Roundtable</option>
+                    <option value="Data Journalism / Infographic Synthesis">Data Journalism Synthesis</option>
+                </optgroup>
+                <optgroup label="6. Tech-Mediated (MMC-TBLT)">
+                    <option value="The YouTube Jigsaw">The YouTube Jigsaw</option>
+                    <option value="Digital Video Production">Digital Video Production</option>
+                    <option value="Out-of-Class Audio Interviews">Out-of-Class Audio Interviews</option>
+                    <option value="E-Learning Forum Buffer">E-Learning Forum Buffer</option>
+                </optgroup>
+                <optgroup label="7. Active Reading Tasks">
+                    <option value="Text-to-Diagram Transfer">Text-to-Diagram Transfer</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Information Flow</label>
+            <select id="infoFlow">
+                <option value="two-way">Two-Way Jigsaw (Forced Mutual Exchange)</option>
+                <option value="one-way">One-Way (Standard info transfer)</option>
+            </select>
+        </div>
+
+        <!-- RESTORED: Cognitive Complexity Control -->
+        <div class="form-group">
+            <label>Cognitive Complexity (+/- Reasoning)</label>
+            <select id="cogComplexity">
+                <option value="high">High (Evaluate, Justify & Defend)</option>
+                <option value="standard">Standard (Describe & Identify)</option>
+            </select>
+        </div>
+
+        <!-- RESTORED: Grammar Correction Timing Control -->
+        <div class="form-group">
+            <label>Grammar Correction Timing</label>
+            <select id="correctionTiming">
+                <option value="delayed">Delayed Prompts (End-of-lesson board review)</option>
+                <option value="recast">Immediate Recasts (Gentle inline correction)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Total Duration (Mins)</label>
+            <input type="number" id="duration" value="50" min="40" max="120" step="5">
+        </div>
+
+        <h2 style="margin-top: 1.5rem;">Teacher Resources</h2>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="incTheory" checked>
+            <label for="incTheory">Include TBLT Theory & Efficiency Checklist</label>
+        </div>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="incResearch" checked>
+            <label for="incResearch">Include Action Research Protocol</label>
+        </div>
+
+        <button class="btn-generate" onclick="generateLesson()">Architect Module</button>
+        <button class="btn-print" id="printBtn" onclick="printLesson()">Print / Save as PDF</button>
+    </div>
+
+    <div class="output-panel" id="outputPanel">
+        <div style="text-align: center; color: var(--text-muted); margin-top: 20%;">
+            <i>Select your parameters on the left and click "Architect Module" to build a research-backed instructional blueprint and Teacher PD Pack.</i>
+        </div>
+    </div>
+</div>
+
+<script>
+    // System Note: TTS engine explicitly set to 0.85 rate for optimized secondary student/teacher comprehension
+    function playTTS(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.85; // Hardcoded preference: Always slow down speech to 85%
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("Text-to-speech is not supported in this browser.");
+        }
+    }
+
+    // --- PEDAGOGICAL DATABASE FOR GRAMMAR ---
+    const grammarDatabase = {
+        "Simple Present (Routines & Habits)": {
+            launchers: `"Every day I...", "Our school usually...", "My typical schedule involves..."`,
+            recast: `"If the student says 'He go to the cafeteria', gently recast: 'Oh, he GOES to the cafeteria? What does he buy?'"`,
+            caf: `Consistent use of 3rd person singular '-s' and appropriate placement of frequency adverbs (always, never).`
+        },
+        "Present Continuous (Ongoing Actions)": {
+            launchers: `"Right now, we are...", "Currently, the community is trying to..."`,
+            recast: `"If they drop the 'be' verb ('They playing basketball'), recast: 'Yes, they ARE playing. Who ARE they playing with?'"`,
+            caf: `Accurate conjugation of the 'to be' auxiliary verb + V-ing without reverting to simple present.`
+        },
+        "Simple Past (Completed Actions)": {
+            launchers: `"Last year, our class...", "When the project finished, we..."`,
+            recast: `"If they use an irregular verb incorrectly ('I buyed lunch'), recast: 'Ah, you BOUGHT lunch? What did you BUY?'"`,
+            caf: `Mastery of irregular past tense verbs and correct pronunciation of -ed endings (/t/, /d/, /Id/).`
+        },
+        "Past Continuous (Interrupted Actions)": {
+            launchers: `"I was studying when suddenly...", "While we were walking to school..."`,
+            recast: `"If they use simple past for the background action, recast: 'So you WERE WALKING down the hall when the bell rang?'"`,
+            caf: `Clear distinction between the background action (Past Continuous) and the interrupting event (Simple Past).`
+        },
+        "Present Perfect (Experience/Recent Past)": {
+            launchers: `"I have never...", "Have you ever tried to...?", "Lately, our teachers have..."`,
+            recast: `"If they say 'I didn't went to Beijing', recast: 'Oh, you HAVE NEVER BEEN to Beijing? Would you like to go?'"`,
+            caf: `Correct pairing of 'have/has' + past participle without confusing it with a specific finished time in the past.`
+        },
+        "Present Perfect Continuous (Unfinished Actions)": {
+            launchers: `"I have been preparing for the Zhongkao for...", "Lately, the student council has been trying..."`,
+            recast: `"If they say 'I am studying here since Grade 7', recast: 'Wow, you HAVE BEEN STUDYING here since Grade 7?'"`,
+            caf: `Emphasis on the duration of an ongoing action using 'have/has been + V-ing' with 'since' or 'for'.`
+        },
+        "Past Perfect (Before Another Past Action)": {
+            launchers: `"By the time the bell rang, we had already...", "Before the teacher arrived, they had..."`,
+            recast: `"If they use simple past for both, recast: 'So by the time you got to class, the exam HAD ALREADY started?'"`,
+            caf: `Chronological clarity: Accurate use of 'had + V3' to explicitly signal the older of two past events.`
+        },
+        "Simple Future (Will/Going To)": {
+            launchers: `"I think the school will...", "Look at the schedule, we are going to..."`,
+            recast: `"If they use 'will' for a strict plan ('I will take my high school entrance exam tomorrow'), recast: 'Oh, you ARE GOING TO take it tomorrow!'"`,
+            caf: `Distinguishing between spontaneous decisions/predictions (will) and prior plans/evidence (going to).`
+        },
+        "Future Continuous (Actions in Progress)": {
+            launchers: `"This time next week, I will be taking my exams...", "Don't call at 8, I'll be doing homework..."`,
+            recast: `"If they say 'Tomorrow at 5, I will study', recast: 'So, at 5 PM exactly, you WILL BE STUDYING?'"`,
+            caf: `Accurate use of 'will be + V-ing' to project oneself into the middle of a future action.`
+        },
+        "Modals of Obligation (Must, Have to, Should)": {
+            launchers: `"Students really must...", "If we want to fix this, we have to...", "The community should..."`,
+            recast: `"If they add 'to' after must ('We must to go'), gently recast: 'Yes, we MUST GO immediately. Why must we go?'"`,
+            caf: `Nuanced choice between internal obligation (must), external rules (have to), and strong advice (should).`
+        },
+        "Modals of Possibility (Might, Could, Must be)": {
+            launchers: `"It might be because...", "That could mean...", "The principal must be..."`,
+            recast: `"If they express certainty when guessing ('It is definitely a bad idea'), recast: 'It MIGHT be a bad idea. Or it COULD work, right?'"`,
+            caf: `Appropriate expression of deduction and uncertainty instead of stating guesses as absolute facts.`
+        },
+        "Modals of Ability (Can, Could, Be able to)": {
+            launchers: `"When I was in primary school, I couldn't...", "Hopefully, we will be able to..."`,
+            recast: `"If they say 'Next year I will can join the club', recast: 'Ah, you WILL BE ABLE TO join next year?'"`,
+            caf: `Navigating the lack of a future/infinitive form for 'can' by substituting 'be able to' smoothly.`
+        },
+        "Zero Conditional (Facts/General Truths)": {
+            launchers: `"If you mix...", "When students skip breakfast, they..."`,
+            recast: `"If they say 'If I heat ice, it will melt', recast: 'It's a scientific fact, right? So if you heat ice, it MELTS.'"`,
+            caf: `Consistent use of present simple in both clauses for scientific facts or absolute truths.`
+        },
+        "First Conditional (Real Future Possibilities)": {
+            launchers: `"If we finish the project early, we will...", "Unless she studies, she won't..."`,
+            recast: `"If they say 'If it will rain, we cancel the sports meet', recast: 'Ah, if it RAINS, we WILL cancel it.'"`,
+            caf: `Accurate pairing of Present Simple in the 'if' clause and Future (will/won't) in the result clause.`
+        },
+        "Second Conditional (Unreal/Hypothetical)": {
+            launchers: `"If I were the principal, I would...", "If we had more time in exams, we could..."`,
+            recast: `"If they use present tense ('If I am the mayor, I build a park'), recast: 'But you aren't the mayor right now. So, if you WERE the mayor, you WOULD build it?'"`,
+            caf: `Strict adherence to 'If + Past, ...would + Verb' to indicate hypothetical distance from reality.`
+        },
+        "Third Conditional (Past Unreal Situations)": {
+            launchers: `"If I had known about the pop quiz, I would have...", "We wouldn't have lost the match if..."`,
+            recast: `"If they say 'If I studied yesterday, I would pass', recast: 'If you HAD STUDIED, you WOULD HAVE passed!'"`,
+            caf: `Mastery of 'had + V3' and 'would have + V3' to express regret or impossible past scenarios.`
+        },
+        "Passive Voice (Present & Past)": {
+            launchers: `"The school rules were created by...", "This environmental issue is caused by..."`,
+            recast: `"If they use active voice awkwardly for a process ('People make smartphones in Shenzhen'), recast: 'Yes, smartphones ARE MADE in Shenzhen.'`,
+            caf: `Focusing the sentence subject on the receiver of the action (Object + Be + Past Participle) rather than the actor.`
+        },
+        "Passive Voice (Advanced/Modals)": {
+            launchers: `"The homework must be completed...", "The new policies should have been..."`,
+            recast: `"If they say 'The essay must write by Friday', recast: 'The essay must BE WRITTEN by Friday. Who will write it?'"`,
+            caf: `Accurate combination of modals with 'be + past participle' (e.g., can be done, must be seen).`
+        },
+        "Reported Speech (Statements)": {
+            launchers: `"The teacher stated that we had to...", "The news article claimed that..."`,
+            recast: `"If they forget to backshift ('She said she is tired'), recast: 'Right, she said she WAS tired. Is she still tired?'"`,
+            caf: `Accurate backshifting of tenses and adjustment of pronouns/time markers when reporting secondary sources.`
+        },
+        "Reported Speech (Questions & Commands)": {
+            launchers: `"The monitor asked if we...", "My parents told me to..."`,
+            recast: `"If they say 'He asked me where do I live', recast: 'He asked where you LIVED?'"`,
+            caf: `Dropping auxiliary 'do/does' in reported questions and using 'to + verb' for commands.`
+        },
+        "Defining Relative Clauses (Who, Which, That)": {
+            launchers: `"The student who...", "A community policy that..."`,
+            recast: `"If they use two subjects ('The boy he is tall is my classmate'), recast: 'The boy WHO is tall is your classmate, yes.'`,
+            caf: `Seamlessly embedding the clause without duplicating subjects or objects (e.g., avoiding "the book which I read it").`
+        },
+        "Non-Defining Relative Clauses": {
+            launchers: `"My school, which is in Futian, ...", "Mr. Chen, who teaches math, ..."`,
+            recast: `"If they use 'that' ('My dad, that is 40...'), recast: 'Your dad, WHO is 40...'"`,
+            caf: `Proper intonation (pauses/commas) and restricting the use of 'that' for extra information clauses.`
+        },
+        "Gerunds vs. Infinitives": {
+            launchers: `"I really enjoy playing...", "We decided to organize..."`,
+            recast: `"If they say 'I want going to the library', recast: 'Oh, you want TO GO to the library?'"`,
+            caf: `Correct memorization and application of verbs followed by V-ing vs. 'to + V' (e.g., avoid/enjoy vs. hope/plan).`
+        },
+        "Comparatives and Superlatives": {
+            launchers: `"This option is significantly better because...", "The most challenging subject is..."`,
+            recast: `"If they double up ('more better' or 'most hardest'), recast: 'Yes, it is MUCH BETTER. Why is it better?'"`,
+            caf: `Correct morphological changes (-er/-est vs. more/most) and accurate use of 'than' / 'the'.`
+        },
+        "Tag Questions (Checking Information)": {
+            launchers: `"We have a mock exam tomorrow, don't we?", "You aren't angry, are you?"`,
+            recast: `"If they use the wrong auxiliary ('You went to the park, isn't it?'), recast: 'You went there, DIDN'T YOU?'"`,
+            caf: `Accurate matching of auxiliary verbs and inversion of polarity (positive statement -> negative tag).`
+        },
+        "Countable vs. Uncountable Nouns (Quantifiers)": {
+            launchers: `"We have too much homework...", "There are a few students who..."`,
+            recast: `"If they say 'How many money do we need for the trip', recast: 'How MUCH money do you need?'"`,
+            caf: `Correct pairing of many/few with countable nouns and much/little with uncountable nouns.`
+        },
+        "Articles (Definite vs. Indefinite)": {
+            launchers: `"I bought an iPad. The iPad is...", "Technology is changing..."`,
+            recast: `"If they generalize with 'the' ('The teenagers like gaming'), recast: 'Yes, teenagers generally like gaming.'"`,
+            caf: `Appropriate omission of 'the' for general plural nouns and correct use for specific/previously mentioned items.`
+        },
+        "Prepositions of Time and Place": {
+            launchers: `"In 2024, our school...", "At the university...", "On Monday..."`,
+            recast: `"If they say 'My graduation is in Friday', recast: 'Oh, it is ON Friday! That is exciting.'"`,
+            caf: `Accurate selection of in/on/at for spatial boundaries and chronological specificity.`
+        },
+        "Causative Verbs (Have/Get something done)": {
+            launchers: `"We need to get the classroom cleaned...", "I had my bike fixed..."`,
+            recast: `"If they say 'I cut my hair at the salon', recast: 'Ah, you HAD your hair CUT at the salon?'"`,
+            caf: `Proper structure (have/get + Object + Past Participle) to indicate someone else performed the service.`
+        },
+        "Embedded Questions (Indirect Questions)": {
+            launchers: `"I was wondering if you could help...", "Do you know where the gym is?"`,
+            recast: `"If they invert the verb ('Do you know where is the principal's office?'), recast: 'Do you know where the office IS? Yes, it's down the hall.'`,
+            caf: `Maintaining statement word order (Subject-Verb) inside the question instead of auxiliary inversion.`
+        },
+        "default": function(name) {
+            return {
+                launchers: `"Regarding this, I believe...", "First of all...", "In conclusion..."`,
+                recast: `"If a student misuses the structure, gently recast: 'Ah, so you mean [Correct ${name}]?'"`,
+                caf: `Precise syntactic control and accurate application of the rules for ${name}.`
+            };
+        }
+    };
+
+    // --- NEW TASK DATABASE: DERIVED FROM 90+ SYNTHESIZED SOURCES ---
+    const taskDatabase = [
+        {
+            title: "Spot-the-Difference / Picture Dictation",
+            category: "1. Information-Gap Tasks",
+            skills: "Speaking",
+            description: "Student A and Student B hold similar but altered images. Without showing their papers, they must orally describe their images to find 5 discrepancies.",
+            whyItWorks: "Forces spontaneous negotiation of meaning; lowers the affective filter for anxious EFL learners.",
+            citation: "Albino (2017)"
+        },
+        {
+            title: "The 'Lost Item' Police Report",
+            category: "1. Information-Gap Tasks",
+            skills: "Speaking & Writing",
+            description: "Students describe a highly specific lost item to a 'police officer' partner, focusing on exact adjectives and prepositions, then draft the formal lost-and-found poster.",
+            whyItWorks: "Bridges oral fluency with structured writing; follows a strict pre-task to post-task cycle.",
+            citation: "Nuraeni & Farhatunnisa (2019)"
+        },
+        {
+            title: "Metro / Campus Navigation",
+            category: "1. Information-Gap Tasks",
+            skills: "Speaking",
+            description: "Student A has a map with blocked routes; Student B has a list of destinations. They must negotiate the fastest alternative paths using spatial vocabulary.",
+            whyItWorks: "Creates an authentic communication gap where language is used purely as a tool to solve a physical problem.",
+            citation: "Willis (1996); Pica (n.d.)"
+        },
+        {
+            title: "Grammar-Trapped Logic Puzzles",
+            category: "2. Reasoning-Gap & Grammar Discovery",
+            skills: "Reading & Speaking",
+            description: "Students solve a mystery where cracking the case is impossible without using a target structure (e.g., Third Conditional: 'If he had been at the bank...').",
+            whyItWorks: "Proves that adolescents acquire complex grammar faster when it is a necessary tool for solving a puzzle rather than an abstract rule.",
+            citation: "Lam (2023)"
+        },
+        {
+            title: "Inductive Grammar Discovery",
+            category: "2. Reasoning-Gap & Grammar Discovery",
+            skills: "Reading & Writing",
+            description: "Instead of a whiteboard lecture, students are given an authentic news report and must hunt, categorize, and deduce the rules for the target syntax on their own.",
+            whyItWorks: "Replaces passive PPP (Presentation-Practice-Production) with active, student-led syntactic discovery.",
+            citation: "Lukman & Kurniasih (n.d.)"
+        },
+        {
+            title: "Collaborative L1-to-L2 Translation",
+            category: "2. Reasoning-Gap & Grammar Discovery",
+            skills: "Integrated",
+            description: "Groups receive a culturally nuanced Chinese text. They must debate syntax and vocabulary to produce a single, unified English translation.",
+            whyItWorks: "Integrates the Grammar Translation Method with TBLT, honoring local exam cultures while forcing L2 negotiation.",
+            citation: "Ul Haque et al. (2021)"
+        },
+        {
+            title: "The Survival Consensus",
+            category: "3. Problem-Solving & Consensus Tasks",
+            skills: "Speaking",
+            description: "Groups are given a crisis scenario (e.g., stranded on an island) and a list of 20 items. They must debate and agree on the top 5 items to keep, logically justifying choices.",
+            whyItWorks: "High cognitive load task that naturally elicits modal verbs of necessity and conditional clauses.",
+            citation: "Nunan (2004); Cuesta Cuesta (1995)"
+        },
+        {
+            title: "Budget & Itinerary Planning",
+            category: "3. Problem-Solving & Consensus Tasks",
+            skills: "Integrated",
+            description: "Students receive a set budget and must negotiate a travel itinerary using authentic flight and hotel websites, utilizing future tenses and comparatives.",
+            whyItWorks: "Maximizes the 'Transfer of Learning' by using completely authentic, real-world materials rather than adapted textbooks.",
+            citation: "Oura (2001)"
+        },
+        {
+            title: "The 'Shark Tank' Product Pitch",
+            category: "4. Opinion-Exchange & Affective",
+            skills: "Speaking",
+            description: "Students invent a futuristic product and deliver a persuasive pitch to 'investors' (peers) who ask unscripted, spontaneous questions.",
+            whyItWorks: "Prepares students for unscripted oral defense and Q&A formats common in university settings.",
+            citation: "McDonough & Chaikitmongkol (2007)"
+        },
+        {
+            title: "Cultural Conflict Resolution",
+            category: "4. Opinion-Exchange & Affective",
+            skills: "Speaking",
+            description: "Students role-play a scenario where a cultural misunderstanding occurs (e.g., with a foreign homestay family) and must negotiate a polite resolution, acting as cultural mediators.",
+            whyItWorks: "Anchors language in cross-cultural competency and pragmatics.",
+            citation: "Aubrey (2017); Robertson (2014)"
+        },
+        {
+            title: "Interest-Driven Needs Analysis",
+            category: "4. Opinion-Exchange & Affective",
+            skills: "Speaking",
+            description: "A pre-task where students debate and vote on which topics (e.g., Esports, space exploration) will be used for the upcoming month's reading materials.",
+            whyItWorks: "Rebuilds intrinsic motivation by aligning reading tasks directly with adolescent interests.",
+            citation: "Putri et al. (2024); Alay (2023)"
+        },
+        {
+            title: "The Academic Peer Consultation",
+            category: "5. Academic & Project-Based Tasks (EAP)",
+            skills: "Writing & Speaking",
+            description: "Students read a peer's academic draft and conduct a formal, timed consultation to negotiate structural edits and clarify meaning before final submission.",
+            whyItWorks: "Breaks teacher dependency and forces the academic autonomy required for Western higher education.",
+            citation: "Sari et al. (2018)"
+        },
+        {
+            title: "Model UN / Global Policy Roundtable",
+            category: "5. Academic & Project-Based Tasks (EAP)",
+            skills: "Speaking",
+            description: "Students are assigned countries and must negotiate a formal treaty regarding an environmental or economic crisis.",
+            whyItWorks: "Anchors language in cross-curricular, real-world academic needs.",
+            citation: "Douglas & Kim (2014); Ramadhan et al. (2022)"
+        },
+        {
+            title: "Data Journalism / Infographic Synthesis",
+            category: "5. Academic & Project-Based Tasks (EAP)",
+            skills: "Reading & Writing",
+            description: "Students analyze complex charts or raw data, extract the key points, and write an objective news report summarizing the findings, bypassing personal opinion.",
+            whyItWorks: "Builds essential EAP skills (English for Academic Purposes) required for secondary exams.",
+            citation: "Kafipour, Mahmoudi, & Khojasteh (2018)"
+        },
+        {
+            title: "The YouTube Jigsaw",
+            category: "6. Technology-Mediated & Multimodal (MMC)",
+            skills: "Listening & Speaking",
+            description: "Students watch different authentic YouTube videos on a shared topic, then come together to verbally synthesize the information into a single project.",
+            whyItWorks: "Replaces boring textbook audio with highly motivating, multimodal digital input.",
+            citation: "Rodríguez-Peñarroja (2022)"
+        },
+        {
+            title: "Digital Video Production",
+            category: "6. Technology-Mediated & Multimodal (MMC)",
+            skills: "Integrated",
+            description: "Students write, direct, and edit a short English documentary or 'how-to' video using their smartphones, fulfilling the psychological need for autonomy and peer relatedness.",
+            whyItWorks: "Allows visual and cognitive pre-task planning, significantly reducing speaking anxiety during the final presentation.",
+            citation: "Okumura (2026); Aprilia et al. (2026)"
+        },
+        {
+            title: "Out-of-Class Audio Interviews",
+            category: "6. Technology-Mediated & Multimodal (MMC)",
+            skills: "Speaking",
+            description: "Using smartphone voice recorders, students conduct interviews outside of class, bringing the audio back for transcription and self-correction.",
+            whyItWorks: "Utilizes 'Assessment as Learning' where transcribing their own output forces students to notice their grammatical errors.",
+            citation: "Akbar (2019); Lynch (2007)"
+        },
+        {
+            title: "E-Learning Forum Buffer",
+            category: "6. Technology-Mediated & Multimodal (MMC)",
+            skills: "Writing & Speaking",
+            description: "Introverted students debate a topic asynchronously on a digital forum to build confidence and vocabulary before conducting the live, face-to-face debate.",
+            whyItWorks: "Protects high-anxiety students by allowing them to solve the communicative problem digitally before speaking aloud.",
+            citation: "Tanveer (n.d.)"
+        },
+        {
+            title: "Text-to-Diagram Transfer",
+            category: "7. Active Reading Tasks",
+            skills: "Reading",
+            description: "Students read a complex historical or scientific text and must translate the written information into a non-linguistic timeline, map, or flowchart.",
+            whyItWorks: "Proves comprehension by forcing students to actively manipulate information rather than passively translating sentences.",
+            citation: "Xojamuratova et al. (2026)"
+        }
+    ];
+
+    function generateLesson() {
+        // Fetch inputs
+        const theme = document.getElementById('theme').value || "Community Issues";
+        const grammarName = document.getElementById('grammar').value;
+        const grade = parseInt(document.getElementById('grade').value);
+        const pathway = document.getElementById('pathway').value;
+        const selectedTaskTitle = document.getElementById('taskType').value;
+        const infoFlow = document.getElementById('infoFlow').value;
+        
+        // RESTORED CONTROLS
+        const cogComplexity = document.getElementById('cogComplexity').value;
+        const correctionTiming = document.getElementById('correctionTiming').value;
+        
+        const totalTime = parseInt(document.getElementById('duration').value) || 50;
+        
+        const incTheory = document.getElementById('incTheory').checked;
+        const incResearch = document.getElementById('incResearch').checked;
+
+        // Database Lookups
+        const gData = grammarDatabase[grammarName] || grammarDatabase["default"](grammarName);
+        const taskObj = taskDatabase.find(t => t.title === selectedTaskTitle) || taskDatabase[6]; // Default Survival Consensus
+        
+        // Deliverable 1: Pathway-Specific Lesson Conversion & Optimized Time Logic
+        let pathwayTheme, pathwayScaffold, pathwayEval, pathwayFramework;
+        
+        const preTime = Math.round(totalTime * 0.30);
+        const taskTime = Math.round(totalTime * 0.30);
+        const postTime = totalTime - preTime - taskTime;
+
+        if (pathway === "cnc") {
+            pathwayTheme = `Aligned to "Harmonious Society" or topics strictly derived from the PEP textbook.`;
+            pathwayScaffold = `Heavily front-load explicit grammar during the pre-task to prevent the "vocabulary wall" (PPP integration).`;
+            pathwayEval = `Rubrics strictly aligned to national/Zhongkao test benchmarks, emphasizing structural accuracy and vocabulary retention.`;
+            pathwayFramework = `<strong>Shenzhen Localized TBLT (Task-Supported Language Teaching):</strong> Incorporates traditional PPP (Presentation-Practice-Production) into the pre-task to guarantee exam accuracy while preserving the meaning-focused task cycle.`;
+        } else if (pathway === "hkc") {
+            pathwayTheme = `Focused on "Local Heritage" or "Social Media Debates."`;
+            pathwayScaffold = `Assign structured roles (e.g., English Monitor, Scribe) to prevent L1 reliance during collaborative planning.`;
+            pathwayEval = `Rubrics balancing communicative fluency with grammatical accuracy, aligned to the HKDSE SBA framework.`;
+            pathwayFramework = `<strong>Hong Kong Blended Communicative:</strong> Emphasis on group interaction, integrated skills, and structured peer-to-peer assessment.`;
+        } else {
+            pathwayTheme = `Focused on "Global Citizenship" or "UN SDGs."`;
+            pathwayScaffold = `Utilize Technology-Mediated TBLT (TMTBLT), such as digital video production or collaborative cloud docs.`;
+            pathwayEval = `Rubrics emphasizing academic register, persuasive argumentation, and digital multimodal competence (CEFR).`;
+            pathwayFramework = `<strong>International Strong TBLT:</strong> Focus on spontaneous communication, role-play handling, and authentic register without heavy pre-teaching.`;
+        }
+
+        // --- RESTORED LOGIC BLOCKS ---
+        
+        // Info Flow Logic
+        let infoFlowLogic = infoFlow === "two-way" 
+            ? `<strong>Two-Way Jigsaw Mechanic:</strong> Ensure a strict information split. Student A has half the clues, and Student B has the rest. They CANNOT show each other their papers. This forces mutual exchange.`
+            : `<strong>One-Way Flow:</strong> One student holds the main information and relays it to their partner, checking for understanding periodically.`;
+
+        // Cognitive Complexity Logic
+        let cogLogic = cogComplexity === "high"
+            ? `<strong>+ Reasoning Demands:</strong> Require students to logically justify and defend their solutions. If a student makes a claim about <em>${theme}</em>, their partner must challenge it. This prepares them for higher-level academic debates. <span class="citation">(Robinson, 2011)</span>`
+            : `<strong>Standard Cognitive Load:</strong> Focus on accurately describing and identifying the key components of the task without demanding high-level evaluation or defense.`;
+
+        // Correction Timing Logic
+        let teacherRoleLogic = correctionTiming === "delayed"
+            ? `<strong>Silent Monitor (Delayed Prompts):</strong> Do NOT interrupt students while speaking. Silently log morphosyntactic errors on a clipboard. Look specifically for breakdowns in ${grammarName}.`
+            : `<strong>Active Monitor (Immediate Recasts):</strong> Provide subtle corrections while monitoring. <em>Script: ${gData.recast}</em> Do this without stopping the flow of their conversation.`;
+
+        let postFormTimingLogic = correctionTiming === "delayed"
+            ? `<strong>Delayed Prompting on Board:</strong> Write 3 anonymous sentences containing errors you heard during the task on the board. Have the class identify and fix the errors together. <span class="citation">(Lyster & Ranta, 1997)</span>`
+            : `<strong>Reviewing Recasts:</strong> Briefly highlight the common errors that required recasting during the task cycle, solidifying the correct rule for the whole class.`;
+
+        // L1 & Pre-Task Logic
+        let preL1Logic = grade <= 6 
+            ? `<strong>Strategic L1 Allowance:</strong> Permit 3-5 mins of L1 brainstorming to organize thoughts. Prevents cognitive overload. <span class="citation">(Carless, 2004)</span>`
+            : `<strong>Strict L2 Environment:</strong> Maintain English-only communication to simulate overseas immersion.`;
+
+        // Deliverable 2: Assessment Rubric Design (CAF + Task Completion)
+        const rubricHtml = `
+            <div class="page-break">
+                <h3 style="color: var(--primary); margin-top: 2rem;">DELIVERABLE 2: CAF Assessment Rubric</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: -10px;">Criterion-referenced assessment measuring Output Complexity, Accuracy, and Fluency after task completion (Lu, 2022; Skehan, 1996).</p>
+                <table class="rubric-table">
+                    <tr>
+                        <th style="width: 20%;">Criteria</th>
+                        <th style="width: 26%;">Developing (1-2)</th>
+                        <th style="width: 26%;">Proficient (3)</th>
+                        <th style="width: 28%;">Extending (4)</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Task Completion</strong><br><span style="font-size:0.75rem; font-weight:normal;">(Douglas & Kim, 2014)</span></td>
+                        <td>Struggles to convey core message; non-linguistic outcome is incomplete.</td>
+                        <td>Successfully conveys the message and achieves the defined non-linguistic outcome.</td>
+                        <td>Achieves outcome highly creatively, integrating complex real-world variables.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Language Complexity</strong><br><span style="font-size:0.75rem; font-weight:normal;">(Lu, 2022)</span></td>
+                        <td>Relies on basic, simple sentence structures and limited vocabulary.</td>
+                        <td>Attempts to use target-level syntactic structures and varied lexis.</td>
+                        <td>Student attempts elaborated sentences. ${cogComplexity === 'high' ? '<strong>Successfully justifies and defends reasoning against peer challenges.</strong>' : 'Expands effortlessly on basic ideas.'}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Grammatical Accuracy</strong><br><span style="font-size:0.75rem; font-weight:normal;">(${grammarName})</span></td>
+                        <td>Frequent morphosyntactic errors that severely impede listener comprehension.</td>
+                        <td>Uses target forms correctly during the report; errors do not impede meaning.</td>
+                        <td>Produces highly accurate, error-free clauses with precise control of target forms.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Communicative Fluency</strong><br><span style="font-size:0.75rem; font-weight:normal;">(Lu, 2022)</span></td>
+                        <td>Frequent hesitations, pauses, and heavy reliance on L1.</td>
+                        <td>Speaks smoothly with a steady rate of delivery; minimal L1 reliance.</td>
+                        <td>Speaks spontaneously and negotiates meaning rapidly without notes.</td>
+                    </tr>
+                </table>
+            </div>
+        `;
+
+        // Deliverable 3: Metacognitive Prompt Bank
+        const promptsHtml = `
+            <div class="phase-card" style="margin-top: 2rem; border-left-color: #0d9488;">
+                <h3 style="color: #0d9488;">DELIVERABLE 3: Metacognitive Prompt Bank</h3>
+                <div class="prompt-box">
+                    <strong>Pre-Task Planning:</strong><br>
+                    • "What vocabulary words do I already know that will help my group solve this problem?" (Van den Branden, 2006)<br>
+                    • "How can we divide the roles in our group so everyone participates equally?" (Carless, 2004)
+                </div>
+                <div class="prompt-box">
+                    <strong>During-Task (Report Planning):</strong><br>
+                    • "How can I structure this information to make it clearer for the audience?"<br>
+                    • "Are we using the specific grammar rules (${grammarName}) the teacher showed us at the beginning?" (Lu, 2022)
+                </div>
+                <div class="prompt-box">
+                    <strong>Post-Task Reflection:</strong><br>
+                    • "What was the most difficult part of communicating my idea, and how did I negotiate meaning to fix it?"<br>
+                    • "What is one specific grammatical error I made today that I need to practice?"
+                </div>
+            </div>
+        `;
+
+        // Deliverable 4 & Parts 1-2: Theory & Efficiency Checklist
+        let theoryHtml = '';
+        if (incTheory) {
+            theoryHtml = `
+                <div class="page-break">
+                    <h2 style="color: var(--purple); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">Teacher Professional Development Pack</h2>
+                    
+                    <div class="phase-card theory">
+                        <h3>PART 1: Foundations — Defining TBL/TBLT</h3>
+                        <p><strong>Definition:</strong> An instructional approach where learners function primarily as active language users, employing their existing linguistic resources to achieve a meaning-focused, non-linguistic outcome that mirrors real-world communication. <span class="citation">(Douglas & Kim, 2014, p. 8; Lin & Wu, n.d., p. 592)</span></p>
+                        <ul>
+                            <li><strong>Meaning over Form:</strong> Primary attention is given to pragmatic meaning.</li>
+                            <li><strong>Non-Linguistic Outcome:</strong> Must culminate in a clear product (e.g., solved problem).</li>
+                            <li><strong>Learner Autonomy:</strong> Students negotiate meaning actively.</li>
+                        </ul>
+                        <p style="font-style: italic; font-size: 0.9rem; margin-top:1rem;">“‘Tasks’ are activities that call for primarily meaning-focused language use. In contrast, ‘exercises’ are activities that call for primarily form-focused language use” (Lin & Wu, n.d., p. 592).</p>
+                    </div>
+
+                    <div class="phase-card theory">
+                        <h3>PART 2: Methodology Analysis — Overcoming the "Vocabulary Wall"</h3>
+                        <p><strong>The Challenge:</strong> Asking secondary students to autonomously complete tasks often leads to frustration if their lexical repertoires are limited, causing intense noise and L1 reliance in classes of 40-50. <span class="citation">(Aurelya et al., 2024; Carless, 2004)</span></p>
+                        <p><strong>The Optimization:</strong> Implement <em>"Localized" or "Weak" TBLT (Task-Supported Language Teaching)</em>. Incorporate traditional PPP methods into the pre-task to guarantee exam accuracy while preserving the meaning-focused task cycle. <span class="citation">(Lu, 2022, p. 114)</span></p>
+                    </div>
+
+                    <div class="phase-card theory">
+                        <h3>DELIVERABLE 4: Efficiency Checklist for Foreign Teachers</h3>
+                        <label class="checklist-item"><input type="checkbox"> <strong>Derive Tasks from Real-World Needs:</strong> Ensure the task resembles actions people take in everyday life. (Long, 1985)</label>
+                        <label class="checklist-item"><input type="checkbox"> <strong>Control Cognitive Complexity:</strong> Manipulate variables (e.g., providing planning time) to balance cognitive load. (Ellis, 2003)</label>
+                        <label class="checklist-item"><input type="checkbox"> <strong>Minimize L1 Use Strategically:</strong> Establish strict time limits and assign roles like "English Monitor". (Lu, 2022)</label>
+                        <label class="checklist-item"><input type="checkbox"> <strong>Employ "Do a Task, Make a Task":</strong> Have students complete a task, then design a similar task to test peers, reducing teacher prep burden. (Littlejohn, 1998)</label>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Deliverable 5: Action Research
+        let researchHtml = '';
+        if (incResearch) {
+            researchHtml = `
+                <div class="phase-card theory ${!incTheory ? 'page-break' : ''}">
+                    <h3>DELIVERABLE 5: Action Research Protocol</h3>
+                    <p><strong>Suggested Question:</strong> How does the implementation of a localized TBLT framework affect the syntactic complexity and speaking anxiety of Grade ${grade} students compared to traditional PPP instruction?</p>
+                    <table class="rubric-table" style="margin-top:0.5rem;">
+                        <tr><th>Week</th><th>Activity</th><th>Data Collection</th></tr>
+                        <tr><td><strong>1</strong></td><td>Baseline: Pre-test speaking task.</td><td>Audio recordings; Rubric. (Lu, 2022)</td></tr>
+                        <tr><td><strong>2-4</strong></td><td>Implement optimized localized TBLT.</td><td>Teacher observation checklists; journals.</td></tr>
+                        <tr><td><strong>5</strong></td><td>Mid-point check: Speaking anxiety feedback.</td><td>Likert-scale questionnaire. (Cutrone & Beh, 2018)</td></tr>
+                        <tr><td><strong>6</strong></td><td>Post-test & Data analysis for CAF growth.</td><td>Post-test audio compared against baseline.</td></tr>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // Escape quotes for the TTS function argument
+        const safeTTSString = taskObj.description.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+        // Final HTML Construction
+        const outputHtml = `
+            <div class="lesson-header">
+                <h2>Module: ${theme}</h2>
+                <div class="lesson-meta">
+                    <span>Grade ${grade}</span>
+                    <span>Framework: ${taskObj.category}</span>
+                    <span>Target Skill: ${taskObj.skills}</span>
+                    <span>Focus Form: ${grammarName}</span>
+                    <span>Duration: ${totalTime} Mins</span>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dark); background: #f3f4f6; padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary);">
+                    ${pathwayFramework}<br><br>
+                    <strong>Theme Adaptation:</strong> ${pathwayTheme}<br>
+                    <strong>Evaluation:</strong> ${pathwayEval}
+                </div>
+            </div>
+
+            <div class="phase-card">
+                <h3>Phase 1: Pre-Task & Schema Activation <span class="time-badge">${preTime} Mins</span></h3>
+                <p><strong>Objective:</strong> Scaffold the task, arouse curiosity, and explicitly teach exam-required structures.</p>
+                <ul>
+                    <li><strong>Schema Activation:</strong> Introduce the theme of <em>${theme}</em> using authentic multimedia. Define the non-linguistic outcome clearly.</li>
+                    <li><strong>PPP Integration (Optimization):</strong> Explicitly present and drill the target grammar (<em>${grammarName}</em>). ${pathwayScaffold} <span class="citation">(Lu, 2022)</span></li>
+                    <li>${preL1Logic}</li>
+                    <li><strong>Lexical Scaffolding:</strong> Provide 3-5 vital "utterance launchers" to prevent the vocabulary wall. <em>Examples: ${gData.launchers}</em></li>
+                </ul>
+            </div>
+
+            <div class="phase-card" style="border-left-color: #10b981;">
+                <h3>
+                    Phase 2: The Task Cycle (Execution & Planning) 
+                    <span class="time-badge">${taskTime} Mins</span>
+                </h3>
+                <p><strong>Objective:</strong> Foster meaning negotiation, learner autonomy, and collaborative problem-solving.</p>
+                
+                <div class="task-execution-box">
+                    <button class="btn-tts" onclick="playTTS('${safeTTSString}')" title="Listen at 85% speed">🔊 Listen (0.85x)</button>
+                    <strong>Task: ${taskObj.title}</strong>
+                    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.2rem;">
+                        <li><strong>Pedagogical Action:</strong> ${taskObj.description}</li>
+                        <li><strong>Why it Works:</strong> ${taskObj.whyItWorks} <span class="citation" style="display:inline;">(${taskObj.citation})</span></li>
+                    </ul>
+                </div>
+
+                <ul>
+                    <li>${infoFlowLogic}</li>
+                    <li>${cogLogic}</li>
+                    <li>${teacherRoleLogic}</li>
+                    <li><strong>Planning for Report:</strong> Provide groups with 3-5 mins of unguided planning time to draft how they will report findings. Non-presenting students are assigned peer-assessment roles to maintain discipline. <span class="citation">(Lu, 2022)</span></li>
+                </ul>
+            </div>
+
+            <div class="phase-card" style="border-left-color: #f59e0b;">
+                <h3>Phase 3: Language Focus & Post-Task <span class="time-badge">${postTime} Mins</span></h3>
+                <p><strong>Objective:</strong> Transition back to teacher-led instruction, analyze interlanguage gaps, and consolidate accuracy.</p>
+                <ul>
+                    <li><strong>The Report:</strong> Select 2-3 groups to present outcomes. The class listens and compares solutions.</li>
+                    <li><strong>Formative Debrief & Recasts:</strong> Highlight specific grammatical errors noted during the cycle. <em>Teacher Script: ${gData.recast}</em></li>
+                    <li><strong>Traditional Consolidation:</strong> Students engage in consciousness-raising to inductively correct forms. ${postFormTimingLogic} Follow up with traditional exam-style controlled practice (e.g., gap-fills/translations) to satisfy high-stakes testing demands. <span class="citation">(Lu, 2022)</span></li>
+                </ul>
+            </div>
+
+            ${promptsHtml}
+            ${rubricHtml}
+            ${theoryHtml}
+            ${researchHtml}
+        `;
+
+        document.getElementById('outputPanel').innerHTML = outputHtml;
+        document.getElementById('printBtn').style.display = 'block';
+    }
+
+    function printLesson() {
+        window.print();
+    }
+</script>
+
+</body>
+</html>
