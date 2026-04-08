@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-Player Word Grid</title>
+    
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Load Babel to compile JSX inside the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Ensuring custom grid behaves properly in raw HTML */
+        .grid-cols-15 {
+            grid-template-columns: repeat(15, minmax(0, 1fr));
+        }
+    </style>
+</head>
+<body class="bg-neutral-900 text-white overflow-hidden">
+    <!-- This is the empty room where React will set up the game -->
+    <div id="root"></div>
+
+    <!-- The Game Logic -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- GAME CONSTANTS & CONFIGURATION ---
+        const BOARD_LAYOUT = [
+          "T..d...T...d..T",
+          ".D...t...t...D.",
+          "..D...d.d...D..",
+          "d..D...d...D..d",
+          "....D.....D....",
+          ".t...t...t...t.",
+          "..d...d.d...d..",
+          "T..d...*...d..T",
+          "..d...d.d...d..",
+          ".t...t...t...t.",
+          "....D.....D....",
+          "d..D...d...D..d",
+          "..D...d.d...D..",
+          ".D...t...t...D.",
+          "T..d...T...d..T"
+        ];
+
+        const TILE_DATA = {
+          A: { count: 9, value: 1 }, B: { count: 2, value: 3 }, C: { count: 2, value: 3 },
+          D: { count: 4, value: 2 }, E: { count: 12, value: 1 }, F: { count: 2, value: 4 },
+          G: { count: 3, value: 2 }, H: { count: 2, value: 4 }, I: { count: 9, value: 1 },
+          J: { count: 1, value: 8 }, K: { count: 1, value: 5 }, L: { count: 4, value: 1 },
+          M: { count: 2, value: 3 }, N: { count: 6, value: 1 }, O: { count: 8, value: 1 },
+          P: { count: 2, value: 3 }, Q: { count: 1, value: 10 }, R: { count: 6, value: 1 },
+          S: { count: 4, value: 1 }, T: { count: 6, value: 1 }, U: { count: 4, value: 1 },
+          V: { count: 2, value: 4 }, W: { count: 2, value: 4 }, X: { count: 1, value: 8 },
+          Y: { count: 2, value: 4 }, Z: { count: 1, value: 10 }, _: { count: 2, value: 0 }
+        };
+
+        // --- HELPER FUNCTIONS ---
+        const createInitialBag = () => {
+          let bag = [];
+          Object.keys(TILE_DATA).forEach(letter => {
+            for (let i = 0; i < TILE_DATA[letter].count; i++) {
+              bag.push({ id: `${letter}-${Math.random()}`, letter, value: TILE_DATA[letter].value });
+            }
+          });
+          for (let i = bag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [bag[i], bag[j]] = [bag[j], bag[i]];
+          }
+          return bag;
+        };
+
+        const getSquareColor = (type) => {
+          switch (type) {
+            case 'T': return 'bg-red-500 text-white';
+            case 'D': return 'bg-pink-400 text-white';
+            case 't': return 'bg-blue-600 text-white';
+            case 'd': return 'bg-blue-300 text-blue-900';
+            case '*': return 'bg-pink-500 text-white';
+            default: return 'bg-[#E5E4E2] text-gray-400';
+          }
+        };
+
+        const getSquareLabel = (type) => {
+          switch (type) {
+            case 'T': return 'TW';
+            case 'D': return 'DW';
+            case 't': return 'TL';
+            case 'd': return 'DL';
+            case '*': return '★';
+            default: return '';
+          }
+        };
+
+        function App() {
+          const [bag, setBag] = useState([]);
+          const [board, setBoard] = useState([]);
+          const [players, setPlayers] = useState([
+            { id: 0, name: "Team Red (Top Left)", score: 0, rack: [], color: "border-red-500", bg: "bg-red-950" },
+            { id: 1, name: "Team Blue (Top Right)", score: 0, rack: [], color: "border-blue-500", bg: "bg-blue-950" },
+            { id: 2, name: "Team Green (Bottom Right)", score: 0, rack: [], color: "border-green-500", bg: "bg-green-950" },
+            { id: 3, name: "Team Yellow (Bottom Left)", score: 0, rack: [], color: "border-yellow-500", bg: "bg-yellow-950" },
+          ]);
+          const [currentTurn, setCurrentTurn] = useState(0);
+          
+          const [selectedRackIndex, setSelectedRackIndex] = useState(null);
+          const [placedThisTurn, setPlacedThisTurn] = useState([]); 
+
+          useEffect(() => {
+            let initialBag = createInitialBag();
+            let initialPlayers = [...players];
+            for (let p = 0; p < 4; p++) {
+              initialPlayers[p].rack = initialBag.splice(0, 7);
+            }
+            
+            let initialBoard = [];
+            for (let r = 0; r < 15; r++) {
+              let row = [];
+              for (let c = 0; c < 15; c++) {
+                row.push({
+                  type: BOARD_LAYOUT[r][c],
+                  tile: null,
+                });
+              }
+              initialBoard.push(row);
+            }
+
+            setBag(initialBag);
+            setPlayers(initialPlayers);
+            setBoard(initialBoard);
+          }, []);
+
+          const handleRackClick = (playerIndex, tileIndex) => {
+            if (playerIndex !== currentTurn) return; 
+            if (selectedRackIndex === tileIndex) {
+              setSelectedRackIndex(null); 
+            } else {
+              setSelectedRackIndex(tileIndex);
+            }
+          };
+
+          const handleBoardClick = (row, col) => {
+            const square = board[row][col];
+            const player = players[currentTurn];
+
+            if (selectedRackIndex !== null && square.tile === null) {
+              const tileToPlace = player.rack[selectedRackIndex];
+              
+              const newBoard = [...board];
+              newBoard[row][col] = { ...square, tile: tileToPlace };
+              setBoard(newBoard);
+
+              setPlacedThisTurn([...placedThisTurn, { row, col, tile: tileToPlace, originalRackIndex: selectedRackIndex }]);
+
+              const newPlayers = [...players];
+              newPlayers[currentTurn].rack[selectedRackIndex] = null; 
+              setPlayers(newPlayers);
+              
+              setSelectedRackIndex(null);
+            } 
+            else if (square.tile !== null) {
+              const placementIndex = placedThisTurn.findIndex(p => p.row === row && p.col === col);
+              if (placementIndex !== -1) {
+                const placementInfo = placedThisTurn[placementIndex];
+                
+                const newBoard = [...board];
+                newBoard[row][col] = { ...square, tile: null };
+                setBoard(newBoard);
+
+                const newPlayers = [...players];
+                newPlayers[currentTurn].rack[placementInfo.originalRackIndex] = placementInfo.tile;
+                setPlayers(newPlayers);
+
+                const newPlaced = [...placedThisTurn];
+                newPlaced.splice(placementIndex, 1);
+                setPlacedThisTurn(newPlaced);
+              }
+            }
+          };
+
+          const recallAll = () => {
+            if (placedThisTurn.length === 0) return;
+            const newBoard = [...board];
+            const newPlayers = [...players];
+            
+            placedThisTurn.forEach(p => {
+              newBoard[p.row][p.col].tile = null;
+              newPlayers[currentTurn].rack[p.originalRackIndex] = p.tile;
+            });
+
+            setBoard(newBoard);
+            setPlayers(newPlayers);
+            setPlacedThisTurn([]);
+            setSelectedRackIndex(null);
+          };
+
+          const calculateScoreAndPlay = () => {
+            if (placedThisTurn.length === 0) return;
+
+            let turnScore = 0;
+            let wordMultiplier = 1;
+
+            placedThisTurn.forEach(p => {
+              let letterVal = p.tile.value;
+              const sqType = board[p.row][p.col].type;
+
+              if (sqType === 'd') letterVal *= 2;
+              if (sqType === 't') letterVal *= 3;
+
+              turnScore += letterVal;
+
+              if (sqType === 'D' || sqType === '*') wordMultiplier *= 2;
+              if (sqType === 'T') wordMultiplier *= 3;
+            });
+
+            turnScore *= wordMultiplier;
+
+            if (placedThisTurn.length === 7) {
+              turnScore += 50;
+            }
+
+            commitTurn(turnScore);
+          };
+
+          const passTurn = () => {
+            recallAll(); 
+            commitTurn(0);
+          };
+
+          const commitTurn = (scoreEarned) => {
+            const newPlayers = [...players];
+            let currentBag = [...bag];
+
+            newPlayers[currentTurn].score += scoreEarned;
+
+            let newRack = newPlayers[currentTurn].rack.filter(t => t !== null);
+
+            while (newRack.length < 7 && currentBag.length > 0) {
+              newRack.push(currentBag.shift());
+            }
+            newPlayers[currentTurn].rack = newRack;
+
+            setPlayers(newPlayers);
+            setBag(currentBag);
+            setPlacedThisTurn([]);
+            setSelectedRackIndex(null);
+
+            setCurrentTurn((currentTurn + 1) % 4);
+          };
+
+          const PlayerZone = ({ player }) => {
+            const isActive = currentTurn === player.id;
+            return (
+              <div className={`relative w-full md:w-full p-2 rounded-xl border-[3px] transition-all duration-300 shrink-0
+                              ${isActive ? `${player.color} shadow-[0_0_15px_rgba(255,255,255,0.4)] bg-gray-800 z-10 scale-[1.02]` : `border-transparent ${player.bg} opacity-80`}
+              `}>
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-[10px] sm:text-xs font-bold truncate pr-1">{player.name}</h2>
+                  <span className="text-xs sm:text-sm font-mono bg-black px-1.5 py-0.5 rounded">{player.score}</span>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-1 place-items-center min-h-[3rem]">
+                  {player.rack.map((tile, idx) => {
+                    if (!tile) return <div key={idx} className="w-6 h-6 sm:w-8 sm:h-8 opacity-20 bg-black rounded" />;
+                    
+                    const isSelected = selectedRackIndex === idx && isActive;
+                    return (
+                      <button
+                        key={tile.id}
+                        onClick={() => handleRackClick(player.id, idx)}
+                        className={`relative w-6 h-6 sm:w-8 sm:h-8 rounded shadow-md flex items-center justify-center text-black font-bold transition-transform
+                          ${isSelected ? 'bg-yellow-300 -translate-y-2 scale-110' : (isActive ? 'bg-[#f5e6c4] hover:bg-white' : 'bg-[#e3cda8] cursor-not-allowed')}
+                        `}
+                      >
+                        <span className="text-xs sm:text-base leading-none -mt-1 -ml-1">{tile.letter === '_' ? '' : tile.letter}</span>
+                        <span className="absolute bottom-0.5 right-[2px] text-[7px] sm:text-[9px] text-gray-700 leading-none">{tile.value}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {isActive && (
+                  <div className="mt-2 flex flex-col xl:flex-row gap-1 justify-center">
+                    {placedThisTurn.length > 0 ? (
+                      <React.Fragment>
+                        <button onClick={recallAll} className="bg-red-600 hover:bg-red-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded w-full">Recall</button>
+                        <button onClick={calculateScoreAndPlay} className="bg-green-600 hover:bg-green-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded font-bold w-full">Play</button>
+                      </React.Fragment>
+                    ) : (
+                      <button onClick={passTurn} className="bg-gray-600 hover:bg-gray-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded w-full">Pass</button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          };
+
+          if (board.length === 0) return <div className="text-white p-10">Loading Game Board...</div>;
+
+          return (
+            <div className="relative w-full h-screen bg-neutral-900 overflow-hidden font-sans text-white select-none flex flex-col md:flex-row">
+              
+              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent pointer-events-none" />
+
+              <div className="w-full md:w-44 lg:w-48 h-auto md:h-full flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto bg-black/50 border-b md:border-b-0 md:border-r border-neutral-800 p-2 gap-2 z-10 shrink-0 shadow-2xl">
+                <PlayerZone player={players[0]} />
+                <PlayerZone player={players[1]} />
+                <PlayerZone player={players[2]} />
+                <PlayerZone player={players[3]} />
+              </div>
+
+              <div className="flex-1 relative flex flex-col items-center justify-center p-2 sm:p-4 overflow-hidden h-full">
+                
+                <div className="text-center text-xs sm:text-sm font-semibold tracking-widest text-yellow-500 uppercase mb-2">
+                  Letters left in bag: {bag.length}
+                </div>
+
+                <div 
+                  className="relative bg-yellow-900 rounded-lg shadow-2xl border-[3px] border-yellow-800 aspect-square flex flex-col p-0.5 sm:p-1"
+                  style={{ width: '100%', maxWidth: 'min(100%, calc(100vh - 4rem))', maxHeight: '100%' }}
+                >
+                  <div 
+                    className="w-full h-full grid gap-[1px] bg-yellow-900" 
+                    style={{ 
+                      gridTemplateColumns: 'repeat(15, minmax(0, 1fr))',
+                      gridTemplateRows: 'repeat(15, minmax(0, 1fr))'
+                    }}
+                  >
+                    {board.map((row, rIndex) => (
+                      <div key={rIndex} className="contents">
+                        {row.map((square, cIndex) => {
+                          const isPlacedThisTurn = placedThisTurn.some(p => p.row === rIndex && p.col === cIndex);
+                          
+                          return (
+                            <div 
+                              key={`${rIndex}-${cIndex}`}
+                              onClick={() => handleBoardClick(rIndex, cIndex)}
+                              className={`
+                                w-full h-full relative flex items-center justify-center font-bold rounded-[1px] cursor-pointer
+                                ${square.tile ? '' : getSquareColor(square.type)}
+                                ${selectedRackIndex !== null && !square.tile ? 'hover:bg-yellow-200' : ''}
+                              `}
+                            >
+                              {!square.tile && (
+                                <span className="text-[6px] sm:text-[8px] md:text-[10px] opacity-70 pointer-events-none leading-none">
+                                  {getSquareLabel(square.type)}
+                                </span>
+                              )}
+
+                              {square.tile && (
+                                <div className={`
+                                  absolute inset-0 bg-[#f5e6c4] text-black rounded-[1px] shadow-sm flex items-center justify-center
+                                  ${isPlacedThisTurn ? 'border-[1.5px] border-green-500 shadow-[0_0_8px_#22c55e] z-10 animate-pulse' : 'border border-[#d1bfae]'}
+                                `}>
+                                  <span className="text-xs sm:text-sm md:text-lg leading-none -mt-1 -ml-1">{square.tile.letter === '_' ? '' : square.tile.letter}</span>
+                                  <span className="absolute bottom-[1px] right-[2px] text-[5px] sm:text-[7px] text-gray-700 leading-none">{square.tile.value}</span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // Render the App into the root div
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
