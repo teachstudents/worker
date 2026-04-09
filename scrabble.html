@@ -302,6 +302,41 @@
             commitTurn(0);
           };
 
+          const replaceLetters = () => {
+            recallAll(); // Bring back any tiles they might have been playing with
+            
+            const newPlayers = [...players];
+            let currentBag = [...bag];
+            const activeRack = newPlayers[currentTurn].rack.filter(t => t !== null);
+            
+            // 1. Dump the student's current letters back into the main bucket
+            currentBag = [...currentBag, ...activeRack];
+            
+            // 2. Clear out their desk tray completely
+            newPlayers[currentTurn].rack = [];
+            
+            // 3. Vigorously shake the main bucket to mix the old letters in
+            for (let i = currentBag.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [currentBag[i], currentBag[j]] = [currentBag[j], currentBag[i]];
+            }
+
+            // 4. The teacher hands them 8 brand new tiles
+            const neededTilesCount = 8;
+            if (neededTilesCount > 0 && currentBag.length > 0) {
+              const { newRackLetters, newBag } = getTilesForESL(neededTilesCount, currentBag);
+              newPlayers[currentTurn].rack = newRackLetters;
+              currentBag = newBag;
+            }
+
+            // 5. Save the changes and pass the turn to the next team
+            setPlayers(newPlayers);
+            setBag(currentBag);
+            setPlacedThisTurn([]);
+            setSelectedRackIndex(null);
+            setCurrentTurn((currentTurn + 1) % 4);
+          };
+
           const commitTurn = (scoreEarned) => {
             const newPlayers = [...players];
             let currentBag = [...bag];
@@ -366,7 +401,10 @@
                         <button onClick={calculateScoreAndPlay} className="bg-green-600 hover:bg-green-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded font-bold w-full">Play</button>
                       </React.Fragment>
                     ) : (
-                      <button onClick={passTurn} className="bg-gray-600 hover:bg-gray-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded w-full">Pass</button>
+                      <React.Fragment>
+                        <button onClick={replaceLetters} className="bg-purple-600 hover:bg-purple-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded w-full">Swap All</button>
+                        <button onClick={passTurn} className="bg-gray-600 hover:bg-gray-500 text-white text-[10px] sm:text-xs px-2 py-1 rounded w-full">Pass</button>
+                      </React.Fragment>
                     )}
                   </div>
                 )}
