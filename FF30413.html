@@ -7,8 +7,11 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
+* {
+    font-weight: 700 !important; /* Force all fonts to be bold for visibility */
+}
 body { 
     font-family: 'Quicksand', 'Comic Sans MS', sans-serif; 
     touch-action: manipulation; 
@@ -44,7 +47,7 @@ body {
 }
 .chat-bubble.active {
     transform: scale(1.06);
-    font-weight: 800;
+    font-weight: 900 !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     z-index: 10;
     font-size: 1.35rem;
@@ -64,7 +67,13 @@ body {
 .theme-black { background-color: #f8fafc; color: #000000; border-color: #e2e8f0; }
 .theme-purple { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
 .theme-emerald { background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
-.speaker-name { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.05em; }
+.speaker-name { 
+    font-size: 0.96rem; /* Expanded by exactly 20% from 0.8rem */
+    font-weight: 900 !important; 
+    text-transform: uppercase; 
+    margin-bottom: 2px; 
+    letter-spacing: 0.05em; 
+}
 @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .chat-bubble { animation: slideIn 0.4s ease forwards; }
 ::-webkit-scrollbar { display: none; }
@@ -76,7 +85,7 @@ body {
 <div id="main-menu" class="screen active p-6 overflow-y-auto">
     <div class="max-w-6xl mx-auto w-full">
         <h1 class="text-3xl font-black text-center text-indigo-950 mb-2">Family and Friends 4</h1>
-        <p class="text-center text-slate-600 mb-5 text-sm font-semibold italic text-balance">English Dialogue Practice - 2nd Edition</p>
+        <p class="text-center text-slate-600 mb-5 text-sm font-bold italic text-balance">English Dialogue Practice - 2nd Edition</p>
         <div id="unit-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 pb-12"></div>
     </div>
 </div>
@@ -119,13 +128,23 @@ body {
 <!-- Conversation Screen -->
 <div id="conversation-screen" class="screen bg-white">
     <header class="p-3 border-b-2 flex justify-between items-center bg-slate-50 flex-shrink-0">
-        <button onclick="goToMenu()" class="bg-white border-2 border-slate-200 px-4 py-1 rounded-xl font-black text-slate-700 flex items-center gap-2 hover:bg-slate-100 text-sm">
-            ⬅ BACK
-        </button>
+        <div class="flex gap-2">
+            <button onclick="goToMenu()" class="bg-white border-2 border-slate-200 px-3 py-1 rounded-xl font-black text-slate-700 flex items-center gap-1 hover:bg-slate-100 text-sm shadow-sm">
+                🏠 HOME
+            </button>
+            <button onclick="goToObjective()" class="bg-white border-2 border-slate-200 px-3 py-1 rounded-xl font-black text-slate-700 flex items-center gap-1 hover:bg-slate-100 text-sm shadow-sm">
+                ⬅ BACK
+            </button>
+        </div>
         <h2 id="convo-unit-header" class="text-xl font-black text-indigo-900"></h2>
-        <button id="repeat-btn" onclick="repeatConversation()" class="bg-indigo-600 text-white font-black py-1 px-4 rounded-xl flex items-center gap-2 hover:bg-indigo-700 shadow-lg text-sm">
-            🔄 REPEAT
-        </button>
+        <div class="flex gap-2">
+            <button id="repeat-btn" onclick="repeatConversation()" class="bg-indigo-600 text-white font-black py-1 px-3 rounded-xl flex items-center gap-1 hover:bg-indigo-700 shadow-md text-sm">
+                🔄 REPEAT
+            </button>
+            <button onclick="nextConversation()" class="bg-emerald-600 text-white font-black py-1 px-3 rounded-xl flex items-center gap-1 hover:bg-emerald-700 shadow-md text-sm">
+                NEXT ⏭️
+            </button>
+        </div>
     </header>
     <div id="convo-container"></div>
 </div>
@@ -912,11 +931,15 @@ function initVoices() {
     emmaVoice = getBestVoice(voices, ["Seraphina", "Emma"]);
     avaVoice = getBestVoice(voices, ["Vivienne", "Ava"]);
     
-    // Fallbacks
-    if (!brianVoice) brianVoice = voices.find(v => v.name.includes("Male") && v.lang.startsWith("en")) || voices[0];
-    if (!andrewVoice) andrewVoice = voices.find(v => v.name.includes("Male") && v.lang.startsWith("en")) || voices[0];
-    if (!emmaVoice) emmaVoice = voices.find(v => v.name.includes("Female") && v.lang.startsWith("en")) || voices[0];
-    if (!avaVoice) avaVoice = voices.find(v => v.name.includes("Female") && v.lang.startsWith("en")) || voices[1] || voices[0];
+    // Strict Fallbacks to guarantee uniqueness where possible
+    let enVoicesMale = voices.filter(v => (v.name.includes("Male") || v.name.includes("David") || v.name.includes("Mark") || v.name.includes("Andrew") || v.name.includes("Brian") || v.name.includes("Remy") || v.name.includes("Florian")) && v.lang.startsWith("en"));
+    let enVoicesFemale = voices.filter(v => (v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Hazel") || v.name.includes("Emma") || v.name.includes("Ava") || v.name.includes("Seraphina") || v.name.includes("Vivienne")) && v.lang.startsWith("en"));
+
+    if (!brianVoice) brianVoice = enVoicesMale[0] || voices[0];
+    if (!andrewVoice) andrewVoice = enVoicesMale.length > 1 ? enVoicesMale.find(v => v !== brianVoice) : (enVoicesMale[0] || voices[0]);
+
+    if (!emmaVoice) emmaVoice = enVoicesFemale[0] || voices[1] || voices[0];
+    if (!avaVoice) avaVoice = enVoicesFemale.length > 1 ? enVoicesFemale.find(v => v !== emmaVoice) : (enVoicesFemale[0] || voices[1] || voices[0]);
 }
 
 if (synth.onvoiceschanged !== undefined) {
@@ -945,6 +968,12 @@ function goToMenu() {
     showScreen('main-menu');
 }
 
+function goToObjective() {
+    synth.cancel();
+    isTtsActive = false;
+    showScreen('objective-screen');
+}
+
 function selectUnit(unitKey) {
     currentLessonData = lessons[unitKey];
     if(!currentLessonData) return;
@@ -971,6 +1000,12 @@ function startConversationFlow(convoType) {
     convoIndex = 0;
     isTtsActive = true;
     nextTurn();
+}
+
+function nextConversation() {
+    let nextType = currentConvoType + 1;
+    if (nextType > 4) nextType = 1;
+    startConversationFlow(nextType);
 }
 
 function nextTurn() {
