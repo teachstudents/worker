@@ -281,41 +281,95 @@
 
           const calculateScoreAndPlay = () => {
             if (placedThisTurn.length === 0) return;
+            
             let turnScore = 0;
-            let wordMultiplier = 1;
-            let hasDoubleWord = false;
-            let hasTripleWord = false;
+            let scoredWords = new Set();
+            let scoredTiles = new Set();
+            let wordsToScore = [];
 
-            placedThisTurn.forEach(p => {
-              let letterVal = p.tile.value;
-              const sqType = board[p.row][p.col].type;
-              
-              if (sqType === 'd') letterVal *= 2; // Double Letter Points
-              if (sqType === 't') letterVal *= 3; // Triple Letter Points
-              
-              turnScore += letterVal;
-              
-              if (sqType === 'D' || sqType === '*') {
-                wordMultiplier *= 2; // Double Word Points
-                hasDoubleWord = true;
+            // 1. The Teacher's "Smart Glasses": Scan horizontally and vertically to find the full words
+            const getWord = (r, c, dr, dc) => {
+              let startR = r, startC = c;
+              while (startR - dr >= 0 && startR - dr < 15 && startC - dc >= 0 && startC - dc < 15 && board[startR - dr][startC - dc].tile) {
+                startR -= dr;
+                startC -= dc;
               }
-              if (sqType === 'T') {
-                wordMultiplier *= 3; // Triple Word Points
-                hasTripleWord = true;
+              let endR = r, endC = c;
+              while (endR + dr >= 0 && endR + dr < 15 && endC + dc >= 0 && endC + dc < 15 && board[endR + dr][endC + dc].tile) {
+                endR += dr;
+                endC += dc;
+              }
+              return { startR, startC, endR, endC, length: Math.max(endR - startR, endC - startC) + 1 };
+            };
+
+            // Check every tile placed this turn for horizontal and vertical cross-words
+            placedThisTurn.forEach(p => {
+              const hWord = getWord(p.row, p.col, 0, 1);
+              const hKey = `H-${hWord.startR}-${hWord.startC}-${hWord.endC}`;
+              if (hWord.length > 1 && !scoredWords.has(hKey)) {
+                scoredWords.add(hKey);
+                wordsToScore.push(hWord);
+              }
+              
+              const vWord = getWord(p.row, p.col, 1, 0);
+              const vKey = `V-${vWord.startR}-${vWord.startC}-${vWord.endR}`;
+              if (vWord.length > 1 && !scoredWords.has(vKey)) {
+                scoredWords.add(vKey);
+                wordsToScore.push(vWord);
               }
             });
 
-            let finalScore = turnScore * wordMultiplier;
-            let message = `Team ${players[currentTurn].name} scored ${finalScore} points! (Base: ${turnScore}`;
-            
-            if (hasDoubleWord) message += ` x 2 DW`;
-            if (hasTripleWord) message += ` x 3 TW`;
-            message += `)`;
+            // 2. Grade every unique word found
+            wordsToScore.forEach(w => {
+              let wScore = 0;
+              let wMult = 1;
+              let dr = w.startR === w.endR ? 0 : 1;
+              let dc = w.startC === w.endC ? 0 : 1;
+              
+              for (let i = 0; i < w.length; i++) {
+                let currR = w.startR + i * dr;
+                let currC = w.startC + i * dc;
+                scoredTiles.add(`${currR}-${currC}`);
+                
+                let tile = board[currR][currC].tile;
+                let sqType = board[currR][currC].type;
+                let isNew = placedThisTurn.some(p => p.row === currR && p.col === currC);
+                
+                let letterVal = tile.value;
+                
+                // CRUCIAL SCRABBLE RULE: Only new tiles get board multipliers! Old tiles just get face value.
+                if (isNew) {
+                  if (sqType === 'd') letterVal *= 2;
+                  if (sqType === 't') letterVal *= 3;
+                  if (sqType === 'D' || sqType === '*') wMult *= 2;
+                  if (sqType === 'T') wMult *= 3;
+                }
+                wScore += letterVal;
+              }
+              turnScore += (wScore * wMult);
+            });
+
+            // 3. Sandbox forgiveness: If a tile was placed totally by itself and formed no connections
+            placedThisTurn.forEach(p => {
+              if (!scoredTiles.has(`${p.row}-${p.col}`)) {
+                let letterVal = p.tile.value;
+                let sqType = board[p.row][p.col].type;
+                let wMult = 1;
+                if (sqType === 'd') letterVal *= 2;
+                if (sqType === 't') letterVal *= 3;
+                if (sqType === 'D' || sqType === '*') wMult *= 2;
+                if (sqType === 'T') wMult *= 3;
+                turnScore += (letterVal * wMult);
+              }
+            });
+
+            let finalScore = turnScore;
+            let message = `Team ${players[currentTurn].name} scored ${finalScore} points!`;
 
             // Bingo is awarded for placing all 8 tiles
             if (placedThisTurn.length === 8) {
               finalScore += 50;
-              message += ` + 50 Point Bingo Bonus!`;
+              message += ` (+50 Bingo Bonus!)`;
             }
             
             setLastPlayMessage(message);
