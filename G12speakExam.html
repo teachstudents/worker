@@ -7,9 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
-            body { background-color: white !important; }
+            @page { margin: 0.4in; } /* Shrinks paper margins to widen the usable content area */
+            body { background-color: white !important; font-size: 0.85rem !important; }
             .no-print { display: none !important; }
-            .print-border { border: 1px solid #e5e7eb !important; }
+            .print-border { border: none !important; max-width: 100% !important; margin: 0 !important; }
             .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
             input[type="text"], textarea { 
                 border: none; 
@@ -17,6 +18,16 @@
                 resize: none; 
                 background: transparent;
             }
+            /* Squeeze vertical spacing so it easily fits on 2 pages */
+            .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem !important; }
+            .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.2rem !important; }
+            .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.1rem !important; }
+            .p-3 { padding: 0.35rem 0.5rem !important; }
+            .p-4, .sm\:p-6 { padding: 0 !important; }
+            .mb-2 { margin-bottom: 0.15rem !important; }
+            .mt-3 { margin-top: 0.25rem !important; }
+            h2 { font-size: 0.95rem !important; }
+            textarea { height: 2.5rem !important; min-height: 2.5rem !important; }
         }
     </style>
 </head>
@@ -37,11 +48,12 @@
         </div>
 
         <!-- Print Header (Visible only on print) -->
-        <div class="hidden print:block border-b-2 border-indigo-600 pb-2 mb-4 pt-4 px-8">
-            <h1 class="text-xl font-bold text-gray-900">Speaking Test Grading Checklist: Defying Gravity in Germany</h1>
-            <div class="flex justify-between items-end mt-4">
-                <div class="text-base">Student: <span class="border-b border-gray-400 inline-block w-64"></span></div>
-                <div class="text-lg font-bold">Score: <span id="print-total">0</span> / 25</div>
+        <div class="hidden print:flex print:flex-row print:justify-between print:items-end border-b-2 border-indigo-600 pb-1 mb-3 pt-0 px-1">
+            <h1 class="text-sm font-bold text-gray-900">Speaking Test Grading Checklist: Defying Gravity in Germany</h1>
+            <div class="flex space-x-4 items-end">
+                <div class="text-xs">Student: <span id="print-student-name" class="border-b border-gray-400 inline-block w-40 px-1 text-gray-800 min-h-[1rem]"></span></div>
+                <div class="text-xs">Date: <span id="print-test-date" class="border-b border-gray-400 inline-block w-24 px-1 text-gray-800 min-h-[1rem]"></span></div>
+                <div class="text-sm font-bold">Score: <span id="print-total">0</span> / 25</div>
             </div>
         </div>
 
@@ -232,7 +244,7 @@
 
             <!-- Action Buttons -->
             <div class="pt-4 border-t border-gray-200 flex justify-end gap-4 no-print">
-                <button type="button" onclick="document.getElementById('grading-form').reset(); calculateScores();" class="px-4 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button type="button" onclick="clearForm()" class="px-4 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Clear Form
                 </button>
                 <button type="button" onclick="window.print()" class="px-5 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center gap-2">
@@ -246,6 +258,23 @@
     </div>
 
     <script>
+        // Synchronize input fields with the print header
+        document.getElementById('student-name').addEventListener('input', function() {
+            document.getElementById('print-student-name').innerText = this.value;
+        });
+
+        document.getElementById('test-date').addEventListener('input', function() {
+            document.getElementById('print-test-date').innerText = this.value;
+        });
+
+        // Clear form function
+        function clearForm() {
+            document.getElementById('grading-form').reset();
+            calculateScores();
+            document.getElementById('print-student-name').innerText = '';
+            document.getElementById('print-test-date').innerText = '';
+        }
+
         // Logic to calculate scores automatically
         const checkboxes = document.querySelectorAll('.score-cb');
         const grandTotalDisplay = document.getElementById('grand-total');
