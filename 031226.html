@@ -122,12 +122,14 @@
 
     <!-- FIXED NAVIGATION HEADER -->
     <nav id="nav-header">
-        <div class="flex gap-2 sm:gap-4">
+        <div class="flex gap-2 sm:gap-4 items-center flex-wrap">
             <button onclick="navBack()" class="nav-btn">⬅ Back</button>
             <button onclick="navHome()" class="nav-btn">🏠 Home</button>
+            <button id="header-restart" onclick="repeatConvo()" class="nav-btn" style="display: none;">🔄 Restart</button>
+            <button id="header-next-line" onclick="navNext()" class="bg-indigo-100 text-indigo-700 font-bold py-1.5 px-4 rounded-xl hover:bg-indigo-200 transition-colors shadow-sm" style="display: none;">Next Line ➡</button>
         </div>
-        <div class="flex gap-2 sm:gap-4 items-center">
-            <button onclick="navNext()" class="nav-btn">Skip / Next ➡</button>
+        <div class="flex gap-2 sm:gap-4 items-center flex-wrap">
+            <button id="header-skip" onclick="navNext()" class="nav-btn">Skip / Next ➡</button>
             <button onclick="addBonusPoints()" class="points-btn" title="Click for Bonus Points!">
                 🌟 XP: <span id="nav-xp">0</span>
             </button>
@@ -193,17 +195,6 @@
     <!-- CONVERSATION SCREEN (Locked Height, 30% wider max-w-6xl) -->
     <div id="convo-screen" class="screen bg-white">
         <div class="w-full max-w-6xl flex flex-col items-center h-full pop-in">
-            <header class="w-full flex justify-end items-center mb-2 pb-4 border-b-2 border-slate-100 shrink-0">
-                <div class="flex gap-3">
-                    <button onclick="repeatConvo()" class="bg-slate-100 text-slate-600 font-black py-3 px-6 rounded-xl hover:bg-slate-200 transition-colors shadow-sm">
-                        🔄 Restart
-                    </button>
-                    <button onclick="navNext()" class="bg-indigo-100 text-indigo-700 font-black py-3 px-6 rounded-xl hover:bg-indigo-200 transition-colors shadow-sm">
-                        Next Line ➡
-                    </button>
-                </div>
-            </header>
-            
             <div id="convo-container"></div>
         </div>
     </div>
@@ -1060,6 +1051,18 @@
             isTtsActive = false; 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            
+            // Handle Navigation Button Visibility Contextually
+            if (id === 'convo-screen') {
+                document.getElementById('header-restart').style.display = 'block';
+                document.getElementById('header-next-line').style.display = 'block';
+                document.getElementById('header-skip').style.display = 'none';
+            } else {
+                document.getElementById('header-restart').style.display = 'none';
+                document.getElementById('header-next-line').style.display = 'none';
+                document.getElementById('header-skip').style.display = 'block';
+            }
+
             if (id === 'menu-screen') renderMenu();
         }
 
