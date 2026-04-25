@@ -19,6 +19,15 @@
         .screen { display: none; min-height: calc(100vh - 5rem); width: 100vw; flex-direction: column; align-items: center; padding: 2rem 1rem; }
         .screen.active { display: flex; animation: fadeIn 0.4s ease-out forwards; }
 
+        /* Custom Full-Height Lock for Convo Screen to prevent page scroll */
+        #convo-screen.active {
+            height: calc(100vh - 5rem);
+            min-height: auto;
+            overflow: hidden;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
         /* Fixed Navigation Header */
         #nav-header {
             position: fixed; top: 0; left: 0; width: 100%; height: 5rem;
@@ -59,15 +68,19 @@
         .points-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 0 #d97706; }
         .points-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #d97706; }
 
-        /* Chat Bubbles */
+        /* Chat Bubbles (30% Wider Container) */
         #convo-container {
             display: flex; flex-direction: column; gap: 0.8rem;
-            width: 100%; max-width: 800px;
-            height: 60vh; overflow-y: auto; padding: 1rem;
+            width: 100%; 
+            max-width: 1040px; /* Expanded by 30% from 800px */
+            flex-grow: 1;
+            height: 0; /* Forces internal scroll */
+            overflow-y: auto; padding: 1rem;
             scroll-behavior: smooth;
         }
         .chat-bubble {
-            max-width: 80%; padding: 1rem 1.5rem;
+            max-width: 75%; /* Reduced from 80% to keep bubbles distinctly left/right in wider container */
+            padding: 1rem 1.5rem;
             border-radius: 2rem; font-size: 1.25rem;
             line-height: 1.4; transition: all 0.3s ease;
             opacity: 0; transform: translateY(10px);
@@ -114,7 +127,7 @@
             <button onclick="navHome()" class="nav-btn">🏠 Home</button>
         </div>
         <div class="flex gap-2 sm:gap-4 items-center">
-            <button onclick="navNext()" class="nav-btn">Next ➡</button>
+            <button onclick="navNext()" class="nav-btn">Skip / Next ➡</button>
             <button onclick="addBonusPoints()" class="points-btn" title="Click for Bonus Points!">
                 🌟 XP: <span id="nav-xp">0</span>
             </button>
@@ -152,7 +165,6 @@
                     <!-- Conversation Section -->
                     <div class="bg-indigo-50 p-6 rounded-3xl border-2 border-indigo-100">
                         <h3 class="text-xl font-black text-indigo-900 mb-4 flex items-center gap-2">Conversation Practice 🗣️</h3>
-                        <p class="text-sm font-bold text-indigo-400 mb-6">Listen and read along. Press "Next" to scroll through dialogue.</p>
                         <div class="flex flex-col gap-4" id="convo-btns">
                             <!-- Injected -->
                         </div>
@@ -178,21 +190,22 @@
         </div>
     </div>
 
-    <!-- CONVERSATION SCREEN -->
+    <!-- CONVERSATION SCREEN (Locked Height, 30% wider max-w-6xl) -->
     <div id="convo-screen" class="screen bg-white">
-        <div class="w-full max-w-4xl flex flex-col items-center h-full pop-in">
-            <header class="w-full flex justify-end items-center mb-4 pb-4 border-b-2 border-slate-100">
-                <div class="flex gap-2">
-                    <button onclick="repeatConvo()" class="bg-slate-100 text-slate-600 font-bold py-2 px-4 rounded-xl hover:bg-slate-200 transition-colors">
+        <div class="w-full max-w-6xl flex flex-col items-center h-full pop-in">
+            <header class="w-full flex justify-between items-center mb-2 pb-4 border-b-2 border-slate-100 shrink-0">
+                <div class="text-lg font-bold text-slate-400">🗣️ Listen and read along.</div>
+                <div class="flex gap-3">
+                    <button onclick="repeatConvo()" class="bg-slate-100 text-slate-600 font-black py-3 px-6 rounded-xl hover:bg-slate-200 transition-colors shadow-sm">
                         🔄 Restart
                     </button>
-                    <button onclick="navNext()" class="bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl hover:bg-indigo-200 transition-colors">
+                    <button onclick="navNext()" class="bg-indigo-100 text-indigo-700 font-black py-3 px-6 rounded-xl hover:bg-indigo-200 transition-colors shadow-sm">
                         Next Line ➡
                     </button>
                 </div>
             </header>
             
-            <div id="convo-container" class="flex-grow w-full"></div>
+            <div id="convo-container"></div>
         </div>
     </div>
 
@@ -859,326 +872,6 @@
                         { text: "However, becoming a multi-planetary species ensures our survival. 🚀", side: "right", voice: "emma" },
                         { text: "I argue that ecological conservation must be our primary directive. 🌲", side: "left", voice: "andrew" },
                         { text: "We must balance both; orbital satellites are crucial for monitoring climate change. 🌡️", side: "right", voice: "emma" }
-                    ]
-                }
-            },
-            "Food": {
-                title: "Cuisine", emoji: "🍱",
-                vocab: "Nutrition 🍎, Recipe 📖, Ingredients 🧂, Gourmet 👨‍🍳, Carbohydrates 🍞, Protein 🥩, Metabolism 💧",
-                grammar: {
-                    "Simple Present": [
-                        { q: "I always ___ balanced meals in the school cafeteria.", options: ["consume", "consumes", "consuming", "consumed"], a: "consume" },
-                        { q: "She usually ___ organic fruit to maintain energy.", options: ["has", "have", "having", "had"], a: "has" },
-                        { q: "My parents ___ nutritious dinners for us every evening.", options: ["prepare", "prepares", "preparing", "prepared"], a: "prepare" },
-                        { q: "We ___ calcium-rich milk to strengthen our bones.", options: ["drink", "drinks", "drinking", "drank"], a: "drink" },
-                        { q: "He rigorously ___ raw vegetables with his dietary plan.", options: ["integrates", "integrate", "integrating", "integrated"], a: "integrates" },
-                        { q: "I ___ to bake artisan bread during the weekends.", options: ["prefer", "prefers", "preferring", "preferred"], a: "prefer" },
-                        { q: "She ___ whole grain rice for better digestion.", options: ["buys", "buy", "buying", "bought"], a: "buys" },
-                        { q: "We strictly ___ our hands to ensure sanitary preparation.", options: ["wash", "washes", "washing", "washed"], a: "wash" },
-                        { q: "The culinary dish ___ exceptionally flavorful.", options: ["tastes", "taste", "tasting", "tasted"], a: "tastes" },
-                        { q: "He consistently ___ herbal tea to boost his metabolism.", options: ["drinks", "drink", "drinking", "drank"], a: "drinks" }
-                    ],
-                    "Present Continuous": [
-                        { q: "I ___ my macro-friendly lunch in the cafeteria right now.", options: ["am eating", "eating", "eat", "ate"], a: "am eating" },
-                        { q: "The chef ___ a complex recipe in the kitchen at the moment.", options: ["is preparing", "are preparing", "prepares", "prepared"], a: "is preparing" },
-                        { q: "He ___ a protein shake to recover from the gym currently.", options: ["is drinking", "are drinking", "drinks", "drank"], a: "is drinking" },
-                        { q: "We ___ fresh ingredients for the culinary project now.", options: ["are dicing", "is dicing", "dice", "diced"], a: "are dicing" },
-                        { q: "She ___ imported spices at the market right now.", options: ["is purchasing", "are purchasing", "purchases", "purchased"], a: "is purchasing" },
-                        { q: "They ___ an intricate pastry for the competition at the moment.", options: ["are baking", "is baking", "bake", "baked"], a: "are baking" },
-                        { q: "I ___ the simmering broth to cool it down right now.", options: ["am blowing", "blowing", "blow", "blew"], a: "am blowing" },
-                        { q: "We ___ a gourmet appetizer right now.", options: ["are sharing", "is sharing", "share", "shared"], a: "are sharing" },
-                        { q: "He ___ the tough steak very methodically at the moment.", options: ["is chewing", "are chewing", "chews", "chewed"], a: "is chewing" },
-                        { q: "She ___ her nutritional breakfast now to avoid being late.", options: ["is finishing", "are finishing", "finishes", "finished"], a: "is finishing" }
-                    ],
-                    "Simple Past": [
-                        { q: "I ___ an artisanal sandwich for lunch yesterday.", options: ["consumed", "consume", "consuming", "consumes"], a: "consumed" },
-                        { q: "She ___ fortified milk to start her morning.", options: ["drank", "drink", "drinking", "drinks"], a: "drank" },
-                        { q: "My brother ___ an impressive gourmet dinner last night.", options: ["cooked", "cook", "cooking", "cooks"], a: "cooked" },
-                        { q: "We ___ several exotic spices from the vendor yesterday.", options: ["bought", "buy", "buying", "buys"], a: "bought" },
-                        { q: "He ___ all his fibrous vegetables last dinner.", options: ["finished", "finish", "finishing", "finishes"], a: "finished" },
-                        { q: "I ___ traditional hot pot with my study group last weekend.", options: ["enjoyed", "enjoy", "enjoying", "enjoys"], a: "enjoyed" },
-                        { q: "They ___ a sophisticated cake for my graduation last year.", options: ["baked", "bake", "baking", "bakes"], a: "baked" },
-                        { q: "She ___ the hot soup because it was scalding.", options: ["cooled", "cool", "cooling", "cools"], a: "cooled" },
-                        { q: "We ___ the culturally diverse meal yesterday.", options: ["shared", "share", "sharing", "shares"], a: "shared" },
-                        { q: "The seasoned rice ___ extraordinarily savory last night.", options: ["tasted", "taste", "tasting", "tastes"], a: "tasted" }
-                    ],
-                    "Adjectives": [
-                        { q: "The imported apple I ate was incredibly ___.", options: ["sweet", "sweetly", "sweetness", "sweets"], a: "sweet" },
-                        { q: "The broth is dangerously ___ today.", options: ["scalding", "scald", "scaldingly", "scalds"], a: "scalding" },
-                        { q: "This marinated meat is absolutely ___.", options: ["delicious", "deliciously", "delight", "deliciousness"], a: "delicious" },
-                        { q: "The purified water is refreshingly ___.", options: ["crisp", "crisply", "crispness", "crisper"], a: "crisp" },
-                        { q: "Leafy vegetables are exceptionally ___ for cognitive function.", options: ["nutritious", "nutrition", "nutritionally", "nutrients"], a: "nutritious" },
-                        { q: "The artisanal sourdough bread is perfectly ___.", options: ["crusty", "crust", "crustily", "crusts"], a: "crusty" },
-                        { q: "The authentic curry was overwhelmingly ___ for my palate.", options: ["spicy", "spicily", "spice", "spicier"], a: "spicy" },
-                        { q: "I am feeling severely ___ after skipping breakfast.", options: ["famished", "famish", "famishing", "famishes"], a: "famished" },
-                        { q: "After the banquet, I was completely ___.", options: ["satiated", "satiate", "satiating", "satiates"], a: "satiated" },
-                        { q: "The citrus dressing is pleasantly ___.", options: ["tangy", "tang", "tangily", "tangier"], a: "tangy" }
-                    ]
-                },
-                convos: {
-                    "Everyday Chat": [
-                        { text: "Are you heading to the cafeteria for lunch? 🍱", side: "left", voice: "emma" },
-                        { text: "Yes, I am completely famished after that physics exam. 😫", side: "right", voice: "andrew" },
-                        { text: "Did you pack a nutritious meal today? 🥗", side: "left", voice: "emma" },
-                        { text: "I brought grilled chicken and quinoa for complex carbohydrates. 🥩", side: "right", voice: "andrew" },
-                        { text: "That sounds like a perfectly balanced diet. ⚖️", side: "left", voice: "emma" },
-                        { text: "It is! Nutrition is vital for sustaining mental focus. 🧠", side: "right", voice: "andrew" }
-                    ],
-                    "Detailed Discussion": [
-                        { text: "Are you participating in the culinary arts workshop this afternoon? 👨‍🍳", side: "left", voice: "ava" },
-                        { text: "Yes, we are learning how to prepare authentic cultural dishes. 🥘", side: "right", voice: "remy" },
-                        { text: "What specific ingredients are required for the recipe? 🧂", side: "left", voice: "ava" },
-                        { text: "We need imported spices, fresh herbs, and artisan bread. 🥖", side: "right", voice: "remy" },
-                        { text: "I hope the final presentation tastes appropriately savory and crisp. 👅", side: "left", voice: "ava" },
-                        { text: "It will be delicious, provided we strictly follow the instructions. 📖", side: "right", voice: "remy" }
-                    ],
-                    "Advanced Debate": [
-                        { text: "Should secondary schools ban sugary snacks from vending machines? 🍬", side: "left", voice: "giuseppe" },
-                        { text: "Absolutely, they contribute to poor metabolic health and lethargy. 📉", side: "right", voice: "vivienne" },
-                        { text: "However, shouldn't teenagers learn self-regulation instead of facing bans? ⚖️", side: "left", voice: "giuseppe" },
-                        { text: "Schools must prioritize providing a nutritious environment first. 🏥", side: "right", voice: "vivienne" },
-                        { text: "Perhaps subsidizing healthy organic options would be a better compromise. 🍎", side: "left", voice: "giuseppe" },
-                        { text: "That is a practical solution to promote better dietary habits! 🤝", side: "right", voice: "vivienne" }
-                    ]
-                }
-            },
-            "Beach": {
-                title: "Marine Environment", emoji: "🏖️",
-                vocab: "Ecosystem 🏖️, Ocean 🌊, Solar ☀️, Biology 🏊, Mollusk 🐚, Vessel ⛵, Conservation 🧻, Preservation 🏰, Climate 🥵, Tides 🌊",
-                grammar: {
-                    "Simple Present": [
-                        { q: "The marine biologist usually ___ the coastal ecosystem during summer.", options: ["studies", "study", "studying", "studied"], a: "studies" },
-                        { q: "The solar radiation ___ intensely on the shoreline.", options: ["shines", "shine", "shining", "shone"], a: "shines" },
-                        { q: "The community often ___ barriers to prevent coastal erosion.", options: ["builds", "build", "building", "built"], a: "builds" },
-                        { q: "We ___ rare mollusk shells in the intertidal zone.", options: ["discover", "discover", "discovering", "discovered"], a: "discover" },
-                        { q: "The research vessel ___ across the bay to collect data.", options: ["sails", "sail", "sailing", "sailed"], a: "sails" },
-                        { q: "I always ___ biodegradable sunscreen to protect the reefs.", options: ["use", "uses", "using", "used"], a: "use" },
-                        { q: "The high tides ___ violently against the retaining wall.", options: ["crash", "crashes", "crashing", "crashed"], a: "crash" },
-                        { q: "They ___ environmental awareness campaigns on weekends.", options: ["organize", "organizes", "organizing", "organized"], a: "organize" },
-                        { q: "He ___ polarized sunglasses to minimize UV exposure.", options: ["wears", "wear", "wearing", "wore"], a: "wears" },
-                        { q: "We ___ local seafood when visiting coastal towns.", options: ["consume", "consumes", "consuming", "consumed"], a: "consume" }
-                    ],
-                    "Present Continuous": [
-                        { q: "I ___ in the designated conservation area right now.", options: ["am snorkeling", "snorkeling", "snorkel", "snorkeled"], a: "am snorkeling" },
-                        { q: "She ___ data on ocean temperatures at the moment.", options: ["is compiling", "are compiling", "compiles", "compiled"], a: "is compiling" },
-                        { q: "We ___ plastic debris from the shoreline currently.", options: ["are collecting", "is collecting", "collect", "collected"], a: "are collecting" },
-                        { q: "The environmentalist ___ an expedition on the water now.", options: ["is leading", "are leading", "leads", "led"], a: "is leading" },
-                        { q: "The climate ___ increasingly unpredictable today.", options: ["is becoming", "are becoming", "becomes", "became"], a: "is becoming" },
-                        { q: "They ___ a beach cleanup initiative right now.", options: ["are coordinating", "is coordinating", "coordinate", "coordinated"], a: "are coordinating" },
-                        { q: "I ___ environmental reports on my tablet at the moment.", options: ["am reviewing", "reviewing", "review", "reviewed"], a: "am reviewing" },
-                        { q: "The ocean currents ___ powerfully currently.", options: ["are surging", "is surging", "surge", "surged"], a: "are surging" },
-                        { q: "She ___ protective clothing because the UV index is severe.", options: ["is wearing", "are wearing", "wears", "wore"], a: "is wearing" },
-                        { q: "We ___ water samples to check for pollutants now.", options: ["are testing", "is testing", "test", "tested"], a: "are testing" }
-                    ],
-                    "Simple Past": [
-                        { q: "I ___ in the freezing ocean currents yesterday.", options: ["swam", "swim", "swimming", "swims"], a: "swam" },
-                        { q: "We ___ a temporary shelter from the wind last weekend.", options: ["constructed", "construct", "constructing", "constructs"], a: "constructed" },
-                        { q: "She ___ an endangered starfish on the shore yesterday.", options: ["spotted", "spot", "spotting", "spots"], a: "spotted" },
-                        { q: "They ___ a charter boat for the marine biology trip last summer.", options: ["rented", "rent", "renting", "rents"], a: "rented" },
-                        { q: "The solar flare ___ intensely during our observation yesterday.", options: ["radiated", "radiate", "radiating", "radiates"], a: "radiated" },
-                        { q: "I ___ my ecological field guide at home yesterday.", options: ["forgot", "forget", "forgetting", "forgets"], a: "forgot" },
-                        { q: "We ___ volleyball during our break last Friday.", options: ["played", "play", "playing", "plays"], a: "played" },
-                        { q: "The rogue wave ___ over our equipment yesterday.", options: ["crashed", "crash", "crashing", "crashes"], a: "crashed" },
-                        { q: "He ___ his protective hat to the research site.", options: ["wore", "wear", "wearing", "wears"], a: "wore" },
-                        { q: "We ___ fresh oysters after concluding the field work.", options: ["ate", "eat", "eating", "eats"], a: "ate" }
-                    ],
-                    "Adjectives": [
-                        { q: "The solar radiation is dangerously ___ today.", options: ["intense", "intensely", "intensity", "intents"], a: "intense" },
-                        { q: "The oceanic ecosystem is incredibly ___.", options: ["fragile", "fragility", "fragilely", "fragiles"], a: "fragile" },
-                        { q: "The coastal sediment is very ___ and eroded.", options: ["coarse", "coarsely", "coarseness", "coarser"], a: "coarse" },
-                        { q: "My field equipment is completely ___ from the tide.", options: ["submerged", "submerge", "submerging", "submerges"], a: "submerged" },
-                        { q: "The coastal weather was perfectly ___ yesterday.", options: ["temperate", "temper", "temperately", "temperance"], a: "temperate" },
-                        { q: "The tidal swells are unusually ___ today.", options: ["massive", "massively", "mass", "massing"], a: "massive" },
-                        { q: "The marine specimen she cataloged was profoundly ___.", options: ["unique", "uniquely", "uniqueness", "uniques"], a: "unique" },
-                        { q: "The bay is surprisingly ___ in the early morning.", options: ["tranquil", "tranquilly", "tranquility", "tranquilizer"], a: "tranquil" },
-                        { q: "Volunteering for conservation makes me feel very ___.", options: ["fulfilled", "fulfill", "fulfilling", "fulfillment"], a: "fulfilled" },
-                        { q: "The glacial water was shockingly ___.", options: ["frigid", "frigidly", "frigidity", "frigider"], a: "frigid" }
-                    ]
-                },
-                convos: {
-                    "Everyday Chat": [
-                        { text: "Are we going to the coastal reserve today? 🏖️", side: "left", voice: "william" },
-                        { text: "Yes, the weather is temperate and perfect for observing tide pools. ☀️", side: "right", voice: "ava" },
-                        { text: "I want to document the marine invertebrates. 🌊", side: "left", voice: "william" },
-                        { text: "Make sure you bring your waterproof camera and field guide. 📷", side: "right", voice: "ava" },
-                        { text: "I will also bring biodegradable sunscreen to protect the reef. 🧴", side: "left", voice: "william" },
-                        { text: "That is very responsible! Let's find some unique specimens! 🐚", side: "right", voice: "ava" }
-                    ],
-                    "Detailed Discussion": [
-                        { text: "Are you joining the beach cleanup initiative this weekend? ♻️", side: "left", voice: "vivienne" },
-                        { text: "Absolutely, removing plastic debris from the ecosystem is crucial. 🗑️", side: "right", voice: "brian" },
-                        { text: "I heard the local wildlife is suffering due to microplastics. 🐢", side: "left", voice: "vivienne" },
-                        { text: "It is a tragedy. Our conservation efforts are more important than ever. 🌍", side: "right", voice: "brian" },
-                        { text: "We must organize a campaign to raise awareness at school. 📢", side: "left", voice: "vivienne" },
-                        { text: "Agreed, education is the first step toward permanent preservation. 🏛️", side: "right", voice: "brian" }
-                    ],
-                    "Advanced Debate": [
-                        { text: "Does commercial tourism permanently damage coastal habitats? 🏨", side: "left", voice: "emma" },
-                        { text: "Overdevelopment definitely erodes shorelines and pollutes the water. 🏗️", side: "right", voice: "giuseppe" },
-                        { text: "However, ecotourism can fund local conservation projects. 💵", side: "left", voice: "emma" },
-                        { text: "Only if the regulations are strictly enforced by authorities. 📜", side: "right", voice: "giuseppe" },
-                        { text: "So, the solution is sustainable management, not a complete ban? ⚖️", side: "left", voice: "emma" },
-                        { text: "Precisely. We must balance economic benefits with ecological integrity. 🌿", side: "right", voice: "giuseppe" }
-                    ]
-                }
-            },
-            "Animals": {
-                title: "Zoology", emoji: "🦁",
-                vocab: "Habitat 🦁, Species 🧬, Ecosystem 🐦, Conservation 🐘, Predator 🐅, Sanctuary 🐒, Aquatic 🐟, Mammal 🐻, Anatomy 🐾, Endangered ⚠️",
-                grammar: {
-                    "Simple Present": [
-                        { q: "The territorial predator ___ loudly to warn intruders.", options: ["roars", "roar", "roaring", "roared"], a: "roars" },
-                        { q: "Nocturnal mammals usually ___ during daylight hours.", options: ["sleep", "sleeps", "sleeping", "slept"], a: "sleep" },
-                        { q: "An avian species ___ using complex aerodynamic principles.", options: ["flies", "fly", "flying", "flew"], a: "flies" },
-                        { q: "The elephant ___ gallons of water using its prehensile trunk.", options: ["consumes", "consume", "consuming", "consumed"], a: "consumes" },
-                        { q: "Apex predators ___ with incredible velocity in the savannah.", options: ["sprint", "sprints", "sprinting", "sprinted"], a: "sprint" },
-                        { q: "Aquatic organisms ___ using specialized gills.", options: ["breathe", "breathes", "breathing", "breathed"], a: "breathe" },
-                        { q: "We systematically ___ the wildlife sanctuary for our biology project.", options: ["observe", "observes", "observing", "observed"], a: "observe" },
-                        { q: "The omnivorous bear ___ both flora and fauna.", options: ["forages", "forage", "foraging", "foraged"], a: "forages" },
-                        { q: "A primate ___ the dense canopy with remarkable agility.", options: ["navigates", "navigate", "navigating", "navigated"], a: "navigates" },
-                        { q: "The veterinarian ___ the rescued animals every morning.", options: ["treats", "treat", "treating", "treated"], a: "treats" }
-                    ],
-                    "Present Continuous": [
-                        { q: "The guard dog ___ aggressively at the perimeter right now.", options: ["is barking", "are barking", "barks", "barked"], a: "is barking" },
-                        { q: "The feline specimen ___ securely in the enclosure at the moment.", options: ["is resting", "are resting", "rests", "rested"], a: "is resting" },
-                        { q: "Look! The migratory flock ___ south for the winter.", options: ["is flying", "are flying", "flies", "flew"], a: "is flying" },
-                        { q: "The majestic elephant ___ from the watering hole right now.", options: ["is hydrating", "are hydrating", "hydrates", "hydrated"], a: "is hydrating" },
-                        { q: "The endangered tiger ___ through the underbrush currently.", options: ["is stalking", "are stalking", "stalks", "stalked"], a: "is stalking" },
-                        { q: "The tropical fish ___ around the artificial reef now.", options: ["are circulating", "is circulating", "circulate", "circulated"], a: "are circulating" },
-                        { q: "We ___ the zoological garden's infrastructure at the moment.", options: ["are analyzing", "is analyzing", "analyze", "analyzed"], a: "are analyzing" },
-                        { q: "The grizzly bear ___ for sustenance right now.", options: ["is hunting", "are hunting", "hunts", "hunted"], a: "is hunting" },
-                        { q: "The agile monkey ___ the artificial structure currently.", options: ["is scaling", "are climbing", "scales", "scaled"], a: "is scaling" },
-                        { q: "I ___ nutritional supplements to the herd at the moment.", options: ["am distributing", "distributing", "distribute", "distributed"], a: "am distributing" }
-                    ],
-                    "Simple Past": [
-                        { q: "The dominant wolf ___ to assert its authority yesterday.", options: ["howled", "howl", "howling", "howls"], a: "howled" },
-                        { q: "The nocturnal creature ___ throughout the entire day yesterday.", options: ["hibernated", "hibernate", "hibernating", "hibernates"], a: "hibernated" },
-                        { q: "A rare raptor ___ into the upper canopy of the tree.", options: ["soared", "soar", "soaring", "soars"], a: "soared" },
-                        { q: "We ___ a colossal pachyderm at the reserve last week.", options: ["witnessed", "witness", "witnessing", "witnesses"], a: "witnessed" },
-                        { q: "The cheetah ___ astonishingly fast in the documentary.", options: ["accelerated", "accelerate", "accelerating", "accelerates"], a: "accelerated" },
-                        { q: "The aquatic mammal ___ gracefully away from the vessel.", options: ["glided", "glide", "gliding", "glides"], a: "glided" },
-                        { q: "We ___ the newly renovated conservation center last weekend.", options: ["toured", "tour", "touring", "tours"], a: "toured" },
-                        { q: "The omnivore ___ all the available berries yesterday.", options: ["devoured", "devour", "devouring", "devours"], a: "devoured" },
-                        { q: "The primate ___ the complex puzzle mechanism quickly.", options: ["solved", "solve", "solving", "solves"], a: "solved" },
-                        { q: "I ___ the stray kitten before bringing it to the shelter.", options: ["rescued", "rescue", "rescuing", "rescues"], a: "rescued" }
-                    ],
-                    "Adjectives": [
-                        { q: "The domestic kitten is undeniably ___ and affectionate.", options: ["adorable", "adorably", "adoration", "adorables"], a: "adorable" },
-                        { q: "An adult elephant is an extraordinarily ___ creature.", options: ["colossal", "colossally", "colossus", "colossals"], a: "colossal" },
-                        { q: "The untamed tiger is a notoriously ___ predator.", options: ["lethal", "lethally", "lethality", "lethals"], a: "lethal" },
-                        { q: "The plumage of the peacock is exceptionally ___.", options: ["vibrant", "vibrantly", "vibrancy", "vibrants"], a: "vibrant" },
-                        { q: "The giant tortoise is a remarkably ___ reptile.", options: ["sluggish", "sluggishly", "sluggishness", "slug"], a: "sluggish" },
-                        { q: "A hunting cheetah is phenomenally ___.", options: ["swift", "swiftly", "swiftness", "swifts"], a: "swift" },
-                        { q: "The guard dog was aggressively ___ yesterday.", options: ["vocal", "vocally", "vocalize", "vocals"], a: "vocal" },
-                        { q: "Coral reef ecosystems can be incredibly ___.", options: ["diverse", "diversely", "diversity", "diversify"], a: "diverse" },
-                        { q: "Brown bears are immensely ___ mammals.", options: ["powerful", "powerfully", "power", "powers"], a: "powerful" },
-                        { q: "The exotic bird is a genuinely ___ specimen.", options: ["magnificent", "magnificently", "magnificence", "magnify"], a: "magnificent" }
-                    ]
-                },
-                convos: {
-                    "Everyday Chat": [
-                        { text: "Did you complete the biology assignment on endangered species? 🐒", side: "left", voice: "brian" },
-                        { text: "Yes, I researched the population decline of African elephants. 🐘", side: "right", voice: "emma" },
-                        { text: "The statistics on poaching are absolutely devastating. 📉", side: "left", voice: "brian" },
-                        { text: "Indeed. They are colossal, intelligent creatures facing extinction. 🌍", side: "right", voice: "emma" },
-                        { text: "I hope international conservation laws become stricter. ⚖️", side: "left", voice: "brian" },
-                        { text: "We must protect these magnificent animals for future generations. 🛡️", side: "right", voice: "emma" }
-                    ],
-                    "Detailed Discussion": [
-                        { text: "Are you volunteering at the local wildlife sanctuary this weekend? 🐾", side: "left", voice: "remy" },
-                        { text: "Yes, I am helping the veterinarians rehabilitate rescued avians. 🐦", side: "right", voice: "ava" },
-                        { text: "It must be challenging to handle such fragile ecosystems. 🌿", side: "left", voice: "remy" },
-                        { text: "It is, but restoring their natural habitat is incredibly fulfilling. 🌳", side: "right", voice: "ava" },
-                        { text: "Do you primarily work with native or exotic species? 🧬", side: "left", voice: "remy" },
-                        { text: "Mostly native predators that have been injured by urban development. 🏙️", side: "right", voice: "ava" }
-                    ],
-                    "Advanced Debate": [
-                        { text: "Do zoological institutions serve a valid educational purpose? 🏛️", side: "left", voice: "andrew" },
-                        { text: "Modern zoos prioritize conservation and species preservation over entertainment. 🛡️", side: "right", voice: "vivienne" },
-                        { text: "However, keeping apex predators in confined enclosures seems unethical. 🐅", side: "left", voice: "andrew" },
-                        { text: "That is why sanctuaries are transitioning to expansive, naturalistic habitats. 🏞️", side: "right", voice: "vivienne" },
-                        { text: "Still, seeing an animal in captivity alters its natural behaviors. 🧠", side: "left", voice: "andrew" },
-                        { text: "True, but controlled environments are sometimes necessary to prevent total extinction. ⚠️", side: "right", voice: "vivienne" }
-                    ]
-                }
-            },
-            "Weekends": {
-                title: "Weekends", emoji: "🎉",
-                vocab: "Schedule 📆, Productivity 📅, Commute 🚶, Recovery 🛌, Assignments 📝, Recreation 🎮, Relatives 👵, Chores 🧹, Commerce 🛒, Leisure 🛋️",
-                grammar: {
-                    "Simple Present": [
-                        { q: "I routinely ___ my extended family on Saturday afternoons.", options: ["visit", "visits", "visiting", "visited"], a: "visit" },
-                        { q: "She usually ___ in to recover from the academic week.", options: ["sleeps", "sleep", "sleeping", "slept"], a: "sleeps" },
-                        { q: "We thoroughly ___ our advanced coursework on Saturday afternoon.", options: ["complete", "completes", "completing", "completed"], a: "complete" },
-                        { q: "He frequently ___ competitive video games with his peers.", options: ["plays", "play", "playing", "played"], a: "plays" },
-                        { q: "I consistently ___ my living space on Sunday to maintain organization.", options: ["organize", "organizes", "organizing", "organized"], a: "organize" },
-                        { q: "My family ___ for weekly groceries at the supermarket.", options: ["shops", "shop", "shopping", "shopped"], a: "shops" },
-                        { q: "She ___ significantly after completing her study sessions.", options: ["unwinds", "unwind", "unwinding", "unwound"], a: "unwinds" },
-                        { q: "We collectively ___ independent films on Saturday night.", options: ["watch", "watches", "watching", "watched"], a: "watch" },
-                        { q: "He rigorously ___ his basketball techniques on Sunday morning.", options: ["practices", "practice", "practicing", "practiced"], a: "practices" },
-                        { q: "I generally ___ classic literature before going to sleep.", options: ["read", "reads", "reading", "readed"], a: "read" }
-                    ],
-                    "Present Continuous": [
-                        { q: "I ___ my elderly relatives in the suburbs right now.", options: ["am visiting", "visiting", "visit", "visited"], a: "am visiting" },
-                        { q: "She ___ deeply to restore her cognitive function currently.", options: ["is resting", "are resting", "rests", "rested"], a: "is resting" },
-                        { q: "We ___ our rigorous calculus assignments at the moment.", options: ["are tackling", "is tackling", "tackle", "tackled"], a: "are tackling" },
-                        { q: "He ___ a strategic multiplayer campaign on his computer now.", options: ["is streaming", "are streaming", "streams", "streamed"], a: "is streaming" },
-                        { q: "I ___ my cluttered workspace right now.", options: ["am sanitizing", "sanitizing", "sanitize", "sanitized"], a: "am sanitizing" },
-                        { q: "My mother ___ for household provisions currently.", options: ["is purchasing", "are purchasing", "purchases", "purchased"], a: "is purchasing" },
-                        { q: "She ___ effectively on the sofa at the moment.", options: ["is decompressing", "are decompressing", "decompresses", "decompressed"], a: "is decompressing" },
-                        { q: "We ___ a critically acclaimed documentary right now.", options: ["are viewing", "is viewing", "view", "viewed"], a: "are viewing" },
-                        { q: "He ___ his free-throw accuracy on the court now.", options: ["is perfecting", "are perfecting", "perfects", "perfected"], a: "is perfecting" },
-                        { q: "I ___ a compelling historical biography currently.", options: ["am analyzing", "analyzing", "analyze", "analyzed"], a: "am analyzing" }
-                    ],
-                    "Simple Past": [
-                        { q: "I ___ my grandparents to assist with their chores last Saturday.", options: ["visited", "visit", "visiting", "visits"], a: "visited" },
-                        { q: "She ___ until late morning to compensate for sleep debt.", options: ["slumbered", "slumber", "slumbering", "slumbers"], a: "slumbered" },
-                        { q: "We ___ our comprehensive group project yesterday.", options: ["finalized", "finalize", "finalizing", "finalizes"], a: "finalized" },
-                        { q: "He ___ in an online tournament with me last weekend.", options: ["competed", "compete", "competing", "competes"], a: "competed" },
-                        { q: "I ___ my entire apartment last Sunday morning.", options: ["vacuumed", "vacuum", "vacuuming", "vacuums"], a: "vacuumed" },
-                        { q: "My family ___ for a new wardrobe yesterday.", options: ["browsed", "browse", "browsing", "browses"], a: "browsed" },
-                        { q: "She ___ mentally and physically on the sofa last night.", options: ["recuperated", "recuperate", "recuperating", "recuperates"], a: "recuperated" },
-                        { q: "We ___ a cinematic masterpiece last Saturday.", options: ["enjoyed", "enjoy", "enjoying", "enjoys"], a: "enjoyed" },
-                        { q: "He ___ his defensive maneuvers last Sunday.", options: ["rehearsed", "rehearse", "rehearsing", "rehearses"], a: "rehearsed" },
-                        { q: "I ___ an intellectually stimulating article yesterday.", options: ["perused", "peruse", "perusing", "peruses"], a: "perused" }
-                    ],
-                    "Adjectives": [
-                        { q: "My weekend schedule is consistently very ___.", options: ["hectic", "hectically", "hecticness", "hectics"], a: "hectic" },
-                        { q: "Sunday morning is deliberately ___ and peaceful.", options: ["leisurely", "leisure", "leisureliness", "leisures"], a: "leisurely" },
-                        { q: "Saturday is a highly ___ and engaging day.", options: ["entertaining", "entertain", "entertainingly", "entertainment"], a: "entertaining" },
-                        { q: "The two-day break feels frustratingly ___.", options: ["brief", "briefly", "briefness", "briefs"], a: "brief" },
-                        { q: "Organizing my entire room is ___ manual labor.", options: ["tedious", "tediously", "tediousness", "tedium"], a: "tedious" },
-                        { q: "My relatives are remarkably ___ and supportive.", options: ["generous", "generously", "generosity", "generates"], a: "generous" },
-                        { q: "Participating in online gaming is intensely ___.", options: ["captivating", "captivate", "captivatingly", "captivation"], a: "captivating" },
-                        { q: "The critically acclaimed movie we watched was ___.", options: ["superb", "superbly", "superbness", "superbs"], a: "superb" },
-                        { q: "Sunday evening is a strictly ___ period for me.", options: ["restful", "rest", "restfully", "restless"], a: "restful" },
-                        { q: "I feel thoroughly ___ after a full night of sleep.", options: ["rejuvenated", "rejuvenate", "rejuvenation", "rejuvenates"], a: "rejuvenated" }
-                    ]
-                },
-                convos: {
-                    "Everyday Chat": [
-                        { text: "Did you manage to finish the calculus assignment on Saturday? 📆", side: "left", voice: "andrew" },
-                        { text: "No, I had a shift at my part-time job, so I was swamped. 💼", side: "right", voice: "ava" },
-                        { text: "Working on weekends requires intense time management. ⏱️", side: "left", voice: "andrew" },
-                        { text: "It does, but the financial independence is totally worth it. 💵", side: "right", voice: "ava" },
-                        { text: "Make sure you allocate time to decompress on Sunday! 🛋️", side: "left", voice: "andrew" },
-                        { text: "I plan to completely unwind and catch up on sleep. 🛌", side: "right", voice: "ava" }
-                    ],
-                    "Detailed Discussion": [
-                        { text: "Are you joining our collaborative study group this weekend? 📚", side: "left", voice: "giuseppe" },
-                        { text: "Yes, we need to finalize the outline for our history presentation. 📝", side: "right", voice: "emma" },
-                        { text: "We should meet at the municipal library to avoid distractions. 🏛️", side: "left", voice: "giuseppe" },
-                        { text: "Excellent idea. It provides a much more focused academic environment. 🔍", side: "right", voice: "emma" },
-                        { text: "Afterward, we can grab a coffee and actually relax. ☕", side: "left", voice: "giuseppe" },
-                        { text: "That sounds like a perfect balance of productivity and leisure. ✨", side: "right", voice: "emma" }
-                    ],
-                    "Advanced Debate": [
-                        { text: "Do you believe schools should abolish weekend homework assignments? 🚫", side: "left", voice: "william" },
-                        { text: "Yes, students suffer from severe academic burnout without a proper break. 😫", side: "right", voice: "vivienne" },
-                        { text: "However, consistent practice reinforces complex concepts effectively. 🧠", side: "left", voice: "william" },
-                        { text: "But psychological recovery is equally vital for cognitive function! 🛌", side: "right", voice: "vivienne" },
-                        { text: "Perhaps assigning optional supplementary reading would be a fair compromise. 📖", side: "left", voice: "william" },
-                        { text: "That empowers students to manage their own educational autonomy. 🎓", side: "right", voice: "vivienne" }
                     ]
                 }
             },
