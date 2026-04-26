@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1A-1B Vocabulary Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --dark: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark);
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .word-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .word-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn {
+            transition: all 0.2s;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .reading-page { display: block !important; page-break-after: always; border: none !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-morphism no-print">
+        <div class="max-w-[1600px] mx-auto px-4 h-20 flex flex-col justify-center">
+            <div class="flex items-center justify-between gap-4">
+                <!-- Main Tabs -->
+                <nav class="flex gap-1 bg-slate-200 p-1 rounded-xl w-48">
+                    <button onclick="setView('grid')" id="tab-grid" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-blue-600">Bank</button>
+                    <button onclick="setView('reading')" id="tab-reading" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-700">Reading</button>
+                </nav>
+
+                <!-- Action Navigation -->
+                <div class="flex items-center gap-2">
+                    <button onclick="handleBack()" id="nav-back" class="nav-btn px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50">Back</button>
+                    <button onclick="setView('grid')" id="nav-home" class="nav-btn px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50">Home</button>
+                    <button onclick="handleNext()" id="nav-next" class="nav-btn px-4 py-2 bg-blue-600 rounded-lg text-sm font-bold text-white hover:bg-blue-700">Next</button>
+                </div>
+
+                <div class="hidden md:flex items-center gap-4">
+                    <span id="headerPageIndicator" class="text-xs font-bold text-slate-400 uppercase tracking-widest"></span>
+                    <button onclick="window.print()" class="text-[10px] bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg hover:bg-slate-100 transition font-black uppercase tracking-tighter">Print PDF</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-4 mt-8">
+        
+        <!-- Word Grid View -->
+        <div id="view-grid">
+            <div id="wordGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Detail View -->
+        <div id="view-detail" class="hidden">
+            <!-- Injected via JS -->
+        </div>
+
+        <!-- Reading View -->
+        <div id="view-reading" class="hidden">
+            <div id="reading-container">
+                <!-- Side-by-side Layout Injected via JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const vocabularyDB = [
+            { id: 1, word: "document", chinese: "记录", definition: "To record something in written, photographic, or other forms for future use.", category: "photography", pos: ["verb", "noun"], synonyms: ["record", "capture"], examples: [ { english: "We use our phones to <b>document</b> school projects.", chinese: "我们用手机记录学校项目。" } ], stakeholders: { citizen: { perspective: "I document moments to keep memories alive.", frame: "I document [moment] to [reason]." } }, mastered: false },
+            { id: 2, word: "represent", chinese: "代表", definition: "To show or describe someone or something in a particular way.", category: "photography", pos: ["verb"], synonyms: ["depict", "portray"], examples: [ { english: "Does this photo <b>represent</b> the real student experience?", chinese: "这张照片代表真实的生体验吗？" } ], mastered: false },
+            { id: 3, word: "alter", chinese: "修改", definition: "To change something, usually in a slight but significant way.", category: "technology", pos: ["verb"], synonyms: ["modify", "edit"], examples: [ { english: "It is easy to <b>alter</b> a photo's meaning with a filter.", chinese: "通过滤镜很容易修改照片的含义。" } ], mastered: false },
+            { id: 4, word: "capture", chinese: "捕捉", definition: "To record or take a picture of something quickly and accurately.", category: "photography", pos: ["verb"], synonyms: ["record"], examples: [ { english: "Professional cameras <b>capture</b> details that phones miss.", chinese: "专业相机捕捉到手机错过的细节。" } ], mastered: false },
+            { id: 5, word: "frame", chinese: "构图", definition: "The way a scene is organized and what is included or excluded in a photo.", category: "photography", pos: ["noun", "verb"], synonyms: ["composition"], examples: [ { english: "How you <b>frame</b> a scene changes the story.", chinese: "你构图场景的方式会改变故事。" } ], mastered: false },
+            { id: 6, word: "dramatic", chinese: "戏剧性的", definition: "Sudden, striking, and exciting; intended to create a strong emotional impact.", category: "quality", pos: ["adj"], synonyms: ["striking"], examples: [ { english: "The lighting created a <b>dramatic</b> effect.", chinese: "光线创造了戏剧性的效果。" } ], mastered: false },
+            { id: 7, word: "profound", chinese: "深刻的", definition: "Having a deep meaning or a very great impact.", category: "quality", pos: ["adj"], synonyms: ["deep"], examples: [ { english: "A photo can have a <b>profound</b> impact on the world.", chinese: "一张照片可以对世界产生深远影响。" } ], mastered: false },
+            { id: 8, word: "superficial", chinese: "表面的", definition: "Appearing to be true or real only until examined more closely; shallow.", category: "quality", pos: ["adj"], synonyms: ["shallow"], examples: [ { english: "Sharing photos can lead to <b>superficial</b> connections.", chinese: "分享照片会导致表面的联系。" } ], mastered: false },
+            { id: 9, word: "authentic", chinese: "真实的", definition: "Representing something in a way that is true to reality; genuine.", category: "ethics", pos: ["adj"], synonyms: ["genuine"], examples: [ { english: "We value <b>authentic</b> stories in our school news.", chinese: "我们重视学校新闻中的真实故事。" } ], mastered: false },
+            { id: 10, word: "manipulate", chinese: "操纵", definition: "To cleverly or unfairly change something to suit your purpose.", category: "technology", pos: ["verb"], synonyms: ["distort"], examples: [ { english: "Don't <b>manipulate</b> the truth using AI.", chinese: "不要用AI操纵真相。" } ], mastered: false },
+            { id: 11, word: "consent", chinese: "同意", definition: "Permission for something to happen or agreement to do something.", category: "ethics", pos: ["noun", "verb"], synonyms: ["permission"], examples: [ { english: "Get <b>consent</b> before posting a group photo.", chinese: "在发布合影前征得同意。" } ], mastered: false },
+            { id: 12, word: "dignity", chinese: "尊严", definition: "The state or quality of being worthy of honor or respect.", category: "ethics", pos: ["noun"], synonyms: ["respect"], examples: [ { english: "Treat every subject with <b>dignity</b>.", chinese: "尊严地对待每一个被摄者。" } ], mastered: false },
+            { id: 13, word: "exploit", chinese: "利用", definition: "To use a situation or a person unfairly for your own advantage.", category: "ethics", pos: ["verb"], synonyms: ["misuse"], examples: [ { english: "It is wrong to <b>exploit</b> someone's pain for likes.", chinese: "为了点赞而利用他人的痛苦是不对的。" } ], mastered: false },
+            { id: 15, word: "privacy", chinese: "隐私", definition: "The state of being free from public attention or being observed.", category: "ethics", pos: ["noun"], synonyms: ["confidentiality"], examples: [ { english: "Sharing photos can violate <b>privacy</b>.", chinese: "分享照片可能侵犯隐私。" } ], mastered: false },
+            { id: 16, word: "verify", chinese: "核实", definition: "To make sure that something is true, accurate, or justified.", category: "technology", pos: ["verb"], synonyms: ["confirm"], examples: [ { english: "Always <b>verify</b> the source of a news image.", chinese: "一定要核实新闻图片的来源。" } ], mastered: false },
+            { id: 17, word: "misinformation", chinese: "虚假信息", definition: "False or inaccurate information that is spread, regardless of intent.", category: "technology", pos: ["noun"], synonyms: ["fake news"], examples: [ { english: "Fake photos spread <b>misinformation</b> quickly.", chinese: "虚假照片迅速传播虚假信息。" } ], mastered: false },
+            { id: 18, word: "democracy", chinese: "民主", definition: "A system of government where power is held by the people or through elected representatives.", category: "technology", pos: ["noun"], synonyms: ["representation"], examples: [ { english: "Photography can support <b>democracy</b> by telling the truth.", chinese: "摄影可以通过讲述真相来支持民主。" } ], mastered: false },
+            { id: 19, word: "irreversible", chinese: "不可逆的", definition: "Not able to be undone or altered.", category: "technology", pos: ["adj"], synonyms: ["permanent"], examples: [ { english: "The damage of a leaked photo is <b>irreversible</b>.", chinese: "泄露照片的损害是不可逆转的。" } ], mastered: false },
+            { id: 20, word: "universal", chinese: "普遍的", definition: "Applying to all people or things in the world or in a particular group.", category: "technology", pos: ["adj"], synonyms: ["global"], examples: [ { english: "Emotions are <b>universal</b> in human photography.", chinese: "在人类摄影中，情感是普遍的。" } ], mastered: false },
+            { id: 21, word: "subjective", chinese: "主观的", definition: "Based on or influenced by personal feelings, tastes, or opinions.", category: "thinking", pos: ["adj"], synonyms: ["personal"], examples: [ { english: "Your choice of filter is <b>subjective</b>.", chinese: "你对滤镜的选择是主观的。" } ], mastered: false },
+            { id: 22, word: "objective", chinese: "客观的", definition: "Not influenced by personal feelings or opinions in considering and representing facts.", category: "thinking", pos: ["adj"], synonyms: ["factual"], examples: [ { english: "News photos should try to be <b>objective</b>.", chinese: "新闻照片应该尽量保持客观。" } ], mastered: false },
+            { id: 23, word: "obsessed", chinese: "着迷的", definition: "To fill the mind of someone continually and to a troubling extent.", category: "thinking", pos: ["adj"], synonyms: ["fixated"], examples: [ { english: "Students are <b>obsessed</b> with social media trends.", chinese: "学生们对着迷于社交媒体趋势。" } ], mastered: false },
+            { id: 24, word: "collective", chinese: "集体的", definition: "Shared by every member of a group of people.", category: "thinking", pos: ["adj"], synonyms: ["shared"], examples: [ { english: "These photos form our <b>collective</b> memory.", chinese: "这些照片构成了我们的集体记忆。" } ], mastered: false },
+            { id: 25, word: "controversy", chinese: "争议", definition: "A lot of public disagreement or argument about something.", category: "thinking", pos: ["noun"], synonyms: ["debate"], examples: [ { english: "The photo caused a lot of <b>controversy</b>.", chinese: "那张照片引起了很多争议。" } ], mastered: false }
+        ];
+
+        const readingPassages = [
+            {
+                title: "The Visual Village",
+                topic: "Social Media",
+                text: "In our modern 'Visual Village,' we are often <b>obsessed</b> with sharing our daily lives. From the coffee we drink to the school events we attend, we use our phones to <b>document</b> everything. However, many critics worry that this constant sharing creates a <b>superficial</b> connection between people. Instead of building <b>authentic</b> relationships, we are merely performing for 'likes.' We must ask if looking at life through a camera <b>frame</b> prevents us from experiencing it fully.",
+                questions: [
+                    { q: "What does it mean to 'document' your life?", options: ["To forget events", "To record them in detail", "To ignore your friends"], a: 1 },
+                    { q: "Why are social media connections sometimes 'superficial'?", options: ["Because they happen fast", "Because they lack deep truth", "Because they are free"], a: 1 },
+                    { q: "What is the result of being 'obsessed' with sharing?", options: ["Better memories", "Focus on recording, not living", "More physical friends"], a: 1 }
+                ]
+            },
+            {
+                title: "Ethics of the Lens",
+                topic: "Photography Rights",
+                text: "Professional photojournalists have a duty to <b>represent</b> their subjects with <b>dignity</b>. It is a major <b>controversy</b> when a photographer fails to get <b>consent</b> before publishing a sensitive image. While a citizen journalist might <b>capture</b> a scene quickly, they must also consider the subject's <b>privacy</b>. We must ensure the process does not <b>exploit</b> vulnerable people just to create a viral post.",
+                questions: [
+                    { q: "Why is 'consent' important?", options: ["It adds color to photos", "It respects the subject's permission", "It makes cameras faster"], a: 1 },
+                    { q: "What is a 'controversy'?", options: ["A peaceful agreement", "A public disagreement", "A special lens type"], a: 1 },
+                    { q: "To 'represent with dignity' means:", options: ["Making others laugh", "Showing respect for the person", "Using high brightness"], a: 1 }
+                ]
+            },
+            {
+                title: "Digital Manipulation",
+                topic: "Technology",
+                text: "As technology advances, it becomes easier to <b>alter</b> or <b>manipulate</b> digital images. This leads to the spread of <b>misinformation</b>, where people can no longer <b>verify</b> what is real. Some argue that all photography is <b>subjective</b> because the photographer chooses what to include, but digital editing takes this to an <b>irreversible</b> extreme where truth can be completely hidden.",
+                questions: [
+                    { q: "If a photo is 'manipulated', it is:", options: ["Stored on a disk", "Unfairly changed", "Taken in the rain"], a: 1 },
+                    { q: "What is 'misinformation'?", options: ["Encrypted data", "False or misleading info", "High-speed internet"], a: 1 },
+                    { q: "Why is it called 'irreversible'?", options: ["You can't undo the damage", "It uses too much battery", "It only happens in black and white"], a: 0 }
+                ]
+            },
+            {
+                title: "Impact & Quality",
+                topic: "Visual Impact",
+                text: "A <b>dramatic</b> image can grab our attention instantly, but the most <b>profound</b> images stay in our minds forever. When students only post <b>superficial</b> selfies, they miss the chance to tell a deeper story. Photography should be about capturing the <b>authentic</b> essence of a moment, not just looking 'perfect' for an audience. True impact comes from depth, not just filters.",
+                questions: [
+                    { q: "A 'profound' image is:", options: ["Technically perfect", "Deep and meaningful", "Taken underwater"], a: 1 },
+                    { q: "What is suggested about 'authentic' photos?", options: ["They are expensive", "They focus on reality", "They are only for news"], a: 1 },
+                    { q: "If something is 'superficial', it is:", options: ["Complex", "Shallow", "Beautiful"], a: 1 }
+                ]
+            },
+            {
+                title: "Society & History",
+                topic: "Collective Memory",
+                text: "The <b>collective</b> archive of our <b>universal</b> experiences is now digital. Whether we live in Beijing or New York, the emotions we share are often identical. However, the shift to digital documentation is <b>irreversible</b>. We must decide if we want this archive to support <b>democracy</b> by telling the truth, or if we will let <b>misinformation</b> win the battle for our history.",
+                questions: [
+                    { q: "What is a 'collective' archive?", options: ["Private file", "Shared group collection", "Deleted history"], a: 1 },
+                    { q: "How does photography support 'democracy'?", options: ["Selling phones", "Sharing truthful facts", "Taking more selfies"], a: 1 },
+                    { q: "A 'universal' experience is:", options: ["Unique to one culture", "Shared by everyone", "Only for scientists"], a: 1 }
+                ]
+            },
+            {
+                title: "The Critical Thinker",
+                topic: "Critical Thinking",
+                text: "Is any photo truly <b>objective</b>? Probably not. Every choice—from the <b>frame</b> to the filter—is <b>subjective</b>. When a <b>controversy</b> arises about a news image, we must <b>verify</b> the facts. We shouldn't be <b>obsessed</b> with first reactions; instead, we should look for the truth behind the picture to avoid being <b>misinformed</b> by biased views.",
+                questions: [
+                    { q: "If something is 'objective', it is:", options: ["Based on feelings", "Based on facts", "Based on rumors"], a: 1 },
+                    { q: "Why is 'frame' considered 'subjective'?", options: ["The camera decides", "The photographer chooses the view", "It is required by law"], a: 1 },
+                    { q: "How do you 'verify' an image?", options: ["Like it immediately", "Check sources and evidence", "Share it with friends"], a: 1 }
+                ]
+            }
+        ];
+
+        let state = {
+            view: 'grid',
+            currentWordIndex: 0,
+            currentPage: 0,
+            masteredWords: JSON.parse(localStorage.getItem('masteredWords') || '[]')
+        };
+
+        function setView(view) {
+            state.view = view;
+            document.getElementById('view-grid').classList.toggle('hidden', view !== 'grid');
+            document.getElementById('view-detail').classList.toggle('hidden', view !== 'detail');
+            document.getElementById('view-reading').classList.toggle('hidden', view !== 'reading');
+            
+            document.getElementById('tab-grid').className = view === 'grid' || view === 'detail' ? 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-blue-600' : 'flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700';
+            document.getElementById('tab-reading').className = view === 'reading' ? 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-blue-600' : 'flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-700';
+
+            updateNavState();
+            if (view === 'grid') renderWordGrid();
+            if (view === 'reading') renderReadingView();
+        }
+
+        function updateNavState() {
+            const backBtn = document.getElementById('nav-back');
+            const nextBtn = document.getElementById('nav-next');
+            const headerIndicator = document.getElementById('headerPageIndicator');
+
+            if (state.view === 'grid') {
+                backBtn.disabled = true;
+                nextBtn.disabled = false;
+                nextBtn.innerText = "Begin Reading";
+                headerIndicator.innerText = "";
+            } else if (state.view === 'detail') {
+                backBtn.disabled = state.currentWordIndex === 0;
+                backBtn.innerText = "Previous";
+                nextBtn.disabled = state.currentWordIndex === vocabularyDB.length - 1;
+                nextBtn.innerText = "Next Page";
+                headerIndicator.innerText = `Word ${state.currentWordIndex + 1} / ${vocabularyDB.length}`;
+            } else if (state.view === 'reading') {
+                backBtn.disabled = state.currentPage === 0;
+                backBtn.innerText = "Previous Topic";
+                nextBtn.disabled = state.currentPage === readingPassages.length - 1;
+                nextBtn.innerText = "Next Topic";
+                headerIndicator.innerText = `Topic ${state.currentPage + 1} / ${readingPassages.length}`;
+            }
+        }
+
+        function handleBack() {
+            if (state.view === 'detail') {
+                if (state.currentWordIndex > 0) {
+                    state.currentWordIndex--;
+                    showDetailByIndex(state.currentWordIndex);
+                }
+            } else if (state.view === 'reading') {
+                if (state.currentPage > 0) {
+                    state.currentPage--;
+                    renderReadingView();
+                }
+            }
+        }
+
+        function handleNext() {
+            if (state.view === 'grid') {
+                setView('reading');
+            } else if (state.view === 'detail') {
+                if (state.currentWordIndex < vocabularyDB.length - 1) {
+                    state.currentWordIndex++;
+                    showDetailByIndex(state.currentWordIndex);
+                }
+            } else if (state.view === 'reading') {
+                if (state.currentPage < readingPassages.length - 1) {
+                    state.currentPage++;
+                    renderReadingView();
+                }
+            }
+        }
+
+        function renderWordGrid() {
+            const grid = document.getElementById('wordGrid');
+            grid.innerHTML = '';
+            vocabularyDB.forEach((item, index) => {
+                const card = document.createElement('div');
+                const isM = state.masteredWords.includes(item.id);
+                card.className = `word-card bg-white p-6 rounded-2xl shadow-sm cursor-pointer animate-fade ${isM ? 'border-l-emerald-500' : 'border-l-blue-600'}`;
+                card.onclick = () => {
+                    state.currentWordIndex = index;
+                    showDetailByIndex(index);
+                };
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="text-xl font-bold">${item.word}</h3>
+                        ${isM ? '✅' : ''}
+                    </div>
+                    <p class="text-blue-600 font-bold">${item.chinese}</p>
+                `;
+                grid.appendChild(card);
+            });
+            updateNavState();
+        }
+
+        function showDetailByIndex(index) {
+            const item = vocabularyDB[index];
+            setView('detail');
+            const isM = state.masteredWords.includes(item.id);
+            document.getElementById('view-detail').innerHTML = `
+                <div class="max-w-3xl mx-auto bg-white p-10 rounded-3xl shadow-lg border border-slate-100 animate-fade">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h1 class="text-5xl font-black mb-2" onclick="speak('${item.word}')" style="cursor: pointer;">${item.word}</h1>
+                            <div class="flex gap-2 mb-2">
+                                ${item.pos.map(p => `<span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs font-bold uppercase">${p}</span>`).join('')}
+                            </div>
+                            <p class="text-3xl font-bold text-indigo-600">${item.chinese}</p>
+                        </div>
+                        <button onclick="toggleM(${item.id}, this)" class="px-6 py-3 rounded-xl font-bold ${isM ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'}">
+                            ${isM ? 'Mastered' : 'Mark Learned'}
+                        </button>
+                    </div>
+                    <div class="space-y-6 text-left">
+                        <section class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                            <h4 class="text-xs font-black text-blue-400 uppercase mb-2 tracking-widest">Definition</h4>
+                            <p class="text-lg text-blue-900">${item.definition}</p>
+                        </section>
+                        <section class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h4 class="text-xs font-black text-slate-400 uppercase mb-2 tracking-widest">Example Sentence</h4>
+                            <p class="text-xl mb-2 text-slate-800 font-medium">${item.examples[0].english}</p>
+                            <p class="text-slate-500 italic text-sm">${item.examples[0].chinese}</p>
+                        </section>
+                        <section class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+                            <h4 class="text-xs font-black text-indigo-400 uppercase mb-2 tracking-widest">Student Perspective Frame</h4>
+                            <p class="font-bold text-indigo-800 text-lg">"${item.stakeholders?.citizen?.frame || 'N/A'}"</p>
+                        </section>
+                    </div>
+                </div>
+            `;
+            updateNavState();
+        }
+
+        function renderReadingView() {
+            const p = readingPassages[state.currentPage];
+            const container = document.getElementById('reading-container');
+            
+            // Side-by-side Layout: 75% Reading (Left), 25% Questions Panel (Right)
+            container.innerHTML = `
+                <div class="flex flex-col lg:flex-row gap-0 items-stretch bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden min-h-[70vh]">
+                    
+                    <!-- LEFT SIDE: Reading Passage (75%) -->
+                    <div class="lg:w-3/4 w-full p-12 border-r border-slate-100 animate-fade">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em]">${p.topic}</span>
+                        </div>
+                        <h2 class="text-4xl font-black mb-10 text-slate-900">${p.title}</h2>
+                        <div class="text-2xl leading-[1.8] text-slate-700 border-l-4 border-blue-400 pl-10 py-2 text-justify">
+                            ${p.text}
+                        </div>
+                    </div>
+
+                    <!-- RIGHT SIDE PANEL: Questions (25%) -->
+                    <div class="lg:w-1/4 w-full bg-slate-50 animate-fade flex flex-col">
+                        <div class="bg-slate-900 p-5 text-white">
+                            <h4 class="font-black text-[10px] uppercase tracking-widest text-slate-400">Quick Check Quiz</h4>
+                        </div>
+                        <div class="flex-1 divide-y divide-slate-200 overflow-y-auto custom-scroll">
+                            ${p.questions.map((q, qIdx) => `
+                                <div class="p-6 bg-white last:border-b-0">
+                                    <p class="font-bold text-slate-800 mb-4 text-xs leading-tight uppercase tracking-tight text-slate-400">Question ${qIdx + 1}</p>
+                                    <p class="font-bold text-slate-900 mb-5 text-sm leading-snug">${q.q}</p>
+                                    <div class="space-y-1.5">
+                                        ${q.options.map((opt, oIdx) => `
+                                            <button onclick="checkA(this, ${oIdx === q.a})" class="quiz-btn text-left p-3 w-full bg-slate-50 border border-slate-200 rounded-xl hover:border-blue-500 hover:bg-white transition-all text-xs font-medium leading-snug">
+                                                ${opt}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            updateNavState();
+        }
+
+        function toggleM(id, btn) {
+            const idx = state.masteredWords.indexOf(id);
+            if (idx > -1) state.masteredWords.splice(idx, 1);
+            else state.masteredWords.push(id);
+            localStorage.setItem('masteredWords', JSON.stringify(state.masteredWords));
+            const isM = state.masteredWords.includes(id);
+            btn.className = `px-6 py-3 rounded-xl font-bold ${isM ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'}`;
+            btn.innerText = isM ? 'Mastered' : 'Mark Learned';
+        }
+
+        function checkA(btn, isCorrect) {
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('.quiz-btn');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.className = "quiz-btn text-left p-3 w-full bg-slate-100 border border-slate-100 rounded-xl text-[10px] opacity-40";
+            });
+            
+            if (isCorrect) {
+                btn.className = "text-left p-3 w-full bg-emerald-500 text-white rounded-xl text-[10px] font-bold opacity-100 shadow-lg border-emerald-400";
+                btn.innerText += " ✅";
+            } else {
+                btn.className = "text-left p-3 w-full bg-red-500 text-white rounded-xl text-[10px] font-bold opacity-100 shadow-lg border-red-400";
+                btn.innerText += " ❌";
+            }
+        }
+
+        function speak(text) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.rate = 0.85; 
+            window.speechSynthesis.speak(msg);
+        }
+
+        window.scrollTo(0,0);
+        renderWordGrid();
+    </script>
+</body>
+</html>

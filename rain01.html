@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zhongkao Grammar Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #000000;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .selection-blue::selection {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .animate-pop {
+            animation: pop 0.3s cubic-bezier(0.26, 0.53, 0.74, 1.48);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .option-btn:focus {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: #facc15;
+            animation: fall 3s linear forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .completion-screen {
+            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+        }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            background: #60a5fa;
+            border-radius: 50%;
+            mix-blend-mode: screen;
+            animation: sparkle-anim 0.8s ease-out forwards;
+            z-index: 20;
+        }
+
+        @keyframes sparkle-anim {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden selection-blue">
+
+    <div id="app" class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 px-3 md:px-6 flex items-center justify-between shrink-0 relative z-40">
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <div id="nav-back-container" class="hidden">
+                    <button id="btn-back" class="p-1.5 rounded-lg text-slate-300 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                </div>
+                <button id="btn-home" class="flex items-center space-x-1.5 text-black hover:bg-slate-100 p-1.5 rounded-lg transition-colors font-black text-[0.96rem]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span class="hidden sm:inline">HOME</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Header Title holds Topic and Questions count -->
+            <div class="text-center flex-1 px-2 overflow-hidden">
+                <h1 id="header-title" class="font-black text-[1.08rem] truncate text-black uppercase tracking-tight">Grammar Mastery</h1>
+            </div>
+
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <div class="bg-black text-white px-3 md:px-4 py-1.5 rounded-full font-black text-[0.84rem] flex items-center shadow-lg transition-transform" id="score-pill">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                    <span id="score-display">0</span> <span class="ml-1 opacity-70">pts</span>
+                </div>
+                <div id="nav-next-container" class="hidden">
+                    <button id="btn-next" class="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-blue-600 text-white font-black text-[0.84rem] hover:bg-blue-700 transition-all disabled:opacity-30 disabled:grayscale">
+                        <span>NEXT</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="flex-1 flex flex-col relative z-50">
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="flex-1 overflow-y-auto p-2 md:p-4 flex flex-col items-center custom-scrollbar">
+                <div class="max-w-3xl w-full space-y-5 animate-pop mt-2">
+                    <div class="text-center space-y-1.5">
+                        <h2 class="text-[1.125rem] md:text-[1.8rem] font-black text-black uppercase tracking-tighter">Zhongkao Mastery 🚀</h2>
+                        <p class="text-black font-bold opacity-60 text-[0.6rem]">150 Targeted Questions • Smart Review • Logic Praises</p>
+                    </div>
+
+                    <div id="topic-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-5"></div>
+                </div>
+            </div>
+
+            <!-- Rules View -->
+            <div id="view-rules" class="hidden flex-1 flex flex-col overflow-hidden bg-white">
+                <div class="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
+                    <div class="max-w-4xl mx-auto space-y-12 animate-pop">
+                        <div id="rules-content" class="space-y-10"></div>
+                        <div class="pt-10 border-t border-slate-100 flex justify-center">
+                            <button id="btn-rules-to-practice" class="bg-blue-600 text-white text-[1.2rem] px-12 py-5 rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all hover:scale-105">
+                                START PRACTICE NOW
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice View -->
+            <div id="view-practice" class="hidden flex-1 flex flex-col relative bg-slate-50">
+                <!-- Question Stage -->
+                <div class="w-full h-full flex flex-col items-center justify-center p-3 md:p-6">
+                    <div id="question-card" class="max-w-4xl w-full bg-white rounded-[2rem] p-5 md:p-8 shadow-2xl border border-slate-100 flex flex-col relative animate-pop overflow-visible">
+                        
+                        <!-- Teacher's Explanation Dropdown Overlay -->
+                        <div class="relative w-full mb-4 shrink-0 mt-2 z-[60]">
+                            <!-- Absolute Dropdown Content - Opening UP -->
+                            <div id="exp-content" class="hidden absolute bottom-full left-0 right-0 mb-3 p-5 bg-white border-2 border-blue-200 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] rounded-2xl max-h-[35vh] overflow-y-auto">
+                                <div id="exp-text" class="text-black font-bold leading-relaxed italic text-[0.84rem] md:text-[0.96rem]">Select an answer to unlock the grammar logic.</div>
+                            </div>
+
+                            <button id="btn-toggle-exp" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl flex items-center justify-between hover:bg-blue-100 transition-colors group shadow-sm focus:outline-none">
+                                <div class="flex items-center space-x-3 text-black font-black text-[0.84rem]">
+                                    <div class="bg-blue-600 p-1.5 rounded-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                    </div>
+                                    <span class="group-hover:text-blue-600 transition-colors uppercase tracking-widest">Teacher's Explanation</span>
+                                </div>
+                                <span id="exp-arrow" class="transition-transform duration-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Question Text -->
+                        <h2 id="question-text" class="text-[1.2rem] md:text-[1.6rem] font-black text-black leading-snug mb-5 min-h-[3rem] relative z-10 shrink-0">Loading question...</h2>
+
+                        <!-- Options Grid -->
+                        <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 relative z-10 w-full shrink"></div>
+                        
+                        <!-- Feedback Message -->
+                        <div id="feedback-area" class="mt-4 min-h-[3rem] relative z-10 text-[1.05rem] shrink-0"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Completion Modal -->
+            <div id="completion-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
+                <div class="completion-screen rounded-3xl p-10 max-w-3xl w-full text-white animate-pop flex flex-col max-h-[90vh]">
+                    <div class="text-center shrink-0">
+                        <div class="text-[4.5rem] mb-4">🎉</div>
+                        <h3 class="text-[2.25rem] font-black mb-3 uppercase tracking-tighter">Module Finished!</h3>
+                        <p class="opacity-90 mb-6 text-[1.5rem]">Score: <span id="final-score" class="font-black text-yellow-300">0</span> pts</p>
+                    </div>
+
+                    <div id="wrong-answers-review" class="flex-1 overflow-y-auto custom-scrollbar my-6 space-y-5 px-3"></div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 shrink-0 mt-4">
+                        <button id="btn-close-modal" class="bg-white/10 hover:bg-white/20 px-8 py-5 rounded-2xl text-[1.2rem] font-bold transition-colors border border-white/20">Review This List</button>
+                        <button id="btn-new-topic" class="bg-yellow-400 hover:bg-yellow-300 text-black px-8 py-5 rounded-2xl text-[1.2rem] font-black transition-colors shadow-lg">New Module</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const apiKey = "";
+        
+        const topics = [
+            { id: 'tenses', name: 'Tenses', icon: 'History', color: 'bg-blue-600', desc: 'Present, Past, Future & Continuous.' },
+            { id: 'state_action', name: 'State vs Action', icon: 'Sparkles', color: 'bg-rose-600', desc: 'Meaning shifts in -ing form.' },
+            { id: 'mental_states', name: 'Mental States', icon: 'Brain', color: 'bg-emerald-600', desc: 'Cognition: simple vs continuous nuance.' },
+            { id: 'performative', name: 'Performative', icon: 'MessageSquare', color: 'bg-violet-600', desc: 'Speech acts (Promise, Suggest).' },
+            { id: 'passive', name: 'Passive Voice', icon: 'Target', color: 'bg-purple-600', desc: 'Receiver focus & agent traps.' },
+            { id: 'modals', name: 'Modals', icon: 'Zap', color: 'bg-red-600', desc: 'Ability, permission, deduction.' }
+        ];
+
+        const grammarRules = {
+            'tenses': {
+                title: "Mastering Tenses",
+                content: "For secondary school students, the key is identifying keywords like 'since', 'for', and 'just now'. Watch out for actions interrupted in the past!",
+                examples: [
+                    { t: "Past Continuous", e: "I was doing my homework when the bell rang.", d: "Long action interrupted by a short event." },
+                    { t: "Present Perfect", e: "I have known my best friend since primary school.", d: "State starting in the past and continuing." }
+                ]
+            },
+            'state_action': {
+                title: "State vs Action Verbs",
+                content: "State verbs describe thoughts or ownership (like *own, believe*). They usually avoid -ing forms unless they become physical actions.",
+                examples: [
+                    { t: "Taste (State)", e: "The school lunch tastes delicious.", d: "Describing a fact about quality." },
+                    { t: "Taste (Action)", e: "The chef is tasting the soup.", d: "A physical act of sampling." }
+                ]
+            },
+            'mental_states': {
+                title: "Mental Awareness",
+                content: "Verbs like *realize* and *find* shift meaning. Simple tense shows a firm fact; Continuous shows a growing realization.",
+                examples: [
+                    { t: "Growing thought", e: "I'm realizing that the exam is tomorrow!", d: "Thought entering your mind right now." },
+                    { t: "Firm knowledge", e: "I realize that I made a mistake.", d: "A settled, established fact." }
+                ]
+            },
+            'performative': {
+                title: "The Power of Words",
+                content: "Performative verbs act as the action they name. In exams, use Present Simple for affirmative acts like *Promise* or *Apologise*.",
+                examples: [
+                    { t: "Promise", e: "I promise to return the library book.", d: "The act is done by saying the word." },
+                    { t: "Negative exception", e: "I don't deny / I'm not denying the truth.", d: "Both forms work in negative sentences." }
+                ]
+            },
+            'passive': {
+                title: "The Receiver Focus",
+                content: "Formula: *be + past participle*. Watch out for intransitive verbs like *happen* or *take place*—they can NEVER be passive!",
+                examples: [
+                    { t: "Classroom", e: "The blackboard is cleaned after every lesson.", d: "Receiver is more important than the doer." },
+                    { t: "Trap Word", e: "The fire took place at night.", d: "Incorrect: 'was taken place'. No passive allowed." }
+                ]
+            },
+            'modals': {
+                title: "Modal Logic",
+                content: "Modals show attitude. The biggest Zhongkao trap is *mustn't* (forbidden) vs *needn't* (optional).",
+                examples: [
+                    { t: "Forbidden", e: "You mustn't talk in the exam hall.", d: "It is strictly against the rules." },
+                    { t: "Optional", e: "You needn't bring a pen; I have extra.", d: "You don't have to; it's not required." }
+                ]
+            }
+        };
+
+        const allQuestions = {
+            'tenses': [
+                { q: "I _____ my math homework when the phone suddenly rang.", options: ["did", "was doing", "have done", "am doing"], correct: 1, exp: "Past Continuous (-ing) for the long action happening when the phone rang." },
+                { q: "Our school _____ a sports meeting every autumn since 2010.", options: ["holds", "held", "has held", "is holding"], correct: 2, exp: "'Since' + time point indicates Present Perfect (has/have + p.p.)." },
+                { q: "By the time he arrived, the school bus _____ already left.", options: ["has", "was", "had", "is"], correct: 2, exp: "Past Perfect (had + p.p.) for action completed before another past event." },
+                { q: "Look! The headmaster _____ into our classroom.", options: ["comes", "is coming", "came", "has come"], correct: 1, exp: "'Look!' indicates an action happening right now." },
+                { q: "He _____ to Beijing twice so far for debate tournaments.", options: ["has been", "has gone", "went", "goes"], correct: 0, exp: "'Has been to' means visited and returned." },
+                { q: "We _____ basketball on the playground when it started to rain heavily.", options: ["played", "are playing", "were playing", "have played"], correct: 2, exp: "A long action (playing) interrupted by a short past event (started to rain)." },
+                { q: "The biology teacher _____ us a new experiment tomorrow.", options: ["shows", "will show", "showed", "has shown"], correct: 1, exp: "'Tomorrow' indicates simple future tense." },
+                { q: "Listen! Someone _____ a beautiful English song in the music room.", options: ["sings", "sang", "is singing", "has sung"], correct: 2, exp: "'Listen!' implies the action is in progress right now." },
+                { q: "I _____ my English notebook. I can't find it anywhere.", options: ["lose", "lost", "have lost", "was losing"], correct: 2, exp: "Present perfect shows a past action with a result in the present (can't find it now)." },
+                { q: "The train to London _____ at 8:00 AM every morning.", options: ["leave", "leaves", "is leaving", "left"], correct: 1, exp: "Scheduled events and timetables use the present simple." },
+                { q: "While the students _____, the teacher walked in.", options: ["read", "are reading", "were reading", "have read"], correct: 2, exp: "'While' is usually followed by the past continuous." },
+                { q: "My best friend and I _____ each other since we were in primary school.", options: ["know", "knew", "have known", "are knowing"], correct: 2, exp: "'Since' + past clause requires the present perfect." },
+                { q: "They _____ the classroom by the time the bell rang.", options: ["clean", "cleaned", "had cleaned", "have cleaned"], correct: 2, exp: "'By the time' + past tense requires past perfect for the earlier action." },
+                { q: "Water _____ at 100 degrees Celsius.", options: ["boil", "boils", "is boiling", "boiled"], correct: 1, exp: "Scientific facts always use the present simple tense." },
+                { q: "What _____ you _____ at 8 o'clock last night?", options: ["did; do", "are; doing", "were; doing", "have; done"], correct: 2, exp: "A specific point in time in the past requires past continuous." },
+                { q: "She _____ her homework yet, so she can't go out to play.", options: ["finished", "has finished", "didn't finish", "hasn't finished"], correct: 3, exp: "'Yet' in negative sentences goes with present perfect." },
+                { q: "I _____ a new bicycle for my birthday last week.", options: ["get", "got", "have got", "had got"], correct: 1, exp: "'Last week' is a specific past time, so use past simple." },
+                { q: "Look at those dark clouds! It _____ soon.", options: ["rains", "rained", "is going to rain", "was raining"], correct: 2, exp: "'Is going to' is used for predictions based on present evidence." },
+                { q: "He usually _____ to school, but today he took the bus.", options: ["walk", "walks", "is walking", "walked"], correct: 1, exp: "'Usually' indicates a habit, taking present simple." },
+                { q: "I will call you as soon as I _____ in Beijing.", options: ["arrive", "arrived", "will arrive", "am arriving"], correct: 0, exp: "In time clauses (as soon as), use present simple for future meaning." },
+                { q: "They _____ this English club for three years.", options: ["join", "joined", "have joined", "have been in"], correct: 3, exp: "'Join' is a short action. For a duration (three years), use a state verb like 'be in'." },
+                { q: "The earth _____ around the sun.", options: ["moves", "moved", "is moving", "has moved"], correct: 0, exp: "Universal truths use present simple." },
+                { q: "I _____ a good book when the lights went out.", options: ["read", "am reading", "was reading", "have read"], correct: 2, exp: "Past continuous for an action interrupted in the past." },
+                { q: "By next Friday, we _____ all our final exams.", options: ["finish", "finished", "will finish", "will have finished"], correct: 3, exp: "'By' + future time requires the future perfect tense." },
+                { q: "How long _____ you _____ this dictionary?", options: ["did; buy", "have; bought", "have; had", "do; have"], correct: 2, exp: "'Buy' is a momentary verb. Use 'have' for duration." }
+            ],
+            'state_action': [
+                { q: "A: What are you doing? B: I _____ the table size for our project.", options: ["measure", "am measuring", "measured", "have measured"], correct: 1, exp: "This is an active physical action happening now." },
+                { q: "The school garden _____ 10 meters long.", options: ["measures", "is measuring", "measure", "measured"], correct: 0, exp: "Describing a fact/state about size. No -ing form." },
+                { q: "The canteen soup _____ delicious today.", options: ["tastes", "is tasting", "tasted", "tasting"], correct: 0, exp: "State verb describing quality. No -ing form." },
+                { q: "The chef _____ the soup to see if it needs more salt.", options: ["tastes", "is tasting", "tasted", "has tasted"], correct: 1, exp: "A physical act of sampling happening right now." },
+                { q: "I _____ a new dictionary in my backpack.", options: ["am having", "have", "has", "having"], correct: 1, exp: "Ownership is a state. We don't use 'am having' for possession." },
+                { q: "I _____ a great time at the school dance right now!", options: ["have", "am having", "had", "has"], correct: 1, exp: "'Have' means 'experiencing' here, so it becomes an action verb taking -ing." },
+                { q: "This physics problem _____ really difficult to solve.", options: ["appears", "is appearing", "appear", "appeared"], correct: 0, exp: "'Appear' meaning 'seems' is a state verb." },
+                { q: "My favorite singer _____ on TV tonight.", options: ["appears", "is appearing", "appear", "appeared"], correct: 1, exp: "'Appear' meaning 'perform' is an action verb." },
+                { q: "Why _____ you _____ the milk? Has it gone bad?", options: ["do; smell", "are; smelling", "did; smell", "have; smelled"], correct: 1, exp: "The physical act of sniffing is an action." },
+                { q: "These roses from the garden _____ so sweet.", options: ["smell", "are smelling", "smelled", "smells"], correct: 0, exp: "Describing the scent is a state." },
+                { q: "I _____ we should review chapter 4 for the test.", options: ["think", "am thinking", "thought", "was thinking"], correct: 0, exp: "Expressing an opinion is a state." },
+                { q: "Shh! I _____ about the answer to this math question.", options: ["think", "am thinking", "thought", "was thinking"], correct: 1, exp: "The process of using your brain is an action." },
+                { q: "This backpack _____ about 5 kilograms.", options: ["weighs", "is weighing", "weigh", "weighed"], correct: 0, exp: "Having a certain weight is a state." },
+                { q: "The nurse _____ the students in the clinic now.", options: ["weighs", "is weighing", "weigh", "weighed"], correct: 1, exp: "The physical act of putting someone on a scale is an action." },
+                { q: "These new school shoes _____ me perfectly.", options: ["fit", "are fitting", "fits", "fitted"], correct: 0, exp: "'Fit' describing size is a state verb." },
+                { q: "The tailor _____ the uniform for the new student.", options: ["fits", "is fitting", "fit", "fitted"], correct: 1, exp: "The physical action of measuring and adjusting clothes." },
+                { q: "He _____ out of the window during the lesson.", options: ["looks", "is looking", "look", "looked"], correct: 1, exp: "Directing your eyes is an active action." },
+                { q: "She _____ very tired after the PE test.", options: ["looks", "is looking", "look", "looking"], correct: 0, exp: "'Look' meaning 'appear' is a state." },
+                { q: "I _____ the teacher right now, but I still can't hear clearly.", options: ["look at", "am looking at", "see", "am seeing"], correct: 1, exp: "'Look at' is a deliberate action, unlike the state verb 'see'." },
+                { q: "The music from the gym _____ so loud.", options: ["sounds", "is sounding", "sound", "sounded"], correct: 0, exp: "'Sound' describing an impression is a state." },
+                { q: "The alarm bell _____ right now!", options: ["sounds", "is sounding", "sound", "has sounded"], correct: 1, exp: "The active production of noise can be continuous." },
+                { q: "I _____ what the teacher just explained on the board.", options: ["understand", "am understanding", "understood", "understands"], correct: 0, exp: "Understanding is a mental state, not an action." },
+                { q: "She _____ to be very good at mathematics.", options: ["seems", "is seeming", "seem", "seemed"], correct: 0, exp: "'Seem' is always a state verb." },
+                { q: "Do you _____ to me when I'm explaining the rules?", options: ["hear", "are hearing", "listen", "are listening"], correct: 3, exp: "'Listen' is an action you do on purpose, so it can take continuous tense here." },
+                { q: "This old book _____ to the school library.", options: ["belongs", "is belonging", "belong", "belonged"], correct: 0, exp: "Ownership ('belong') is always a state." }
+            ],
+            'mental_states': [
+                { q: "I _____ my decision to skip the study group session.", options: ["regret", "am regretting", "was regretted", "have regretted"], correct: 1, exp: "Continuous shows a growing or temporary emotional awareness." },
+                { q: "I _____ what you mean, but I don't agree.", options: ["understand", "am understanding", "understood", "understands"], correct: 0, exp: "Mental state verb representing a firm fact." },
+                { q: "She _____ that the Zhongkao exam is actually tomorrow!", options: ["realizes", "is realizing", "realized", "has realized"], correct: 1, exp: "Thought entering the mind right now (growing realization)." },
+                { q: "I _____ I made a mistake on question 5.", options: ["am realizing", "realize", "realized", "have realized"], correct: 1, exp: "A settled, established fact in your mind." },
+                { q: "Do you _____ in aliens?", options: ["believing", "believe", "believes", "believed"], correct: 1, exp: "Belief is a permanent mental state, so use simple present." },
+                { q: "I _____ the answer to the geography question now.", options: ["know", "am knowing", "knew", "have known"], correct: 0, exp: "Knowledge is a firm state, never continuous." },
+                { q: "I _____ my old primary school teacher's name.", options: ["forget", "am forgetting", "forgot", "have forgotten"], correct: 0, exp: "A current mental state of not having the information." },
+                { q: "Oh no, I think I _____ how to solve this math equation!", options: ["forget", "am forgetting", "forgot", "have forgotten"], correct: 1, exp: "A gradual loss of memory happening in real-time." },
+                { q: "I _____ my best to pass the entrance exam.", options: ["hope", "am hoping", "hoped", "have hoped"], correct: 0, exp: "A general state of desire is simple present." },
+                { q: "We _____ that the teacher will cancel the test.", options: ["hope", "are hoping", "hoped", "have hoped"], correct: 1, exp: "A temporary, active emotional wish happening right now." },
+                { q: "He _____ to be the smartest student in the class.", options: ["considers", "is considering", "is considered", "considered"], correct: 2, exp: "Passive mental state: 'is thought to be'." },
+                { q: "I _____ changing my elective class to art.", options: ["consider", "am considering", "considered", "have considered"], correct: 1, exp: "The active mental process of weighing options." },
+                { q: "I _____ that the test was next Tuesday, not today!", options: ["suppose", "am supposing", "supposed", "have supposed"], correct: 2, exp: "A past mistaken mental assumption." },
+                { q: "I _____ you are right about the grammar rule.", options: ["suppose", "am supposing", "supposed", "have supposed"], correct: 0, exp: "A present state of reluctant agreement." },
+                { q: "Do you _____ to bring your calculator to the exam?", options: ["remember", "are remembering", "remembered", "have remembered"], correct: 0, exp: "A general mental state or habit." },
+                { q: "I _____ feeling very nervous before the speech.", options: ["remember", "am remembering", "remembered", "have remembered"], correct: 0, exp: "Recalling a past event is a firm mental state." },
+                { q: "I _____ him to get a perfect score on the spelling bee.", options: ["expect", "am expecting", "expected", "have expected"], correct: 0, exp: "A general belief about the future." },
+                { q: "We _____ a lot of rain this afternoon.", options: ["expect", "are expecting", "expected", "have expected"], correct: 1, exp: "Actively waiting for something to happen." },
+                { q: "I _____ his story about why his homework is late.", options: ["doubt", "am doubting", "doubted", "have doubted"], correct: 0, exp: "A state of disbelief." },
+                { q: "I'm starting to _____ my own answers on this test.", options: ["doubt", "am doubting", "doubted", "have doubted"], correct: 1, exp: "A growing feeling of uncertainty." },
+                { q: "She _____ to finish the project by Friday.", options: ["intends", "is intending", "intended", "has intended"], correct: 0, exp: "A firm mental plan." },
+                { q: "I _____ the importance of studying hard for Zhongkao.", options: ["appreciate", "am appreciating", "appreciated", "have appreciated"], correct: 0, exp: "A mental state of understanding value." },
+                { q: "I _____ this new painting in the art room.", options: ["love", "am loving", "loved", "have loved"], correct: 0, exp: "Emotion is a state." },
+                { q: "I _____ this new English learning app!", options: ["love", "am loving", "loved", "have loved"], correct: 1, exp: "Informal idiom expressing temporary, active enjoyment." },
+                { q: "He _____ to care about his grades at all.", options: ["doesn't seem", "isn't seeming", "didn't seem", "hasn't seemed"], correct: 0, exp: "A permanent or general impression." }
+            ],
+            'performative': [
+                { q: "I _____ taking the money from your desk. It wasn't me!", options: ["deny", "am denying", "denied", "was denying"], correct: 0, exp: "Performative verbs take Present Simple in affirmative." },
+                { q: "I _____ to return the library book tomorrow morning.", options: ["am promising", "promise", "promised", "promising"], correct: 1, exp: "The act is done by saying the word in present simple." },
+                { q: "I _____ that we start a study group for math.", options: ["suggest", "am suggesting", "suggested", "have suggested"], correct: 0, exp: "Making a suggestion right now uses the simple present performative." },
+                { q: "I _____ for losing your favorite pen.", options: ["am apologizing", "apologized", "apologize", "have apologized"], correct: 2, exp: "Apologizing is a performative speech act." },
+                { q: "I _____ you to be careful on the icy road.", options: ["am advising", "advise", "advised", "advising"], correct: 1, exp: "Giving advice right now acts as the action itself." },
+                { q: "I _____ you not to talk during the exam.", options: ["warn", "am warning", "warned", "have warned"], correct: 0, exp: "Warning is a performative act done in simple present." },
+                { q: "I _____ to help you clean the classroom after school.", options: ["offer", "am offering", "offered", "have offered"], correct: 0, exp: "Making an offer." },
+                { q: "I _____ with your answer for question number 5.", options: ["agree", "am agreeing", "agreed", "have agreed"], correct: 0, exp: "Agreeing is a state and a performative act." },
+                { q: "We _____ you to our school's annual sports meet.", options: ["invite", "are inviting", "invited", "have invited"], correct: 0, exp: "The invitation is executed by speaking the sentence." },
+                { q: "I _____ to answer that rude question.", options: ["refuse", "am refusing", "refused", "have refused"], correct: 0, exp: "Refusal happens the moment you say it." },
+                { q: "I _____ students from using phones in class.", options: ["forbid", "am forbidding", "forbade", "have forbidden"], correct: 0, exp: "Prohibiting is done through the utterance." },
+                { q: "I _____ you to finish the homework by 8 PM.", options: ["order", "am ordering", "ordered", "have ordered"], correct: 0, exp: "Giving a command." },
+                { q: "I _____ you to reconsider your choice of high school.", options: ["beg", "am begging", "begged", "have begged"], correct: 0, exp: "Pleading is performative." },
+                { q: "I _____ you on winning the first prize in English speech.", options: ["congratulate", "am congratulating", "congratulated", "have congratulated"], correct: 0, exp: "The act of congratulating." },
+                { q: "I _____ that the earth is round.", options: ["declare", "am declaring", "declared", "have declared"], correct: 0, exp: "Making a formal statement." },
+                { q: "I _____ this meeting of the student council open.", options: ["declare", "am declaring", "declared", "have declared"], correct: 0, exp: "Official performative act." },
+                { q: "I _____ this ship the 'Zhongkao Express'.", options: ["name", "am naming", "named", "have named"], correct: 0, exp: "Naming is a classic performative." },
+                { q: "I _____ to be innocent of cheating.", options: ["claim", "am claiming", "claimed", "have claimed"], correct: 0, exp: "Making an assertion." },
+                { q: "I _____ that we vote on the new class monitor.", options: ["propose", "am proposing", "proposed", "have proposed"], correct: 0, exp: "Making a formal suggestion." },
+                { q: "I _____ your apology for being late.", options: ["accept", "am accepting", "accepted", "have accepted"], correct: 0, exp: "Receiving and acknowledging." },
+                { q: "I _____ you guilty of eating my sandwich.", options: ["pronounce", "am pronouncing", "pronounced", "have pronounced"], correct: 0, exp: "A formal judgment." },
+                { q: "I _____ you that the test will be fair.", options: ["assure", "am assuring", "assured", "have assured"], correct: 0, exp: "Giving confidence." },
+                { q: "I _____ my previous statement to the teacher.", options: ["withdraw", "am withdrawing", "withdrew", "have withdrawn"], correct: 0, exp: "Taking back words." },
+                { q: "I _____ you for helping me pass the math test.", options: ["thank", "am thanking", "thanked", "have thanked"], correct: 0, exp: "Expressing gratitude." },
+                { q: "I'm not _____ that it's difficult, but we must try.", options: ["deny", "denying", "denied", "to deny"], correct: 1, exp: "In negative sentences, performatives can be continuous!" }
+            ],
+            'passive': [
+                { q: "The assignment _____ to the teacher already.", options: ["has sent", "has been sent", "was sent", "is sent"], correct: 1, exp: "Present Perfect Passive: has/have been + p.p." },
+                { q: "Who was this textbook _____ by?", options: ["write", "wrote", "written", "writing"], correct: 2, exp: "Passive structure: be + subject + p.p." },
+                { q: "Can this difficult math problem _____ easily?", options: ["solve", "be solved", "is solved", "solved"], correct: 1, exp: "Modal passive: modal + be + p.p." },
+                { q: "Knives _____ for cutting things in biology class.", options: ["use", "are used", "used", "are using"], correct: 1, exp: "Passive use of an object." },
+                { q: "Great changes _____ in our school in ten years.", options: ["have taken place", "have been taken place", "took place", "were taken place"], correct: 0, exp: "'Take place' is intransitive; NO passive. Trap question!" },
+                { q: "The lost bicycle _____ on the playground yesterday.", options: ["finds", "found", "was found", "is found"], correct: 2, exp: "Past simple passive for an event completed in the past." },
+                { q: "English _____ widely _____ in the world today.", options: ["is; speak", "is; spoken", "was; spoken", "has; spoken"], correct: 1, exp: "Present simple passive for a general fact." },
+                { q: "The classroom _____ every day after school.", options: ["cleans", "is cleaned", "cleaned", "has cleaned"], correct: 1, exp: "Habitual action in the passive voice." },
+                { q: "A new sports stadium _____ in our city next year.", options: ["will build", "will be built", "builds", "is built"], correct: 1, exp: "Future passive: will + be + past participle." },
+                { q: "Look! The blackboard _____ by the monitor right now.", options: ["cleans", "is cleaned", "is being cleaned", "was cleaned"], correct: 2, exp: "Present continuous passive: is/are being + past participle." },
+                { q: "The important meeting _____ when I arrived at the office.", options: ["was holding", "was held", "was being held", "had held"], correct: 2, exp: "Past continuous passive for an action in progress in the past." },
+                { q: "All the tickets for the school play _____ out.", options: ["have sold", "have been sold", "were selling", "sold"], correct: 1, exp: "Present perfect passive: have/has been + past participle." },
+                { q: "By the time we got there, the fire _____.", options: ["was put out", "has been put out", "had been put out", "put out"], correct: 2, exp: "Past perfect passive for an action completed before another past event." },
+                { q: "The traffic accident _____ late last night.", options: ["happened", "was happened", "has happened", "had happened"], correct: 0, exp: "'Happen' is intransitive and cannot be passive. Trap!" },
+                { q: "Trees _____ to make paper.", options: ["cut down", "are cut down", "cutting down", "have cut down"], correct: 1, exp: "General fact in present simple passive." },
+                { q: "The problem must _____ as soon as possible.", options: ["solve", "solving", "be solved", "solved"], correct: 2, exp: "Modal passive structure: modal + be + p.p." },
+                { q: "The sick student _____ to the hospital immediately.", options: ["should take", "should be taken", "took", "is taking"], correct: 1, exp: "Modal passive showing necessity." },
+                { q: "The famous novel _____ into several languages.", options: ["has translated", "has been translated", "translates", "is translating"], correct: 1, exp: "Present perfect passive." },
+                { q: "I _____ to the teacher's office yesterday afternoon.", options: ["called", "was called", "am called", "have called"], correct: 1, exp: "Past simple passive. The speaker was the receiver of the action." },
+                { q: "The school rules must _____ strictly by all students.", options: ["follow", "followed", "be followed", "following"], correct: 2, exp: "Modal passive for obligation." },
+                { q: "A strange noise _____ outside the window last night.", options: ["was heard", "heard", "hears", "has heard"], correct: 0, exp: "Past simple passive." },
+                { q: "This dictionary _____ to my older brother.", options: ["belongs", "is belonged", "was belonged", "belonging"], correct: 0, exp: "'Belong to' cannot be passive. Trap!" },
+                { q: "The museum _____ to the public every Monday.", options: ["closes", "is closed", "closed", "has closed"], correct: 1, exp: "Present simple passive for a routine." },
+                { q: "Many buildings _____ by the earthquake last week.", options: ["destroyed", "were destroyed", "destroy", "have destroyed"], correct: 1, exp: "Past simple passive for a completed past event." },
+                { q: "My bike _____ while I was shopping.", options: ["stole", "was stolen", "steals", "is stolen"], correct: 1, exp: "Past simple passive indicating an action that occurred to the subject." }
+            ],
+            'modals': [
+                { q: "You _____ smoke in the school or hospital.", options: ["mustn't", "needn't", "couldn't", "shouldn't"], correct: 0, exp: "Prohibition: forbidden by rules." },
+                { q: "Need I finish the essay now? No, you _____.", options: ["mustn't", "needn't", "can't", "don't"], correct: 1, exp: "Answer 'Need I...?' with 'No, you needn't'." },
+                { q: "I _____ run fast when I was a primary school child.", options: ["can", "could", "must", "should"], correct: 1, exp: "Past ability." },
+                { q: "The classroom lights are on. He _____ be inside.", options: ["must", "can", "should", "need"], correct: 0, exp: "Strong logical deduction." },
+                { q: "You _____ finish your homework before you go out to play.", options: ["can", "must", "might", "may"], correct: 1, exp: "Requirement or strong obligation." },
+                { q: "The boy over there _____ be John. John has gone to Beijing.", options: ["must", "can't", "mustn't", "needn't"], correct: 1, exp: "Negative logical deduction (it's impossible)." },
+                { q: "We _____ be careful when we cross the busy street.", options: ["can", "may", "should", "need"], correct: 2, exp: "Giving advice or expressing obligation." },
+                { q: "_____ you pass me the dictionary, please?", options: ["Must", "Should", "Need", "Could"], correct: 3, exp: "Polite request." },
+                { q: "It's very cold outside. You _____ better wear a heavy coat.", options: ["would", "should", "had", "could"], correct: 2, exp: "The phrase is 'had better' (strong advice)." },
+                { q: "He _____ speak three languages: English, French, and Chinese.", options: ["must", "should", "can", "may"], correct: 2, exp: "Present ability." },
+                { q: "They _____ arrive late because of the heavy rain.", options: ["must", "can", "might", "should"], correct: 2, exp: "Expressing a possibility." },
+                { q: "You _____ worry about the exam. You've prepared well.", options: ["mustn't", "needn't", "can't", "shouldn't"], correct: 1, exp: "Lack of necessity (you don't have to)." },
+                { q: "I _____ go to the party, but I'm not sure yet.", options: ["must", "will", "may", "should"], correct: 2, exp: "Expressing uncertain possibility." },
+                { q: "You _____ not talk loudly in the library.", options: ["can", "must", "need", "may"], correct: 1, exp: "Strong prohibition." },
+                { q: "_____ I borrow your pen for a moment?", options: ["Must", "Need", "May", "Should"], correct: 2, exp: "Asking for permission." },
+                { q: "Students _____ respect their teachers.", options: ["ought to", "can", "may", "might"], correct: 0, exp: "'Ought to' expresses moral obligation or duty." },
+                { q: "He didn't study hard, so he _____ fail the test.", options: ["must", "will", "can", "should"], correct: 1, exp: "A future prediction based on a condition." },
+                { q: "The ground is wet. It _____ have rained last night.", options: ["must", "can", "should", "need"], correct: 0, exp: "Strong logical deduction about the past." },
+                { q: "You _____ have left your keys in the classroom.", options: ["must", "can", "might", "should"], correct: 2, exp: "Possibility about the past." },
+                { q: "She _____ play the piano beautifully when she was five.", options: ["can", "could", "may", "might"], correct: 1, exp: "Past ability." },
+                { q: "_____ you like some more tea?", options: ["Could", "Should", "Would", "May"], correct: 2, exp: "Polite offer." },
+                { q: "We _____ leave now, or we'll miss the school bus.", options: ["can", "may", "must", "could"], correct: 2, exp: "Strong internal obligation." },
+                { q: "He looks very pale. He _____ see a doctor.", options: ["can", "may", "should", "might"], correct: 2, exp: "Giving strong advice." },
+                { q: "I _____ rather stay at home than go to the movie.", options: ["would", "should", "could", "had"], correct: 0, exp: "The phrase 'would rather... than...' expresses preference." },
+                { q: "That _____ be the headmaster's car. His is blue, not red.", options: ["mustn't", "can't", "needn't", "shouldn't"], correct: 1, exp: "Negative deduction based on evidence." }
+            ]
+        };
+
+        const praises = ["Spot on!", "You nailed it!", "Excellent precision!", "Clear reasoning!", "Great attention to detail!", "Incredible clarity!", "Right choice!", "Solid logic!", "Perfect execution!", "Excellent accuracy!", "Nice job!", "Very confident!", "Right answer!", "Well done!", "Precise answer!", "Great clarity!", "Excellent reasoning!", "Perfect understanding!", "You got it!", "Great execution!"];
+
+        const icons = {
+            'History': '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            'Sparkles': '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
+            'Brain': '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>',
+            'MessageSquare': '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+            'Target': '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            'Zap': '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+        };
+
+        const state = { view: 'dashboard', selectedTopic: null, currentIndex: 0, score: 0, userAnswer: null, expOpen: false, wrongAnswers: [] };
+
+        const els = {
+            viewDashboard: document.getElementById('view-dashboard'),
+            viewPractice: document.getElementById('view-practice'),
+            viewRules: document.getElementById('view-rules'),
+            topicGrid: document.getElementById('topic-grid'),
+            rulesContent: document.getElementById('rules-content'),
+            headerTitle: document.getElementById('header-title'),
+            scoreDisplay: document.getElementById('score-display'),
+            scorePill: document.getElementById('score-pill'),
+            btnHome: document.getElementById('btn-home'),
+            btnBack: document.getElementById('btn-back'),
+            btnNext: document.getElementById('btn-next'),
+            navBackContainer: document.getElementById('nav-back-container'),
+            navNextContainer: document.getElementById('nav-next-container'),
+            btnToggleExp: document.getElementById('btn-toggle-exp'),
+            expContent: document.getElementById('exp-content'),
+            expText: document.getElementById('exp-text'),
+            expArrow: document.getElementById('exp-arrow'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            feedbackArea: document.getElementById('feedback-area'),
+            completionModal: document.getElementById('completion-modal'),
+            wrongAnswersReview: document.getElementById('wrong-answers-review'),
+            btnRulesToPractice: document.getElementById('btn-rules-to-practice'),
+            btnNewTopic: document.getElementById('btn-new-topic'),
+            btnCloseModal: document.getElementById('btn-close-modal'),
+            questionCard: document.getElementById('question-card')
+        };
+
+        async function speakPraise(text) {
+            // Speed adjusted directly per user preference to 85%
+            const prompt = `Say cheerfully and slowly at 85% speed: ${text}`;
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
+                        }
+                    })
+                });
+                const result = await response.json();
+                const pcmData = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                if (pcmData) {
+                    const audioBuffer = pcmToWav(pcmData, 24000);
+                    const audio = new Audio(URL.createObjectURL(new Blob([audioBuffer], { type: 'audio/wav' })));
+                    audio.play();
+                }
+            } catch (e) {}
+        }
+
+        function pcmToWav(base64Pcm, sampleRate) {
+            const buffer = Uint8Array.from(atob(base64Pcm), c => c.charCodeAt(0)).buffer;
+            const wavHeader = new ArrayBuffer(44);
+            const view = new DataView(wavHeader);
+            view.setUint32(0, 0x52494646, false); view.setUint32(4, 36 + buffer.byteLength, true); view.setUint32(8, 0x57415645, false); view.setUint32(12, 0x666d7420, false); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); view.setUint32(36, 0x64617461, false); view.setUint32(40, buffer.byteLength, true);
+            const combined = new Uint8Array(wavHeader.byteLength + buffer.byteLength);
+            combined.set(new Uint8Array(wavHeader), 0); combined.set(new Uint8Array(buffer), wavHeader.byteLength);
+            return combined.buffer;
+        }
+
+        function createSparkles() {
+            for (let i = 0; i < 15; i++) {
+                const s = document.createElement('div');
+                s.className = 'sparkle';
+                s.style.width = s.style.height = (Math.random() * 15 + 5) + 'px';
+                s.style.left = (Math.random() * 100) + '%';
+                s.style.top = (Math.random() * 100) + '%';
+                els.questionCard.appendChild(s);
+                setTimeout(() => s.remove(), 800);
+            }
+        }
+
+        function renderDashboard() {
+            els.topicGrid.innerHTML = '';
+            topics.forEach(topic => {
+                const card = document.createElement('div');
+                card.className = "group bg-white p-4 rounded-[1rem] border-2 border-slate-100 transition-all duration-300 text-left relative overflow-hidden flex flex-col justify-between animate-pop h-full";
+                card.innerHTML = `
+                    <div class="mb-2.5">
+                        <div class="${topic.color} text-white p-2 rounded-xl w-fit shadow-lg mb-2.5 group-hover:scale-110 transition-transform">
+                            ${icons[topic.icon]}
+                        </div>
+                        <h4 class="text-[0.75rem] font-black text-black mb-1">${topic.name}</h4>
+                        <p class="text-black text-[0.525rem] font-medium leading-tight opacity-70 mb-3">${topic.desc}</p>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <button onclick="startRules('${topic.id}')" class="w-full bg-slate-50 text-black py-2 rounded-[0.5rem] font-black text-[0.45rem] hover:bg-black hover:text-white transition-all uppercase tracking-widest">Review Rules</button>
+                        <button onclick="startPractice('${topic.id}')" class="w-full bg-blue-600 text-white py-2 rounded-[0.5rem] font-black text-[0.45rem] hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all uppercase tracking-widest">Start Practice</button>
+                    </div>
+                `;
+                els.topicGrid.appendChild(card);
+            });
+        }
+
+        function startRules(topicId) {
+            const rule = grammarRules[topicId];
+            els.headerTitle.textContent = "Rules: " + topics.find(t=>t.id===topicId).name;
+            els.rulesContent.innerHTML = `
+                <div class="space-y-5 text-center md:text-left">
+                    <h3 class="text-[2.7rem] font-black text-black uppercase tracking-tighter">${rule.title}</h3>
+                    <p class="text-[1.5rem] text-slate-600 font-medium leading-relaxed">${rule.content}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-5 mt-10">
+                    ${rule.examples.map(ex => `
+                        <div class="p-8 bg-slate-50 border-l-8 border-blue-600 rounded-r-2xl">
+                            <h5 class="font-black text-blue-600 uppercase text-[0.9rem] mb-2 tracking-widest">${ex.t}</h5>
+                            <p class="text-[1.35rem] font-black text-black mb-3">"${ex.e}"</p>
+                            <p class="text-[1.05rem] font-medium text-slate-500 italic">${ex.d}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            els.btnRulesToPractice.onclick = () => startPractice(topicId);
+            els.viewDashboard.classList.add('hidden');
+            els.viewRules.classList.remove('hidden');
+        }
+
+        function startPractice(topicId) {
+            state.selectedTopic = topicId;
+            state.currentIndex = 0; state.score = 0; state.userAnswer = null; state.wrongAnswers = [];
+            els.viewDashboard.classList.add('hidden'); els.viewRules.classList.add('hidden');
+            els.viewPractice.classList.remove('hidden'); els.navBackContainer.classList.remove('hidden'); els.navNextContainer.classList.remove('hidden');
+            updateScore(); 
+            updatePracticeView();
+        }
+
+        function handleAnswer(index) {
+            if (state.userAnswer !== null) return;
+            const questions = allQuestions[state.selectedTopic];
+            const q = questions[state.currentIndex];
+            state.userAnswer = index;
+            if (index === q.correct) {
+                state.score += 10; updateScore(); createSparkles(); createConfetti();
+                const p = praises[Math.floor(Math.random()*praises.length)]; speakPraise(p);
+            } else {
+                state.wrongAnswers.push({...q, userPick: index});
+            }
+            if (!state.expOpen) toggleExplanation(true);
+            updatePracticeView();
+        }
+
+        function updatePracticeView() {
+            const topic = topics.find(t => t.id === state.selectedTopic);
+            const questions = allQuestions[state.selectedTopic];
+            const q = questions[state.currentIndex];
+            
+            // Set header content to display Topic and Question Counter dynamically
+            els.headerTitle.textContent = `${topic.name} • Q ${state.currentIndex + 1}/${questions.length}`;
+            
+            els.questionText.textContent = q.q;
+            els.btnBack.disabled = state.currentIndex === 0;
+            els.btnBack.classList.toggle('opacity-30', state.currentIndex === 0);
+            
+            const answered = state.userAnswer !== null;
+            els.btnNext.disabled = !answered;
+            els.btnNext.onclick = (state.currentIndex === questions.length - 1) ? showCompletion : goNext;
+
+            els.optionsContainer.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                // Shrunk padding on buttons specifically to keep view tight and prevent scroll
+                btn.className = "option-btn p-4 md:p-5 rounded-3xl text-left border-[3px] transition-all font-black text-[1.05rem] md:text-[1.2rem] flex justify-between items-center";
+                if (answered) {
+                    if (i === q.correct) btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                    else if (i === state.userAnswer) btn.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+                    else btn.classList.add('border-slate-100', 'bg-white', 'opacity-40');
+                    btn.disabled = true;
+                } else {
+                    btn.classList.add('border-slate-100', 'bg-white', 'hover:border-black', 'hover:bg-slate-50', 'text-black');
+                    btn.onclick = () => handleAnswer(i);
+                }
+                btn.innerHTML = `<span>${String.fromCharCode(65 + i)}. ${opt}</span>`;
+                els.optionsContainer.appendChild(btn);
+            });
+
+            els.feedbackArea.innerHTML = answered ? `<div class="p-4 rounded-2xl font-black text-center animate-pop ${state.userAnswer === q.correct ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${state.userAnswer === q.correct ? '✓ WELL DONE' : '✗ NOT QUITE'}</div>` : '';
+            toggleExplanation(state.expOpen);
+        }
+
+        function toggleExplanation(force) {
+            state.expOpen = typeof force === 'boolean' ? force : !state.expOpen;
+            if (state.expOpen) {
+                els.expContent.classList.remove('hidden');
+                els.expArrow.style.transform = 'rotate(180deg)';
+                const q = allQuestions[state.selectedTopic][state.currentIndex];
+                els.expText.innerHTML = state.userAnswer !== null ? `<span class="block mb-3 font-black text-blue-800 uppercase text-[0.84rem] tracking-tighter">Teacher's Note:</span> <span class="text-slate-800 font-bold italic">${q.exp}</span>` : "Select an answer to see why!";
+            } else {
+                els.expContent.classList.add('hidden');
+                els.expArrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function goNext() { state.currentIndex++; state.userAnswer = null; state.expOpen = false; updatePracticeView(); }
+        function goBack() { state.currentIndex--; state.userAnswer = null; state.expOpen = false; updatePracticeView(); }
+
+        function showCompletion() {
+            document.getElementById('final-score').textContent = state.score;
+            els.wrongAnswersReview.innerHTML = state.wrongAnswers.length > 0 ? `<h4 class="font-black text-yellow-300 text-[1.05rem] mb-5 uppercase tracking-widest">Recap of Mistakes:</h4>` : `<h4 class="font-black text-emerald-300 text-[1.05rem] mb-5 uppercase tracking-widest text-center">Perfect Performance! 🌟</h4>`;
+            state.wrongAnswers.forEach(w => {
+                const box = document.createElement('div');
+                box.className = "bg-white/10 p-6 rounded-2xl border border-white/10 text-[1.05rem] mb-5";
+                box.innerHTML = `<p class="font-black mb-2">Q: ${w.q}</p>
+                                <p class="text-red-400 font-bold mb-1">Picked: ${w.options[w.userPick]}</p>
+                                <p class="text-emerald-400 font-bold">Correct: ${w.options[w.correct]}</p>
+                                <p class="mt-4 text-white/60 italic text-[0.9rem] leading-relaxed border-t border-white/10 pt-3">${w.exp}</p>`;
+                els.wrongAnswersReview.appendChild(box);
+            });
+            els.completionModal.classList.remove('hidden');
+        }
+
+        function updateScore() { 
+            els.scoreDisplay.textContent = state.score; 
+            els.scorePill.classList.add('scale-110');
+            setTimeout(()=>els.scorePill.classList.remove('scale-110'), 200);
+        }
+
+        function createConfetti() {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random()*100 + 'vw';
+            c.style.backgroundColor = ['#facc15','#3b82f6','#10b981','#f43f5e','#8b5cf6'][Math.floor(Math.random()*5)];
+            c.style.animationDuration = (2 + Math.random()*2) + 's';
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 3000);
+        }
+
+        els.btnHome.onclick = () => {
+            state.view = 'dashboard'; els.viewPractice.classList.add('hidden'); els.viewRules.classList.add('hidden'); 
+            els.viewDashboard.classList.remove('hidden'); els.navBackContainer.classList.add('hidden'); 
+            els.navNextContainer.classList.add('hidden'); els.headerTitle.textContent = "Grammar Mastery"; 
+            els.completionModal.classList.add('hidden'); renderDashboard();
+        };
+        els.btnBack.onclick = goBack;
+        els.btnNext.onclick = goNext;
+        els.btnToggleExp.onclick = () => toggleExplanation();
+        els.btnNewTopic.onclick = () => els.btnHome.click();
+        els.btnCloseModal.onclick = () => els.completionModal.classList.add('hidden');
+
+        renderDashboard();
+    </script>
+</body>
+</html>
