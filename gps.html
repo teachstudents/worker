@@ -1,0 +1,255 @@
+import React, { useState, useEffect } from 'react';
+
+// Grid size 5x5
+const GRID_SIZE = 5;
+
+// Define our town landmarks using coordinates {x, y}
+const TOWN_DATA = [
+  { id: 'hospital', icon: '🏥', label: 'Hospital', x: 0, y: 0 },
+  { id: 'school', icon: '🏫', label: 'High School', x: 4, y: 0 },
+  { id: 'cafe', icon: '☕', label: 'Tech Cafe', x: 0, y: 2 },
+  { id: 'park', icon: '🌳', label: 'City Park', x: 4, y: 2 },
+  { id: 'home', icon: '🏠', label: 'Student Home', x: 0, y: 4 },
+  { id: 'firestation', icon: '🚒', label: 'Fire Station', x: 4, y: 4 },
+  { id: 'pizza', icon: '🍕', label: 'Pizza Shop', x: 2, y: 0 },
+  { id: 'stadium', icon: '🏟️', label: 'Stadium', x: 2, y: 4 },
+  // The compass is at the exact center (2, 2)
+  { id: 'compass', icon: '🧭', label: 'Compass Base', x: 2, y: 2 },
+];
+
+export default function App() {
+  const [startPoint, setStartPoint] = useState(null);
+  const [endPoint, setEndPoint] = useState(null);
+  const [path, setPath] = useState([]);
+  const [dronePos, setDronePos] = useState(null);
+  const [status, setStatus] = useState("Select a Start Point (Point A) to begin drone calibration.");
+
+  // Helper to get landmark at specific coords
+  const getLandmark = (x, y) => TOWN_DATA.find(l => l.x === x && l.y === y);
+
+  // Handle clicking on the map
+  const handleCellClick = (x, y) => {
+    const landmark = getLandmark(x, y);
+    
+    if (!landmark || landmark.id === 'compass') return;
+
+    if (!startPoint) {
+      setStartPoint(landmark);
+      setDronePos({ x: landmark.x, y: landmark.y });
+      setStatus(`Start Point: ${landmark.label}. Now select a Destination (Point B).`);
+    } else if (!endPoint && landmark.id !== startPoint.id) {
+      setEndPoint(landmark);
+      setStatus(`Destination: ${landmark.label}. Program the drone's flight path using N, S, E, W.`);
+    }
+  };
+
+  // Move the drone based on direction buttons
+  const moveDrone = (direction) => {
+    if (!startPoint || !endPoint) {
+      alert("Please select both a Start and Destination first!");
+      return;
+    }
+
+    setDronePos(prev => {
+      let newX = prev.x;
+      let newY = prev.y;
+
+      if (direction === 'N' && prev.y > 0) newY -= 1;
+      if (direction === 'S' && prev.y < GRID_SIZE - 1) newY += 1;
+      if (direction === 'E' && prev.x < GRID_SIZE - 1) newX += 1;
+      if (direction === 'W' && prev.x > 0) newX -= 1;
+
+      // Check if actually moved (didn't hit a wall)
+      if (newX !== prev.x || newY !== prev.y) {
+        setPath([...path, direction]);
+        checkWinCondition(newX, newY);
+      }
+      return { x: newX, y: newY };
+    });
+  };
+
+  const checkWinCondition = (currentX, currentY) => {
+    if (currentX === endPoint.x && currentY === endPoint.y) {
+      setStatus(`✅ Delivery Successful! The drone reached the ${endPoint.label}.`);
+    } else {
+      setStatus(`Navigating... Keep going to the ${endPoint.label}.`);
+    }
+  };
+
+  const resetSimulation = () => {
+    setStartPoint(null);
+    setEndPoint(null);
+    setPath([]);
+    setDronePos(null);
+    setStatus("Select a Start Point (Point A) to begin drone calibration.");
+  };
+
+  // Text to Speech Function - Slowed down to 85% as requested
+  const speakDirections = () => {
+    if (path.length === 0) return;
+    
+    let directionText = "Drone flight path sequence: ";
+    const dirMap = { 'N': 'North', 'S': 'South', 'E': 'East', 'W': 'West' };
+    
+    path.forEach(step => {
+      directionText += `Go ${dirMap[step]}, `;
+    });
+
+    if (dronePos.x === endPoint?.x && dronePos.y === endPoint?.y) {
+       directionText += "You have arrived at your destination.";
+    }
+
+    const utterance = new SpeechSynthesisUtterance(directionText);
+    utterance.rate = 0.85; // Slowed down to 85%
+    
+    // Filter for specific Microsoft voices
+    const allowedVoices = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
+    const voices = window.speechSynthesis.getVoices();
+    const selectedVoice = voices.find(v => allowedVoices.some(name => v.name.includes(name)));
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 font-sans flex items-center">
+      <div className="max-w-5xl mx-auto w-full">
+        
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* Map Section */}
+          <div className="flex-1 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-2xl">
+            <h2 className="text-xl font-semibold mb-4 text-cyan-300">City Grid Terminal</h2>
+            
+            <div className="grid grid-cols-5 gap-2 aspect-square max-w-md mx-auto relative">
+              {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => {
+                const x = index % GRID_SIZE;
+                const y = Math.floor(index / GRID_SIZE);
+                const landmark = getLandmark(x, y);
+                
+                const isStart = startPoint?.x === x && startPoint?.y === y;
+                const isEnd = endPoint?.x === x && endPoint?.y === y;
+                const hasDrone = dronePos?.x === x && dronePos?.y === y;
+                const isCompass = landmark?.id === 'compass';
+
+                return (
+                  <div 
+                    key={index}
+                    onClick={() => handleCellClick(x, y)}
+                    className={`
+                      relative flex flex-col items-center justify-center rounded-lg border-2 transition-all cursor-pointer
+                      ${isCompass ? 'bg-slate-900 border-yellow-500 cursor-default' : 'bg-slate-700 hover:bg-slate-600 border-slate-600'}
+                      ${isStart ? 'ring-4 ring-green-500 border-green-400 bg-green-900/30' : ''}
+                      ${isEnd ? 'ring-4 ring-red-500 border-red-400 bg-red-900/30' : ''}
+                      ${!landmark ? 'opacity-50 hover:opacity-100' : ''}
+                    `}
+                  >
+                    {/* Compass special rendering */}
+                    {isCompass && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-yellow-500 absolute top-1 text-xs font-bold">N</span>
+                        <span className="text-yellow-500 absolute bottom-1 text-xs font-bold">S</span>
+                        <span className="text-yellow-500 absolute right-1 text-xs font-bold">E</span>
+                        <span className="text-yellow-500 absolute left-1 text-xs font-bold">W</span>
+                        <span className="text-4xl">🧭</span>
+                      </div>
+                    )}
+
+                    {/* Standard Landmarks */}
+                    {landmark && !isCompass && (
+                      <>
+                        <span className="text-3xl mb-1">{landmark.icon}</span>
+                        <span className="text-[10px] text-center px-1 font-bold leading-tight">{landmark.label}</span>
+                      </>
+                    )}
+
+                    {/* The Drone Overlay */}
+                    {hasDrone && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-cyan-500/20 rounded-lg animate-pulse z-10">
+                        <span className="text-4xl drop-shadow-[0_0_8px_rgba(34,211,238,1)]">🚁</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Control Panel */}
+          <div className="flex-1 bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col justify-between">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-cyan-300">Flight Controls</h2>
+              
+              {/* Status Monitor */}
+              <div className="bg-slate-900 border border-slate-700 p-4 rounded-lg mb-6 font-mono text-sm h-24 flex items-center text-cyan-400">
+                &gt; {status}
+              </div>
+
+              {/* Mission Details */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-slate-700 p-3 rounded text-sm">
+                  <span className="text-slate-400 block mb-1">Point A (Start)</span>
+                  <span className="font-bold text-green-400">{startPoint ? `${startPoint.icon} ${startPoint.label}` : 'Pending...'}</span>
+                </div>
+                <div className="bg-slate-700 p-3 rounded text-sm">
+                  <span className="text-slate-400 block mb-1">Point B (End)</span>
+                  <span className="font-bold text-red-400">{endPoint ? `${endPoint.icon} ${endPoint.label}` : 'Pending...'}</span>
+                </div>
+              </div>
+
+              {/* D-Pad Controls */}
+              <div className="flex justify-center mb-8">
+                <div className="grid grid-cols-3 gap-2">
+                  <div />
+                  <button onClick={() => moveDrone('N')} disabled={!endPoint} className="w-14 h-14 bg-slate-600 hover:bg-cyan-600 disabled:opacity-50 disabled:hover:bg-slate-600 rounded-lg flex items-center justify-center text-xl font-bold border-b-4 border-slate-800 active:border-b-0 active:translate-y-1 transition-all">N</button>
+                  <div />
+                  <button onClick={() => moveDrone('W')} disabled={!endPoint} className="w-14 h-14 bg-slate-600 hover:bg-cyan-600 disabled:opacity-50 disabled:hover:bg-slate-600 rounded-lg flex items-center justify-center text-xl font-bold border-b-4 border-slate-800 active:border-b-0 active:translate-y-1 transition-all">W</button>
+                  <div className="w-14 h-14 flex items-center justify-center text-2xl">🧭</div>
+                  <button onClick={() => moveDrone('E')} disabled={!endPoint} className="w-14 h-14 bg-slate-600 hover:bg-cyan-600 disabled:opacity-50 disabled:hover:bg-slate-600 rounded-lg flex items-center justify-center text-xl font-bold border-b-4 border-slate-800 active:border-b-0 active:translate-y-1 transition-all">E</button>
+                  <div />
+                  <button onClick={() => moveDrone('S')} disabled={!endPoint} className="w-14 h-14 bg-slate-600 hover:bg-cyan-600 disabled:opacity-50 disabled:hover:bg-slate-600 rounded-lg flex items-center justify-center text-xl font-bold border-b-4 border-slate-800 active:border-b-0 active:translate-y-1 transition-all">S</button>
+                  <div />
+                </div>
+              </div>
+            </div>
+
+            {/* Programmed Sequence & Actions */}
+            <div>
+              <div className="mb-4">
+                <span className="text-slate-400 text-sm block mb-2">Programmed Algorithm:</span>
+                <div className="bg-slate-900 p-3 rounded min-h-[3rem] font-mono flex flex-wrap gap-2 items-center">
+                  {path.length === 0 && <span className="text-slate-600 text-sm italic">No instructions yet...</span>}
+                  {path.map((dir, idx) => (
+                    <span key={idx} className="bg-cyan-900 text-cyan-300 px-2 py-1 rounded text-sm font-bold">
+                      {dir}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                  onClick={speakDirections}
+                  disabled={path.length === 0}
+                  className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:text-slate-500 text-white py-3 rounded-lg font-bold flex items-center justify-center transition-colors"
+                >
+                  Play Directions (85% Spd)
+                </button>
+                <button 
+                  onClick={resetSimulation}
+                  className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-3 rounded-lg font-bold transition-colors"
+                >
+                  Reset Map
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
