@@ -319,12 +319,25 @@
             currentDialogue = [];
             if (!startPoint || !endPoint) return;
 
-            // Turn 1: Gus asks for directions
-            currentDialogue.push({
-                speaker: 'Gus',
-                text: `Barnaby, I am lost at the ${startPoint.label}. Could you tell me where the ${endPoint.label} is?`,
-                grammar: "Objective: Polite request using object clause statement word order."
-            });
+            // Pseudo-random role assignment based on start coordinate
+            let isGusTraveler = (startPoint.x + startPoint.y) % 2 === 0; 
+            let traveler = isGusTraveler ? 'Gus' : 'Barnaby';
+            let guide = isGusTraveler ? 'Barnaby' : 'Gus';
+
+            // Turn 1: Initial Request (Grammar Objective)
+            if (isGusTraveler) {
+                currentDialogue.push({
+                    speaker: traveler,
+                    text: `${guide}, I am lost at the ${startPoint.label}. Could you tell me where the ${endPoint.label} is?`,
+                    grammar: "Objective: Polite request using object clause statement word order."
+                });
+            } else {
+                currentDialogue.push({
+                    speaker: traveler,
+                    text: `Alright ${guide}, now it is my turn to navigate. Do you know how I can get to the ${endPoint.label}?`,
+                    grammar: "Objective: Object clause word order."
+                });
+            }
 
             if (path.length === 0) return;
 
@@ -349,17 +362,16 @@
                 'NW': 'northwest', 'NE': 'northeast', 'SW': 'southwest', 'SE': 'southeast',
                 'L': 'turn left', 'R': 'turn right', 'F': 'go straight'
             };
-
-            let speakerBTurn = true;
             
-            // Logic Fix: Accurately simulate internal rotation AND translation 
-            // so grammar checks can correctly identify landmarks passed.
+            // Accurately simulate internal rotation AND translation 
             let simX = startPoint.x;
             let simY = startPoint.y;
             let simFacing = 0; 
 
             chunkedMoves.forEach((chunk, index) => {
                 let actionText = "";
+                let startSimX = simX;
+                let startSimY = simY;
                 
                 // Rotations (Relative)
                 if (['L', 'R'].includes(chunk.dir)) {
@@ -381,7 +393,7 @@
                         }
                     } else {
                         // Absolute Map Movement
-                        actionText = `walk ${dirMap[chunk.dir]}` + (chunk.count > 1 ? ` for ${chunk.count} blocks` : ``);
+                        actionText = `walk ${dirMap[chunk.dir]} along the street` + (chunk.count > 1 ? ` for ${chunk.count} blocks` : ``);
                         if(chunk.dir.includes('N')) simY -= chunk.count;
                         if(chunk.dir.includes('S')) simY += chunk.count;
                         if(chunk.dir.includes('E')) simX += chunk.count;
@@ -390,52 +402,61 @@
                 }
                 
                 const lm = getLandmark(simX, simY);
+                const startLm = getLandmark(startSimX, startSimY);
                 const isFinalChunk = (index === chunkedMoves.length - 1);
                 const isActuallyAtEnd = (simX === endPoint.x && simY === endPoint.y);
 
-                if (speakerBTurn) {
-                    let text = "";
-                    let grammar = "";
-                    
-                    if (index === 0) {
-                        text = `Of course! First, you must ${actionText}.`;
-                        if (lm && lm.id !== 'compass') text += ` You will go past the ${lm.label}.`;
-                        grammar = "Objective: Modal of strong obligation; preposition of movement.";
-                    } else {
-                        text = `Yes, you have to ${actionText}.`;
-                        if (lm && lm.id !== 'compass') text += ` Make sure to look for the ${lm.label}.`;
-                        grammar = "Objective: External obligation 'have to'.";
-                    }
+                // Check for adjacent water to trigger the negative obligation grammar rule
+                let nearWater = false;
+                const directions = [[0, -1], [0, 1], [1, 0], [-1, 0], [-1, -1], [1, -1], [-1, 1], [1, 1]];
+                for (let [dx, dy] of directions) {
+                    const adjLm = getLandmark(startSimX + dx, startSimY + dy);
+                    if (adjLm && adjLm.isWater) nearWater = adjLm.label;
+                }
 
-                    if (isFinalChunk && isActuallyAtEnd) {
-                        text += ` Keep going, and the ${endPoint.label} will be right there!`;
-                        grammar += " Preposition of position.";
-                    }
-
-                    currentDialogue.push({ speaker: 'Barnaby', text, grammar });
-                    speakerBTurn = false;
+                if (index === 0) {
+                    let text = `Of course! First, you must ${actionText}.`;
+                    if (lm && lm.id !== 'compass') text += ` You will go past the ${lm.label}.`;
+                    currentDialogue.push({ speaker: guide, text, grammar: "Objective: Modal of strong obligation; preposition of movement." });
                 } else {
-                    currentDialogue.push({ 
-                        speaker: 'Gus', 
-                        text: `Okay, I am moving. Do you know if I should ${actionText} next?`, 
-                        grammar: "Objective: 'If' bridge in object clauses; Modal of advice." 
-                    });
-                    
-                    let confirmText = `Yes, you should ${actionText}.`;
-                    if (isFinalChunk && isActuallyAtEnd) confirmText += ` Then, the ${endPoint.label} will be on your right!`;
-                    
-                    currentDialogue.push({ 
-                        speaker: 'Barnaby', 
-                        text: confirmText, 
-                        grammar: "Objective: Modal of advice; Preposition." 
-                    });
-                    speakerBTurn = false; 
+                    if (nearWater && index % 2 === 1) {
+                        currentDialogue.push({ speaker: traveler, text: `Could you tell me if I can walk through the ${nearWater}?`, grammar: "Objective: Object clause." });
+                        currentDialogue.push({ speaker: guide, text: `No, you mustn't go through the ${nearWater}! It is a restricted zone. You have to ${actionText} instead.`, grammar: "Objective: Negative strong obligation 'mustn't'; external obligation 'have to'; preposition 'instead'." });
+                    }
+                    else if (startLm && startLm.id === 'pizza' && index === 1) {
+                        currentDialogue.push({ speaker: traveler, text: `Oh, I smell pizza at the ${startLm.label}! Should I buy a slice?`, grammar: "Objective: Contextual vocabulary." });
+                        currentDialogue.push({ speaker: guide, text: `Yes, but you must put the pizza in your backpack so you do not drop it! Then, you should ${actionText}.`, grammar: "Objective: Strict word order: Verb + Object + Place; Modal of advice." });
+                    }
+                    else if (index % 3 === 2) {
+                        currentDialogue.push({ speaker: traveler, text: `Understood. I am moving. Should I carry my magnifying glass in my hand?`, grammar: "Objective: Word order: Verb + Object + Place." });
+                        let aText = `Yes, that is a good idea. Keep going ${dirMap[chunk.dir] || 'straight'}...`;
+                        if (isFinalChunk && isActuallyAtEnd && endPoint.id === 'firestation') {
+                            aText += ` The ${endPoint.label} will be on your left, right in the southeast corner of the town!`;
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: Preposition of position; definite article for compass noun regions." });
+                        } else {
+                            aText += ` You have to ${actionText}.`;
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: Preposition of position." });
+                        }
+                    }
+                    else {
+                        currentDialogue.push({ speaker: traveler, text: `Okay, I am at the ${startLm ? startLm.label : 'crossroads'} now. Do you know if I should ${actionText}?`, grammar: "Objective: 'If' bridge in object clauses; Modal of advice." });
+                        let aText = `Yes, you have to ${actionText}.`;
+                        if (isFinalChunk && isActuallyAtEnd && endPoint.id === 'home') {
+                            aText += ` Keep walking, and the ${endPoint.label} will be at the end of the street, on your right.`;
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'; prepositions of position." });
+                        } else if (isFinalChunk && isActuallyAtEnd) {
+                            aText += ` Keep walking, and the ${endPoint.label} will be right there!`;
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
+                        } else {
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
+                        }
+                    }
                 }
             });
 
             if (missionComplete) {
                 currentDialogue.push({
-                    speaker: 'Gus',
+                    speaker: traveler,
                     text: `I made it to the ${endPoint.label}! Thank you!`,
                     grammar: "Objective: Exclamatory statement."
                 });
