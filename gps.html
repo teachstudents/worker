@@ -10,6 +10,11 @@
         #transcript-display::-webkit-scrollbar { width: 6px; }
         #transcript-display::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         #transcript-display::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        
+        /* Smooth scrolling behavior */
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body class="h-screen w-screen bg-slate-900 text-slate-100 p-2 lg:p-4 font-sans flex items-center justify-center overflow-hidden">
@@ -81,7 +86,7 @@
                     <span class="text-slate-300 font-bold">💬 Grammar Transcript</span>
                     <span class="text-[10px] text-slate-500">Gus & Barnaby</span>
                 </div>
-                <div id="transcript-display" class="p-3 overflow-y-auto flex-1 flex flex-col gap-3">
+                <div id="transcript-display" class="p-3 overflow-y-auto smooth-scroll flex-1 flex flex-col gap-3">
                     <div class="text-slate-500 text-xs italic text-center mt-4">Select A and B to start the conversation...</div>
                 </div>
             </div>
@@ -223,7 +228,8 @@
 
                 if (hasDrone) {
                     cell.innerHTML += `
-                        <div class="absolute inset-0 flex items-center justify-center bg-cyan-500/30 rounded-lg animate-pulse z-10" style="transform: rotate(${droneFacing}deg); transition: transform 0.3s ease;">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center bg-cyan-500/30 rounded-lg animate-pulse z-10" style="transform: rotate(${droneFacing}deg); transition: transform 0.3s ease;">
+                            <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-yellow-400 mb-0 drop-shadow-md"></div>
                             <span class="text-3xl lg:text-5xl drop-shadow-[0_0_10px_rgba(34,211,238,1)]">🚁</span>
                         </div>
                     `;
@@ -245,15 +251,20 @@
             } else if (!endPoint && landmark.id !== startPoint.id) {
                 endPoint = landmark;
                 optimalSteps = calculateShortestPath(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
-                updateStatus(`Destination: ${landmark.label}. Map a route safely.`);
-                generateDialogue(); // Initial greeting
+                
+                if (optimalSteps === Infinity) {
+                    updateStatus(`🚨 UNREACHABLE: Water blocks all routes to the ${landmark.label}. Reset Map to try again!`);
+                } else {
+                    updateStatus(`Destination: ${landmark.label}. Map a route safely.`);
+                    generateDialogue(); // Initial greeting
+                }
             }
             updateUI();
         }
 
         function moveDrone(direction) {
             if (!startPoint || !endPoint) { showModal("Please select both a Start and Destination first!"); return; }
-            if (missionComplete) return;
+            if (missionComplete || optimalSteps === Infinity) return;
 
             let newX = dronePos.x;
             let newY = dronePos.y;
@@ -280,7 +291,7 @@
                 else if (droneFacing === 270 && dronePos.x > 0) { newX -= 1; actionTaken = true; actualStepTaken = true;} 
             }
 
-            // User UX bug fix: Provide feedback if they tried to move out of bounds
+            // Provide feedback if they tried to move out of bounds
             if (!actionTaken) {
                 showModal("Boundary Reached: The drone cannot fly outside the designated city grid.");
                 return;
@@ -431,8 +442,11 @@
                         currentDialogue.push({ speaker: traveler, text: `Understood. I am moving. Should I carry my magnifying glass in my hand?`, grammar: "Objective: Word order: Verb + Object + Place." });
                         let aText = `Yes, that is a good idea. Keep going ${dirMap[chunk.dir] || 'straight'}...`;
                         if (isFinalChunk && isActuallyAtEnd && endPoint.id === 'firestation') {
-                            aText += ` The ${endPoint.label} will be on your left, right in the southeast corner of the town!`;
+                            aText += ` Look, you've arrived! The ${endPoint.label} is on your left, right in the southeast corner of the town!`;
                             currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: Preposition of position; definite article for compass noun regions." });
+                        } else if (isFinalChunk && isActuallyAtEnd) {
+                            aText += ` And look, you have arrived at the ${endPoint.label}!`;
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
                         } else {
                             aText += ` You have to ${actionText}.`;
                             currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: Preposition of position." });
@@ -442,10 +456,10 @@
                         currentDialogue.push({ speaker: traveler, text: `Okay, I am at the ${startLm ? startLm.label : 'crossroads'} now. Do you know if I should ${actionText}?`, grammar: "Objective: 'If' bridge in object clauses; Modal of advice." });
                         let aText = `Yes, you have to ${actionText}.`;
                         if (isFinalChunk && isActuallyAtEnd && endPoint.id === 'home') {
-                            aText += ` Keep walking, and the ${endPoint.label} will be at the end of the street, on your right.`;
+                            aText += ` And there it is! You have arrived at the ${endPoint.label} on your right.`;
                             currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'; prepositions of position." });
                         } else if (isFinalChunk && isActuallyAtEnd) {
-                            aText += ` Keep walking, and the ${endPoint.label} will be right there!`;
+                            aText += ` And look, you have arrived at the ${endPoint.label}!`;
                             currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
                         } else {
                             currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
@@ -464,9 +478,31 @@
         }
 
         // --- TEXT TO SPEECH ENGINE ---
-        function getTwoVoices() {
+        let cachedVoices = [];
+        
+        function loadVoices() {
+            return new Promise(resolve => {
+                if (cachedVoices.length) return resolve(cachedVoices);
+                let voices = window.speechSynthesis.getVoices();
+                if (voices.length) {
+                    cachedVoices = voices;
+                    return resolve(cachedVoices);
+                }
+                
+                // Event listener approach for async loading
+                window.speechSynthesis.onvoiceschanged = () => {
+                    cachedVoices = window.speechSynthesis.getVoices();
+                    resolve(cachedVoices);
+                };
+                
+                // Fallback timeout to prevent infinite hangs
+                setTimeout(() => resolve(window.speechSynthesis.getVoices()), 2000);
+            });
+        }
+
+        async function getTwoVoices() {
             const allowedNames = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
-            const voices = window.speechSynthesis.getVoices();
+            const voices = await loadVoices();
             
             let msVoices = voices.filter(v => 
                 v.name.includes("Microsoft") && 
@@ -484,11 +520,20 @@
             return { 'Gus': voiceA, 'Barnaby': voiceB };
         }
 
-        function speakDirections() {
+        async function speakDirections() {
             if (currentDialogue.length === 0) return;
             window.speechSynthesis.cancel(); // Clear any playing audio
+            
+            // Temporary UI feedback while voices load
+            const playBtn = document.getElementById('btn-play');
+            playBtn.disabled = true;
+            playBtn.innerHTML = '⏳ Loading Voices...';
 
-            const voiceMap = getTwoVoices();
+            const voiceMap = await getTwoVoices();
+            
+            // Restore button UI
+            playBtn.disabled = false;
+            playBtn.innerHTML = '🔊 Play Dialog';
 
             // SpeechSynthesis natively queues utterances sequentially
             currentDialogue.forEach(turn => {
@@ -513,14 +558,19 @@
             updateUI();
         }
 
+        function updateStatus(message) {
+            document.getElementById('status-monitor').innerHTML = `&gt; ${message}`;
+        }
+
         function updateUI() {
             document.getElementById('start-point-display').innerText = startPoint ? `${startPoint.icon} ${startPoint.label}` : 'Pending';
             document.getElementById('end-point-display').innerText = endPoint ? `${endPoint.icon} ${endPoint.label}` : 'Pending';
             
             // Format fallback for impossible paths
+            let isUnreachable = optimalSteps === Infinity;
             let stepsDisplay = '--';
             if (optimalSteps !== null) {
-                stepsDisplay = optimalSteps === Infinity ? 'Unreachable' : optimalSteps;
+                stepsDisplay = isUnreachable ? 'Unreachable' : optimalSteps;
             }
             document.getElementById('optimal-steps-display').innerText = stepsDisplay;
             
@@ -530,10 +580,10 @@
             const dpadButtons = ['btn-n', 'btn-s', 'btn-e', 'btn-w', 'btn-nw', 'btn-ne', 'btn-sw', 'btn-se', 'btn-l', 'btn-r', 'btn-f'];
             dpadButtons.forEach(btn => {
                 const el = document.getElementById(btn);
-                if(el) el.disabled = !endPoint || missionComplete;
+                if(el) el.disabled = !endPoint || missionComplete || isUnreachable;
             });
 
-            document.getElementById('btn-play').disabled = currentDialogue.length === 0;
+            document.getElementById('btn-play').disabled = currentDialogue.length === 0 || isUnreachable;
 
             // Render Transcript
             const transcriptContainer = document.getElementById('transcript-display');
@@ -555,7 +605,14 @@
                     `;
                     transcriptContainer.appendChild(bubble);
                 });
-                transcriptContainer.scrollTop = transcriptContainer.scrollHeight; // Auto-scroll
+                
+                // Allow DOM to append before triggering smooth scroll
+                setTimeout(() => {
+                    transcriptContainer.scrollTo({
+                        top: transcriptContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 10);
             }
 
             renderGrid();
@@ -572,7 +629,8 @@
             document.getElementById('alert-modal').classList.remove('flex');
         }
 
-        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        // Trigger voice fetching immediately on load
+        loadVoices();
         updateUI();
 
     </script>
