@@ -96,7 +96,7 @@
                 <button id="btn-play" onclick="speakDirections()" disabled class="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:text-slate-500 text-white py-2.5 rounded text-[11px] uppercase tracking-wider font-bold flex items-center justify-center transition-colors shadow-lg">
                     🔊 Play Dialog
                 </button>
-                <button onclick="resetSimulation()" class="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2.5 rounded text-[11px] uppercase tracking-wider font-bold transition-colors shadow-lg">
+                <button id="btn-reset" onclick="resetSimulation()" class="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2.5 rounded text-[11px] uppercase tracking-wider font-bold transition-colors shadow-lg">
                     Reset Map
                 </button>
             </div>
@@ -271,6 +271,7 @@
             let actionTaken = false;
             let actualStepTaken = false;
 
+            // Separate logic paths so they don't overwrite each other
             if (direction === 'N' && dronePos.y > 0) { newY -= 1; actionTaken = true; actualStepTaken = true;}
             if (direction === 'S' && dronePos.y < GRID_SIZE - 1) { newY += 1; actionTaken = true; actualStepTaken = true;}
             if (direction === 'E' && dronePos.x < GRID_SIZE - 1) { newX += 1; actionTaken = true; actualStepTaken = true;}
@@ -291,9 +292,19 @@
                 else if (droneFacing === 270 && dronePos.x > 0) { newX -= 1; actionTaken = true; actualStepTaken = true;} 
             }
 
-            // Provide feedback if they tried to move out of bounds
+            // Enhanced boundary feedback - dynamically tells them exactly why it failed
             if (!actionTaken) {
-                showModal("Boundary Reached: The drone cannot fly outside the designated city grid.");
+                let intendedMove = '';
+                if (direction === 'N' || (direction === 'F' && droneFacing === 0)) intendedMove = 'North';
+                if (direction === 'S' || (direction === 'F' && droneFacing === 180)) intendedMove = 'South';
+                if (direction === 'E' || (direction === 'F' && droneFacing === 90)) intendedMove = 'East';
+                if (direction === 'W' || (direction === 'F' && droneFacing === 270)) intendedMove = 'West';
+                if (direction === 'NW') intendedMove = 'Northwest';
+                if (direction === 'NE') intendedMove = 'Northeast';
+                if (direction === 'SW') intendedMove = 'Southwest';
+                if (direction === 'SE') intendedMove = 'Southeast';
+
+                showModal(`Boundary Reached 🛑\nThe drone cannot fly ${intendedMove}. You are at the edge of the city grid!`);
                 return;
             }
 
@@ -425,42 +436,46 @@
                     if (adjLm && adjLm.isWater) nearWater = adjLm.label;
                 }
 
+                // Dynamic Dialogue Generation based on context and turn number
                 if (index === 0) {
                     let text = `Of course! First, you must ${actionText}.`;
                     if (lm && lm.id !== 'compass') text += ` You will go past the ${lm.label}.`;
                     currentDialogue.push({ speaker: guide, text, grammar: "Objective: Modal of strong obligation; preposition of movement." });
                 } else {
+                    
+                    // Priority 1: Water Hazards (Negative Obligation)
                     if (nearWater && index % 2 === 1) {
-                        currentDialogue.push({ speaker: traveler, text: `Could you tell me if I can walk through the ${nearWater}?`, grammar: "Objective: Object clause." });
-                        currentDialogue.push({ speaker: guide, text: `No, you mustn't go through the ${nearWater}! It is a restricted zone. You have to ${actionText} instead.`, grammar: "Objective: Negative strong obligation 'mustn't'; external obligation 'have to'; preposition 'instead'." });
+                        currentDialogue.push({ speaker: traveler, text: `Could you tell me if I can walk through the ${nearWater}?`, grammar: "Objective: Object clause 'if'." });
+                        currentDialogue.push({ speaker: guide, text: `No, you mustn't go near the ${nearWater}! It is a restricted zone. You have to ${actionText} instead.`, grammar: "Objective: Negative strong obligation 'mustn't'; external obligation 'have to'; preposition 'near'." });
                     }
-                    else if (startLm && startLm.id === 'pizza' && index === 1) {
-                        currentDialogue.push({ speaker: traveler, text: `Oh, I smell pizza at the ${startLm.label}! Should I buy a slice?`, grammar: "Objective: Contextual vocabulary." });
-                        currentDialogue.push({ speaker: guide, text: `Yes, but you must put the pizza in your backpack so you do not drop it! Then, you should ${actionText}.`, grammar: "Objective: Strict word order: Verb + Object + Place; Modal of advice." });
+                    // Priority 2: Relatable Locations (Verb + Object + Place)
+                    else if (startLm && ['pizza', 'cafe', 'mall', 'skatepark'].includes(startLm.id)) {
+                        let item = "a slice of pizza";
+                        if (startLm.id === 'cafe') item = "an iced coffee";
+                        if (startLm.id === 'mall') item = "new sneakers";
+                        if (startLm.id === 'skatepark') item = "my skateboard";
+                        
+                        currentDialogue.push({ speaker: traveler, text: `Oh, I see the ${startLm.label}! Do you know if I have time to get ${item}?`, grammar: "Objective: Contextual vocabulary; Object clause." });
+                        currentDialogue.push({ speaker: guide, text: `No, you must keep your money in your wallet! We have a delivery to make. You ought to ${actionText}.`, grammar: "Objective: Strict word order: Verb + Object + Place; Modal of advice 'ought to'." });
                     }
-                    else if (index % 3 === 2) {
-                        currentDialogue.push({ speaker: traveler, text: `Understood. I am moving. Should I carry my magnifying glass in my hand?`, grammar: "Objective: Word order: Verb + Object + Place." });
-                        let aText = `Yes, that is a good idea. Keep going ${dirMap[chunk.dir] || 'straight'}...`;
-                        if (isFinalChunk && isActuallyAtEnd && endPoint.id === 'firestation') {
-                            aText += ` Look, you've arrived! The ${endPoint.label} is on your left, right in the southeast corner of the town!`;
-                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: Preposition of position; definite article for compass noun regions." });
-                        } else if (isFinalChunk && isActuallyAtEnd) {
-                            aText += ` And look, you have arrived at the ${endPoint.label}!`;
-                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
-                        } else {
-                            aText += ` You have to ${actionText}.`;
-                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: Preposition of position." });
-                        }
+                    // Priority 3: General Teen Distractions (Verb + Object + Place)
+                    else if (index % 4 === 1) {
+                        currentDialogue.push({ speaker: traveler, text: `This is taking a while. Can you tell me if I should check my phone for messages?`, grammar: "Objective: Object clause." });
+                        currentDialogue.push({ speaker: guide, text: `No, you must put your phone in your pocket! You need to focus. Keep going and ${actionText}.`, grammar: "Objective: Verb + Object + Place; Preposition." });
                     }
+                    // Priority 4: 'Why' / 'Where' Object clauses & 'Ought to'
+                    else if (index % 4 === 2) {
+                        currentDialogue.push({ speaker: traveler, text: `Okay, I am moving. Do you know why I have to ${actionText}?`, grammar: "Objective: Object clause with 'why'." });
+                        currentDialogue.push({ speaker: guide, text: `Because that is the safest route! You ought to ${actionText} towards the ${lm ? lm.label : 'next block'}.`, grammar: "Objective: Modal of advice 'ought to'; Preposition 'towards'." });
+                    }
+                    // Priority 5: Standard Navigation
                     else {
-                        currentDialogue.push({ speaker: traveler, text: `Okay, I am at the ${startLm ? startLm.label : 'crossroads'} now. Do you know if I should ${actionText}?`, grammar: "Objective: 'If' bridge in object clauses; Modal of advice." });
+                        currentDialogue.push({ speaker: traveler, text: `I am near the ${startLm ? startLm.label : 'crossroads'}. Could you explain where I should go next?`, grammar: "Objective: Object clause with 'where'." });
                         let aText = `Yes, you have to ${actionText}.`;
-                        if (isFinalChunk && isActuallyAtEnd && endPoint.id === 'home') {
-                            aText += ` And there it is! You have arrived at the ${endPoint.label} on your right.`;
-                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'; prepositions of position." });
-                        } else if (isFinalChunk && isActuallyAtEnd) {
-                            aText += ` And look, you have arrived at the ${endPoint.label}!`;
-                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
+                        
+                        if (isFinalChunk && isActuallyAtEnd) {
+                            aText += ` Look, you have arrived! The ${endPoint.label} is right in front of you.`;
+                            currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'; Preposition 'in front of'." });
                         } else {
                             currentDialogue.push({ speaker: guide, text: aText, grammar: "Objective: External obligation 'have to'." });
                         }
@@ -550,12 +565,32 @@
         }
 
         function resetSimulation() {
-            window.speechSynthesis.cancel();
-            startPoint = null; endPoint = null; path = []; dronePos = null;
-            droneFacing = 0; optimalSteps = null; missionComplete = false;
+            // Protected cancel block to prevent silent crashes in edge-case browsers
+            try {
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+            } catch(e) {
+                console.warn("Speech Synthesis failed to cancel seamlessly.", e);
+            }
+            
+            startPoint = null; 
+            endPoint = null; 
+            path = []; 
+            dronePos = null;
+            droneFacing = 0; 
+            optimalSteps = null; 
+            missionComplete = false;
             currentDialogue = [];
+            
             updateStatus("Select a Start Point (Point A) to begin.");
             updateUI();
+
+            // Provide visual confirmation that the reset worked
+            const resetBtn = document.getElementById('btn-reset');
+            if (resetBtn) {
+                const originalText = resetBtn.innerHTML;
+                resetBtn.innerHTML = '✅ Map Reset!';
+                setTimeout(() => { resetBtn.innerHTML = originalText; }, 1000);
+            }
         }
 
         function updateStatus(message) {
