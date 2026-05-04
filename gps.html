@@ -280,6 +280,12 @@
                 else if (droneFacing === 270 && dronePos.x > 0) { newX -= 1; actionTaken = true; actualStepTaken = true;} 
             }
 
+            // User UX bug fix: Provide feedback if they tried to move out of bounds
+            if (!actionTaken) {
+                showModal("Boundary Reached: The drone cannot fly outside the designated city grid.");
+                return;
+            }
+
             if (actualStepTaken) {
                 const targetLandmark = getLandmark(newX, newY);
                 if (targetLandmark && targetLandmark.isWater) {
@@ -322,13 +328,12 @@
 
             if (path.length === 0) return;
 
-            // Chunk identical sequential moves (e.g. N, N, N -> Walk North 3 blocks)
+            // Chunk identical sequential moves
             let chunkedMoves = [];
             let currentMove = path[0];
             let count = 1;
             
             for (let i = 1; i < path.length; i++) {
-                // Only chunk straight movements, not turns
                 if (path[i] === currentMove && !['L', 'R'].includes(currentMove)) {
                     count++;
                 } else {
@@ -346,22 +351,42 @@
             };
 
             let speakerBTurn = true;
+            
+            // Logic Fix: Accurately simulate internal rotation AND translation 
+            // so grammar checks can correctly identify landmarks passed.
             let simX = startPoint.x;
             let simY = startPoint.y;
+            let simFacing = 0; 
 
-            // We iterate over the chunks to build the script
             chunkedMoves.forEach((chunk, index) => {
                 let actionText = "";
+                
+                // Rotations (Relative)
                 if (['L', 'R'].includes(chunk.dir)) {
                     actionText = `${dirMap[chunk.dir]}`;
+                    for(let k=0; k<chunk.count; k++){
+                        if (chunk.dir === 'L') simFacing = (simFacing - 90 + 360) % 360;
+                        if (chunk.dir === 'R') simFacing = (simFacing + 90) % 360;
+                    }
+                    if (chunk.count > 1) actionText += ` ${chunk.count} times`;
                 } else {
-                    actionText = `walk ${dirMap[chunk.dir]}` + (chunk.count > 1 ? ` for ${chunk.count} blocks` : ``);
-                    
-                    // Simulate movement to find landmarks passed (simplified to just check the end of the chunk)
-                    if(chunk.dir.includes('N')) simY -= chunk.count;
-                    if(chunk.dir.includes('S')) simY += chunk.count;
-                    if(chunk.dir.includes('E')) simX += chunk.count;
-                    if(chunk.dir.includes('W')) simX -= chunk.count;
+                    // Forward movement based on facing (Relative)
+                    if (chunk.dir === 'F') {
+                        actionText = `go straight` + (chunk.count > 1 ? ` for ${chunk.count} blocks` : ``);
+                        for(let k=0; k<chunk.count; k++) {
+                            if (simFacing === 0) simY -= 1;
+                            else if (simFacing === 90) simX += 1;
+                            else if (simFacing === 180) simY += 1;
+                            else if (simFacing === 270) simX -= 1;
+                        }
+                    } else {
+                        // Absolute Map Movement
+                        actionText = `walk ${dirMap[chunk.dir]}` + (chunk.count > 1 ? ` for ${chunk.count} blocks` : ``);
+                        if(chunk.dir.includes('N')) simY -= chunk.count;
+                        if(chunk.dir.includes('S')) simY += chunk.count;
+                        if(chunk.dir.includes('E')) simX += chunk.count;
+                        if(chunk.dir.includes('W')) simX -= chunk.count;
+                    }
                 }
                 
                 const lm = getLandmark(simX, simY);
@@ -396,7 +421,6 @@
                         grammar: "Objective: 'If' bridge in object clauses; Modal of advice." 
                     });
                     
-                    // Barnaby immediately confirms the instruction Gus just asked about
                     let confirmText = `Yes, you should ${actionText}.`;
                     if (isFinalChunk && isActuallyAtEnd) confirmText += ` Then, the ${endPoint.label} will be on your right!`;
                     
@@ -405,7 +429,7 @@
                         text: confirmText, 
                         grammar: "Objective: Modal of advice; Preposition." 
                     });
-                    speakerBTurn = false; // Gus's question and Barnaby's answer constitute a full exchange
+                    speakerBTurn = false; 
                 }
             });
 
@@ -423,20 +447,18 @@
             const allowedNames = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
             const voices = window.speechSynthesis.getVoices();
             
-            // Strictly look for Microsoft Online Multilingual requested voices
             let msVoices = voices.filter(v => 
                 v.name.includes("Microsoft") && 
                 (v.name.includes("Online") || v.name.includes("Multilingual")) &&
                 allowedNames.some(name => v.name.includes(name))
             );
 
-            // Fallback 1: Just the names
+            // Safer fallbacks
             if (msVoices.length < 2) msVoices = voices.filter(v => allowedNames.some(name => v.name.includes(name)));
-            // Fallback 2: Any English voices
             if (msVoices.length < 2) msVoices = voices.filter(v => v.lang.startsWith('en'));
 
             let voiceA = msVoices[0] || voices[0];
-            let voiceB = msVoices.find(v => v.name !== voiceA?.name) || msVoices[1] || voiceA;
+            let voiceB = msVoices.find(v => v.name !== voiceA?.name) || voices.find(v => v.name !== voiceA?.name) || voiceA;
 
             return { 'Gus': voiceA, 'Barnaby': voiceB };
         }
@@ -447,11 +469,16 @@
 
             const voiceMap = getTwoVoices();
 
-            // SpeechSynthesis natively queues utterances sequentially!
+            // SpeechSynthesis natively queues utterances sequentially
             currentDialogue.forEach(turn => {
                 const utterance = new SpeechSynthesisUtterance(turn.text);
-                utterance.rate = 0.85; // Fixed 85% speed
-                utterance.voice = voiceMap[turn.speaker];
+                utterance.rate = 0.85; // Fixed 85% speed requested
+                
+                // Guard against undefined voices causing playback failure
+                if (voiceMap[turn.speaker]) {
+                    utterance.voice = voiceMap[turn.speaker];
+                }
+                
                 window.speechSynthesis.speak(utterance);
             });
         }
@@ -468,7 +495,13 @@
         function updateUI() {
             document.getElementById('start-point-display').innerText = startPoint ? `${startPoint.icon} ${startPoint.label}` : 'Pending';
             document.getElementById('end-point-display').innerText = endPoint ? `${endPoint.icon} ${endPoint.label}` : 'Pending';
-            document.getElementById('optimal-steps-display').innerText = optimalSteps !== null ? optimalSteps : '--';
+            
+            // Format fallback for impossible paths
+            let stepsDisplay = '--';
+            if (optimalSteps !== null) {
+                stepsDisplay = optimalSteps === Infinity ? 'Unreachable' : optimalSteps;
+            }
+            document.getElementById('optimal-steps-display').innerText = stepsDisplay;
             
             const movementSteps = path.filter(s => s !== 'L' && s !== 'R').length;
             document.getElementById('current-steps-display').innerText = movementSteps;
