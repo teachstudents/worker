@@ -215,6 +215,7 @@
             /* Ensures multi-line highlights wrap beautifully */
             -webkit-box-decoration-break: clone;
             box-decoration-break: clone;
+            cursor: pointer; /* Makes it clear the text is clickable */
         }
         
         .essay-dimmed .hl:not(.highlight-focus) {
@@ -322,20 +323,20 @@
                 <div class="legend">
                     <h3>📖 Color Coding Legend</h3>
                     
-                    <div class="legend-item" onclick="toggleHighlight('c1', this)"><div class="legend-color c1"></div> Content Pt 1: Purpose & Sig.</div>
-                    <div class="legend-item" onclick="toggleHighlight('c2', this)"><div class="legend-color c2"></div> Content Pt 2: Specific Actions</div>
-                    <div class="legend-item" onclick="toggleHighlight('c3', this)"><div class="legend-color c3"></div> Content Pt 3: Call to Action</div>
-                    <div class="legend-item" onclick="toggleHighlight('g1', this)"><div class="legend-color g1"></div> Present Perfect Tense</div>
-                    <div class="legend-item" onclick="toggleHighlight('g2', this)"><div class="legend-color g2"></div> Subjunctive Mood</div>
-                    <div class="legend-item" onclick="toggleHighlight('g3', this)"><div class="legend-color g3"></div> Conditional (Type 1)</div>
-                    <div class="legend-item" onclick="toggleHighlight('g4', this)"><div class="legend-color g4"></div> Inversion Structure</div>
-                    <div class="legend-item" onclick="toggleHighlight('g5', this)"><div class="legend-color g5"></div> Emphatic Structure</div>
-                    <div class="legend-item" onclick="toggleHighlight('g6', this)"><div class="legend-color g6"></div> Relative Clause</div>
-                    <div class="legend-item" onclick="toggleHighlight('g7', this)"><div class="legend-color g7"></div> Parallel Structure</div>
-                    <div class="legend-item" onclick="toggleHighlight('g8', this)"><div class="legend-color g8"></div> Object Clause</div>
-                    <div class="legend-item" onclick="toggleHighlight('g9', this)"><div class="legend-color g9"></div> Passive Voice</div>
-                    <div class="legend-item" onclick="toggleHighlight('v1', this)"><div class="legend-color v1"></div> Advanced Vocabulary</div>
-                    <div class="legend-item" onclick="toggleHighlight('f1', this)"><div class="legend-color f1"></div> Formal Register</div>
+                    <div class="legend-item" data-class="c1" onclick="toggleHighlight('c1', this)"><div class="legend-color c1"></div> Content Pt 1: Purpose & Sig.</div>
+                    <div class="legend-item" data-class="c2" onclick="toggleHighlight('c2', this)"><div class="legend-color c2"></div> Content Pt 2: Specific Actions</div>
+                    <div class="legend-item" data-class="c3" onclick="toggleHighlight('c3', this)"><div class="legend-color c3"></div> Content Pt 3: Call to Action</div>
+                    <div class="legend-item" data-class="g1" onclick="toggleHighlight('g1', this)"><div class="legend-color g1"></div> Present Perfect Tense</div>
+                    <div class="legend-item" data-class="g2" onclick="toggleHighlight('g2', this)"><div class="legend-color g2"></div> Subjunctive Mood</div>
+                    <div class="legend-item" data-class="g3" onclick="toggleHighlight('g3', this)"><div class="legend-color g3"></div> Conditional (Type 1)</div>
+                    <div class="legend-item" data-class="g4" onclick="toggleHighlight('g4', this)"><div class="legend-color g4"></div> Inversion Structure</div>
+                    <div class="legend-item" data-class="g5" onclick="toggleHighlight('g5', this)"><div class="legend-color g5"></div> Emphatic Structure</div>
+                    <div class="legend-item" data-class="g6" onclick="toggleHighlight('g6', this)"><div class="legend-color g6"></div> Relative Clause</div>
+                    <div class="legend-item" data-class="g7" onclick="toggleHighlight('g7', this)"><div class="legend-color g7"></div> Parallel Structure</div>
+                    <div class="legend-item" data-class="g8" onclick="toggleHighlight('g8', this)"><div class="legend-color g8"></div> Object Clause</div>
+                    <div class="legend-item" data-class="g9" onclick="toggleHighlight('g9', this)"><div class="legend-color g9"></div> Passive Voice</div>
+                    <div class="legend-item" data-class="v1" onclick="toggleHighlight('v1', this)"><div class="legend-color v1"></div> Advanced Vocabulary</div>
+                    <div class="legend-item" data-class="f1" onclick="toggleHighlight('f1', this)"><div class="legend-color f1"></div> Formal Register</div>
                 </div>
             </div>
 
@@ -1008,6 +1009,32 @@
                 });
             }
         }
+
+        // Dual-Activation: Clicking a sentence highlights the legend
+        document.getElementById('ui-essay').addEventListener('click', function(e) {
+            const span = e.target.closest('.hl');
+            
+            if (span) {
+                // User clicked a highlighted sentence
+                const classes = Array.from(span.classList);
+                // Identify the specific code class
+                const targetClass = classes.find(c => ['c1','c2','c3','g1','g2','g3','g4','g5','g6','g7','g8','g9','v1','f1'].includes(c));
+                
+                if (targetClass) {
+                    const legendItem = document.querySelector(`.legend-item[data-class="${targetClass}"]`);
+                    if (legendItem) {
+                        // If it's not already the active class, activate it. If it is, this will toggle it off.
+                        toggleHighlight(targetClass, legendItem);
+                    }
+                }
+            } else if (activeClass) {
+                // User clicked somewhere else in the essay, clear highlights
+                const activeLegend = document.querySelector('.legend-item.active-legend');
+                if (activeLegend) {
+                    toggleHighlight(activeClass, activeLegend);
+                }
+            }
+        });
 
         // Text-To-Speech Functions
         function toggleAudio() {
