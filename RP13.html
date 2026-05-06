@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice 13 - Beijing Zhongkao Advanced</title>
+    <style>
+        :root {
+            --primary: #8b0000;
+            --secondary: #c41e3a;
+            --success: #2e7d32;
+            --error: #c62828;
+            --warning: #ef6c00;
+            --light: #ffebee;
+            --dark: #1a237e;
+            --gray: #455a64;
+            --border: #ef9a9a;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #263238;
+            background-color: #eceff1;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: visible;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #ffcc80;
+        }
+        
+        .score-display {
+            font-weight: bold;
+        }
+        
+        .difficulty-badge {
+            background: #ff5722;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .format-badge {
+            background: #1976d2;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .start-screen h2 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .difficulty-warning {
+            background: #fff3e0;
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #e65100;
+        }
+        
+        .format-info {
+            background: #e3f2fd;
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0d47a1;
+        }
+        
+        .name-input-group {
+            margin: 30px 0;
+        }
+        
+        .name-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .start-btn:hover {
+            background: #8b0000;
+        }
+        
+        .start-btn:disabled {
+            background: #90a4ae;
+            cursor: not-allowed;
+        }
+        
+        .instructions {
+            background: var(--light);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* Two-Column Layout for Test Content */
+        .test-layout {
+            display: none;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .test-layout.active {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            animation: fadeIn 0.4s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Left Column: Passage Text */
+        .passage-column {
+            padding-right: 15px;
+            border-right: 1px solid var(--border);
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        
+        .passage-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .passage-text {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .passage-text p {
+            margin-bottom: 15px;
+        }
+        
+        /* Right Column: Questions */
+        .questions-column {
+            padding-left: 15px;
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .question-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .skill-tag {
+            background: #ffcdd2;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .option-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-btn:hover {
+            background: #f5f5f5;
+            border-color: var(--secondary);
+        }
+        
+        .option-btn.correct {
+            background: #c8e6c9;
+            border-color: var(--success);
+            color: #1b5e20;
+            font-weight: 500;
+        }
+        
+        .option-btn.incorrect {
+            background: #ffcdd2;
+            border-color: var(--error);
+            color: #b71c1c;
+            font-weight: 500;
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .option-btn.correct .option-letter {
+            background: var(--success);
+        }
+        
+        .option-btn.incorrect .option-letter {
+            background: var(--error);
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #c8e6c9;
+            border: 1px solid var(--success);
+            color: #1b5e20;
+        }
+        
+        .feedback.incorrect {
+            background: #ffcdd2;
+            border: 1px solid var(--error);
+            color: #b71c1c;
+        }
+        
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+        
+        /* Navigation */
+        .navigation {
+            padding: 15px 25px;
+            background: var(--light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev {
+            background: #78909c;
+            color: white;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            background: #8b0000;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .passage-indicator {
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+        
+        .results-screen.active {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 25px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        
+        .results-header {
+            margin-bottom: 30px;
+        }
+        
+        .results-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .results-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .meta-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+        
+        .skills-summary {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .skills-summary h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: var(--light);
+        }
+        
+        .skill-item.missed {
+            background: #ffebee;
+            border-left: 4px solid var(--error);
+        }
+        
+        .skill-item.mastered {
+            border-left: 4px solid var(--success);
+        }
+        
+        .export-section {
+            margin: 35px 0;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-wechat {
+            background: #07c160;
+            color: white;
+        }
+        
+        .btn-email {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn-lms {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-download {
+            background: #5e35b1;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(200px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .test-layout.active {
+                grid-template-columns: 1fr;
+            }
+            
+            .passage-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+                max-height: none;
+            }
+            
+            .questions-column {
+                padding-left: 0;
+                max-height: none;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .header-stats {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .passage-text {
+                padding: 20px 15px;
+                font-size: 1rem;
+            }
+            
+            .question-box {
+                padding: 12px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .export-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                Reading Practice 13
+                <span class="difficulty-badge">ADVANCED</span>
+                <span class="format-badge">BEIJING FORMAT</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span>⏱️</span>
+                    <span class="timer" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span>✅</span>
+                    <span class="score-display" id="score-display">0/14</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <h2>Welcome to Reading Practice 13</h2>
+            <p class="difficulty-warning">⚠️ <strong>Advanced Difficulty Level</strong><br>
+            This practice test features longer passages, complex vocabulary, and challenging question types. Recommended for students who have completed Practices 01-12.</p>
+            
+            <div class="format-info">
+                📍 <strong>Beijing Zhongkao Format</strong><br>
+                • 4 Passages (A-D) instead of 5<br>
+                • 14 Questions total (not 20)<br>
+                • 26-30 points for reading section<br>
+                • More emphasis on reading expression skills<br>
+                • Estimated time: 35-40 minutes
+            </div>
+            
+            <div class="name-input-group">
+                <label for="tester-name">Your Name (Pinyin or English only)</label>
+                <input type="text" id="tester-name" class="name-input" placeholder="e.g., Wang Jing or Lisa Chen">
+                <div class="error-message" id="name-error">Please use Pinyin or English characters only. Chinese characters are not accepted.</div>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Test Instructions:</strong></p>
+                <ul>
+                    <li>Read each passage carefully before answering questions</li>
+                    <li>Select the best answer for each question</li>
+                    <li>You will receive immediate feedback after each answer</li>
+                    <li>The test has 14 questions across 4 passages (Beijing format)</li>
+                    <li>Estimated time: 35-40 minutes</li>
+                    <li>Passages contain complex sentence structures and advanced vocabulary</li>
+                </ul>
+            </div>
+            
+            <button class="start-btn" id="start-btn">Start Test</button>
+        </div>
+        
+        <!-- Test Layout: Two Columns -->
+        <div class="test-layout" id="test-layout">
+            <!-- Left Column: Passage Text -->
+            <div class="passage-column">
+                <!-- Passage A: Beijing Cultural Heritage -->
+                <div class="passage-section active" data-passage="1">
+                    <h2 class="passage-title">Passage A: Protecting Beijing's Hutongs</h2>
+                    <div class="passage-text">
+                        <p>Beijing's hutongs—narrow alleyways lined with traditional courtyard houses—represent centuries of urban history and cultural heritage. These historic neighborhoods face modern challenges as the city develops rapidly.</p>
+                        <p><strong>🏛️ Historical Significance:</strong> Hutongs date back to the Yuan Dynasty (1271-1368) and formed the foundation of Beijing's urban layout. They reflect traditional Chinese concepts of community, family structure, and harmony between private and public spaces.</p>
+                        <p><strong>⚖️ Preservation Challenges:</strong> Modernization pressures threaten hutong preservation. Some areas have been demolished for new construction. However, growing recognition of cultural heritage value has led to protection policies. The challenge lies in balancing preservation with residents' needs for modern amenities.</p>
+                        <p><strong>🔧 Restoration Efforts:</strong> Successful restoration projects maintain architectural authenticity while improving living conditions. This includes updating plumbing and electrical systems, reinforcing structures, and preserving traditional design elements. Community involvement ensures changes respect local culture.</p>
+                        <p><strong>🌍 Cultural Tourism:</strong> Some preserved hutongs now welcome visitors, offering insights into traditional Beijing life. This generates income for maintenance while educating people about cultural heritage. However, managing tourism to avoid disrupting residents remains important.</p>
+                        <p><strong>💭 Future Outlook:</strong> Sustainable hutong preservation requires ongoing commitment from government, communities, and individuals. These neighborhoods are not merely tourist attractions but living communities that connect past and future generations.</p>
+                        <p><em>Key Vocabulary: heritage, preservation, authenticity, amenities, sustainable, generations</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage B: Youth Innovation Story -->
+                <div class="passage-section" data-passage="2">
+                    <h2 class="passage-title">Passage B: Young Innovators Making a Difference</h2>
+                    <div class="passage-text">
+                        <p>Across China, young people are applying creativity and technology to address social and environmental challenges. Their innovations demonstrate that age is not a barrier to making meaningful contributions.</p>
+                        <p><strong>🌱 Environmental Solutions:</strong> High school students in Shanghai developed an app that helps communities sort waste more effectively. The app uses image recognition to identify recyclable materials and provides guidance on proper disposal. Since its launch, participating neighborhoods have reported 30% improvement in recycling rates.</p>
+                        <p><strong>👵 Community Support:</strong> A group of middle school students in Chengdu created a service connecting elderly residents with young volunteers for technology assistance. Many seniors struggle with smartphones and digital services. The students provide patient, free help with video calls, online shopping, and accessing medical appointments.</p>
+                        <p><strong>📚 Educational Access:</strong> University students in rural areas have established online tutoring programs connecting urban volunteers with students in underserved schools. This bridges educational resource gaps and provides mentorship opportunities for both tutors and learners.</p>
+                        <p><strong>💡 Common Characteristics:</strong> These young innovators share several traits: they identify real problems in their communities, collaborate across age groups, persist through challenges, and measure impact rather than just effort. Their projects show that innovation doesn't require extensive resources—creativity and commitment matter more.</p>
+                        <p><strong>🌟 Broader Impact:</strong> Beyond solving specific problems, these projects develop participants' leadership skills, civic responsibility, and confidence. Many continue their social engagement throughout their lives, creating lasting positive change.</p>
+                        <p><em>Key Vocabulary: innovations, recognition, underserved, characteristics, collaboration, civic</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage C: Science of Exercise -->
+                <div class="passage-section" data-passage="3">
+                    <h2 class="passage-title">Passage C: Understanding Physical Activity and Health</h2>
+                    <div class="passage-text">
+                        <p>Regular physical activity is essential for maintaining health throughout life. Scientific research continues to reveal new insights about how exercise affects the body and mind, informing recommendations for different age groups.</p>
+                        <p><strong>🏃 Physical Benefits:</strong> Exercise strengthens the cardiovascular system, improves muscle and bone density, enhances immune function, and helps maintain healthy weight. These benefits reduce risk of chronic diseases including heart disease, diabetes, and certain cancers.</p>
+                        <p><strong>🧠 Mental Health Connections:</strong> Physical activity releases endorphins and other neurotransmitters that improve mood and reduce stress. Regular exercise is associated with lower rates of depression and anxiety. Additionally, activities requiring coordination and strategy may support cognitive function and memory.</p>
+                        <p><strong>⏰ Recommendations by Age:</strong> 
+                        • Children and adolescents: At least 60 minutes of moderate to vigorous activity daily
+                        • Adults: At least 150 minutes of moderate activity or 75 minutes of vigorous activity weekly
+                        • Older adults: Similar to adults, with emphasis on balance and flexibility exercises</p>
+                        <p><strong>🎯 Finding Sustainable Activities:</strong> The best exercise is one you enjoy and can maintain long-term. This might include team sports, individual activities like swimming or cycling, dance, martial arts, or simple daily walking. Variety prevents boredom and works different muscle groups.</p>
+                        <p><strong>⚠️ Important Considerations:</strong> Before starting new exercise programs, especially for those with health conditions, consulting healthcare providers is advisable. Gradual progression prevents injury. Listening to your body and allowing adequate recovery time supports sustainable fitness.</p>
+                        <p><em>Key Vocabulary: cardiovascular, neurotransmitters, cognitive, moderate, sustainable, progression</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage D: Digital Learning Evolution -->
+                <div class="passage-section" data-passage="4">
+                    <h2 class="passage-title">Passage D: The Evolution of Digital Learning</h2>
+                    <div class="passage-text">
+                        <p>Digital learning has transformed education globally, accelerated by recent events that required rapid adaptation. Understanding both opportunities and limitations helps educators and students make informed decisions about technology integration.</p>
+                        <p><strong>📱 Advantages of Digital Learning:</strong> Online platforms provide access to diverse resources regardless of location. Students can learn at their own pace, reviewing materials as needed. Interactive elements engage different learning styles. Teachers can track individual progress more precisely and provide personalized feedback.</p>
+                        <p><strong>⚠️ Challenges to Address:</strong> Digital learning requires reliable internet access and devices, creating equity concerns. Screen fatigue affects concentration and well-being. Social interaction and collaborative skills may develop differently without in-person contact. Self-discipline becomes more critical when learning independently.</p>
+                        <p><strong>🔄 Blended Approaches:</strong> Many educators now advocate for blended learning—combining digital and traditional methods strategically. This might include online lectures with in-person discussions, digital practice with face-to-face support, or flipped classrooms where students prepare content online before class.</p>
+                        <p><strong>👨‍🏫 Teacher Role Evolution:</strong> In digital environments, teachers shift from information deliverers to learning facilitators. They curate resources, guide inquiry, provide feedback, and support students' self-regulation skills. This requires new professional development and support systems.</p>
+                        <p><strong>🔮 Future Directions:</strong> Emerging technologies like artificial intelligence and virtual reality offer new possibilities for personalized, immersive learning experiences. However, technology should serve pedagogical goals rather than drive them. The most effective approaches prioritize learning outcomes over technological novelty.</p>
+                        <p><strong>💭 Key Principle:</strong> Whether digital or traditional, effective learning requires active engagement, meaningful feedback, supportive relationships, and opportunities to apply knowledge. Technology enhances these elements when thoughtfully integrated.</p>
+                        <p><em>Key Vocabulary: transformed, integration, equity, collaborative, facilitators, pedagogical, immersive</em></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Questions -->
+            <div class="questions-column">
+                <!-- Questions for Passage A -->
+                <div class="questions-section active" data-passage="1">
+                    <div class="question-box" id="qbox-1">
+                        <div class="question-meta">
+                            <span>Q1</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, when did Beijing's hutongs first date back to?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(1, 'A', this)">
+                                <span class="option-letter">A</span> Ming Dynasty
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'B', this)">
+                                <span class="option-letter">B</span> Yuan Dynasty (1271-1368)
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'C', this)">
+                                <span class="option-letter">C</span> Qing Dynasty
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'D', this)">
+                                <span class="option-letter">D</span> Modern era
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-1"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-2">
+                        <div class="question-meta">
+                            <span>Q2</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "authenticity" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(2, 'A', this)">
+                                <span class="option-letter">A</span> modern and updated features
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'B', this)">
+                                <span class="option-letter">B</span> genuine and true to original design
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'C', this)">
+                                <span class="option-letter">C</span> expensive and luxurious
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'D', this)">
+                                <span class="option-letter">D</span> temporary and changeable
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-2"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-3">
+                        <div class="question-meta">
+                            <span>Q3</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can be inferred about successful hutong preservation from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(3, 'A', this)">
+                                <span class="option-letter">A</span> It requires balancing heritage protection with residents' modern needs
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'B', this)">
+                                <span class="option-letter">B</span> It means keeping everything exactly as it was without any changes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'C', this)">
+                                <span class="option-letter">C</span> It focuses only on tourist attractions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'D', this)">
+                                <span class="option-letter">D</span> It requires demolishing old structures
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-3"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-4">
+                        <div class="question-meta">
+                            <span>Q4</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(4, 'A', this)">
+                                <span class="option-letter">A</span> To argue that all hutongs should become tourist attractions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'B', this)">
+                                <span class="option-letter">B</span> To explain the significance, challenges, and preservation efforts for Beijing's hutongs
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'C', this)">
+                                <span class="option-letter">C</span> To criticize modern development in Beijing
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'D', this)">
+                                <span class="option-letter">D</span> To promote specific restoration companies
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-4"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage B -->
+                <div class="questions-section" data-passage="2">
+                    <div class="question-box" id="qbox-5">
+                        <div class="question-meta">
+                            <span>Q5</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what improvement did the Shanghai waste-sorting app achieve?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(5, 'A', this)">
+                                <span class="option-letter">A</span> 10% improvement
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'B', this)">
+                                <span class="option-letter">B</span> 30% improvement in recycling rates
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'C', this)">
+                                <span class="option-letter">C</span> 50% improvement
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'D', this)">
+                                <span class="option-letter">D</span> No measurable improvement
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-5"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-6">
+                        <div class="question-meta">
+                            <span>Q6</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can we infer about the young innovators from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(6, 'A', this)">
+                                <span class="option-letter">A</span> They only work on projects for school credit
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'B', this)">
+                                <span class="option-letter">B</span> They identify real community problems and collaborate to create solutions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'C', this)">
+                                <span class="option-letter">C</span> They require extensive funding to make any impact
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'D', this)">
+                                <span class="option-letter">D</span> They only help people their own age
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-6"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-7">
+                        <div class="question-meta">
+                            <span>Q7</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "underserved" most probably means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(7, 'A', this)">
+                                <span class="option-letter">A</span> having too many resources
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'B', this)">
+                                <span class="option-letter">B</span> not having adequate access to resources or services
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'C', this)">
+                                <span class="option-letter">C</span> overly served with too much help
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'D', this)">
+                                <span class="option-letter">D</span> located in urban areas only
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-7"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-8">
+                        <div class="question-meta">
+                            <span>Q8</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message about young innovators?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(8, 'A', this)">
+                                <span class="option-letter">A</span> Young people cannot make meaningful contributions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'B', this)">
+                                <span class="option-letter">B</span> Young people can identify community problems and create innovative solutions that make meaningful impact regardless of age
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'C', this)">
+                                <span class="option-letter">C</span> Innovation requires expensive equipment
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'D', this)">
+                                <span class="option-letter">D</span> Only university students can innovate
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage C -->
+                <div class="questions-section" data-passage="3">
+                    <div class="question-box" id="qbox-9">
+                        <div class="question-meta">
+                            <span>Q9</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, how much moderate activity is recommended for adults weekly?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(9, 'A', this)">
+                                <span class="option-letter">A</span> 50 minutes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'B', this)">
+                                <span class="option-letter">B</span> At least 150 minutes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'C', this)">
+                                <span class="option-letter">C</span> 300 minutes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'D', this)">
+                                <span class="option-letter">D</span> No specific recommendation
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-9"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-10">
+                        <div class="question-meta">
+                            <span>Q10</span>
+                            <span class="skill-tag">Reference</span>
+                        </div>
+                        <p class="question-text">In paragraph 2, what does "These benefits" refer to?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(10, 'A', this)">
+                                <span class="option-letter">A</span> mental health benefits only
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'B', this)">
+                                <span class="option-letter">B</span> physical benefits: strengthened cardiovascular system, improved muscle/bone density, enhanced immune function, healthy weight
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'C', this)">
+                                <span class="option-letter">C</span> only weight management
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'D', this)">
+                                <span class="option-letter">D</span> only disease prevention
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-10"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-11">
+                        <div class="question-meta">
+                            <span>Q11</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, why might variety in exercise be important?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(11, 'A', this)">
+                                <span class="option-letter">A</span> Because it makes exercise more expensive
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'B', this)">
+                                <span class="option-letter">B</span> Because it prevents boredom and works different muscle groups
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'C', this)">
+                                <span class="option-letter">C</span> Because only one type of exercise is effective
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'D', this)">
+                                <span class="option-letter">D</span> Because variety is required by law
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-11"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-12">
+                        <div class="question-meta">
+                            <span>Q12</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(12, 'A', this)">
+                                <span class="option-letter">A</span> To argue that only professional athletes should exercise
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'B', this)">
+                                <span class="option-letter">B</span> To explain the health benefits of physical activity and provide evidence-based recommendations
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'C', this)">
+                                <span class="option-letter">C</span> To promote specific exercise equipment
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'D', this)">
+                                <span class="option-letter">D</span> To discourage exercise for older adults
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-12"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage D -->
+                <div class="questions-section" data-passage="4">
+                    <div class="question-box" id="qbox-13">
+                        <div class="question-meta">
+                            <span>Q13</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is one advantage of digital learning?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(13, 'A', this)">
+                                <span class="option-letter">A</span> It eliminates the need for teachers
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'B', this)">
+                                <span class="option-letter">B</span> It provides access to diverse resources regardless of location and allows self-paced learning
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'C', this)">
+                                <span class="option-letter">C</span> It requires no technology or internet
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'D', this)">
+                                <span class="option-letter">D</span> It eliminates all challenges in education
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-13"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-14">
+                        <div class="question-meta">
+                            <span>Q14</span>
+                            <span class="skill-tag">Author's Purpose</span>
+                        </div>
+                        <p class="question-text">What is the writer's main purpose in writing this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(14, 'A', this)">
+                                <span class="option-letter">A</span> To argue that all education should be online
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'B', this)">
+                                <span class="option-letter">B</span> To present both advantages and challenges of digital learning while emphasizing thoughtful integration
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'C', this)">
+                                <span class="option-letter">C</span> To criticize all traditional education methods
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'D', this)">
+                                <span class="option-letter">D</span> To promote specific digital learning platforms
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-14"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation" id="navigation">
+            <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← Previous</button>
+            <span class="passage-indicator" id="passage-indicator">Passage A of 4</span>
+            <button class="nav-btn next" onclick="nextSection()" id="next-btn">Next →</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="results-screen" id="results-screen">
+            <div class="results-header">
+                <h2>Test Completed!</h2>
+                <p>Here are your results for Reading Practice 13 (Beijing Advanced)</p>
+            </div>
+            
+            <div class="score-circle" id="final-score">0/14</div>
+            
+            <div class="results-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Tester Name</div>
+                    <div class="meta-value" id="result-name">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Date & Time</div>
+                    <div class="meta-value" id="result-datetime">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Time Taken</div>
+                    <div class="meta-value" id="result-duration">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Accuracy</div>
+                    <div class="meta-value" id="result-accuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="skills-summary">
+                <h3>Reading Skills Analysis</h3>
+                <div id="skills-breakdown">
+                    <!-- Skills breakdown inserted by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <h3>Share Your Results</h3>
+                <div class="export-buttons">
+                    <button class="export-btn btn-wechat" onclick="copyForWeChat()">
+                        💬 Copy for WeChat
+                    </button>
+                    <button class="export-btn btn-email" onclick="emailResults()">
+                        📧 Email Results
+                    </button>
+                    <button class="export-btn btn-lms" onclick="downloadForLMS()">
+                        📤 Download for LMS
+                    </button>
+                    <button class="export-btn btn-download" onclick="downloadPDF()">
+                        📄 Save as PDF
+                    </button>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartTest()" style="margin-top: 20px;">
+                🔄 Take Another Practice Test
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Results copied to clipboard!</div>
+    
+    <script>
+        // Answer Key with Advanced vocabulary explanations - Beijing Format (14 questions)
+        const answers = {
+            1: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "Hutongs date back to the Yuan Dynasty (1271-1368)."<br><br>❌ A, C: Other dynasties not mentioned for hutong origins.<br>❌ D: Hutongs are historical, not modern.',
+                skill: 'Detail Comprehension'
+            },
+            2: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Authenticity" in restoration context means genuine and true to original design—maintaining traditional design elements while updating systems.<br><br>❌ A: Modern features are added but authenticity refers to original design.<br>❌ C: Not about cost.<br>❌ D: Authenticity implies lasting, not temporary.',
+                skill: 'Vocabulary in Context'
+            },
+            3: { 
+                correct: 'A', 
+                explanation: '✅ Correct! Passage states: "The challenge lies in balancing preservation with residents\' needs for modern amenities" and mentions updating systems while preserving traditional elements.<br><br>❌ B: Passage mentions updating systems, not keeping everything unchanged.<br>❌ C: Hutongs are living communities, not just tourist attractions.<br>❌ D: Preservation means protecting, not demolishing.',
+                skill: 'Inference'
+            },
+            4: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage covers historical significance, preservation challenges, restoration efforts, cultural tourism, and future outlook—comprehensive explanation of hutong preservation.<br><br>❌ A: Tourism is one aspect, not the main purpose.<br>❌ C: Passage presents balanced view of development challenges.<br>❌ D: No specific companies promoted.',
+                skill: 'Main Idea'
+            },
+            5: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "participating neighborhoods have reported 30% improvement in recycling rates."<br><br>❌ A, C: Incorrect percentages.<br>❌ D: Measurable improvement was reported.',
+                skill: 'Detail Comprehension'
+            },
+            6: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states young innovators "identify real problems in their communities, collaborate across age groups, persist through challenges, and measure impact."<br><br>❌ A: Projects address real community needs beyond school credit.<br>❌ C: Passage states innovation "doesn\'t require extensive resources."<br>❌ D: Projects help elderly, rural students, communities—various ages.',
+                skill: 'Inference'
+            },
+            7: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Underserved schools" refers to schools not having adequate access to resources or services—hence the tutoring program bridges resource gaps.<br><br>❌ A: Opposite meaning.<br>❌ C: Not a real term.<br>❌ D: Underserved areas can be rural or urban.',
+                skill: 'Vocabulary in Context'
+            },
+            8: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage demonstrates through examples that young people identify community problems and create solutions, stating "age is not a barrier to making meaningful contributions."<br><br>❌ A: Directly contradicted by examples.<br>❌ C: Passage states innovation doesn\'t require extensive resources.<br>❌ D: Examples include high school and middle school students.',
+                skill: 'Main Idea'
+            },
+            9: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "Adults: At least 150 minutes of moderate activity or 75 minutes of vigorous activity weekly."<br><br>❌ A, C: Incorrect amounts.<br>❌ D: Specific recommendations are provided.',
+                skill: 'Detail Comprehension'
+            },
+            10: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Previous sentence lists physical benefits: "strengthens the cardiovascular system, improves muscle and bone density, enhances immune function, and helps maintain healthy weight." — "These benefits" refers to all these physical benefits.<br><br>❌ A, C, D: Too narrow; refers to all physical benefits listed.',
+                skill: 'Reference'
+            },
+            11: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states: "Variety prevents boredom and works different muscle groups."<br><br>❌ A: Variety doesn\'t necessarily increase cost.<br>❌ C: Passage encourages variety.<br>❌ D: No legal requirement mentioned.',
+                skill: 'Inference'
+            },
+            12: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage explains physical and mental health benefits, provides age-specific recommendations, and discusses finding sustainable activities—comprehensive, evidence-based health information.<br><br>❌ A: Exercise is recommended for all ages.<br>❌ C: No equipment promoted.<br>❌ D: Exercise is recommended for older adults.',
+                skill: 'Main Idea'
+            },
+            13: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states: "Online platforms provide access to diverse resources regardless of location. Students can learn at their own pace, reviewing materials as needed."<br><br>❌ A: Teachers remain important as facilitators.<br>❌ C: Digital learning requires technology.<br>❌ D: Challenges are acknowledged.',
+                skill: 'Detail Comprehension'
+            },
+            14: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage presents advantages, challenges, blended approaches, teacher role evolution, and future directions—balanced analysis emphasizing "technology should serve pedagogical goals" and "thoughtfully integrated."<br><br>❌ A: Passage advocates blended approaches, not all-online.<br>❌ C: Traditional methods have value in blended approach.<br>❌ D: No specific platforms promoted.',
+                skill: 'Author\'s Purpose'
+            }
+        };
+
+        const questionToPassage = {
+            1:1, 2:1, 3:1, 4:1,
+            5:2, 6:2, 7:2, 8:2,
+            9:3, 10:3, 11:3, 12:3,
+            13:4, 14:4
+        };
+
+        let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval, testerName = '', testStartTime, testEndTime;
+
+        const startScreen = document.getElementById('start-screen'), testLayout = document.getElementById('test-layout'), resultsScreen = document.getElementById('results-screen'), nameInput = document.getElementById('tester-name'), nameError = document.getElementById('name-error'), startBtn = document.getElementById('start-btn'), timerDisplay = document.getElementById('timer'), scoreDisplay = document.getElementById('score-display'), passageIndicator = document.getElementById('passage-indicator'), toast = document.getElementById('toast');
+
+        document.addEventListener('DOMContentLoaded', () => { startBtn.addEventListener('click', startTest); nameInput.addEventListener('input', validateName); });
+
+        function validateName() {
+            const name = nameInput.value.trim();
+            const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\uf900-\ufaff\u3300-\u33ff\ufe30-\ufe4f\uf900-\ufaff\u{2f800}-\u{2fa1f}]/u.test(name);
+            if (hasChinese) { nameError.classList.add('show'); startBtn.disabled = true; } else { nameError.classList.remove('show'); startBtn.disabled = name === ''; }
+        }
+
+        function startTest() {
+            testerName = nameInput.value.trim() || 'Anonymous';
+            testStartTime = new Date();
+            startScreen.style.display = 'none';
+            testLayout.classList.add('active');
+            document.querySelector(`[data-passage="1"]`).classList.add('active');
+            document.querySelector(`.questions-section[data-passage="1"]`).classList.add('active');
+            startTimer();
+            updateHeader();
+        }
+
+        function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${mins}:${secs}`; }, 1000); }
+
+        function checkAnswer(questionNum, selected, btn) {
+            if (answered[questionNum]) return;
+            answered[questionNum] = selected;
+            const feedback = document.getElementById(`feedback-${questionNum}`);
+            const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); feedback.innerHTML = `<div class="feedback-title">✅ Correct!</div>${answers[questionNum].explanation}`; } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); feedback.innerHTML = `<div class="feedback-title">❌ Incorrect</div>${answers[questionNum].explanation}`; allBtns.forEach(b => { if (b.textContent.trim().startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+            feedback.style.display = 'block';
+            updateScoreDisplay();
+            checkPassageComplete();
+        }
+
+        function checkPassageComplete() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 14; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (allAnswered && currentSection < 4) { document.getElementById('next-btn').textContent = 'Next Passage →'; }
+        }
+
+        function nextSection() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 14; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (!allAnswered) { alert(`Please answer all ${currentPassageQuestions.length} questions in this passage before continuing.`); return; }
+            if (Object.keys(answered).length === 14) { showResults(); return; }
+            if (currentSection < 4) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection++;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('prev-btn').disabled = false;
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 1) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection--;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('next-btn').textContent = 'Next →';
+                if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function updateHeader() { 
+            const passageLabels = ['A', 'B', 'C', 'D'];
+            passageIndicator.textContent = `Passage ${passageLabels[currentSection - 1]} of 4`; 
+            updateScoreDisplay(); 
+        }
+        function updateScoreDisplay() { scoreDisplay.textContent = `${score}/${Object.keys(answered).length}`; }
+
+        function showResults() {
+            testEndTime = new Date();
+            clearInterval(timerInterval);
+            testLayout.classList.remove('active');
+            document.getElementById('navigation').style.display = 'none';
+            resultsScreen.classList.add('active');
+            document.getElementById('result-name').textContent = testerName;
+            document.getElementById('result-datetime').textContent = testEndTime.toLocaleString();
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            document.getElementById('result-duration').textContent = `${durationMins}m ${durationSecs.toString().padStart(2, '0')}s`;
+            document.getElementById('final-score').textContent = `${score}/14`;
+            document.getElementById('result-accuracy').textContent = `${Math.round((score / 14) * 100)}%`;
+            generateSkillsBreakdown();
+        }
+
+        function generateSkillsBreakdown() {
+            const skillsBreakdown = document.getElementById('skills-breakdown');
+            skillsBreakdown.innerHTML = '';
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) {
+                const skill = answers[q].skill;
+                if (!skillGroups[skill]) { skillGroups[skill] = { total: 0, correct: 0, questions: [] }; }
+                skillGroups[skill].total++;
+                if (answered[q] === answers[q].correct) { skillGroups[skill].correct++; } else { skillGroups[skill].questions.push(q); }
+            }
+            Object.entries(skillGroups).forEach(([skill, data]) => {
+                const isMastered = data.correct === data.total;
+                const skillItem = document.createElement('div');
+                skillItem.className = `skill-item ${isMastered ? 'mastered' : 'missed'}`;
+                let missedInfo = '';
+                if (!isMastered && data.questions.length > 0) { missedInfo = `<br><small style="color: #b71c1c">Missed: Q${data.questions.join(', Q')}</small>`; }
+                skillItem.innerHTML = `<div><strong>${skill}</strong><div style="font-size: 0.9rem; color: #616161">${data.correct}/${data.total} correct</div>${missedInfo}</div><div style="font-weight: bold; color: ${isMastered ? '#2e7d32' : '#c62828'}">${isMastered ? '✓ Mastered' : '⚠ Review'}</div>`;
+                skillsBreakdown.appendChild(skillItem);
+            });
+        }
+
+        function copyForWeChat() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 14) * 100);
+            let text = `📚 Reading Practice 13 Results (BEIJING ADVANCED)\n\n👤 Name: ${testerName}\n📅 Date: ${testEndTime.toLocaleDateString()}\n⏱️ Time: ${durationMins}m ${durationSecs}s\n✅ Score: ${score}/14 (${accuracy}%)\n\n📊 Skills Review:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { const status = data.correct === data.total ? '✓' : '⚠'; text += `${status} ${skill}: ${data.correct}/${data.total}\n`; });
+            text += `\n💡 Focus on skills marked with ⚠ for improvement.`;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); showToast('Results copied! Paste in WeChat to share.'); } catch (err) { alert('Please manually copy these results:\n\n' + text); }
+            document.body.removeChild(textArea);
+        }
+
+        function emailResults() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 14) * 100);
+            let emailBody = `Reading Practice 13 Results (BEIJING ADVANCED)\n\nStudent: ${testerName}\nDate Completed: ${testEndTime.toLocaleString()}\nTime Taken: ${durationMins} minutes, ${durationSecs} seconds\nScore: ${score} out of 14 questions (${accuracy}% accuracy)\n\nDetailed Results:\n----------------\n`;
+            for (let q = 1; q <= 14; q++) { const isCorrect = answered[q] === answers[q].correct; emailBody += `Q${q} [${answers[q].skill}]: ${isCorrect ? '✓ Correct' : '✗ Incorrect'}\n`; }
+            emailBody += `\nSkills Analysis:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { emailBody += `- ${skill}: ${data.correct}/${data.total} correct\n`; });
+            const subject = encodeURIComponent(`Reading Practice 13 Results - ${testerName}`);
+            const body = encodeURIComponent(emailBody);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function downloadForLMS() {
+            const resultsData = { testName: "Reading Practice 13 - Beijing Advanced", studentName: testerName, completedAt: testEndTime.toISOString(), durationSeconds: timerSeconds, totalQuestions: 14, correctAnswers: score, accuracyPercent: Math.round((score / 14) * 100), questionResults: [], skillsAnalysis: {} };
+            for (let q = 1; q <= 14; q++) { resultsData.questionResults.push({ questionNumber: q, skill: answers[q].skill, selectedAnswer: answered[q], correctAnswer: answers[q].correct, isCorrect: answered[q] === answers[q].correct }); }
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) { skillGroups[skill] = { totalQuestions: 0, correctAnswers: 0, missedQuestions: [] }; } skillGroups[skill].totalQuestions++; if (answered[q] === answers[q].correct) { skillGroups[skill].correctAnswers++; } else { skillGroups[skill].missedQuestions.push(q); } }
+            resultsData.skillsAnalysis = skillGroups;
+            const dataStr = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resultsData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `reading_practice_13_beijing_advanced_${testerName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Results downloaded for LMS upload!');
+        }
+
+        function downloadPDF() { alert(`PDF generation requires additional libraries. For this demo:\n\n1. Copy your results using the "Copy for WeChat" button\n2. Paste into a document\n3. Save as PDF using your browser's print function (Ctrl+P → Save as PDF)\n\nIn a production version, this would generate a professional PDF report automatically.`); }
+        function showToast(message) { toast.textContent = message; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+
+        function restartTest() {
+            currentSection = 1; score = 0; answered = {}; timerSeconds = 0; testerName = '';
+            nameInput.value = ''; nameError.classList.remove('show'); startBtn.disabled = true;
+            document.getElementById('next-btn').textContent = 'Next →'; document.getElementById('prev-btn').disabled = true;
+            const passageLabels = ['A', 'B', 'C', 'D'];
+            passageIndicator.textContent = `Passage ${passageLabels[0]} of 4`;
+            document.querySelectorAll('.feedback').forEach(fb => { fb.style.display = 'none'; fb.classList.remove('correct', 'incorrect'); });
+            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('correct', 'incorrect'); btn.disabled = false; });
+            resultsScreen.classList.remove('active'); startScreen.style.display = 'block';
+            timerDisplay.textContent = '00:00'; scoreDisplay.textContent = '0/14';
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Grade 7 English | Shenzhen 2026 Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            padding: 10px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: var(--shadow);
+            height: 60px;
+            gap: 5px;
+        }
+
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn:active { transform: scale(0.95); }
+        .nav-btn:disabled { opacity: 0; pointer-events: none; }
+
+        .xp-badge {
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 10px;
+            padding-top: 70px; /* Account for header */
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Unit Grid (Home) */
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding-bottom: 20px;
+        }
+
+        .unit-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .unit-card:active { transform: scale(0.95); }
+        .unit-card.completed { border-color: var(--success); }
+        .unit-emoji { font-size: 2em; margin-bottom: 5px; }
+        .unit-title { font-size: 0.95em; font-weight: 700; color: var(--text-primary); margin-top: 5px; }
+        .unit-subtitle { font-size: 0.75em; color: var(--text-secondary); margin-top: 5px; }
+
+        /* Mode Selector - Scrollable Flex layout */
+        .mode-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+        .mode-selector::-webkit-scrollbar { height: 4px; }
+        .mode-selector::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .mode-btn {
+            flex: 0 0 auto;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* TTS Clickable Areas */
+        .tts-clickable {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .tts-clickable:active { transform: scale(0.98); }
+        .tts-active { border-color: var(--accent) !important; box-shadow: 0 0 8px var(--accent); }
+
+        /* Emoji Wrapper */
+        .emoji-wrapper {
+            display: inline-block;
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", sans-serif;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        /* General Boxes (Plan, Tasks, Grammar) */
+        .grammar-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border);
+        }
+        .grammar-title { font-size: 1.05em; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .grammar-rule, .grammar-example {
+            background: var(--bg-input);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 4px 0;
+            font-size: 0.95em;
+            border-left: 3px solid var(--primary);
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        
+        .formatted-text {
+            white-space: normal;
+        }
+        .formatted-text div {
+            margin-bottom: 6px;
+        }
+        .task-header {
+            font-size: 1.05em;
+            margin-bottom: 8px !important;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+            color: var(--primary);
+        }
+
+        .grammar-exercise {
+            background: var(--bg-dark);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px dashed var(--border);
+        }
+        .grammar-q { font-size: 1em; font-weight: 600; margin-bottom: 10px; }
+        .grammar-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+        .grammar-opt {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .grammar-opt.correct { background: var(--success); border-color: var(--success); }
+        .grammar-opt.wrong { background: #ef4444; border-color: #ef4444; }
+
+        /* Exhaustive Vocabulary Grid */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .vocab-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 12px 4px;
+            text-align: center;
+            border: 2px solid var(--border);
+            font-weight: 700;
+            font-size: 0.95em;
+            color: var(--text-primary);
+            word-wrap: break-word;
+        }
+
+        /* Reading Box & Tiers */
+        .reading-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.05em;
+            line-height: 1.6;
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+        .reading-tag {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Tabs (Convo & Tiered Reading) */
+        .convo-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .convo-tab {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .convo-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Chat UI */
+        .conversation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0;
+            min-height: 220px;
+        }
+        .message-bubble {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 1em;
+            line-height: 1.4;
+            opacity: 0;
+            animation: popIn 0.3s forwards;
+            cursor: pointer;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-left {
+            align-self: flex-start;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        .message-right {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Quiz & Spelling */
+        .interactive-container {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .quiz-option {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        .quiz-option.correct { background: var(--success); border-color: var(--success); }
+        .quiz-option.wrong { background: #ef4444; border-color: #ef4444; }
+
+        .spelling-wrapper { position: relative; display: inline-block; width: 100%; margin: 10px 0; }
+        .spelling-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.3em;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            text-align: center;
+        }
+        .btn-full {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .btn-repeat {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        /* Glitter Effect */
+        .glitter {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fbbf24;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: sparkle 0.6s linear forwards;
+            box-shadow: 0 0 5px #fcd34d;
+        }
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="header">
+        <div class="header-group">
+            <button class="nav-btn secondary" id="homeBtn" onclick="showHome()">🏠 Home</button>
+            <button class="nav-btn secondary" id="backBtn" onclick="navigateBack()" disabled>⬅ Back</button>
+        </div>
+        <div class="header-title" id="headerTitle">Grade 7 English</div>
+        <div class="header-group">
+            <div class="xp-badge">⭐ <span id="xpValue">0</span></div>
+            <button class="nav-btn" id="nextBtn" onclick="navigateForward()" disabled>Next ➡</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Home View -->
+        <div id="homeView">
+            <div class="section-title">First Semester (上册)</div>
+            <div class="units-grid" id="sem1Grid"></div>
+
+            <div class="section-title" style="margin-top: 10px;">Second Semester (下册)</div>
+            <div class="units-grid" id="sem2Grid"></div>
+        </div>
+
+        <!-- Content View -->
+        <div id="contentView" style="display: none;">
+            <!-- Mode Selector -->
+            <div class="mode-selector" id="modeSelector">
+                <button class="mode-btn active" onclick="setMode('plan')">Plan</button>
+                <button class="mode-btn" onclick="setMode('vocab')">Vocab</button>
+                <button class="mode-btn" onclick="setMode('grammar')">Grammar</button>
+                <button class="mode-btn" onclick="setMode('reading')">Reading</button>
+                <button class="mode-btn" onclick="setMode('tasks')">Tasks</button>
+                <button class="mode-btn" onclick="setMode('convo')">Convo</button>
+                <button class="mode-btn" onclick="setMode('spell')">Spell</button>
+                <button class="mode-btn" onclick="setMode('quiz')">Quiz</button>
+            </div>
+            
+            <div id="contentArea"></div>
+        </div>
+    </div>
+
+    <script>
+        // Grade 7 Curriculum Data - Shenzhen Oxford Edition
+        const grade7Data = {
+            units: [
+                // SEMESTER 1
+                {
+                    number: 1, semester: 1,
+                    title: "Making friends", 
+                    emoji: "👋",
+                    theme: "Getting to know each other",
+                    plan: {
+                        objectives: [
+                            "Students will use 10+ core vocabulary words to talk about personal info.",
+                            "Students will apply Simple Present (verb to be) and Wh-questions.",
+                            "Students will extract specific details from self-introductions."
+                        ],
+                        outcome: "An International Pen Pal Profile card and a speed-dating interview.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to introduce ourselves so we can make new friends in middle school and around the world.</div>",
+                        expectations: "<div><strong>What:</strong> Introductions, verb to be, Wh-questions.</div><div><strong>How:</strong> Creating profiles and interviewing peers.</div><div><strong>Why:</strong> Building connections is essential for social integration in a new school environment.</div>",
+                        themeText: "<div><strong>Topic:</strong> Hobbies, age, language, and countries.</div><div><strong>Cultural Awareness:</strong> How do introductions differ between Chinese culture and Western culture?</div>"
+                    },
+                    vocabulary: ["friend", "introduce", "hobby", "age", "country", "language", "name", "student", "classmate", "meet"],
+                    grammar: [
+                        { title: "Simple Present (Verb 'to be')", rule: "Use am/is/are to state facts about yourself.", examples: ["I am a student in Grade 7.", "She is from China."] },
+                        { title: "Wh-Questions", rule: "Use What, Where, How old to ask for personal information.", examples: ["Where are you from?", "How old is he?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "Where ___ you from? I ___ from Shenzhen.", options: ["are / am", "is / am", "are / is"], correct: 0 },
+                        { q: "___ is your favourite hobby?", options: ["Where", "What", "How"], correct: 1 }
+                    ],
+                    readingTexts: {
+                        A2: "Hello! My name is Li Ming. I am twelve years old. I am from China. I speak Chinese and English. My hobby is playing basketball. I want to make a new friend.",
+                        B1: "Hi everyone, let me introduce myself. My name is Sarah and I am 13 years of age. I am from the UK, so my first language is English. My favorite hobby is reading books. I am excited to be a secondary student and meet new classmates.",
+                        B2: "Greetings! Allow me to introduce myself. My name is Chen, and I am a 12-year-old student entering Grade 7. I am originally from Shenzhen, China, a beautiful and modern country. While my native language is Mandarin, I am practicing my English daily. My primary hobby is coding. I joined this international forum to connect with global peers, share cultural backgrounds, and make lifelong friends."
+                    },
+                    comprehension: [
+                        "Gap-Fill: My name is Anna and my favorite ________ is painting.",
+                        "True/False: Chen's native language is English. (False)"
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The International Pen Pal Profile</strong></div><div><strong>Task:</strong> Create a profile card for an exchange website.</div><div><strong>Action:</strong> Include your name, age, country, language, and hobby.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Lost in Translation</strong></div><div><strong>Scenario:</strong> A new student from Russia doesn't speak Chinese well.</div><div><strong>Action:</strong> Write 3 Wh-questions you can ask them in English to make them feel welcome.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Speed Networking</strong></div><div><strong>Goal:</strong> Find a classmate with similar interests.</div><div><strong>Action:</strong> Interview 3 people using target grammar (What is your hobby? Where are you from?).</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Hi, I am new here. Let me introduce myself. I'm Jack." },
+                            { speaker: "right", text: "Nice to meet you, Jack! I am Lin. Where are you from?" },
+                            { speaker: "left", text: "I am from Canada. What is your hobby, Lin?" },
+                            { speaker: "right", text: "My hobby is playing ping-pong!" }
+                        ],
+                        [
+                            { speaker: "left", text: "How old are the students in Grade 7?" },
+                            { speaker: "right", text: "Most of my classmates are twelve or thirteen years old." },
+                            { speaker: "left", text: "That's great. We are the same age." }
+                        ],
+                        [
+                            { speaker: "left", text: "What language do they speak in that country?" },
+                            { speaker: "right", text: "They speak English. It is a good chance to practice." },
+                            { speaker: "left", text: "I want to make a friend there!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Detail Extraction] Where is Chen from in the text?", options: ["The UK", "Russia", "Shenzhen, China"], correct: 2 },
+                        { question: "[Vocabulary in Context] What does 'introduce' mean?", options: ["To say goodbye", "To tell someone who you are", "To play a game"], correct: 1 },
+                        { question: "[Grammar Check] Which question asks about age?", options: ["How old are you?", "Where are you?", "What is your name?"], correct: 0 }
+                    ],
+                    spelling: ["friend", "introduce", "hobby", "country", "language"]
+                },
+                {
+                    number: 2, semester: 1,
+                    title: "Daily life", 
+                    emoji: "⏰",
+                    theme: "Routines",
+                    plan: {
+                        objectives: ["Use 10+ words relating to daily routines.", "Apply Simple Present Tense for action verbs.", "Use frequency adverbs (always, usually, never) correctly."],
+                        outcome: "A comparative report on daily schedules.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to describe our daily habits so we can manage our time in middle school.</div>",
+                        expectations: "<div><strong>What:</strong> Daily routine vocabulary, Frequency adverbs.</div><div><strong>How:</strong> Interviewing partners and sequencing schedules.</div><div><strong>Why:</strong> Middle school requires independence and good time management.</div>",
+                        themeText: "<div><strong>Topic:</strong> Wake up times, breakfast, school hours.</div>"
+                    },
+                    vocabulary: ["daily", "routine", "usually", "often", "never", "breakfast", "always", "sometimes", "schedule", "morning"],
+                    grammar: [
+                        { title: "Simple Present (Action Verbs)", rule: "Use base verb (add -s/-es for he/she/it) for habits.", examples: ["I wake up at 7:00.", "He eats breakfast."] },
+                        { title: "Frequency Adverbs", rule: "Place before the main verb, but after the verb 'to be'.", examples: ["I usually walk to school.", "She is always late."] }
+                    ],
+                    grammarExercises: [
+                        { q: "My brother never ___ breakfast in the morning.", options: ["eat", "eats", "eating"], correct: 1 },
+                        { q: "I ___ go to bed before 10 PM. I am always tired.", options: ["usually", "never", "always"], correct: 1 }
+                    ],
+                    readingTexts: {
+                        A2: "My daily routine is simple. I usually wake up at 6:30. I always eat breakfast with my family. Then, I go to school. I often play with my friends after class. I never go to sleep late.",
+                        B1: "Adjusting to middle school means a new daily routine. I always wake up early because my first class starts at 8:00 AM. I usually have noodles for breakfast. After school, I often do my homework in the library. I sometimes feel tired, but I never skip my studies.",
+                        B2: "Establishing a productive daily routine is crucial for success in secondary school. I always begin my morning at 6:15 AM to ensure I have time for a nutritious breakfast. Throughout the day, my schedule is packed with challenging classes. I usually finish my homework by 8:00 PM. Although I am often exhausted, I never neglect my reading habit before bed, as it helps me relax."
+                    },
+                    comprehension: [
+                        "Gap-Fill: I _________ (usual) eat an egg for _________ (break).",
+                        "True/False: The student in the B2 text skips breakfast. (False)"
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Schedule Swap</strong></div><div><strong>Task:</strong> Interview a partner about their daily routine.</div><div><strong>Action:</strong> Write a brief comparative report ('I usually wake up at 7:00, but my partner never wakes up before 7:30').</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Late Student</strong></div><div><strong>Scenario:</strong> Your friend is always late for the first class.</div><div><strong>Action:</strong> Look at their morning routine and use adverbs to suggest changes.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Time Management Coach</strong></div><div><strong>Goal:</strong> Help 7th graders adjust to middle school.</div><div><strong>Action:</strong> Present a 'Perfect Daily Routine' to the class.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What time do you usually wake up?" },
+                            { speaker: "right", text: "I always wake up at 6:30 AM for middle school." },
+                            { speaker: "left", text: "Me too. I never have enough time for breakfast!" }
+                        ],
+                        [
+                            { speaker: "left", text: "My daily routine is so busy now." },
+                            { speaker: "right", text: "I know. I often do homework until 9 PM." },
+                            { speaker: "left", text: "We sometimes need to take a break and relax." }
+                        ],
+                        [
+                            { speaker: "left", text: "Does your sister take the bus to school?" },
+                            { speaker: "right", text: "No, she usually walks. She never takes the bus." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Sequencing] What does the B2 student do right before bed?", options: ["Eat breakfast", "Do homework", "Read a book"], correct: 2 },
+                        { question: "[Grammar Check] Which sentence is correct?", options: ["I always am happy.", "I am always happy.", "Always I am happy."], correct: 1 },
+                        { question: "[Inference] Why does the student wake up early?", options: ["To play games", "Because classes start early and they need breakfast", "Because they can't sleep"], correct: 1 }
+                    ],
+                    spelling: ["routine", "usually", "breakfast", "always", "schedule"]
+                },
+                {
+                    number: 3, semester: 1,
+                    title: "The Earth", 
+                    emoji: "🌍",
+                    theme: "The natural world",
+                    plan: {
+                        objectives: ["Learn 10+ geographic vocabulary words.", "Master the 'There is/There are' structure.", "Understand Prepositions of place."],
+                        outcome: "Identify environmental problems and present an Earth Rescue Design.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to describe the Earth's geography so we can appreciate and protect our natural world.</div>",
+                        expectations: "<div><strong>What:</strong> Geography vocab, There is/are.</div><div><strong>How:</strong> Group problem-solving and mapping.</div><div><strong>Why:</strong> Environmental awareness is a critical global competency.</div>",
+                        themeText: "<div><strong>Topic:</strong> Oceans, continents, and nature.</div><div><strong>Cultural Awareness:</strong> Exploring the Chinese myth of the Ten Suns.</div>"
+                    },
+                    vocabulary: ["ocean", "continent", "island", "earth", "land", "sea", "mountain", "forest", "desert", "river"],
+                    grammar: [
+                        { title: "There is / There are", rule: "Used to show that something exists. Use 'is' for singular, 'are' for plural.", examples: ["There is a big ocean.", "There are seven continents."] },
+                        { title: "Prepositions of Place", rule: "in, on, at, under, near.", examples: ["The island is in the sea.", "The trees are on the mountain."] }
+                    ],
+                    grammarExercises: [
+                        { q: "___ many tall mountains in China.", options: ["There is", "There are", "They are"], correct: 1 },
+                        { q: "The fish live ___ the river.", options: ["in", "on", "at"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "The Earth is our home. There is a lot of water on Earth. There are big oceans and long rivers. There is also land. We have forests, deserts, and tall mountains. We must protect the Earth.",
+                        B1: "Our planet, the Earth, is beautiful. There are seven continents and five huge oceans. In the past, there was a Chinese myth about ten suns in the sky. It was too hot, and the rivers and forests almost died. Hou Yi shot down nine suns to save the land. Today, we must also protect our environment from getting too hot.",
+                        B2: "The Earth's geography is incredibly diverse, comprising vast oceans, arid deserts, and dense forests across seven continents. In Chinese mythology, the story of the Ten Suns illustrates the delicate balance of nature. When ten suns appeared in the sky simultaneously, the intense heat evaporated the rivers and scorched the land. It took the hero Hou Yi to restore harmony. Similarly, modern society faces the threat of global warming. There is an urgent need to protect our environment, ensuring that the mountains and seas remain vibrant for future generations."
+                    },
+                    comprehension: [
+                        "Gap-Fill: There _________ (be) many trees in the _________ (forest).",
+                        "Critical Thinking: Do you want to have one sun or ten suns in the sky? Give your reasons."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>Earth Rescue Design</strong></div><div><strong>Task:</strong> Identify a local environmental problem (e.g., water scarcity).</div><div><strong>Action:</strong> Work in groups to design a creative solution and draw a map.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Contents Page Quest</strong></div><div><strong>Scenario:</strong> You need to research deserts for a project.</div><div><strong>Action:</strong> Use the textbook's Table of Contents to locate the correct chapter efficiently.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Tour Guide of Earth</strong></div><div><strong>Goal:</strong> Explain Earth to an alien.</div><div><strong>Action:</strong> Present a map using 'There is/are' to describe the oceans and continents.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Did you know there are seven continents on Earth?" },
+                            { speaker: "right", text: "Yes! And there is a huge ocean called the Pacific." },
+                            { speaker: "left", text: "Geography is so interesting." }
+                        ],
+                        [
+                            { speaker: "left", text: "Have you read the myth of the Ten Suns?" },
+                            { speaker: "right", text: "Yes. There were ten suns in the sky, and the land was too hot." },
+                            { speaker: "left", text: "Hou Yi was a hero for saving the rivers and forests." }
+                        ],
+                        [
+                            { speaker: "left", text: "Look at this map. There is a desert near the mountains." },
+                            { speaker: "right", text: "It must be very dry there. Are there any rivers?" },
+                            { speaker: "left", text: "No, there are no rivers in that area." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Critical Thinking] What is the modern lesson we can learn from the Ten Suns myth?", options: ["We need more suns", "We must protect the earth from global warming", "Archery is important"], correct: 1 },
+                        { question: "[Grammar Check] '___ a small island in the sea.'", options: ["There is", "There are", "It has"], correct: 0 },
+                        { question: "[Vocabulary in Context] What does 'evaporated' mean in the B2 text?", options: ["Froze into ice", "Turned into gas/dried up due to heat", "Flowed faster"], correct: 1 }
+                    ],
+                    spelling: ["ocean", "continent", "island", "earth", "mountain"]
+                },
+                {
+                    number: 4, semester: 1,
+                    title: "Seasons", 
+                    emoji: "🍂",
+                    theme: "The natural world",
+                    plan: {
+                        objectives: ["Describe weather and temperature using target adjectives.", "Ask and answer 'What's the weather like?'."],
+                        outcome: "Present a live TV weather forecast.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to describe the seasons and weather to plan our activities.</div>",
+                        expectations: "<div><strong>What:</strong> Weather vocabulary and temperature.</div><div><strong>How:</strong> Live weather report role-plays.</div><div><strong>Why:</strong> Weather impacts our daily choices and understanding natural cycles.</div>",
+                        themeText: "<div><strong>Topic:</strong> Spring, summer, autumn, winter, weather, temperature.</div>"
+                    },
+                    vocabulary: ["spring", "summer", "autumn", "winter", "weather", "temperature", "warm", "hot", "cool", "cold"],
+                    grammar: [
+                        { title: "Describing Weather", rule: "Use 'It is + adjective' to describe weather.", examples: ["It is warm in spring.", "It is cold and snowing."] },
+                        { title: "Asking about Weather", rule: "Use 'What's the weather like?' or 'How is the weather?'", examples: ["What's the weather like in summer? It's hot."] }
+                    ],
+                    grammarExercises: [
+                        { q: "___ the weather like in winter?", options: ["How's", "What's", "Where's"], correct: 1 },
+                        { q: "The temperature is 35 degrees. It is very ___.", options: ["cold", "cool", "hot"], correct: 2 }
+                    ],
+                    readingTexts: {
+                        A2: "There are four seasons in a year. They are spring, summer, autumn, and winter. In spring, the weather is warm. In summer, the temperature is very hot. Autumn is cool, and winter is cold. I love summer because I can swim.",
+                        B1: "Shenzhen does not have a very cold winter. The weather is usually mild. However, summer is extremely hot, and the temperature can reach 35 degrees! What's the weather like in autumn? It is cool and comfortable. Many students think autumn is the best season for school sports.",
+                        B2: "The cyclical nature of the four seasons dictates our lifestyle and agricultural practices. In northern China, winter brings freezing temperatures and heavy snowfall, requiring heavy winter coats. Conversely, Shenzhen's winter is quite mild. When asked, 'What's the weather like in summer?', locals will immediately mention the intense heat and high humidity. The temperature frequently soars, making air conditioning essential. Autumn is widely regarded as the most pleasant season, offering cool breezes that provide relief from the summer heat."
+                    },
+                    comprehension: [
+                        "Gap-Fill: The _________ (temperature) drops below zero in _________ (winter).",
+                        "Inference: If the temperature is 5 degrees, what should the boy wear? (A heavy coat)"
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The TV Weather Forecaster</strong></div><div><strong>Task:</strong> You are given a map of China with different weather symbols.</div><div><strong>Action:</strong> Present a live weather report to the class using the target adjectives.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Packing for a Trip</strong></div><div><strong>Scenario:</strong> You are traveling to Beijing in winter and Hainan in summer.</div><div><strong>Action:</strong> Write a packing list based on the expected weather and temperature.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Seasons Debate</strong></div><div><strong>Goal:</strong> Persuade the class that your favorite season is the best.</div><div><strong>Action:</strong> Use weather adjectives to defend your choice.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What's the weather like today?" },
+                            { speaker: "right", text: "It is very warm. Spring is finally here!" },
+                            { speaker: "left", text: "Let's go to the park this afternoon." }
+                        ],
+                        [
+                            { speaker: "left", text: "I can't stand the summer in Shenzhen." },
+                            { speaker: "right", text: "Why? Because the temperature is too hot?" },
+                            { speaker: "left", text: "Yes! I prefer autumn because it is cool." }
+                        ],
+                        [
+                            { speaker: "left", text: "Look at the weather forecast for tomorrow." },
+                            { speaker: "right", text: "Oh no, it says the winter temperature will drop to 5 degrees." },
+                            { speaker: "left", text: "We need to wear heavy coats to school." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Inference] Based on the B2 text, why do people like autumn?", options: ["Because it snows", "Because it provides relief from the hot summer", "Because they can swim"], correct: 1 },
+                        { question: "[Detail Extraction] What season is associated with 35-degree heat?", options: ["Spring", "Summer", "Winter"], correct: 1 },
+                        { question: "[Grammar Check] Complete: ____ the weather like?", options: ["How", "What's", "Who's"], correct: 1 }
+                    ],
+                    spelling: ["spring", "summer", "autumn", "winter", "weather", "temperature"]
+                },
+                {
+                    number: 5, semester: 1,
+                    title: "Visiting the Moon", 
+                    emoji: "🌕",
+                    theme: "Travels",
+                    plan: {
+                        objectives: ["Use vocabulary related to space and astronauts.", "Differentiate and use Simple Future (will vs. be going to)."],
+                        outcome: "Design and pitch a Space Tourism brochure.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to talk about the future so we can imagine and plan space travels.</div>",
+                        expectations: "<div><strong>What:</strong> Space vocabulary, Future tenses.</div><div><strong>How:</strong> Designing tourism brochures and pitching ideas.</div><div><strong>Why:</strong> Inspiring scientific curiosity and practicing predictive language.</div>",
+                        themeText: "<div><strong>Topic:</strong> The Moon, spaceships, and the future.</div>"
+                    },
+                    vocabulary: ["moon", "space", "spaceship", "astronaut", "future", "travel", "rocket", "star", "explore", "science"],
+                    grammar: [
+                        { title: "Simple Future (Will)", rule: "Use 'will + verb' for predictions, promises, or sudden decisions.", examples: ["Humans will live on the Moon in the future."] },
+                        { title: "Simple Future (Be going to)", rule: "Use 'am/is/are going to + verb' for planned intentions.", examples: ["I am going to build a spaceship."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Look at those dark clouds! It ___ rain.", options: ["will", "is going to", "goes to"], correct: 1 },
+                        { q: "In the future, I think people ___ travel to Mars.", options: ["will", "are going to", "did"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "The moon is beautiful. In the future, I want to travel to space. I am going to be an astronaut. I will fly in a big spaceship. It will be an exciting trip!",
+                        B1: "Many people dream of visiting the Moon. Someday in the future, space tourism will be common. Scientists are going to build a hotel on the Moon. Astronauts will guide the tourists. You will take a fast spaceship to get there. It is going to be the best vacation ever!",
+                        B2: "The prospect of visiting the Moon is no longer just science fiction. In the near future, commercial space travel will become a reality. Aerospace companies are currently engineering advanced spaceships. Next year, they are going to launch a test flight with professional astronauts. Experts predict that ordinary citizens will eventually experience zero gravity and observe the Earth from lunar orbit. If you have the funds, you are going to have the most extraordinary journey of your life."
+                    },
+                    comprehension: [
+                        "Gap-Fill: The brave _________ (astronaut) will fly the _________ (spaceship).",
+                        "True/False: Space tourism will never happen according to the B1 text. (False)"
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>Space Tourism Agency</strong></div><div><strong>Task:</strong> Act as travel agents in the year 2050.</div><div><strong>Action:</strong> Design a brochure for a trip to the Moon and pitch the itinerary using 'will' and 'be going to'.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Lunar Packing Dilemma</strong></div><div><strong>Scenario:</strong> You are going to the moon, but the spaceship has a strict weight limit.</div><div><strong>Action:</strong> Decide what you will bring and explain why.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Future Predictions</strong></div><div><strong>Goal:</strong> Predict life in 2100.</div><div><strong>Action:</strong> Write 5 predictions using 'will'.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What are you going to do when you grow up?" },
+                            { speaker: "right", text: "I am going to be an astronaut!" },
+                            { speaker: "left", text: "Wow, you will fly a spaceship to the moon." }
+                        ],
+                        [
+                            { speaker: "left", text: "Do you think people will live in space in the future?" },
+                            { speaker: "right", text: "Yes, I think scientists will build cities on the moon." },
+                            { speaker: "left", text: "That is going to be amazing to see." }
+                        ],
+                        [
+                            { speaker: "left", text: "Look at that rocket! It is going to launch soon." },
+                            { speaker: "right", text: "I hope the mission will be successful." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[True/False] According to the B2 text, commercial space travel is pure science fiction.", options: ["True", "False", "Not mentioned"], correct: 1 },
+                        { question: "[Grammar Check] Which tense is best for a planned intention?", options: ["Will", "Be going to", "Simple Past"], correct: 1 },
+                        { question: "[Vocabulary in Context] What is an 'astronaut'?", options: ["A type of star", "A person who travels in space", "A lunar hotel"], correct: 1 }
+                    ],
+                    spelling: ["moon", "space", "spaceship", "astronaut", "future"]
+                },
+                {
+                    number: 6, semester: 1,
+                    title: "Travelling around Asia", 
+                    emoji: "🌏",
+                    theme: "Travels",
+                    plan: {
+                        objectives: ["Identify Asian countries and capitals.", "Use 'can' for ability and possibility.", "Formulate questions with 'How long' and 'How far'."],
+                        outcome: "Plan and negotiate a multi-country Asian backpacking trip.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to read travel guides and ask travel questions so we can plan international trips.</div>",
+                        expectations: "<div><strong>What:</strong> Travel vocab, Modals (can), How questions.</div><div><strong>How:</strong> Information-gap negotiation activities.</div><div><strong>Why:</strong> Planning travel requires reading comprehension and practical negotiation skills.</div>",
+                        themeText: "<div><strong>Topic:</strong> Asia, countries, capitals, tourists.</div>"
+                    },
+                    vocabulary: ["travel", "Asia", "country", "capital", "tourist", "distance", "far", "long", "flight", "ticket"],
+                    grammar: [
+                        { title: "Modal Verb 'can'", rule: "Use 'can' to express possibility or options.", examples: ["You can take a train to Beijing.", "Tourists can visit the Great Wall."] },
+                        { title: "Questions with 'How'", rule: "Use How far (distance) and How long (time).", examples: ["How far is it to the capital?", "How long does the flight take?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "___ far is the airport from the hotel?", options: ["How", "What", "Where"], correct: 0 },
+                        { q: "Tourists ___ buy tickets online easily.", options: ["mustn't", "can", "are"], correct: 1 }
+                    ],
+                    readingTexts: {
+                        A2: "Asia is a very big continent. There are many beautiful countries in Asia. China is a great country. Its capital is Beijing. Tourists can travel by train or plane. How long does it take to fly to Japan? It takes a few hours.",
+                        B1: "Travelling around Asia is an amazing experience. Every country has a unique culture and a bustling capital city. For example, Tokyo is the capital of Japan, and Bangkok is the capital of Thailand. Tourists can enjoy delicious food everywhere. How far is Seoul from Beijing? You can check a map to find the distance. You can easily take a flight to explore these places.",
+                        B2: "Asia offers a kaleidoscope of experiences for the intrepid tourist. When planning a journey across this vast continent, understanding logistics is crucial. You might ask, 'How far is the capital from the international airport?' or 'How long will the high-speed train take?' Fortunately, infrastructure has improved, meaning travelers can navigate between countries with relative ease. Whether you wish to explore the historical depth of Beijing or the modern vibrancy of Seoul, you can customize your itinerary to maximize your cultural immersion."
+                    },
+                    comprehension: [
+                        "Scanning: How far is the capital from the airport? (Scan the text for the answer).",
+                        "Gap-Fill: Beijing is the _________ (capital) of China."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Asian Backpacker</strong></div><div><strong>Task:</strong> An information-gap activity. Student A has train schedules; Student B has a budget.</div><div><strong>Action:</strong> Negotiate to plan a multi-country Asian trip using 'can', 'how long', and 'how far'.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Missed Connection</strong></div><div><strong>Scenario:</strong> You missed your flight in a foreign capital.</div><div><strong>Action:</strong> Ask the help desk questions using 'How long until the next flight?' and 'How far is the train station?'</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Travel Vlogger</strong></div><div><strong>Goal:</strong> Promote a lesser-known Asian country.</div><div><strong>Action:</strong> Create a short vlog script detailing what tourists can do there.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "I want to travel around Asia this summer." },
+                            { speaker: "right", text: "That sounds fun! Which country will you visit first?" },
+                            { speaker: "left", text: "I want to go to Japan. What can tourists do in the capital?" },
+                            { speaker: "right", text: "You can eat great sushi and visit temples." }
+                        ],
+                        [
+                            { speaker: "left", text: "How far is the airport from the city center?" },
+                            { speaker: "right", text: "It is about 30 kilometers. You can take a taxi." },
+                            { speaker: "left", text: "How long does the taxi ride take?" },
+                            { speaker: "right", text: "It takes about 40 minutes." }
+                        ],
+                        [
+                            { speaker: "left", text: "Can we travel to Thailand by train?" },
+                            { speaker: "right", text: "It is too far! We should book a flight." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Scanning for Details] What is the capital of Japan mentioned in the B1 text?", options: ["Beijing", "Seoul", "Tokyo"], correct: 2 },
+                        { question: "[Grammar Check] Which question asks about time duration?", options: ["How much?", "How long?", "How far?"], correct: 1 },
+                        { question: "[Vocabulary in Context] What is a 'tourist'?", options: ["A person traveling for pleasure", "A type of train", "A capital city"], correct: 0 }
+                    ],
+                    spelling: ["travel", "Asia", "country", "capital", "tourist"]
+                },
+                // SEMESTER 2 (2026 Spring New Edition)
+                {
+                    number: 9, semester: 2,
+                    title: "People around us", 
+                    emoji: "🧑‍🤝‍🧑",
+                    theme: "Personal information",
+                    plan: {
+                        objectives: ["Describe personalities using 7+ target adjectives.", "Use Present Continuous Tense to describe temporary actions.", "Infer personality traits based on behavior."],
+                        outcome: "A 'Silent Movie Director' acting and guessing game.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to describe people's personalities and actions so we can build better relationships in school.</div>",
+                        expectations: "<div><strong>What:</strong> Personality adjectives, Present Continuous.</div><div><strong>How:</strong> Pantomime and inference games.</div><div><strong>Why:</strong> Understanding character traits builds empathy and social awareness.</div>",
+                        themeText: "<div><strong>Topic:</strong> Friendly, helpful, strict, polite.</div>"
+                    },
+                    vocabulary: ["friendly", "helpful", "cheerful", "hard-working", "patient", "polite", "strict", "personality", "action", "behavior"],
+                    grammar: [
+                        { title: "Present Continuous (Actions Now)", rule: "am/is/are + verb-ing for things happening right now.", examples: ["He is helping the teacher right now."] },
+                        { title: "Present Continuous (Temporary Behavior)", rule: "Can be used to describe temporary behavior.", examples: ["She is being very patient today."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Look! The students ___ hard-working today.", options: ["are being", "is being", "be"], correct: 0 },
+                        { q: "Mary is always smiling. She is a very ___ girl.", options: ["strict", "cheerful", "polite"], correct: 1 }
+                    ],
+                    readingTexts: {
+                        A2: "There are many people around us. My teacher is very friendly and helpful. Right now, she is helping a student. My friend Tom is cheerful. He is always happy. Our math teacher is strict, but he is being very patient today.",
+                        B1: "In my class, we have different personalities. My best friend is incredibly hard-working. Right now, she is studying for the exams in the library. Our class monitor is always polite to teachers and helpful to students. Sometimes, our parents are strict because they want us to succeed. However, today my mom is being very patient while I practice the piano.",
+                        B2: "Observing the people around us reveals a fascinating mix of personalities. Take my deskmate, for instance; he is exceptionally hard-working and consistently cheerful. At this exact moment, he is helping a junior student with a complex math problem, demonstrating how genuinely helpful he is. While our head homeroom teacher has a reputation for being strict, she is actually being remarkably patient with the class today as we prepare for the school festival. True character is often revealed through these temporary actions and daily polite behaviors."
+                    },
+                    comprehension: [
+                        "Inference: Based on her actions (helping a student with math), what kind of person is she? (Helpful/Patient)",
+                        "Gap-Fill: The teacher is usually _________ (strict), but she is being _________ (patient) today."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Silent Movie Director</strong></div><div><strong>Task:</strong> Act out actions without speaking.</div><div><strong>Action:</strong> The class must use Present Continuous to describe what you are doing and guess your personality adjective.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Group Project Conflict</strong></div><div><strong>Scenario:</strong> One group member is not being hard-working.</div><div><strong>Action:</strong> Write a polite message to them asking for help.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Character Awards</strong></div><div><strong>Goal:</strong> Recognize good traits in classmates.</div><div><strong>Action:</strong> Write and present a 'Most Helpful' or 'Most Cheerful' award speech.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Look at John. What is he doing?" },
+                            { speaker: "right", text: "He is helping the teacher carry those heavy books." },
+                            { speaker: "left", text: "He is always so helpful and polite." }
+                        ],
+                        [
+                            { speaker: "left", text: "Why is the teacher being so strict today?" },
+                            { speaker: "right", text: "Because we were talking during the test. We weren't being hard-working." },
+                            { speaker: "left", text: "We need to be more patient and focus." }
+                        ],
+                        [
+                            { speaker: "left", text: "Your sister is very cheerful." },
+                            { speaker: "right", text: "Yes, she is always smiling and friendly to everyone." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Inference] If someone is always smiling and happy, they are:", options: ["Strict", "Cheerful", "Patient"], correct: 1 },
+                        { question: "[Grammar Check] Which sentence describes a temporary behavior happening now?", options: ["He is strict.", "He was strict.", "He is being strict today."], correct: 2 },
+                        { question: "[Vocabulary in Context] What does 'polite' mean?", options: ["Having good manners", "Working very hard", "Being angry"], correct: 0 }
+                    ],
+                    spelling: ["friendly", "helpful", "cheerful", "patient", "polite", "strict"]
+                },
+                {
+                    number: 10, semester: 2,
+                    title: "Travelling around the world", 
+                    emoji: "✈️",
+                    theme: "Experiences",
+                    plan: {
+                        objectives: ["Use the Simple Past Tense for regular verbs.", "Formulate questions using 'Did + subject + verb?'.", "Summarize global travel experiences."],
+                        outcome: "Present a 'Cultural Ambassador' slideshow about a trip abroad.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to recount past experiences so we can share stories about other cultures.</div>",
+                        expectations: "<div><strong>What:</strong> Travel vocab, Simple Past (Regular).</div><div><strong>How:</strong> Writing travel diaries and presenting slideshows.</div><div><strong>Why:</strong> Sharing experiences builds global awareness and narrative skills.</div>",
+                        themeText: "<div><strong>Topic:</strong> Foreign cultures, famous places, past travel.</div>"
+                    },
+                    vocabulary: ["travel", "experience", "foreign", "culture", "famous", "visit", "enjoy", "stay", "taste", "learn"],
+                    grammar: [
+                        { title: "Simple Past (Regular Verbs)", rule: "Add -ed to the base verb to describe completed past actions.", examples: ["I visited London.", "We enjoyed the culture."] },
+                        { title: "Questions in Simple Past", rule: "Use 'Did + subject + base verb?'", examples: ["Did you travel to France?", "Did she like the food?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "Last year, my family ___ a famous museum in Paris.", options: ["visit", "visited", "visiting"], correct: 1 },
+                        { q: "___ you learn about foreign cultures on your trip?", options: ["Do", "Are", "Did"], correct: 2 }
+                    ],
+                    readingTexts: {
+                        A2: "Last summer, I traveled to a foreign country. I visited England. I stayed in London for a week. I looked at the famous Big Ben. I tasted the local food. I really enjoyed the experience.",
+                        B1: "Travelling around the world is a great way to learn. Last year, our school organized a trip to Italy. We visited many famous museums and learned about the local culture. We stayed in a small hotel and tasted delicious pizza. Did you travel anywhere last year? I truly enjoyed my experience in a foreign country.",
+                        B2: "To truly understand global diversity, one must experience foreign cultures firsthand. Last summer, I traveled to Europe as a student ambassador. I visited several famous historical sites and learned how deeply traditions influence modern life. We stayed with local host families, which allowed us to immerse ourselves completely. Did you know that sharing meals is a universal sign of friendship? I enjoyed every moment and returned with a broadened worldview."
+                    },
+                    comprehension: [
+                        "Summarizing: Write a 1-sentence summary of the B1 text.",
+                        "Gap-Fill: We _________ (visit) a _________ (foreign) country last year."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Cultural Ambassador</strong></div><div><strong>Task:</strong> You are an exchange student returning from a foreign country.</div><div><strong>Action:</strong> Present a slideshow using the past tense to describe the culture you experienced.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Lost Luggage</strong></div><div><strong>Scenario:</strong> You arrived in a foreign country but your bag didn't.</div><div><strong>Action:</strong> Fill out a missing item report describing what happened in the past tense.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Travel Journalist</strong></div><div><strong>Goal:</strong> Write an engaging travel diary entry.</div><div><strong>Action:</strong> Use at least 5 regular past tense verbs to describe your day.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Did you travel anywhere during the winter holiday?" },
+                            { speaker: "right", text: "Yes, I visited Thailand with my parents." },
+                            { speaker: "left", text: "Did you enjoy the foreign culture?" },
+                            { speaker: "right", text: "I loved it! We tasted amazing food." }
+                        ],
+                        [
+                            { speaker: "left", text: "How was your experience in Beijing?" },
+                            { speaker: "right", text: "It was great. I stayed near the famous Forbidden City." },
+                            { speaker: "left", text: "Did you climb it?" },
+                            { speaker: "right", text: "Yes, I climbed it yesterday." }
+                        ],
+                        [
+                            { speaker: "left", text: "We learned about ancient Egypt today." },
+                            { speaker: "right", text: "I watched a documentary about it last night." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Summarizing] What did the student do in the A2 text?", options: ["Traveled to London and enjoyed it", "Stayed home", "Went to Italy"], correct: 0 },
+                        { question: "[Grammar Check] Which question is grammatically correct?", options: ["Did you visited?", "Did you visit?", "Do you visited?"], correct: 1 },
+                        { question: "[Vocabulary in Context] What does 'foreign' mean?", options: ["From your own country", "From a different country", "A type of food"], correct: 1 }
+                    ],
+                    spelling: ["travel", "experience", "foreign", "culture", "famous"]
+                },
+                {
+                    number: 11, semester: 2,
+                    title: "Our animal friends", 
+                    emoji: "🐼",
+                    theme: "Experiences",
+                    plan: {
+                        objectives: ["Use irregular past tense verbs accurately.", "Discuss wildlife protection and endangered animals.", "Sequence past events to tell a story."],
+                        outcome: "Write a news report about an endangered animal rescue.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to narrate stories in the past tense so we can report on animal conservation.</div>",
+                        expectations: "<div><strong>What:</strong> Irregular past verbs (went, saw, had, ate).</div><div><strong>How:</strong> Case study analysis and news reporting.</div><div><strong>Why:</strong> Promoting ecological awareness through narrative storytelling.</div>",
+                        themeText: "<div><strong>Topic:</strong> Pets, wild animals, endangered species.</div>"
+                    },
+                    vocabulary: ["animal", "pet", "wild", "protect", "endangered", "went", "saw", "had", "ate", "bought", "habitat", "rescue"],
+                    grammar: [
+                        { title: "Simple Past (Irregular Verbs)", rule: "Many common verbs do not add -ed in the past tense. They must be memorized.", examples: ["go -> went", "see -> saw", "have -> had", "eat -> ate", "buy -> bought"] }
+                    ],
+                    grammarExercises: [
+                        { q: "Yesterday, we ___ a documentary about wild pandas.", options: ["see", "saw", "seed"], correct: 1 },
+                        { q: "The endangered bird ___ all the food we gave it.", options: ["ate", "eat", "eated"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "Yesterday, I went to the zoo. I saw many wild animals. I had a great time. I ate ice cream and bought a toy panda. We must protect endangered animals.",
+                        B1: "Last week, our class went on a field trip to a nature reserve. We saw many wild animals in their natural habitats. Sadly, the guide told us that some of them are endangered. A few years ago, a baby monkey fell from a tree. The rangers rescued it, and it ate fruits until it got stronger. We had a long discussion about how to protect our animal friends.",
+                        B2: "Conserving endangered species is a critical global challenge. Last month, our biology class went to an animal rescue center. We saw firsthand the devastating effects of habitat loss on wild populations. The director shared a story about a rescued tiger. It had lost its mother, but the sanctuary provided care. The tiger ate specialized food and eventually regained its health. We bought souvenirs to support the center and pledged to protect our animal friends by raising awareness."
+                    },
+                    comprehension: [
+                        "Sequencing: Put the events in order: 1. The tiger lost its mother. 2. The center gave it food. 3. The class went to the center.",
+                        "Gap-Fill: I _________ (go) to the pet store and _________ (buy) food."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Endangered Animal Rescue</strong></div><div><strong>Task:</strong> Read a case study about an endangered wild animal.</div><div><strong>Action:</strong> Write a news report describing what happened using irregular past verbs (lost, fell, ate, went).</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Pet Care Plan</strong></div><div><strong>Scenario:</strong> You found a lost, hungry pet on the street yesterday.</div><div><strong>Action:</strong> Tell the vet what the animal did (e.g., 'It drank water, it slept').</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Wildlife Fundraiser</strong></div><div><strong>Goal:</strong> Raise money to protect animals.</div><div><strong>Action:</strong> Tell a true past-tense story about an animal that was saved to convince people to donate.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Where did you go yesterday?" },
+                            { speaker: "right", text: "I went to the wildlife rescue center. I saw a rare bird." },
+                            { speaker: "left", text: "Wow. Is it an endangered animal?" },
+                            { speaker: "right", text: "Yes. We must protect them." }
+                        ],
+                        [
+                            { speaker: "left", text: "I bought a new book about wild animals." },
+                            { speaker: "right", text: "Did you read it? I had one like that last year." },
+                            { speaker: "left", text: "Yes, I learned how pandas ate bamboo in the wild." }
+                        ],
+                        [
+                            { speaker: "left", text: "My dog ran away yesterday, but a neighbor found him!" },
+                            { speaker: "right", text: "I'm glad your pet is safe." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Sequencing] In the B1 text, what happened AFTER the baby monkey fell?", options: ["The class went on a trip", "The rangers rescued it", "It became endangered"], correct: 1 },
+                        { question: "[Grammar Check] What is the past tense of 'buy'?", options: ["buyed", "bought", "bring"], correct: 1 },
+                        { question: "[Vocabulary in Context] What does 'endangered' mean?", options: ["Safe and happy", "At risk of dying out completely", "A type of pet"], correct: 1 }
+                    ],
+                    spelling: ["animal", "wild", "protect", "endangered", "went", "saw", "ate", "bought"]
+                },
+                {
+                    number: 12, semester: 2,
+                    title: "Jobs people do", 
+                    emoji: "💼",
+                    theme: "Abilities",
+                    plan: {
+                        objectives: ["Match career vocabulary to specific skills.", "Use modal verb 'can' to express ability.", "Use 'want to be' to discuss future goals."],
+                        outcome: "Role-play a career counseling session.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to talk about abilities and careers so we can plan for our future.</div>",
+                        expectations: "<div><strong>What:</strong> Job vocabulary, Modal verb 'can', 'want to be'.</div><div><strong>How:</strong> Career counselor role-plays and matching games.</div><div><strong>Why:</strong> Middle school is the time students begin exploring future aspirations.</div>",
+                        themeText: "<div><strong>Topic:</strong> Doctors, engineers, artists, pilots.</div>"
+                    },
+                    vocabulary: ["job", "doctor", "teacher", "engineer", "artist", "pilot", "scientist", "skill", "ability", "design"],
+                    grammar: [
+                        { title: "Modal Verb 'can' (Ability)", rule: "Use 'can + base verb' to show you have the skill to do something.", examples: ["I can draw well.", "He can speak English."] },
+                        { title: "Future Wishes", rule: "Use 'want to be + noun' to state a career goal.", examples: ["I want to be an engineer.", "She wants to be a pilot."] }
+                    ],
+                    grammarExercises: [
+                        { q: "I love flying. I want to ___ a pilot.", options: ["be", "am", "is"], correct: 0 },
+                        { q: "An artist ___ draw beautiful pictures.", options: ["mustn't", "can", "is"], correct: 1 }
+                    ],
+                    readingTexts: {
+                        A2: "There are many jobs people do. A doctor can help sick people. A teacher can teach students. An artist can draw. I can build things, so I want to be an engineer.",
+                        B1: "Choosing a job depends on your abilities. If you can understand math and design buildings, you can be an engineer. If you can fly a plane, you can be a pilot. I am very interested in medicine, and I can help people, so I want to be a doctor in the future.",
+                        B2: "In modern society, the jobs people do require highly specific skills and abilities. During our career interview project, we learned that a scientist can conduct complex research to solve global problems. An engineer can design sustainable infrastructure. As for me, my strong communication skills mean I can articulate ideas clearly. Therefore, I want to be a teacher, dedicating my career to inspiring the next generation."
+                    },
+                    comprehension: [
+                        "Matching: Match the skill 'I can fly planes' to the job (Pilot).",
+                        "Gap-Fill: Because I _________ (can) draw, I want to _________ (be) an _________ (artist)."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Career Counselor</strong></div><div><strong>Task:</strong> Role-play in pairs.</div><div><strong>Action:</strong> Student A lists abilities ('I can draw well, and I can speak English'). Student B acts as a counselor and suggests jobs ('You can be an artist').</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Job Fair</strong></div><div><strong>Scenario:</strong> You need to hire someone to build a bridge.</div><div><strong>Action:</strong> Interview classmates asking 'Can you use math? Can you design?' to find the engineer.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Future Self Resume</strong></div><div><strong>Goal:</strong> Write a resume for your dream job.</div><div><strong>Action:</strong> List 3 things you CAN do and state what you WANT TO BE.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What do you want to be in the future?" },
+                            { speaker: "right", text: "I want to be an engineer. I can design robots." },
+                            { speaker: "left", text: "That's cool! I want to be a scientist." }
+                        ],
+                        [
+                            { speaker: "left", text: "My sister can draw very well." },
+                            { speaker: "right", text: "She should be an artist!" },
+                            { speaker: "left", text: "Actually, she wants to be a pilot." }
+                        ],
+                        [
+                            { speaker: "left", text: "Can you help me with this math problem?" },
+                            { speaker: "right", text: "Sure, I can help. I want to be a teacher someday." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Matching] Which job requires the ability to fly planes?", options: ["Engineer", "Pilot", "Doctor"], correct: 1 },
+                        { question: "[Grammar Check] Which sentence expresses an ability?", options: ["I want to draw.", "I can draw.", "I did draw."], correct: 1 },
+                        { question: "[Detail Comprehension] Why does the B2 student want to be a teacher?", options: ["They like long holidays", "They have strong communication skills and want to inspire others", "They can do math"], correct: 1 }
+                    ],
+                    spelling: ["doctor", "engineer", "artist", "pilot", "scientist", "ability"]
+                },
+                {
+                    number: 13, semester: 2,
+                    title: "Shopping", 
+                    emoji: "🛍️",
+                    theme: "Daily life",
+                    plan: {
+                        objectives: ["Navigate a shopping transaction in English.", "Differentiate countable and uncountable nouns.", "Use 'How much/How many' and 'Can I...?' correctly."],
+                        outcome: "Set up and participate in a classroom 'Shenzhen Market' economy.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning shopping vocabulary and grammar so we can confidently buy and sell items.</div>",
+                        expectations: "<div><strong>What:</strong> Prices, shopping verbs, How much/many.</div><div><strong>How:</strong> Experiential classroom market simulations.</div><div><strong>Why:</strong> Shopping is a fundamental survival skill in any language.</div>",
+                        themeText: "<div><strong>Topic:</strong> Stores, prices, receipts, expensive vs. cheap.</div>"
+                    },
+                    vocabulary: ["shop", "buy", "sell", "price", "expensive", "cheap", "receipt", "customer", "money", "pay"],
+                    grammar: [
+                        { title: "Countable vs Uncountable", rule: "Use 'How many' for things you can count (apples). Use 'How much' for uncountable things (water, money).", examples: ["How many books?", "How much is this shirt?"] },
+                        { title: "Modal 'can' (Permission/Request)", rule: "Used in service interactions.", examples: ["Can I help you?", "Can I see that receipt?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "___ money do you have left?", options: ["How many", "How much", "How"], correct: 1 },
+                        { q: "___ I help you find a cheaper shirt?", options: ["Can", "Am", "Do"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "I went to the shop yesterday to buy a pen. The price was 5 yuan. It was cheap. My friend bought a bag. It was 100 yuan. It was expensive! We paid the money and got a receipt.",
+                        B1: "Shenzhen has many great places to shop. Yesterday, I wanted to buy a new jacket. The shop assistant asked, 'Can I help you?' I asked, 'How much is this jacket?' The price was very expensive, so I asked to see a cheap one. Finally, I bought a blue one and she gave me the receipt.",
+                        B2: "Navigating retail environments requires practical language skills. During our experiential learning task, we simulated a bustling Shenzhen market. Students practiced being customers who buy goods and vendors who sell them. We had to negotiate the price of various items, debating whether they were too expensive or reasonably cheap. Understanding the difference between countable items ('How many apples?') and uncountable concepts ('How much money?') was essential to finalize transactions and issue a correct receipt."
+                    },
+                    comprehension: [
+                        "Monologue Comprehension: 'How much is it? A. 60 yuan, B. 15 yuan'",
+                        "Gap-Fill: That computer is too _________ (expensive). I want a _________ (cheap) one."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Shenzhen Market</strong></div><div><strong>Task:</strong> Set up a classroom economy.</div><div><strong>Action:</strong> Use fake English currency to negotiate prices (expensive/cheap), ask 'How much?', and complete transactions.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Receipt Error</strong></div><div><strong>Scenario:</strong> A customer brings back a receipt showing they paid too much.</div><div><strong>Action:</strong> Role-play the customer service desk to fix the problem using 'Can I help you?'.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Personal Shopper</strong></div><div><strong>Goal:</strong> Buy an outfit on a strict budget.</div><div><strong>Action:</strong> Walk around the class 'stores' and calculate 'How much' you spent.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Hello, can I help you?" },
+                            { speaker: "right", text: "Yes, how much is this bag?" },
+                            { speaker: "left", text: "The price is 200 yuan." },
+                            { speaker: "right", text: "That is too expensive. Do you have a cheap one?" }
+                        ],
+                        [
+                            { speaker: "left", text: "How many apples do you want to buy?" },
+                            { speaker: "right", text: "I want five apples, please. How much money is that?" },
+                            { speaker: "left", text: "That will be 10 yuan. Here is your receipt." }
+                        ],
+                        [
+                            { speaker: "left", text: "I want to sell my old bicycle." },
+                            { speaker: "right", text: "What is the price?" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Listening/Reading Comprehension] If the customer thinks 200 yuan is too high, the item is:", options: ["Cheap", "Expensive", "Free"], correct: 1 },
+                        { question: "[Grammar Check] Which phrase is correct?", options: ["How many money?", "How much money?", "How much apples?"], correct: 1 },
+                        { question: "[Vocabulary in Context] What is a 'receipt'?", options: ["A paper proving you paid", "A type of shop", "A person who buys things"], correct: 0 }
+                    ],
+                    spelling: ["expensive", "cheap", "receipt", "price", "customer"]
+                },
+                {
+                    number: 14, semester: 2,
+                    title: "Electricity", 
+                    emoji: "⚡",
+                    theme: "Daily life",
+                    plan: {
+                        objectives: ["Use vocabulary related to power and energy.", "Apply modal verbs 'must' and 'mustn't' for rules.", "Identify an author's purpose in instructional texts."],
+                        outcome: "Conduct a school energy audit and create warning signs.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to give instructions and warnings about electricity to promote safety and conservation.</div>",
+                        expectations: "<div><strong>What:</strong> Electricity vocab, must/mustn't, Imperatives.</div><div><strong>How:</strong> Creating school audits and safety posters.</div><div><strong>Why:</strong> Energy conservation and physical safety are vital life lessons.</div>",
+                        themeText: "<div><strong>Topic:</strong> Saving power, appliances, turning things on/off.</div>"
+                    },
+                    vocabulary: ["electricity", "electric", "appliance", "save", "waste", "power", "turn on", "turn off", "danger", "safe"],
+                    grammar: [
+                        { title: "Modals (must / mustn't)", rule: "Use 'must' for strong obligations. Use 'mustn't' for prohibitions (things you are forbidden to do).", examples: ["You must save electricity.", "You mustn't waste power."] },
+                        { title: "Imperatives", rule: "Start with a verb to give a direct command.", examples: ["Turn off the lights.", "Don't touch the electric appliance."] }
+                    ],
+                    grammarExercises: [
+                        { q: "You ___ touch electric wires with wet hands. It's dangerous!", options: ["must", "mustn't", "can"], correct: 1 },
+                        { q: "___ off the lights when you leave the room.", options: ["Turn", "Turns", "Turning"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "Electricity is very important. We use it every day. You must turn off the lights when you leave a room. You mustn't waste power. It is bad for the Earth. Please save electricity.",
+                        B1: "In our daily life, we use many electric appliances like computers and TVs. These appliances use a lot of power. To protect the environment, we must save electricity. The rule is simple: turn on the lights only when it is dark, and turn them off when you leave. You mustn't waste power.",
+                        B2: "Electricity is the invisible force that powers modern civilization, running every electric appliance in our homes. However, generating this power often impacts the environment, making conservation essential. A recent school energy audit revealed significant waste. The instructional manual is clear: students must turn off classroom panels when not in use, and they mustn't leave computers running overnight. Beyond saving energy, safety is paramount; you must never operate appliances with wet hands. Adhering to these imperatives ensures we save valuable resources while maintaining safety."
+                    },
+                    comprehension: [
+                        "Identifying Author's Purpose: Is the purpose of the B2 text to entertain or to instruct/warn? (Instruct/Warn)",
+                        "Gap-Fill: You _________ (must not) _________ (waste) electricity."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The School Energy Audit</strong></div><div><strong>Task:</strong> Walk around the school identifying where electricity is wasted.</div><div><strong>Action:</strong> Create English warning signs ('You must turn off the lights', 'You mustn't waste power') and present the audit.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Safety Inspector</strong></div><div><strong>Scenario:</strong> A little kid is playing near an electric appliance with water.</div><div><strong>Action:</strong> Use imperatives and 'mustn't' to quickly write down what to say to stop them.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Energy Campaigner</strong></div><div><strong>Goal:</strong> Convince families to lower their electric bill.</div><div><strong>Action:</strong> Design a flyer outlining 3 things they MUST do to save power.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Hey, don't forget to turn off the computer!" },
+                            { speaker: "right", text: "Why? It doesn't use much power." },
+                            { speaker: "left", text: "We must save electricity. You mustn't waste it." }
+                        ],
+                        [
+                            { speaker: "left", text: "Is it safe to use this electric appliance?" },
+                            { speaker: "right", text: "Yes, but you mustn't touch the plug with wet hands." },
+                            { speaker: "left", text: "Got it. Safety first." }
+                        ],
+                        [
+                            { speaker: "left", text: "Our school energy audit showed we waste a lot of power." },
+                            { speaker: "right", text: "We should put up signs: 'Turn off the lights'." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Author's Purpose] The main purpose of the passage is to:", options: ["Make you laugh", "Instruct you on how to safely conserve energy", "Sell you an appliance"], correct: 1 },
+                        { question: "[Grammar Check] Which word expresses a strict prohibition (something you CANNOT do)?", options: ["Must", "Mustn't", "Can"], correct: 1 },
+                        { question: "[Vocabulary in Context] What is a computer considered in the text?", options: ["An electric appliance", "A type of electricity", "Waste"], correct: 0 }
+                    ],
+                    spelling: ["electricity", "appliance", "waste", "power", "electric"]
+                },
+                {
+                    number: 15, semester: 2,
+                    title: "Poems and stories", 
+                    emoji: "📚",
+                    theme: "Culture and stories",
+                    plan: {
+                        objectives: ["Identify literature vocabulary like 'rhyme' and 'character'.", "Use the Past Continuous Tense to set the scene in a story.", "Make inferences about characters based on literary excerpts."],
+                        outcome: "Write and dramatically read the beginning of a mystery story.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to use descriptive past tenses to write and understand creative stories.</div>",
+                        expectations: "<div><strong>What:</strong> Literature vocab, Past Continuous Tense.</div><div><strong>How:</strong> Creative writing and campfire storytelling.</div><div><strong>Why:</strong> Creative writing fosters imagination and deepens tense mastery.</div>",
+                        themeText: "<div><strong>Topic:</strong> Literature, reading, storytelling.</div>"
+                    },
+                    vocabulary: ["poem", "story", "rhyme", "imagine", "character", "read", "write", "scene", "author", "background"],
+                    grammar: [
+                        { title: "Past Continuous (Setting the Scene)", rule: "Use was/were + verb-ing to describe the background action when a story starts or when another event interrupts.", examples: ["The wind was howling, and the dog was barking...", "I was reading a story when the phone rang."] }
+                    ],
+                    grammarExercises: [
+                        { q: "When I walked into the room, the main character ___ in the corner.", options: ["hides", "was hiding", "hid"], correct: 1 },
+                        { q: "We ___ a poem when the bell rang.", options: ["were reading", "are reading", "read"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "I like to read a good story. Yesterday, I was reading a book in my room. The main character was a brave boy. Sometimes I read a poem. A poem has a nice rhyme. I like to imagine I am in the story.",
+                        B1: "Culture is passed down through poems and stories. Last night, I was reading a mystery novel. The author set a scary scene: the wind was blowing, and the dog was barking. Suddenly, the main character heard a noise! You really have to use your imagination to picture the characters and the rhymes they speak.",
+                        B2: "Immersing oneself in literature—whether an epic story or a rhythmic poem—is a profound cultural experience. Consider how authors set a scene: 'The wind was howling fiercely, and the protagonist was hiding in the shadows.' The use of the past continuous tense effectively establishes the background atmosphere before the main action occurs. When I was analyzing a classic poem yesterday, I noticed how the intricate rhyme scheme helped develop the character's voice. We must continually imagine the worlds these authors build to truly appreciate them."
+                    },
+                    comprehension: [
+                        "Inference: Why was the character hiding in the shadows? (Because they were scared or trying not to be seen).",
+                        "Gap-Fill: The author uses a _________ (rhyme) in the _________ (poem)."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Campfire Storyteller</strong></div><div><strong>Task:</strong> Write the beginning of a mystery story.</div><div><strong>Action:</strong> Use the Past Continuous to set the scene ('The wind was howling...'). Read it aloud with dramatic intonation.</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>The Missing Rhyme</strong></div><div><strong>Scenario:</strong> A poet lost the last word of their stanza.</div><div><strong>Action:</strong> Read the poem context and find a word that fits the meaning and the rhyme scheme.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Character Analyst</strong></div><div><strong>Goal:</strong> Explain a character's motives.</div><div><strong>Action:</strong> Describe what a character 'was doing' and infer what they were thinking.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "What were you doing at 8 PM yesterday?" },
+                            { speaker: "right", text: "I was reading a fascinating story about a detective." },
+                            { speaker: "left", text: "Who was the main character?" }
+                        ],
+                        [
+                            { speaker: "left", text: "I have to write a poem for English class." },
+                            { speaker: "right", text: "You should use a strong rhyme at the end of each line." },
+                            { speaker: "left", text: "I will try to imagine a beautiful forest scene." }
+                        ],
+                        [
+                            { speaker: "left", text: "The author's background descriptions are great." },
+                            { speaker: "right", text: "Yes! 'The rain was falling' makes it feel so real." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Inference] Based on the B1 text, what kind of atmosphere did the author create?", options: ["A funny comedy", "A scary, tense mystery", "A boring lecture"], correct: 1 },
+                        { question: "[Grammar Check] Which tense is best for setting the background scene of a story?", options: ["Simple Present", "Past Continuous (was/were + V-ing)", "Future"], correct: 1 },
+                        { question: "[Vocabulary in Context] What does 'rhyme' mean in a poem?", options: ["Words that sound alike at the end", "The main person in the story", "The author's name"], correct: 0 }
+                    ],
+                    spelling: ["poem", "story", "rhyme", "imagine", "character", "author"]
+                },
+                {
+                    number: 16, semester: 2,
+                    title: "From hobby to career", 
+                    emoji: "🚀",
+                    theme: "Culture and stories",
+                    plan: {
+                        objectives: ["Discuss career development using target vocabulary.", "Recognize the Past Perfect Tense (had + past participle) for order of past events.", "Analyze cause and effect in success stories."],
+                        outcome: "Map out a famous person's journey on a timeline.",
+                        intention: "<div><span class='emoji-wrapper'>🎯</span> We are learning to trace the steps of success so we can figure out how to turn our own hobbies into careers.</div>",
+                        expectations: "<div><strong>What:</strong> Career vocab, Past Perfect Tense (Recognition).</div><div><strong>How:</strong> Timeline mapping and biography research.</div><div><strong>Why:</strong> Connecting current passions to future professions is highly relevant for 7th graders.</div>",
+                        themeText: "<div><strong>Topic:</strong> Success, skills, professional development.</div>"
+                    },
+                    vocabulary: ["career", "hobby", "develop", "skill", "success", "professional", "famous", "start", "practice", "achieve"],
+                    grammar: [
+                        { title: "Past Perfect Tense (Intro)", rule: "Use 'had + past participle' to show an action was completed BEFORE another action in the past.", examples: ["She had already started collecting stamps before she became a professional."] }
+                    ],
+                    grammarExercises: [
+                        { q: "By the time he got his first job, he ___ his skills for ten years.", options: ["developed", "has developed", "had developed"], correct: 2 },
+                        { q: "She was a success because she ___ practiced every day.", options: ["had", "have", "is"], correct: 0 }
+                    ],
+                    readingTexts: {
+                        A2: "Many people turn their hobby into a career. Bill liked computers. He developed his skill. He had practiced a lot before he got a job. Now he has a lot of success.",
+                        B1: "Can a simple hobby become a lifelong career? Yes! Read the story of a famous photographer. She had already started taking photos of birds before she became a professional. She developed her skills over many years. Because she worked hard, she achieved great success. Finding a job you love is wonderful.",
+                        B2: "The transition from an amateur hobby to a professional career requires dedication and the continuous need to develop one's skills. Consider the biography of a renowned software engineer. By the time he entered university, he had already programmed three different applications. He had recognized his passion long before it became a viable career path. This text structure clearly illustrates cause and effect: early, persistent practice inevitably paves the way for ultimate professional success."
+                    },
+                    comprehension: [
+                        "Text Structure: Which happened first? A) He programmed three applications B) He entered university. (A)",
+                        "Gap-Fill: She developed her _________ (skill) and achieved _________ (success)."
+                    ],
+                    tasks: {
+                        pbl: `<div class="task-header"><span class="emoji-wrapper">🏷️</span> <strong>The Path to Success</strong></div><div><strong>Task:</strong> Research a famous person who turned a hobby into a career.</div><div><strong>Action:</strong> Map out their journey on a timeline to practice seeing which past events happened first (Past Perfect).</div>`,
+                        prbl: `<div class="task-header"><span class="emoji-wrapper">🧩</span> <strong>Hobby Consultant</strong></div><div><strong>Scenario:</strong> A classmate loves playing video games but doesn't know how it can be a job.</div><div><strong>Action:</strong> Advise them on what skills they need to develop (e.g., coding, design) to make it a career.</div>`,
+                        grasps: `<div class="task-header"><span class="emoji-wrapper">🎭</span> <strong>Future Interview</strong></div><div><strong>Goal:</strong> Describe your future success.</div><div><strong>Action:</strong> Pretend you are 30 years old. Tell a reporter what you 'had done' when you were young to get to where you are.</div>`
+                    },
+                    conversations: [
+                        [
+                            { speaker: "left", text: "I love playing the guitar. It's my favorite hobby." },
+                            { speaker: "right", text: "You should develop that skill. It could become your career." },
+                            { speaker: "left", text: "Do you think I can achieve success as a musician?" }
+                        ],
+                        [
+                            { speaker: "left", text: "By the time she was twenty, she had already started her own company." },
+                            { speaker: "right", text: "Wow. She had practiced her business skills for a long time." },
+                            { speaker: "left", text: "Yes, turning a hobby into a profession takes hard work." }
+                        ],
+                        [
+                            { speaker: "left", text: "What do you need for a good career?" },
+                            { speaker: "right", text: "You need to find your passion and develop professional skills." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "[Text Structure] In the B2 text, which action happened FIRST?", options: ["He entered university", "He became a professional", "He programmed three applications"], correct: 2 },
+                        { question: "[Grammar Check] The Past Perfect tense (had + past participle) is used to show:", options: ["Something happening right now", "Something that happened before another past event", "A future plan"], correct: 1 },
+                        { question: "[Vocabulary in Context] What does 'develop a skill' mean?", options: ["To forget how to do something", "To improve and grow an ability", "To buy a tool"], correct: 1 }
+                    ],
+                    spelling: ["career", "hobby", "develop", "skill", "success", "achieve"]
+                }
+            ]
+        };
+
+        // State variables
+        let xp = 0;
+        let completedUnits = [];
+        let currentUnit = null;
+        let currentMode = 'plan';
+        let currentReadingTier = 'B2';
+        let voices = [];
+        const SPEECH_RATE = 0.85; 
+
+        // Initialization
+        function init() {
+            loadVoices();
+            renderMainMenu();
+        }
+
+        function loadVoices() {
+            if ('speechSynthesis' in window) {
+                voices = speechSynthesis.getVoices();
+                if (voices.length === 0) setTimeout(loadVoices, 100);
+            }
+        }
+
+        // TTS function attach to clickables
+        function speak(text, voiceName = "Emma") {
+            if (!('speechSynthesis' in window)) return;
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = SPEECH_RATE; 
+            
+            const voice = voices.find(v => v.name.includes(voiceName));
+            if (voice) utterance.voice = voice;
+            
+            // Visual feedback on the clicked element
+            document.querySelectorAll('.tts-active').forEach(el => el.classList.remove('tts-active'));
+            
+            // Capture the target safely
+            let activeEl = null;
+            if (typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.contains('tts-clickable')) {
+                activeEl = event.currentTarget;
+                activeEl.classList.add('tts-active');
+            }
+
+            utterance.onend = () => {
+                if (activeEl) {
+                    activeEl.classList.remove('tts-active');
+                }
+            };
+
+            speechSynthesis.speak(utterance);
+        }
+
+        // Success Sound
+        function playSuccessSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+        }
+
+        // Error Sound
+        function playErrorSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(200, ctx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.2); 
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+        }
+
+        // Glitter Animation
+        function createGlitter(targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            for(let i=0; i<20; i++) {
+                const glitter = document.createElement('div');
+                glitter.className = 'glitter';
+                glitter.style.left = (rect.left + rect.width/2) + 'px';
+                glitter.style.top = (rect.top + rect.height/2) + 'px';
+                
+                // random outward translation
+                const tx = (Math.random() * 140 - 70) + 'px';
+                const ty = (Math.random() * 100 - 50) + 'px';
+                glitter.style.setProperty('--tx', tx);
+                glitter.style.setProperty('--ty', ty);
+                
+                document.body.appendChild(glitter);
+                setTimeout(() => glitter.remove(), 600);
+            }
+        }
+
+        function addXP(pts) {
+            xp += pts;
+            document.getElementById('xpValue').innerText = xp;
+        }
+
+        // Navigation & Display
+        function renderMainMenu() {
+            const sem1 = document.getElementById('sem1Grid');
+            const sem2 = document.getElementById('sem2Grid');
+            sem1.innerHTML = ''; sem2.innerHTML = '';
+            
+            document.getElementById('headerTitle').innerText = "Grade 7 English";
+            document.getElementById('backBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = true;
+
+            grade7Data.units.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = `unit-card ${completedUnits.includes(unit.number) ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="unit-emoji">${unit.emoji}</div>
+                    <div class="unit-title">Unit ${unit.number}:<br>${unit.title}</div>
+                    <div class="unit-subtitle">${unit.theme || ''}</div>
+                `;
+                card.onclick = () => loadUnit(unit);
+                if (unit.semester === 1) {
+                    sem1.appendChild(card);
+                } else {
+                    sem2.appendChild(card);
+                }
+            });
+        }
+
+        function showHome() {
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            document.getElementById('homeView').style.display = 'block';
+            document.getElementById('contentView').style.display = 'none';
+            renderMainMenu();
+        }
+
+        function loadUnit(unit) {
+            currentUnit = unit;
+            currentMode = 'plan';
+            currentReadingTier = 'B2';
+            updateModeButtons();
+            
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('contentView').style.display = 'block';
+            document.getElementById('headerTitle').innerText = `Unit ${unit.number}`;
+            
+            document.getElementById('backBtn').disabled = false;
+            
+            renderContent();
+            addXP(5);
+        }
+
+        const ALL_MODES = ['plan', 'vocab', 'grammar', 'reading', 'tasks', 'convo', 'spell', 'quiz'];
+
+        function navigateBack() {
+            let idx = ALL_MODES.indexOf(currentMode);
+            if (idx > 0) {
+                setMode(ALL_MODES[idx - 1]);
+            } else {
+                showHome();
+            }
+        }
+
+        function navigateForward() {
+            let idx = ALL_MODES.indexOf(currentMode);
+            if (idx < ALL_MODES.length - 1) {
+                setMode(ALL_MODES[idx + 1]);
+            }
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            updateModeButtons();
+            renderContent();
+        }
+
+        function updateModeButtons() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            const idx = ALL_MODES.indexOf(currentMode);
+            const buttons = document.querySelectorAll('.mode-btn');
+            
+            buttons.forEach(b => {
+                if(b.innerText.toLowerCase().includes(currentMode)) {
+                    b.classList.add('active');
+                    b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+            
+            document.getElementById('nextBtn').disabled = (idx === ALL_MODES.length - 1);
+        }
+
+        function renderContent() {
+            const area = document.getElementById('contentArea');
+            area.innerHTML = '';
+            
+            if (currentMode === 'plan') renderPlan(area);
+            if (currentMode === 'vocab') renderVocabulary(area);
+            if (currentMode === 'grammar') renderGrammar(area);
+            if (currentMode === 'reading') renderReading(area);
+            if (currentMode === 'tasks') renderTasks(area);
+            if (currentMode === 'convo') renderConversation(area);
+            if (currentMode === 'spell') renderSpelling(area);
+            if (currentMode === 'quiz') renderQuiz(area);
+        }
+
+        // --- View Renderers ---
+
+        function renderPlan(container) {
+            if (!currentUnit.plan) return;
+            
+            let html = `<div class="section-title">Lesson Plan & Framework</div>`;
+            
+            html += `<div class="grammar-box">
+                <div class="grammar-title">🎯 Learning Objectives</div>
+                <ul style="margin-left: 20px; margin-bottom: 10px; font-size: 0.95em; color: var(--text-primary); line-height: 1.4;">
+                    ${currentUnit.plan.objectives.map(o => `<li>${o}</li>`).join('')}
+                </ul>
+                <div class="grammar-title" style="margin-top: 15px;">🏆 Outcome</div>
+                <div class="grammar-rule">${currentUnit.plan.outcome}</div>
+            </div>`;
+
+            html += `<div class="grammar-box">
+                <div class="grammar-title">💡 Learning Intention & Success Criteria</div>
+                <div class="grammar-rule formatted-text">${currentUnit.plan.intention}</div>
+            </div>`;
+
+            html += `<div class="grammar-box">
+                <div class="grammar-title">📚 Instructional Expectations</div>
+                <div class="grammar-rule formatted-text">${currentUnit.plan.expectations}</div>
+            </div>`;
+
+            html += `<div class="grammar-box">
+                <div class="grammar-title">🌍 Topic & Theme</div>
+                <div class="grammar-rule formatted-text">${currentUnit.plan.themeText}</div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function renderVocabulary(container) {
+            const grid = document.createElement('div');
+            grid.className = 'vocab-grid';
+            currentUnit.vocabulary.forEach((word, i) => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card tts-clickable';
+                card.onclick = (e) => { speak(word, i%2===0?'Emma':'Brian'); addXP(1); };
+                card.innerHTML = `${word}`;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        function renderGrammar(container) {
+            // Rules
+            currentUnit.grammar.forEach(item => {
+                const box = document.createElement('div');
+                box.className = 'grammar-box';
+                let html = `<div class="grammar-title">${item.title}</div>`;
+                html += `<div class="grammar-rule tts-clickable" onclick="speak('${item.rule.replace(/'/g,"\\'")}'); addXP(1);">${item.rule}</div>`;
+                item.examples.forEach(ex => {
+                    html += `<div class="grammar-example tts-clickable" onclick="speak('${ex.replace(/'/g,"\\'")}'); addXP(1);">${ex}</div>`;
+                });
+                box.innerHTML = html;
+                container.appendChild(box);
+            });
+
+            // Interactive Grammar Games
+            if(currentUnit.grammarExercises && currentUnit.grammarExercises.length > 0) {
+                const exContainer = document.createElement('div');
+                exContainer.innerHTML = `<div class="section-title" style="margin-top:20px;">Grammar Games</div>`;
+                
+                currentUnit.grammarExercises.forEach((ex, i) => {
+                    const qBox = document.createElement('div');
+                    qBox.className = 'grammar-exercise';
+                    
+                    let html = `<div class="grammar-q">${i+1}. ${ex.q}</div><div class="grammar-opts">`;
+                    ex.options.forEach((opt, optIdx) => {
+                        html += `<button class="grammar-opt" onclick="checkGrammar(this, ${optIdx}, ${ex.correct})">${opt}</button>`;
+                    });
+                    html += `</div>`;
+                    qBox.innerHTML = html;
+                    exContainer.appendChild(qBox);
+                });
+                container.appendChild(exContainer);
+            }
+        }
+
+        window.checkGrammar = function(btn, selected, correct) {
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('.grammar-opt');
+            buttons.forEach(b => b.style.pointerEvents = 'none'); // disable all
+
+            if(selected === correct) {
+                btn.classList.add('correct');
+                addXP(5);
+                playSuccessSound();
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+                playErrorSound();
+            }
+        }
+
+        function renderReading(container) {
+            if(!currentUnit.readingTexts) return;
+
+            let html = `<div class="convo-tabs" style="margin-bottom: 15px;">
+                <button class="convo-tab ${currentReadingTier === 'A2' ? 'active' : ''}" onclick="switchTier('A2')">A2 (Basic)</button>
+                <button class="convo-tab ${currentReadingTier === 'B1' ? 'active' : ''}" onclick="switchTier('B1')">B1 (Intermediate)</button>
+                <button class="convo-tab ${currentReadingTier === 'B2' ? 'active' : ''}" onclick="switchTier('B2')">B2 (Advanced)</button>
+            </div>`;
+
+            const text = currentUnit.readingTexts[currentReadingTier];
+
+            html += `<div class="reading-box tts-clickable" onclick="speak(this.innerText, 'Brian'); addXP(2);">${text}</div>`;
+
+            if (currentUnit.comprehension) {
+                html += `<div class="section-title" style="margin-top: 20px;">Comprehension Assessments</div>`;
+                currentUnit.comprehension.forEach(comp => {
+                    html += `<div class="grammar-box"><div class="grammar-rule">${comp}</div></div>`;
+                });
+            }
+
+            container.innerHTML = html;
+        }
+
+        window.switchTier = function(tier) {
+            currentReadingTier = tier;
+            speechSynthesis.cancel();
+            renderReading(document.getElementById('contentArea'));
+        }
+
+        function renderTasks(container) {
+            if (!currentUnit.tasks) return;
+
+            let html = `<div class="section-title">Interactive Tasks</div>`;
+
+            html += `<div class="grammar-box">
+                <div class="grammar-title">🛠️ Project/Task-Based Learning (TBL)</div>
+                <div class="grammar-rule formatted-text">${currentUnit.tasks.pbl}</div>
+            </div>`;
+
+            html += `<div class="grammar-box">
+                <div class="grammar-title">🧩 Problem-Based Learning (PrBL)</div>
+                <div class="grammar-rule formatted-text">${currentUnit.tasks.prbl}</div>
+            </div>`;
+
+            html += `<div class="grammar-box">
+                <div class="grammar-title">🎭 GRASPS Performance Task</div>
+                <div class="grammar-rule formatted-text">${currentUnit.tasks.grasps}</div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        // Conversation Logic (Text Message Style + 3 Tabs)
+        let isConvoPlaying = false;
+        let activeConvoIdx = 0;
+
+        function renderConversation(container) {
+            activeConvoIdx = 0;
+            
+            // Build tabs
+            let html = `<div class="convo-tabs">`;
+            currentUnit.conversations.forEach((_, i) => {
+                html += `<button class="convo-tab ${i===0?'active':''}" onclick="switchConvo(${i}, this)">Convo ${i+1}</button>`;
+            });
+            html += `</div>`;
+            html += `<div class="conversation-container" id="chatContainer"></div>`;
+            html += `<button class="btn-full" style="margin-top:10px;" onclick="startConversation()">▶️ Play Audio</button>`;
+            
+            container.innerHTML = html;
+            
+            // Render first convo text statically first
+            renderStaticChat();
+        }
+
+        window.switchConvo = function(idx, btnElement) {
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            activeConvoIdx = idx;
+            document.querySelectorAll('.convo-tab').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderStaticChat();
+        };
+
+        function renderStaticChat() {
+            const chatBox = document.getElementById('chatContainer');
+            chatBox.innerHTML = '';
+            const convo = currentUnit.conversations[activeConvoIdx];
+            convo.forEach((line) => {
+                const msgBubble = document.createElement('div');
+                msgBubble.className = `message-bubble message-${line.speaker} tts-clickable`;
+                msgBubble.textContent = line.text;
+                msgBubble.style.opacity = 1; // fully visible
+                msgBubble.onclick = () => speak(line.text, line.speaker === "left" ? "Emma" : "Brian");
+                chatBox.appendChild(msgBubble);
+            });
+        }
+
+        function startConversation() {
+            speechSynthesis.cancel();
+            isConvoPlaying = true;
+            document.getElementById('chatContainer').innerHTML = '';
+            playConvoLine(0);
+        }
+
+        function playConvoLine(idx) {
+            const convo = currentUnit.conversations[activeConvoIdx];
+            if (!isConvoPlaying || idx >= convo.length) {
+                isConvoPlaying = false;
+                return;
+            }
+
+            const line = convo[idx];
+            const chatBox = document.getElementById('chatContainer');
+            
+            const msgBubble = document.createElement('div');
+            msgBubble.className = `message-bubble message-${line.speaker} tts-clickable`;
+            msgBubble.textContent = line.text;
+            msgBubble.onclick = () => speak(line.text, line.speaker === "left" ? "Emma" : "Brian");
+            
+            chatBox.appendChild(msgBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const utterance = new SpeechSynthesisUtterance(line.text);
+            utterance.rate = SPEECH_RATE;
+            const voice = voices.find(v => v.name.includes(line.speaker === "left" ? "Emma" : "Brian"));
+            if (voice) utterance.voice = voice;
+
+            utterance.onend = () => {
+                if(isConvoPlaying) {
+                    setTimeout(() => playConvoLine(idx + 1), 400);
+                }
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // Spelling Game with Glitter & Sound
+        let spellIndex = 0;
+        function renderSpelling(container) {
+            spellIndex = 0;
+            container.innerHTML = `<div id="spellArea" class="interactive-container"></div>`;
+            showSpellingWord();
+        }
+
+        function showSpellingWord() {
+            const area = document.getElementById('spellArea');
+            if(spellIndex >= currentUnit.spelling.length) {
+                area.innerHTML = `<h3>🎉 Spelling Complete!</h3><button class="btn-full" style="margin-top:10px;" onclick="setMode('spell')">Try Again</button>`;
+                addXP(10);
+                if (!completedUnits.includes(currentUnit.number)) completedUnits.push(currentUnit.number);
+                return;
+            }
+            
+            const word = currentUnit.spelling[spellIndex];
+            
+            area.innerHTML = `
+                <div style="font-size: 3em;">📝</div>
+                <button class="btn-full btn-repeat" onclick="speak('${word}')">🔁 Repeat Audio</button>
+                <div class="spelling-wrapper">
+                    <input type="text" id="spellInput" class="spelling-input" placeholder="Type here..." autocomplete="off">
+                </div>
+                <button class="btn-full" onclick="checkSpelling('${word}')">Check</button>
+            `;
+            setTimeout(() => speak(word), 300);
+        }
+
+        window.checkSpelling = function(word) {
+            const input = document.getElementById('spellInput');
+            if(input.value.trim().toLowerCase() === word.toLowerCase()) {
+                input.style.borderColor = 'var(--success)';
+                input.style.color = 'var(--success)';
+                addXP(5);
+                playSuccessSound();
+                createGlitter(input);
+                
+                setTimeout(() => {
+                    spellIndex++;
+                    showSpellingWord();
+                }, 1200);
+            } else {
+                input.style.borderColor = '#ef4444';
+                playErrorSound();
+                setTimeout(() => {
+                    input.style.borderColor = 'var(--border)';
+                    input.value = '';
+                }, 800);
+            }
+        };
+
+        // Quiz
+        let quizIdx = 0;
+        function renderQuiz(container) {
+            quizIdx = 0;
+            container.innerHTML = `<div id="quizArea" class="interactive-container"></div>`;
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            const area = document.getElementById('quizArea');
+            if(quizIdx >= currentUnit.quiz.length) {
+                area.innerHTML = `<h3>🎉 Quiz Complete!</h3><button class="btn-full" style="margin-top:10px;" onclick="setMode('quiz')">Try Again</button>`;
+                addXP(10);
+                return;
+            }
+            
+            const q = currentUnit.quiz[quizIdx];
+            
+            // Format question to highlight the bracketed skill tag
+            let formattedQ = q.question;
+            const tagMatch = formattedQ.match(/^\[(.*?)\](.*)/);
+            if(tagMatch) {
+                formattedQ = `<div class="reading-tag">${tagMatch[1]}</div><div>${tagMatch[2]}</div>`;
+            }
+            
+            let html = `<div style="font-size: 1.1em; font-weight: bold; text-align: left;">${formattedQ}</div><div class="quiz-options">`;
+            
+            q.options.forEach((opt, i) => {
+                html += `<button class="quiz-option" onclick="checkQuizAnswer(${i}, ${q.correct}, this)">${opt}</button>`;
+            });
+            html += `</div>`;
+            area.innerHTML = html;
+        }
+
+        window.checkQuizAnswer = function(selected, correct, btn) {
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons.forEach(b => b.disabled = true);
+            
+            if(selected === correct) {
+                btn.classList.add('correct');
+                addXP(5);
+                playSuccessSound();
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+                playErrorSound();
+            }
+            setTimeout(() => {
+                quizIdx++;
+                showQuizQuestion();
+            }, 1200);
+        };
+
+        window.onload = init;
+    </script>
+</body>
+</html>

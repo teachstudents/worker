@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice 09</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #8e44ad;
+            --success: #27ae60;
+            --error: #c0392b;
+            --warning: #f39c12;
+            --light: #f4f6f7;
+            --dark: #1a252f;
+            --gray: #5d6d7e;
+            --border: #bdc3c7;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #2c3e50;
+            background-color: #ecf0f1;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: visible;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        
+        .score-display {
+            font-weight: bold;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .start-screen h2 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .name-input-group {
+            margin: 30px 0;
+        }
+        
+        .name-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .start-btn:hover {
+            background: #7d3c98;
+        }
+        
+        .start-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .instructions {
+            background: var(--light);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* Two-Column Layout for Test Content */
+        .test-layout {
+            display: none;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .test-layout.active {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            animation: fadeIn 0.4s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Left Column: Passage Text */
+        .passage-column {
+            padding-right: 15px;
+            border-right: 1px solid var(--border);
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        
+        .passage-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .passage-text {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        /* Right Column: Questions */
+        .questions-column {
+            padding-left: 15px;
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .question-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .skill-tag {
+            background: #e8daef;
+            color: var(--secondary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .option-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-btn:hover {
+            background: #f8f9f9;
+            border-color: var(--secondary);
+        }
+        
+        .option-btn.correct {
+            background: #d5f5e3;
+            border-color: var(--success);
+            color: #145a32;
+            font-weight: 500;
+        }
+        
+        .option-btn.incorrect {
+            background: #fadbd8;
+            border-color: var(--error);
+            color: #7b241c;
+            font-weight: 500;
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .option-btn.correct .option-letter {
+            background: var(--success);
+        }
+        
+        .option-btn.incorrect .option-letter {
+            background: var(--error);
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #d5f5e3;
+            border: 1px solid var(--success);
+            color: #145a32;
+        }
+        
+        .feedback.incorrect {
+            background: #fadbd8;
+            border: 1px solid var(--error);
+            color: #7b241c;
+        }
+        
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+        
+        /* Navigation */
+        .navigation {
+            padding: 15px 25px;
+            background: var(--light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            background: #7d3c98;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .passage-indicator {
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+        
+        .results-screen.active {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 25px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        
+        .results-header {
+            margin-bottom: 30px;
+        }
+        
+        .results-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .results-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .meta-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+        
+        .skills-summary {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .skills-summary h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: var(--light);
+        }
+        
+        .skill-item.missed {
+            background: #fdedec;
+            border-left: 4px solid var(--error);
+        }
+        
+        .skill-item.mastered {
+            border-left: 4px solid var(--success);
+        }
+        
+        .export-section {
+            margin: 35px 0;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-wechat {
+            background: #07c160;
+            color: white;
+        }
+        
+        .btn-email {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn-lms {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-download {
+            background: #5e35b1;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(200px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .test-layout.active {
+                grid-template-columns: 1fr;
+            }
+            
+            .passage-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+                max-height: none;
+            }
+            
+            .questions-column {
+                padding-left: 0;
+                max-height: none;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .header-stats {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .passage-text {
+                padding: 20px 15px;
+                font-size: 1rem;
+            }
+            
+            .question-box {
+                padding: 12px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .export-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">Reading Practice 09</div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span>⏱️</span>
+                    <span class="timer" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span>✅</span>
+                    <span class="score-display" id="score-display">0/20</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <h2>Welcome to Reading Practice 09</h2>
+            <p>Please enter your name to begin the test.</p>
+            
+            <div class="name-input-group">
+                <label for="tester-name">Your Name (Pinyin or English only)</label>
+                <input type="text" id="tester-name" class="name-input" placeholder="e.g., Wang Lei or Sophie Zhang">
+                <div class="error-message" id="name-error">Please use Pinyin or English characters only. Chinese characters are not accepted.</div>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Test Instructions:</strong></p>
+                <ul>
+                    <li>Read each passage carefully before answering questions</li>
+                    <li>Select the best answer for each question</li>
+                    <li>You will receive immediate feedback after each answer</li>
+                    <li>The test has 20 questions across 5 passages</li>
+                    <li>Estimated time: 35-40 minutes</li>
+                </ul>
+            </div>
+            
+            <button class="start-btn" id="start-btn">Start Test</button>
+        </div>
+        
+        <!-- Test Layout: Two Columns -->
+        <div class="test-layout" id="test-layout">
+            <!-- Left Column: Passage Text -->
+            <div class="passage-column">
+                <!-- Passage 1: Chinese Traditional Music -->
+                <div class="passage-section active" data-passage="1">
+                    <h2 class="passage-title">Passage 1: The Beauty of Chinese Traditional Music</h2>
+                    <div class="passage-text">
+                        <p>Chinese traditional music has a history of over 3,000 years. It reflects Chinese culture, philosophy, and emotions through beautiful melodies and unique instruments.</p>
+                        <p><strong>🎵 Famous Instruments:</strong> 
+                        • <em>Guzheng</em>: A string instrument with 21 strings, producing gentle, flowing sounds.
+                        • <em>Erhu</em>: A two-stringed instrument that can sound like a human voice, expressing deep emotions.
+                        • <em>Dizi</em>: A bamboo flute with a bright, clear tone, often used in folk music.
+                        • <em>Pipa</em>: A four-stringed instrument played with fingers, capable of both soft and powerful sounds.</p>
+                        <p><strong>🎼 Musical Styles:</strong> Traditional music includes court music, folk songs, opera music, and religious music. Each style has its own characteristics and cultural meaning.</p>
+                        <p><strong>🌏 Modern Development:</strong> Today, many young musicians combine traditional instruments with modern music styles. This helps preserve cultural heritage while making it appealing to new generations.</p>
+                        <p><strong>💭 Cultural Value:</strong> Traditional music teaches us about harmony, patience, and respect for nature—important values in Chinese culture.</p>
+                        <p><em>Key Vocabulary: heritage, melody, preserve, harmony, characteristic</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 2: A Story About Helping Others -->
+                <div class="passage-section" data-passage="2">
+                    <h2 class="passage-title">Passage 2: A Small Act of Kindness</h2>
+                    <div class="passage-text">
+                        <p>One rainy afternoon, Mei was walking home from school when she saw an elderly woman struggling with heavy shopping bags. Without thinking, Mei ran over and offered to help.</p>
+                        <p>"Thank you, young lady," the woman said with a warm smile. "You remind me of my granddaughter." As they walked together, the woman shared stories about her life and the changes she had seen in the city.</p>
+                        <p>When they reached the woman's apartment, she invited Mei in for a cup of tea. They talked about school, family, and dreams for the future. Mei realized that this simple act of kindness had created a meaningful connection between two people from different generations.</p>
+                        <p>From that day on, Mei made a habit of looking for opportunities to help others. She learned that kindness is like a ripple in water—one small act can spread far beyond what we imagine.</p>
+                        <p><em>Key Vocabulary: kindness, connection, generation, opportunity, ripple</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 3: Waste Sorting in China -->
+                <div class="passage-section" data-passage="3">
+                    <h2 class="passage-title">Passage 3: Sorting Waste for a Greener Future</h2>
+                    <div class="passage-text">
+                        <p>Waste sorting has become an important part of daily life in many Chinese cities. By separating different types of waste, we can protect the environment and use resources more efficiently.</p>
+                        <p><strong>♻️ Four Categories of Waste:</strong> 
+                        • <em>Recyclables</em>: Paper, plastic, glass, and metal that can be processed and reused.
+                        • <em>Kitchen waste</em>: Food scraps and organic materials that can become compost.
+                        • <em>Hazardous waste</em>: Batteries, medicines, and chemicals that need special handling.
+                        • <em>Other waste</em>: Items that don't fit the above categories.</p>
+                        <p><strong>🌱 Benefits of Waste Sorting:</strong> 
+                        • Reduces pollution of soil, water, and air
+                        • Saves natural resources by recycling materials
+                        • Creates jobs in the recycling industry
+                        • Builds environmental awareness in communities</p>
+                        <p><strong>🏙️ City Initiatives:</strong> Many cities provide color-coded bins, mobile apps for guidance, and rewards for proper sorting. Schools teach students about waste management through practical activities.</p>
+                        <p><strong>👥 Everyone's Responsibility:</strong> Protecting the environment starts with small actions. When everyone does their part, we create a cleaner, healthier world for future generations.</p>
+                        <p><em>Key Vocabulary: efficiently, compost, hazardous, initiative, responsibility</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 4: The Importance of Sleep for Students -->
+                <div class="passage-section" data-passage="4">
+                    <h2 class="passage-title">Passage 4: Why Sleep Matters for Learning</h2>
+                    <div class="passage-text">
+                        <p>Getting enough sleep is crucial for students' physical health, mental well-being, and academic success. Research shows that sleep plays a vital role in learning and memory.</p>
+                        <p><strong>🧠 How Sleep Helps Learning:</strong> 
+                        • During sleep, the brain processes and stores information learned during the day.
+                        • Sleep strengthens neural connections, making memories more durable.
+                        • Adequate rest improves concentration, problem-solving, and creativity.
+                        • Quality sleep helps regulate emotions and reduce stress.</p>
+                        <p><strong>😴 Recommended Sleep for Students:</strong> 
+                        • Primary school students: 9-11 hours per night
+                        • Middle school students: 8-10 hours per night
+                        • High school students: 7-9 hours per night</p>
+                        <p><strong>💡 Tips for Better Sleep:</strong> 
+                        • Keep a regular sleep schedule, even on weekends
+                        • Avoid screens at least one hour before bedtime
+                        • Create a calm, dark, and quiet sleeping environment
+                        • Avoid caffeine and heavy meals close to bedtime</p>
+                        <p><strong>📚 Connection to School Performance:</strong> Students who get enough sleep tend to have better grades, participate more in class, and feel more motivated to learn.</p>
+                        <p><em>Key Vocabulary: crucial, neural, adequate, regulate, motivated</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 5: Learning from Historical Figures -->
+                <div class="passage-section" data-passage="5">
+                    <h2 class="passage-title">Passage 5: Wisdom from China's Historical Figures</h2>
+                    <div class="passage-text">
+                        <p>China's long history has produced many remarkable figures whose lives and ideas continue to inspire people today. Learning about these historical figures helps us understand our cultural heritage and develop important values.</p>
+                        <p><strong>📜 Confucius (551-479 BCE):</strong> A great teacher and philosopher who emphasized education, moral character, and respect for others. His teachings, recorded in <em>The Analects</em>, have influenced Chinese culture for over 2,000 years.</p>
+                        <p><strong>⚔️ Yue Fei (1103-1142):</strong> A national hero known for his loyalty, bravery, and dedication to protecting the country. His story teaches us about patriotism and perseverance in difficult times.</p>
+                        <p><strong>🔬 Li Shizhen (1518-1593):</strong> A famous medical scientist who spent 27 years writing <em>Compendium of Materia Medica</em>, documenting thousands of medicinal plants. His work shows the value of patience, observation, and contribution to society.</p>
+                        <p><strong>💭 Lessons for Today:</strong> These historical figures remind us that education, moral character, service to others, and perseverance are timeless values. By studying their lives, we can find guidance for our own personal growth and contribution to society.</p>
+                        <p><em>Key Vocabulary: philosopher, moral, patriotism, perseverance, contribution</em></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Questions -->
+            <div class="questions-column">
+                <!-- Questions for Passage 1 -->
+                <div class="questions-section active" data-passage="1">
+                    <div class="question-box" id="qbox-1">
+                        <div class="question-meta">
+                            <span>Q1</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, how many strings does the guzheng have?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(1, 'A', this)">
+                                <span class="option-letter">A</span> 2 strings
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'B', this)">
+                                <span class="option-letter">B</span> 4 strings
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'C', this)">
+                                <span class="option-letter">C</span> 21 strings
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'D', this)">
+                                <span class="option-letter">D</span> 100 strings
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-1"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-2">
+                        <div class="question-meta">
+                            <span>Q2</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "heritage" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(2, 'A', this)">
+                                <span class="option-letter">A</span> something new and modern
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'B', this)">
+                                <span class="option-letter">B</span> traditions and culture passed down from previous generations
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'C', this)">
+                                <span class="option-letter">C</span> a type of musical instrument
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'D', this)">
+                                <span class="option-letter">D</span> a popular song
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-2"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-3">
+                        <div class="question-meta">
+                            <span>Q3</span>
+                            <span class="skill-tag">Detail (NOT)</span>
+                        </div>
+                        <p class="question-text">Which musical style is NOT mentioned in the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(3, 'A', this)">
+                                <span class="option-letter">A</span> Court music
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'B', this)">
+                                <span class="option-letter">B</span> Folk songs
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'C', this)">
+                                <span class="option-letter">C</span> Opera music
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'D', this)">
+                                <span class="option-letter">D</span> Electronic dance music
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-3"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-4">
+                        <div class="question-meta">
+                            <span>Q4</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(4, 'A', this)">
+                                <span class="option-letter">A</span> To teach readers how to play traditional instruments
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'B', this)">
+                                <span class="option-letter">B</span> To introduce Chinese traditional music and its cultural significance
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'C', this)">
+                                <span class="option-letter">C</span> To compare Chinese music with Western music
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'D', this)">
+                                <span class="option-letter">D</span> To argue that traditional music is better than modern music
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-4"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 2 -->
+                <div class="questions-section" data-passage="2">
+                    <div class="question-box" id="qbox-5">
+                        <div class="question-meta">
+                            <span>Q5</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">What did Mei do when she saw the elderly woman?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(5, 'A', this)">
+                                <span class="option-letter">A</span> She ignored her and kept walking
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'B', this)">
+                                <span class="option-letter">B</span> She offered to help carry the shopping bags
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'C', this)">
+                                <span class="option-letter">C</span> She called the police for help
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'D', this)">
+                                <span class="option-letter">D</span> She asked for money to help
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-5"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-6">
+                        <div class="question-meta">
+                            <span>Q6</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can we infer about the elderly woman from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(6, 'A', this)">
+                                <span class="option-letter">A</span> She was unfriendly and didn't want help
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'B', this)">
+                                <span class="option-letter">B</span> She was grateful and enjoyed sharing stories with Mei
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'C', this)">
+                                <span class="option-letter">C</span> She was Mei's grandmother
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'D', this)">
+                                <span class="option-letter">D</span> She didn't like young people
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-6"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-7">
+                        <div class="question-meta">
+                            <span>Q7</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "ripple" most probably means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(7, 'A', this)">
+                                <span class="option-letter">A</span> a large wave that destroys everything
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'B', this)">
+                                <span class="option-letter">B</span> a small wave that spreads outward from a single point
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'C', this)">
+                                <span class="option-letter">C</span> a still pool of water with no movement
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'D', this)">
+                                <span class="option-letter">D</span> a deep ocean current
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-7"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-8">
+                        <div class="question-meta">
+                            <span>Q8</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(8, 'A', this)">
+                                <span class="option-letter">A</span> Helping others is only important if you get something in return
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'B', this)">
+                                <span class="option-letter">B</span> Small acts of kindness can create meaningful connections and spread positive impact
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'C', this)">
+                                <span class="option-letter">C</span> Elderly people always need help from young people
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'D', this)">
+                                <span class="option-letter">D</span> Rainy days are the best time to help others
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 3 -->
+                <div class="questions-section" data-passage="3">
+                    <div class="question-box" id="qbox-9">
+                        <div class="question-meta">
+                            <span>Q9</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, which category includes food scraps?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(9, 'A', this)">
+                                <span class="option-letter">A</span> Recyclables
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'B', this)">
+                                <span class="option-letter">B</span> Kitchen waste
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'C', this)">
+                                <span class="option-letter">C</span> Hazardous waste
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'D', this)">
+                                <span class="option-letter">D</span> Other waste
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-9"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-10">
+                        <div class="question-meta">
+                            <span>Q10</span>
+                            <span class="skill-tag">Reference</span>
+                        </div>
+                        <p class="question-text">In paragraph 3, what does "this" refer to in "this helps preserve cultural heritage"?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(10, 'A', this)">
+                                <span class="option-letter">A</span> combining traditional instruments with modern music styles
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'B', this)">
+                                <span class="option-letter">B</span> playing instruments loudly
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'C', this)">
+                                <span class="option-letter">C</span> ignoring traditional music
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'D', this)">
+                                <span class="option-letter">D</span> only listening to modern music
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-10"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-11">
+                        <div class="question-meta">
+                            <span>Q11</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">Which benefit of waste sorting is mentioned in the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(11, 'A', this)">
+                                <span class="option-letter">A</span> It increases pollution of soil and water
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'B', this)">
+                                <span class="option-letter">B</span> It saves natural resources by recycling materials
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'C', this)">
+                                <span class="option-letter">C</span> It makes waste collection more expensive
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'D', this)">
+                                <span class="option-letter">D</span> It reduces the need for environmental education
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-11"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-12">
+                        <div class="question-meta">
+                            <span>Q12</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, why might schools teach students about waste management?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(12, 'A', this)">
+                                <span class="option-letter">A</span> To make students do more homework
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'B', this)">
+                                <span class="option-letter">B</span> To build environmental awareness and responsibility from a young age
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'C', this)">
+                                <span class="option-letter">C</span> To replace other important subjects
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'D', this)">
+                                <span class="option-letter">D</span> To make waste sorting more difficult
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-12"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 4 -->
+                <div class="questions-section" data-passage="4">
+                    <div class="question-box" id="qbox-13">
+                        <div class="question-meta">
+                            <span>Q13</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, how much sleep is recommended for middle school students?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(13, 'A', this)">
+                                <span class="option-letter">A</span> 5-7 hours per night
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'B', this)">
+                                <span class="option-letter">B</span> 8-10 hours per night
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'C', this)">
+                                <span class="option-letter">C</span> 12-14 hours per night
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'D', this)">
+                                <span class="option-letter">D</span> As little as possible
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-13"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-14">
+                        <div class="question-meta">
+                            <span>Q14</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "adequate" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(14, 'A', this)">
+                                <span class="option-letter">A</span> not enough or insufficient
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'B', this)">
+                                <span class="option-letter">B</span> enough or sufficient for a particular purpose
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'C', this)">
+                                <span class="option-letter">C</span> too much or excessive
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'D', this)">
+                                <span class="option-letter">D</span> expensive and luxurious
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-14"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-15">
+                        <div class="question-meta">
+                            <span>Q15</span>
+                            <span class="skill-tag">Text Structure</span>
+                        </div>
+                        <p class="question-text">How is paragraph 4 related to paragraph 3 in the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(15, 'A', this)">
+                                <span class="option-letter">A</span> Paragraph 4 provides practical tips for achieving the sleep recommendations in paragraph 3
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'B', this)">
+                                <span class="option-letter">B</span> Paragraph 4 introduces a contrasting viewpoint about sleep
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'C', this)">
+                                <span class="option-letter">C</span> Paragraph 4 repeats the same information as paragraph 3
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'D', this)">
+                                <span class="option-letter">D</span> Paragraph 4 introduces a completely unrelated topic about diet
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-15"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-16">
+                        <div class="question-meta">
+                            <span>Q16</span>
+                            <span class="skill-tag">Author's Purpose</span>
+                        </div>
+                        <p class="question-text">What is the writer's main purpose in writing this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(16, 'A', this)">
+                                <span class="option-letter">A</span> To argue that students should sleep all day
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'B', this)">
+                                <span class="option-letter">B</span> To explain the importance of sleep for learning and provide practical tips for better sleep
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'C', this)">
+                                <span class="option-letter">C</span> To promote specific sleep products or medications
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'D', this)">
+                                <span class="option-letter">D</span> To criticize students who don't sleep enough
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-16"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 5 -->
+                <div class="questions-section" data-passage="5">
+                    <div class="question-box" id="qbox-17">
+                        <div class="question-meta">
+                            <span>Q17</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what did Confucius emphasize?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(17, 'A', this)">
+                                <span class="option-letter">A</span> Wealth and power above all else
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'B', this)">
+                                <span class="option-letter">B</span> Education, moral character, and respect for others
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'C', this)">
+                                <span class="option-letter">C</span> Military strength and conquest
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'D', this)">
+                                <span class="option-letter">D</span> Avoiding education and tradition
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-17"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-18">
+                        <div class="question-meta">
+                            <span>Q18</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, what might be a result of studying historical figures like Yue Fei?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(18, 'A', this)">
+                                <span class="option-letter">A</span> Students might become less patriotic
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'B', this)">
+                                <span class="option-letter">B</span> Students might develop stronger values of loyalty and perseverance
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'C', this)">
+                                <span class="option-letter">C</span> Students might forget about modern challenges
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'D', this)">
+                                <span class="option-letter">D</span> Students might avoid learning about history
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-18"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-19">
+                        <div class="question-meta">
+                            <span>Q19</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "perseverance" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(19, 'A', this)">
+                                <span class="option-letter">A</span> giving up when things are difficult
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'B', this)">
+                                <span class="option-letter">B</span> continuing to try despite difficulties or delays
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'C', this)">
+                                <span class="option-letter">C</span> avoiding challenges to stay comfortable
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'D', this)">
+                                <span class="option-letter">D</span> expecting immediate success without effort
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-19"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-20">
+                        <div class="question-meta">
+                            <span>Q20</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message of this passage about historical figures?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(20, 'A', this)">
+                                <span class="option-letter">A</span> Historical figures are only important for history classes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'B', this)">
+                                <span class="option-letter">B</span> Learning from historical figures helps us understand cultural heritage and develop timeless values for personal growth
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'C', this)">
+                                <span class="option-letter">C</span> We should only study historical figures who were perfect
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'D', this)">
+                                <span class="option-letter">D</span> Historical figures have nothing to teach us about modern life
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation" id="navigation">
+            <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← Previous</button>
+            <span class="passage-indicator" id="passage-indicator">Passage 1 of 5</span>
+            <button class="nav-btn next" onclick="nextSection()" id="next-btn">Next →</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="results-screen" id="results-screen">
+            <div class="results-header">
+                <h2>Test Completed!</h2>
+                <p>Here are your results for Reading Practice 09</p>
+            </div>
+            
+            <div class="score-circle" id="final-score">0/20</div>
+            
+            <div class="results-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Tester Name</div>
+                    <div class="meta-value" id="result-name">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Date & Time</div>
+                    <div class="meta-value" id="result-datetime">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Time Taken</div>
+                    <div class="meta-value" id="result-duration">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Accuracy</div>
+                    <div class="meta-value" id="result-accuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="skills-summary">
+                <h3>Reading Skills Analysis</h3>
+                <div id="skills-breakdown">
+                    <!-- Skills breakdown inserted by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <h3>Share Your Results</h3>
+                <div class="export-buttons">
+                    <button class="export-btn btn-wechat" onclick="copyForWeChat()">
+                        💬 Copy for WeChat
+                    </button>
+                    <button class="export-btn btn-email" onclick="emailResults()">
+                        📧 Email Results
+                    </button>
+                    <button class="export-btn btn-lms" onclick="downloadForLMS()">
+                        📤 Download for LMS
+                    </button>
+                    <button class="export-btn btn-download" onclick="downloadPDF()">
+                        📄 Save as PDF
+                    </button>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartTest()" style="margin-top: 20px;">
+                🔄 Take Another Practice Test
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Results copied to clipboard!</div>
+    
+    <script>
+        // Answer Key with Zhongkao-appropriate vocabulary explanations
+        const answers = {
+            1: { 
+                correct: 'C', 
+                explanation: '✅ Correct! The passage states: "Guzheng: A string instrument with 21 strings, producing gentle, flowing sounds."<br><br>❌ A: Erhu has 2 strings.<br>❌ B: Pipa has 4 strings.<br>❌ D: Not mentioned for any instrument.',
+                skill: 'Detail Comprehension'
+            },
+            2: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Heritage" in the context of traditional music refers to traditions and culture passed down from previous generations.<br><br>❌ A: Opposite meaning; heritage is about the past.<br>❌ C: Heritage is a concept, not an instrument.<br>❌ D: Not about a specific song.',
+                skill: 'Vocabulary in Context'
+            },
+            3: { 
+                correct: 'D', 
+                explanation: '✅ Correct! The passage mentions court music, folk songs, opera music, and religious music. "Electronic dance music" is NOT mentioned as a traditional style.<br><br>❌ A, B, C: All explicitly listed as traditional musical styles.',
+                skill: 'Detail Comprehension (NOT)'
+            },
+            4: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage introduces instruments, styles, modern development, and cultural value of Chinese traditional music—providing a comprehensive introduction to this cultural heritage.<br><br>❌ A: No instructions on playing instruments.<br>❌ C: No comparison with Western music.<br>❌ D: No argument about traditional vs. modern music quality.',
+                skill: 'Main Idea'
+            },
+            5: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 1 states: "Mei ran over and offered to help" when she saw the elderly woman struggling.<br><br>❌ A: Mei actively helped, didn\'t ignore.<br>❌ C: No mention of calling police.<br>❌ D: Mei helped without asking for payment.',
+                skill: 'Detail Comprehension'
+            },
+            6: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The woman said "Thank you" with a warm smile, shared stories, and invited Mei for tea—showing gratitude and enjoyment of the connection.<br><br>❌ A: Opposite of her warm response.<br>❌ C: She said Mei reminded her of her granddaughter, not that she was her grandmother.<br>❌ D: She enjoyed talking with Mei.',
+                skill: 'Inference'
+            },
+            7: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: "kindness is like a ripple in water—one small act can spread far beyond what we imagine"—a ripple is a small wave that spreads outward from a single point.<br><br>❌ A: Opposite of a small, spreading ripple.<br>❌ C: A still pool has no ripples.<br>❌ D: Ocean currents are different from surface ripples.',
+                skill: 'Vocabulary in Context'
+            },
+            8: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Final paragraph states: "kindness is like a ripple in water—one small act can spread far beyond what we imagine"—the central message about how small kindnesses create wider positive impact.<br><br>❌ A: Story shows kindness without expectation of return.<br>❌ C: The story is about one interaction, not a general rule.<br>❌ D: Weather was the setting, not the message.',
+                skill: 'Main Idea'
+            },
+            9: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "Kitchen waste: Food scraps and organic materials that can become compost."<br><br>❌ A: Recyclables are paper, plastic, glass, metal.<br>❌ C: Hazardous waste is batteries, medicines, chemicals.<br>❌ D: Other waste is items that don\'t fit other categories.',
+                skill: 'Detail Comprehension'
+            },
+            10: { 
+                correct: 'A', 
+                explanation: '✅ Correct! Sentence: "many young musicians combine traditional instruments with modern music styles. This helps preserve cultural heritage..." — "This" refers to the act of combining traditional and modern styles.<br><br>❌ B, C, D: These contradict the passage\'s message about preserving heritage.',
+                skill: 'Reference'
+            },
+            11: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 3 states: "Saves natural resources by recycling materials" as a benefit of waste sorting.<br><br>❌ A: Opposite; waste sorting reduces pollution.<br>❌ C: Cost isn\'t discussed as a benefit.<br>❌ D: Waste sorting increases, not reduces, environmental awareness.',
+                skill: 'Detail Comprehension'
+            },
+            12: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states schools teach waste management "through practical activities" and that "Protecting the environment starts with small actions"—implying education builds awareness and responsibility from youth.<br><br>❌ A: Not about increasing homework.<br>❌ C: Environmental education complements other subjects.<br>❌ D: Education makes waste sorting easier, not harder.',
+                skill: 'Inference'
+            },
+            13: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "Middle school students: 8-10 hours per night" as the recommended sleep duration.<br><br>❌ A: Less than recommended.<br>❌ C: More than recommended.<br>❌ D: Contradicts health recommendations.',
+                skill: 'Detail Comprehension'
+            },
+            14: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Adequate rest" means enough or sufficient rest for proper brain function and health.<br><br>❌ A: Opposite meaning.<br>❌ C: "Adequate" means sufficient, not excessive.<br>❌ D: Not about cost or luxury.',
+                skill: 'Vocabulary in Context'
+            },
+            15: { 
+                correct: 'A', 
+                explanation: '✅ Correct! Paragraph 3 lists recommended sleep durations; paragraph 4 provides "Tips for Better Sleep" to help students achieve those recommendations—practical application of the guidelines.<br><br>❌ B: No contrast; paragraph 4 supports paragraph 3.<br>❌ C: New content about sleep habits.<br>❌ D: Directly related as implementation strategies.',
+                skill: 'Text Structure'
+            },
+            16: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage explains sleep\'s role in learning, provides age-specific recommendations, and offers practical tips—aiming to inform and encourage better sleep habits for academic success.<br><br>❌ A: Passage recommends balanced sleep, not excessive.<br>❌ C: No products promoted.<br>❌ D: Tone is informative and encouraging, not critical.',
+                skill: 'Author\'s Purpose'
+            },
+            17: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states Confucius "emphasized education, moral character, and respect for others."<br><br>❌ A: Opposite of Confucian values.<br>❌ C: Military focus isn\'t mentioned for Confucius.<br>❌ D: Confucius valued education and tradition.',
+                skill: 'Detail Comprehension'
+            },
+            18: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states Yue Fei\'s story "teaches us about patriotism and perseverance" and that studying historical figures helps us "develop important values"—implying students can develop these values through learning.<br><br>❌ A: Opposite of the passage\'s message.<br>❌ C: Passage connects historical lessons to modern life.<br>❌ D: Passage encourages learning from history.',
+                skill: 'Inference'
+            },
+            19: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: Yue Fei is known for "perseverance in difficult times"—perseverance means continuing to try despite difficulties or delays.<br><br>❌ A: Opposite meaning.<br>❌ C: Perseverance involves facing, not avoiding, challenges.<br>❌ D: Perseverance acknowledges effort over time.',
+                skill: 'Vocabulary in Context'
+            },
+            20: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage introduces historical figures, explains their values, and concludes that studying them helps us "find guidance for our own personal growth and contribution to society"—the central message about learning from history.<br><br>❌ A: Passage emphasizes relevance beyond history class.<br>❌ C: Passage presents figures with human qualities, not perfection.<br>❌ D: Directly contradicted; passage emphasizes timeless values.',
+                skill: 'Main Idea'
+            }
+        };
+
+        const questionToPassage = {
+            1:1, 2:1, 3:1, 4:1,
+            5:2, 6:2, 7:2, 8:2,
+            9:3, 10:3, 11:3, 12:3,
+            13:4, 14:4, 15:4, 16:4,
+            17:5, 18:5, 19:5, 20:5
+        };
+
+        let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval, testerName = '', testStartTime, testEndTime;
+
+        const startScreen = document.getElementById('start-screen'), testLayout = document.getElementById('test-layout'), resultsScreen = document.getElementById('results-screen'), nameInput = document.getElementById('tester-name'), nameError = document.getElementById('name-error'), startBtn = document.getElementById('start-btn'), timerDisplay = document.getElementById('timer'), scoreDisplay = document.getElementById('score-display'), passageIndicator = document.getElementById('passage-indicator'), toast = document.getElementById('toast');
+
+        document.addEventListener('DOMContentLoaded', () => { startBtn.addEventListener('click', startTest); nameInput.addEventListener('input', validateName); });
+
+        function validateName() {
+            const name = nameInput.value.trim();
+            const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\uf900-\ufaff\u3300-\u33ff\ufe30-\ufe4f\uf900-\ufaff\u{2f800}-\u{2fa1f}]/u.test(name);
+            if (hasChinese) { nameError.classList.add('show'); startBtn.disabled = true; } else { nameError.classList.remove('show'); startBtn.disabled = name === ''; }
+        }
+
+        function startTest() {
+            testerName = nameInput.value.trim() || 'Anonymous';
+            testStartTime = new Date();
+            startScreen.style.display = 'none';
+            testLayout.classList.add('active');
+            document.querySelector(`[data-passage="1"]`).classList.add('active');
+            document.querySelector(`.questions-section[data-passage="1"]`).classList.add('active');
+            startTimer();
+            updateHeader();
+        }
+
+        function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${mins}:${secs}`; }, 1000); }
+
+        function checkAnswer(questionNum, selected, btn) {
+            if (answered[questionNum]) return;
+            answered[questionNum] = selected;
+            const feedback = document.getElementById(`feedback-${questionNum}`);
+            const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); feedback.innerHTML = `<div class="feedback-title">✅ Correct!</div>${answers[questionNum].explanation}`; } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); feedback.innerHTML = `<div class="feedback-title">❌ Incorrect</div>${answers[questionNum].explanation}`; allBtns.forEach(b => { if (b.textContent.trim().startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+            feedback.style.display = 'block';
+            updateScoreDisplay();
+            checkPassageComplete();
+        }
+
+        function checkPassageComplete() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (allAnswered && currentSection < 5) { document.getElementById('next-btn').textContent = 'Next Passage →'; }
+        }
+
+        function nextSection() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (!allAnswered) { alert(`Please answer all ${currentPassageQuestions.length} questions in this passage before continuing.`); return; }
+            if (Object.keys(answered).length === 20) { showResults(); return; }
+            if (currentSection < 5) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection++;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('prev-btn').disabled = false;
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 1) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection--;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('next-btn').textContent = 'Next →';
+                if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function updateHeader() { passageIndicator.textContent = `Passage ${currentSection} of 5`; updateScoreDisplay(); }
+        function updateScoreDisplay() { scoreDisplay.textContent = `${score}/${Object.keys(answered).length}`; }
+
+        function showResults() {
+            testEndTime = new Date();
+            clearInterval(timerInterval);
+            testLayout.classList.remove('active');
+            document.getElementById('navigation').style.display = 'none';
+            resultsScreen.classList.add('active');
+            document.getElementById('result-name').textContent = testerName;
+            document.getElementById('result-datetime').textContent = testEndTime.toLocaleString();
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            document.getElementById('result-duration').textContent = `${durationMins}m ${durationSecs.toString().padStart(2, '0')}s`;
+            document.getElementById('final-score').textContent = `${score}/20`;
+            document.getElementById('result-accuracy').textContent = `${Math.round((score / 20) * 100)}%`;
+            generateSkillsBreakdown();
+        }
+
+        function generateSkillsBreakdown() {
+            const skillsBreakdown = document.getElementById('skills-breakdown');
+            skillsBreakdown.innerHTML = '';
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) {
+                const skill = answers[q].skill;
+                if (!skillGroups[skill]) { skillGroups[skill] = { total: 0, correct: 0, questions: [] }; }
+                skillGroups[skill].total++;
+                if (answered[q] === answers[q].correct) { skillGroups[skill].correct++; } else { skillGroups[skill].questions.push(q); }
+            }
+            Object.entries(skillGroups).forEach(([skill, data]) => {
+                const isMastered = data.correct === data.total;
+                const skillItem = document.createElement('div');
+                skillItem.className = `skill-item ${isMastered ? 'mastered' : 'missed'}`;
+                let missedInfo = '';
+                if (!isMastered && data.questions.length > 0) { missedInfo = `<br><small style="color: #b71c1c">Missed: Q${data.questions.join(', Q')}</small>`; }
+                skillItem.innerHTML = `<div><strong>${skill}</strong><div style="font-size: 0.9rem; color: #616161">${data.correct}/${data.total} correct</div>${missedInfo}</div><div style="font-weight: bold; color: ${isMastered ? '#2e7d32' : '#c62828'}">${isMastered ? '✓ Mastered' : '⚠ Review'}</div>`;
+                skillsBreakdown.appendChild(skillItem);
+            });
+        }
+
+        function copyForWeChat() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 20) * 100);
+            let text = `📚 Reading Practice 09 Results\n\n👤 Name: ${testerName}\n📅 Date: ${testEndTime.toLocaleDateString()}\n⏱️ Time: ${durationMins}m ${durationSecs}s\n✅ Score: ${score}/20 (${accuracy}%)\n\n📊 Skills Review:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { const status = data.correct === data.total ? '✓' : '⚠'; text += `${status} ${skill}: ${data.correct}/${data.total}\n`; });
+            text += `\n💡 Focus on skills marked with ⚠ for improvement.`;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); showToast('Results copied! Paste in WeChat to share.'); } catch (err) { alert('Please manually copy these results:\n\n' + text); }
+            document.body.removeChild(textArea);
+        }
+
+        function emailResults() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 20) * 100);
+            let emailBody = `Reading Practice 09 Results\n\nStudent: ${testerName}\nDate Completed: ${testEndTime.toLocaleString()}\nTime Taken: ${durationMins} minutes, ${durationSecs} seconds\nScore: ${score} out of 20 questions (${accuracy}% accuracy)\n\nDetailed Results:\n----------------\n`;
+            for (let q = 1; q <= 20; q++) { const isCorrect = answered[q] === answers[q].correct; emailBody += `Q${q} [${answers[q].skill}]: ${isCorrect ? '✓ Correct' : '✗ Incorrect'}\n`; }
+            emailBody += `\nSkills Analysis:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { emailBody += `- ${skill}: ${data.correct}/${data.total} correct\n`; });
+            const subject = encodeURIComponent(`Reading Practice 09 Results - ${testerName}`);
+            const body = encodeURIComponent(emailBody);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function downloadForLMS() {
+            const resultsData = { testName: "Reading Practice 09", studentName: testerName, completedAt: testEndTime.toISOString(), durationSeconds: timerSeconds, totalQuestions: 20, correctAnswers: score, accuracyPercent: Math.round((score / 20) * 100), questionResults: [], skillsAnalysis: {} };
+            for (let q = 1; q <= 20; q++) { resultsData.questionResults.push({ questionNumber: q, skill: answers[q].skill, selectedAnswer: answered[q], correctAnswer: answers[q].correct, isCorrect: answered[q] === answers[q].correct }); }
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) { skillGroups[skill] = { totalQuestions: 0, correctAnswers: 0, missedQuestions: [] }; } skillGroups[skill].totalQuestions++; if (answered[q] === answers[q].correct) { skillGroups[skill].correctAnswers++; } else { skillGroups[skill].missedQuestions.push(q); } }
+            resultsData.skillsAnalysis = skillGroups;
+            const dataStr = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resultsData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `reading_practice_09_${testerName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Results downloaded for LMS upload!');
+        }
+
+        function downloadPDF() { alert(`PDF generation requires additional libraries. For this demo:\n\n1. Copy your results using the "Copy for WeChat" button\n2. Paste into a document\n3. Save as PDF using your browser's print function (Ctrl+P → Save as PDF)\n\nIn a production version, this would generate a professional PDF report automatically.`); }
+        function showToast(message) { toast.textContent = message; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+
+        function restartTest() {
+            currentSection = 1; score = 0; answered = {}; timerSeconds = 0; testerName = '';
+            nameInput.value = ''; nameError.classList.remove('show'); startBtn.disabled = true;
+            document.getElementById('next-btn').textContent = 'Next →'; document.getElementById('prev-btn').disabled = true;
+            document.getElementById('passage-indicator').textContent = 'Passage 1 of 5';
+            document.querySelectorAll('.feedback').forEach(fb => { fb.style.display = 'none'; fb.classList.remove('correct', 'incorrect'); });
+            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('correct', 'incorrect'); btn.disabled = false; });
+            resultsScreen.classList.remove('active'); startScreen.style.display = 'block';
+            timerDisplay.textContent = '00:00'; scoreDisplay.textContent = '0/0';
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>
