@@ -594,11 +594,11 @@
         window.positiveFeedback = ["Delicious! 🍔", "Spot on! 🍟", "Yummy! 🍕", "Perfect order! 🥗", "Exactly! 🥪", "Great listening! 🌮"];
 
         const items = [
-            "a cheeseburger", "a caesar salad", "the spaghetti", "a grilled steak", "the tomato soup",
-            "a pepperoni pizza", "the club sandwich", "some fish tacos", "the roast chicken", "a vegetable curry",
-            "a chicken wrap", "the mushroom risotto", "a seafood pasta", "the BBQ ribs", "a garden salad",
-            "the beef stir-fry", "a veggie burger", "the shrimp scampi", "a chicken parmesan", "the lasagna",
-            "a fruit smoothie", "the chocolate cake", "a side of fries", "the onion rings", "a cup of coffee"
+            "a cheeseburger", "caesar salad", "the spaghetti", "grilled steak", "the tomato soup",
+            "pepperoni pizza", "the club sandwich", "some fish tacos", "the roast chicken", "vegetable curry",
+            "chicken wrap", "the mushroom risotto", "seafood pasta", "the BBQ ribs", "garden salad",
+            "the beef stir-fry", "veggie burger", "the shrimp scampi", "chicken parmesan", "the lasagna",
+            "fruit smoothie", "the chocolate cake", "a side of fries", "onion rings", "cup of coffee"
         ];
 
         window.generateQuestion = function() {
@@ -641,7 +641,7 @@
                         { gender: waiterGen, text: "Have you decided what you'd like?" },
                         { gender: custGen, text: `I'm torn between ${opt1} and ${opt2}. What do you recommend?` },
                         { gender: waiterGen, text: `Our ${opt3} is very popular this week.` },
-                        { gender: custGen, text: `Sold! I'll try the ${opt3}.` }
+                        { gender: custGen, text: `Sold! I'll try ${opt3}.` }
                     ],
                     correct: opt3
                 },
@@ -650,7 +650,7 @@
                         { gender: waiterGen, text: "Can I start you off with something?" },
                         { gender: custGen, text: `I was considering ${opt1}, but ${opt2} also looks good.` },
                         { gender: waiterGen, text: `Both are great, but ${opt3} is our chef's specialty.` },
-                        { gender: custGen, text: `Then I'll go with the ${opt3}, please.` }
+                        { gender: custGen, text: `Then I'll go with ${opt3}, please.` }
                     ],
                     correct: opt3
                 },
@@ -659,7 +659,7 @@
                         { gender: waiterGen, text: "What sounds good to you today?" },
                         { gender: custGen, text: `Hmm, ${opt1} or maybe ${opt3}?` },
                         { gender: waiterGen, text: `If you like bold flavors, ${opt2} is a fantastic choice.` },
-                        { gender: custGen, text: `You convinced me! I'll have the ${opt2}.` }
+                        { gender: custGen, text: `You convinced me! I'll have ${opt2}.` }
                     ],
                     correct: opt2
                 },
@@ -668,7 +668,7 @@
                         { gender: waiterGen, text: "Ready to order?" },
                         { gender: custGen, text: `I think I want ${opt1}, but let me think...` },
                         { gender: waiterGen, text: `No rush. By the way, ${opt3} comes with a free drink today.` },
-                        { gender: custGen, text: `Great! Then I'll take the ${opt3}.` }
+                        { gender: custGen, text: `Great! Then I'll take ${opt3}.` }
                     ],
                     correct: opt3
                 },
@@ -677,7 +677,7 @@
                         { gender: waiterGen, text: "What can I bring you?" },
                         { gender: custGen, text: `I'm leaning toward ${opt2}, but ${opt1} is tempting too.` },
                         { gender: waiterGen, text: `Actually, ${opt3} is freshly prepared right now.` },
-                        { gender: custGen, text: `Perfect timing! I'll have the ${opt3}.` }
+                        { gender: custGen, text: `Perfect timing! I'll have ${opt3}.` }
                     ],
                     correct: opt3
                 }
@@ -857,12 +857,12 @@
             }
 
             function setupSounds() {
-                correctSynth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 } }).toDestination();
-                incorrectSynth = new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination();
-                winSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-            }
+    correctSynth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 } }).toDestination();
+    incorrectSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'sawtooth' }, envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination();
+    winSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+  }
 
-            function playWinFanfare() {
+  function playWinFanfare() {
                 if (!winSynth) return;
                 const now = Tone.now();
                 winSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
@@ -893,27 +893,28 @@
             }
 
             function initSpeechSynthesis() {
-                const loadVoices = () => {
-                    const allowedNames = ["giuseppe", "remy", "vivienne", "emma", "brian", "ava", "andrew", "william", "florian"];
-                    const maleNames = ["brian", "andrew", "william", "giuseppe", "remy"];
-                    const femaleNames = ["emma", "ava", "vivienne", "florian"];
-                    
-                    preferredVoices = window.speechSynthesis.getVoices().filter(v => {
-                        const n = v.name.toLowerCase();
-                        return v.lang.toLowerCase().startsWith('en') && allowedNames.some(a => n.includes(a));
-                    });
-                    
-                    maleVoices = preferredVoices.filter(v => maleNames.some(m => v.name.toLowerCase().includes(m)));
-                    femaleVoices = preferredVoices.filter(v => femaleNames.some(f => v.name.toLowerCase().includes(f)));
-                };
-                
-                if ('speechSynthesis' in window) {
-                    if (window.speechSynthesis.getVoices().length > 0) loadVoices();
-                    window.speechSynthesis.onvoiceschanged = loadVoices;
-                }
-            }
+    const loadVoices = () => {
+      const allowedNames = ["giuseppe", "remy", "vivienne", "emma", "brian", "ava", "andrew", "william", "florian", "seraphina"];
+      const maleNames = ["giuseppe", "brian", "andrew", "william", "remy", "florian"];
+      const femaleNames = ["vivienne", "emma", "ava", "seraphina"];
 
-            function speak(scriptData, callback) {
+      preferredVoices = window.speechSynthesis.getVoices().filter(v => {
+        const n = v.name.toLowerCase();
+        // FORCE Microsoft Multilingual Online voices ONLY
+        const isMicrosoftOnline = n.includes("microsoft") || n.includes("online");
+        return v.lang.toLowerCase().startsWith('en') && isMicrosoftOnline && allowedNames.some(a => n.includes(a));
+      });
+
+      maleVoices = preferredVoices.filter(v => maleNames.some(m => v.name.toLowerCase().includes(m)));
+      femaleVoices = preferredVoices.filter(v => femaleNames.some(f => v.name.toLowerCase().includes(f)));
+    };
+    if ('speechSynthesis' in window) {
+      if (window.speechSynthesis.getVoices().length > 0) loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }
+
+  function speak(scriptData, callback) {
                 window.speechSynthesis.cancel();
                 
                 if (!('speechSynthesis' in window) || preferredVoices.length === 0) {
@@ -966,13 +967,13 @@
             }
 
             function handleTimeOut() {
-                clearInterval(questionTimer);
-                if (isRoundOver) return;
-                isRoundOver = true;
-                players.forEach(p => p.correctStreak = 0);
-                incorrectSynth.triggerAttackRelease("C3", "8n", Tone.now());
-                players.forEach((p, i) => {
-                    if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
+    clearInterval(questionTimer);
+    if (isRoundOver) return;
+    isRoundOver = true;
+    players.forEach(p => p.correctStreak = 0);
+    incorrectSynth.triggerAttackRelease(["G2", "G#2"], "8n", Tone.now());
+    players.forEach((p, i) => {
+      if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
                     dom.playerPanels[i].feedback.textContent = `Time's up! 😅`;
                     dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => {
                         b.disabled = true;
@@ -1022,29 +1023,29 @@
                     dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
                 });
                 const pIdx = parseInt(btn.dataset.player, 10);
-                if (btn.textContent === currentQuestion.correctAnswer) {
-                    players[pIdx].score += POINTS_PER_CORRECT;
-                    players[pIdx].correctStreak++;
-                    if (gameMode !== '1p') players[1 - pIdx].correctStreak = 0;
-                    btn.classList.add('correct');
-                    dom.playerPanels[pIdx].feedback.textContent = positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
-                    correctSynth.triggerAttackRelease("C5", "8n", Tone.now());
-                    dom.playerPanels[pIdx].score.textContent = players[pIdx].score;
-                    dom.playerPanels[pIdx].scorePopup.classList.add('active');
-                    setTimeout(() => dom.playerPanels[pIdx].scorePopup.classList.remove('active'), 800);
-                    if (players[pIdx].correctStreak === 5 && !players[pIdx].badges.includes(window.badgeName)) {
-                        players[pIdx].badges.push(window.badgeName || "Superstar ⭐");
-                        dom.badgeAlert.textContent = `${players[pIdx].name} unlocked: ${window.badgeName || "Superstar ⭐"}`;
-                        dom.badgeAlert.classList.add('show');
-                        setTimeout(() => dom.badgeAlert.classList.remove('show'), 2500);
-                    }
-                } else {
-                    players[pIdx].correctStreak = 0;
-                    btn.classList.add('incorrect');
-                    dom.playerPanels[pIdx].feedback.textContent = `Nope! 😅`;
-                    incorrectSynth.triggerAttackRelease("C3", "8n", Tone.now());
-                }
-                players.forEach((p, i) => {
+    if (btn.textContent === currentQuestion.correctAnswer) {
+      players[pIdx].score += POINTS_PER_CORRECT;
+      players[pIdx].correctStreak++;
+      if (gameMode !== '1p') players[1 - pIdx].correctStreak = 0;
+      btn.classList.add('correct');
+      dom.playerPanels[pIdx].feedback.textContent = positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
+      correctSynth.triggerAttackRelease("C5", "8n", Tone.now());
+      dom.playerPanels[pIdx].score.textContent = players[pIdx].score;
+      dom.playerPanels[pIdx].scorePopup.classList.add('active');
+      setTimeout(() => dom.playerPanels[pIdx].scorePopup.classList.remove('active'), 800);
+      if (players[pIdx].correctStreak === 5 && !players[pIdx].badges.includes(window.badgeName)) {
+        players[pIdx].badges.push(window.badgeName || "Superstar ⭐");
+        dom.badgeAlert.textContent = `${players[pIdx].name} unlocked: ${window.badgeName || "Superstar ⭐"}`;
+        dom.badgeAlert.classList.add('show');
+        setTimeout(() => dom.badgeAlert.classList.remove('show'), 2500);
+      }
+    } else {
+      players[pIdx].correctStreak = 0;
+      btn.classList.add('incorrect');
+      dom.playerPanels[pIdx].feedback.textContent = `Nope! 😅`;
+      incorrectSynth.triggerAttackRelease(["G2", "G#2"], "8n", Tone.now());
+    }
+    players.forEach((p, i) => {
                     if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
                     dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => {
                         if (b.textContent === currentQuestion.correctAnswer) b.classList.add('correct');
