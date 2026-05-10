@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joel Mitchell's Listening Arcade</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+.card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2); border-color: #38bdf8; }
+.bg-pattern { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 24px 24px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden font-sans bg-pattern">
+
+<!-- Top Navigation -->
+<nav id="game-nav" class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-20 hidden transition-all shadow-lg">
+  <div class="flex items-center gap-3">
+    <div class="bg-sky-500/20 p-2 rounded-lg text-sky-400"><i class="fas fa-gamepad text-xl"></i></div>
+    <h1 id="nav-title" class="text-xl md:text-2xl font-bold text-white tracking-wide">Challenge</h1>
+  </div>
+  <button onclick="showMenu()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 md:px-5 py-2 rounded-lg font-semibold shadow-lg shadow-rose-500/20 transition-all flex items-center gap-2">
+    <i class="fas fa-sign-out-alt"></i> <span class="hidden md:inline">Exit Game</span>
+  </button>
+</nav>
+
+<!-- Main Arcade Menu -->
+<main id="menu-container" class="flex-1 overflow-y-auto w-full relative z-10">
+  <div class="max-w-6xl mx-auto px-6 py-12 md:py-20">
+    <div class="text-center mb-10">
+      <div class="inline-block mb-4 text-sky-400 text-5xl"><i class="fas fa-headphones-alt"></i></div>
+      <h1 class="text-5xl md:text-6xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 drop-shadow-sm tracking-tight">Joel Mitchell's Listening Arcade</h1>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Game 1: Time Teller -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-bl-full -z-10 group-hover:bg-sky-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-clock"></i></div><div><h2 class="text-xl font-bold text-white">Time Teller</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Identify the correct digital time from spoken idiomatic phrases like "quarter to two". Play solo or race a friend!</p>
+        <button onclick="launchGame('time')" class="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 2: Schedule Change -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-bl-full -z-10 group-hover:bg-orange-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-calendar-alt"></i></div><div><h2 class="text-xl font-bold text-white">Schedule Change</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Listen to public transit delays and schedule updates. Quickly calculate the new arrival time to build your streak.</p>
+        <button onclick="launchGame('schedule')" class="w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-orange-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 3: Meeting Scheduler -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-bl-full -z-10 group-hover:bg-teal-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-handshake"></i></div><div><h2 class="text-xl font-bold text-white">Meeting Scheduler</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Listen to meeting negotiations between two colleagues and quickly identify the final agreed-upon day and time.</p>
+        <button onclick="launchGame('meeting')" class="w-full bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-teal-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 4: Color Convo -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-bl-full -z-10 group-hover:bg-pink-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-palette"></i></div><div><h2 class="text-xl font-bold text-white">Color Convo</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Track which color is decided upon in a fast-paced shopping conversation. Speed and listening skills required!</p>
+        <button onclick="launchGame('color')" class="w-full bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 5: Price Tag Pro -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-bl-full -z-10 group-hover:bg-violet-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-tags"></i></div><div><h2 class="text-xl font-bold text-white">Price Tag Pro</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Listen to shopping scenarios and calculate the final price after discounts. A great way to practice numbers and money!</p>
+        <button onclick="launchGame('price')" class="w-full bg-violet-500 hover:bg-violet-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-violet-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 6: Date Decoder -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-bl-full -z-10 group-hover:bg-yellow-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-calendar-day"></i></div><div><h2 class="text-xl font-bold text-white">Date Decoder</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Figure out the new dates for school events when they get postponed or moved up. Master your months and days!</p>
+        <button onclick="launchGame('date')" class="w-full bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 7: Location Listen-Up -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-10 group-hover:bg-emerald-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-map-marker-alt"></i></div><div><h2 class="text-xl font-bold text-white">Location Listen-Up</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> CEFR Enabled</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Follow location changes and announcements. Choose your CEFR difficulty level (A1-C1) and master navigating places!</p>
+        <button onclick="launchGame('location')" class="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+
+      <!-- Game 8: Restaurant Orders -->
+      <div class="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-6 flex flex-col card-hover transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-bl-full -z-10 group-hover:bg-red-500/20 transition-colors"></div>
+        <div class="flex items-center gap-4 mb-4"><div class="w-14 h-14 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-utensils"></i></div><div><h2 class="text-xl font-bold text-white">Restaurant Orders</h2><span class="text-xs font-bold px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded mt-1 inline-block"><i class="fas fa-users mr-1"></i> 1, 2, or Roster</span></div></div>
+        <p class="text-slate-400 mb-8 flex-1 leading-relaxed text-sm">Listen to a M/F dialogue between a waiter and a customer to figure out which item they finally decide to order.</p>
+        <button onclick="launchGame('restaurant')" class="w-full bg-red-500 hover:bg-red-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-500/20 transition-all flex justify-center items-center gap-2 text-lg">Play Now <i class="fas fa-play"></i></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Iframe Container for Games -->
+<div id="iframe-container" class="flex-1 w-full hidden bg-white z-10">
+  <iframe id="game-frame" class="w-full h-full border-0" allow="autoplay; speaker-selection"></iframe>
+</div>
+
+<!-- ========================================================================= -->
+<!-- GAME LOGIC TEMPLATES                                                      -->
+<!-- ========================================================================= -->
+
+<!-- GAME 1: TIME TELLER -->
+<script type="text/plain" id="logic-time">
+window.gameTitle = "Time Teller Challenge 🕰️";
+window.badgeName = "Fast Calculator ⚡";
+window.hasCefr = false;
+window.positiveFeedback = ["Nice one! 🕰️🌟", "You got it! ⌚🎯", "Awesome! ⏱️🚀", "Perfect! ⏳✨", "That's it! 💡", "Excellent! 🏆"];
+
+const idiomaticTimeQuestions = [
+  { spoken: "Quarter past one", correct: "1:15" },
+  { spoken: "Quarter to two", correct: "1:45" },
+  { spoken: "Ten till three", correct: "2:50" },
+  { spoken: "Ten past four", correct: "4:10" },
+  { spoken: "Twenty to five", correct: "4:40" },
+  { spoken: "Twenty past six", correct: "6:20" },
+  { spoken: "Five to seven", correct: "6:55" },
+  { spoken: "Five past eight", correct: "8:05" },
+  { spoken: "Half past nine", correct: "9:30" },
+  { spoken: "Half past ten", correct: "10:30" },
+  { spoken: "It's a quarter after one", correct: "1:15" },
+  { spoken: "It's twenty-five to three", correct: "2:35" },
+  { spoken: "It's ten after eleven", correct: "11:10" },
+  { spoken: "It's five till twelve", correct: "11:55" },
+  { spoken: "It's half past seven", correct: "7:30" },
+  { spoken: "It's a quarter to six", correct: "5:45" },
+  { spoken: "It's twenty past two", correct: "2:20" },
+  { spoken: "It's fifteen to nine", correct: "8:45" },
+  { spoken: "It's five after four", correct: "4:05" },
+  { spoken: "It's twenty-five past eight", correct: "8:25" },
+  { spoken: "The time is one fifteen", correct: "1:15" },
+  { spoken: "The time is four forty-five", correct: "4:45" },
+  { spoken: "The time is twelve o'clock", correct: "12:00" },
+  { spoken: "The time is seven thirty", correct: "7:30" },
+  { spoken: "The time is two fifty", correct: "2:50" },
+  { spoken: "The meeting starts at quarter past three", correct: "3:15" },
+  { spoken: "The bus leaves at ten to five", correct: "4:50" },
+  { spoken: "Lunch is at half past twelve", correct: "12:30" },
+  { spoken: "The show begins at twenty past seven", correct: "7:20" },
+  { spoken: "Class ends at five to two", correct: "1:55" }
+];
+
+window.generateQuestion = function() {
+  if (Math.random() > 0.6) {
+    const q = idiomaticTimeQuestions[Math.floor(Math.random() * idiomaticTimeQuestions.length)];
+    return { scenario: q.spoken, correctAnswer: q.correct };
+  }
+  const hour = Math.floor(Math.random() * 12) + 1;
+  const minute = Math.floor(Math.random() * 60);
+  const minuteString = String(minute).padStart(2, '0');
+  let spoken = minute === 0 ? hour + " o'clock" : (minute < 10 ? hour + " oh " + minute : hour + " " + minute);
+  return { scenario: spoken, correctAnswer: hour + ":" + minuteString };
+};
+
+window.getOptions = function(q) {
+  const parts = q.correctAnswer.split(':');
+  const hour = parseInt(parts[0]);
+  const minute = parseInt(parts[1]);
+  let options = new Set([q.correctAnswer]);
+  while (options.size < 3) {
+    let newHour = hour, newMinute = minute;
+    if (Math.random() > 0.5) newMinute = (minute + 5 + Math.floor(Math.random()*5)*5) % 60;
+    else { newHour = (hour % 12) + (Math.random() < 0.5 ? -1 : 1); if (newHour <= 0) newHour = 12; if (newHour > 12) newHour = 1; }
+    options.add(newHour + ":" + String(newMinute).padStart(2, '0'));
+  }
+  return Array.from(options);
+};
+</script>
+
+<!-- GAME 2: SCHEDULE CHANGE -->
+<script type="text/plain" id="logic-schedule">
+window.gameTitle = "Schedule Change Challenge 🚌";
+window.badgeName = "Schedule Master 🚆";
+window.hasCefr = false;
+window.positiveFeedback = ["Nice one! 🚆🌟", "You got it! ✈️🎯", "Awesome! 🚌🚀", "Perfect! 🚉✨", "That's it! 💡", "Excellent! 🏆"];
+
+const events = [
+  "The flight to Tokyo", "The train to Central Station", "The bus to the airport",
+  "The weekly team meeting", "The opening concert", "The Python workshop",
+  "The school field trip", "The doctor's appointment", "The job interview",
+  "The parent-teacher conference", "The soccer practice", "The music recital",
+  "The library study session", "The science lab", "The art exhibition",
+  "The graduation ceremony", "The college tour", "The volunteer shift"
+];
+
+const times = [
+  "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00",
+  "6:00", "6:30", "7:00", "7:30", "8:00", "8:30", "9:00", "9:30", "10:00"
+];
+
+const changes = [10, 15, 20, 25, 30, 45, 60, 5, 12, 18, 35, 40, 50, 75, 90];
+
+const templates = [
+  (evt, t1, ch) => `Attention passengers. ${evt}, originally scheduled for ${t1}, has been delayed by ${ch} minutes.`,
+  (evt, t1, ch) => `This is a schedule announcement. ${evt} from ${t1} has been pushed back by ${ch} minutes.`,
+  (evt, t1, ch) => `Due to unforeseen circumstances, ${evt} at ${t1} will now depart ${ch} minutes later.`,
+  (evt, t1, ch) => `Update: ${evt} scheduled for ${t1} is running ${ch} minutes behind schedule.`,
+  (evt, t1, ch) => `Please note: ${evt} has been rescheduled. New departure time is ${ch} minutes after ${t1}.`,
+  (evt, t1, ch) => `We regret to inform you that ${evt} at ${t1} is delayed by approximately ${ch} minutes.`,
+  (evt, t1, ch) => `Good news! ${evt} at ${t1} is now arriving ${ch} minutes early.`,
+  (evt, t1, ch) => `Schedule update: ${evt} will now begin ${ch} minutes ahead of the original ${t1} time.`
+];
+
+window.generateQuestion = function() {
+  const event = events[Math.floor(Math.random() * events.length)];
+  const originalTime = times[Math.floor(Math.random() * times.length)];
+  const changeMinutes = changes[Math.floor(Math.random() * changes.length)];
+  let [h, m] = originalTime.split(':').map(Number);
+  m += changeMinutes;
+  if (m >= 60) { h += Math.floor(m / 60); m %= 60; }
+  if (h > 12) h -= 12;
+  if (h === 0) h = 12;
+  const scenario = templates[Math.floor(Math.random()*templates.length)](event, originalTime, changeMinutes);
+  return { scenario, correctAnswer: `${h}:${String(m).padStart(2, '0')}` };
+};
+
+window.getOptions = function(q) {
+  let options = new Set([q.correctAnswer]);
+  while (options.size < 3) {
+    const [h, m] = q.correctAnswer.split(':').map(Number);
+    const change = (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1) * 15;
+    let newM = m + change, newH = h;
+    if (newM >= 60) { newH++; newM -= 60; }
+    if (newM < 0) { newH--; newM += 60; }
+    if (newH > 12) newH = 1;
+    if (newH <= 0) newH = 12;
+    options.add(`${newH}:${String(newM).padStart(2, '0')}`);
+  }
+  return Array.from(options);
+};
+</script>
+
+<!-- GAME 3: MEETING SCHEDULER -->
+<script type="text/plain" id="logic-meeting">
+window.gameTitle = "Meeting Scheduler Challenge 📅";
+window.badgeName = "Meeting Pro 🤝";
+window.hasCefr = false;
+window.positiveFeedback = ["Nice one! 📅🌟", "You got it! 🤝🎯", "Awesome! 💼🚀", "Perfect! 📊✨", "That's it! 💡", "Excellent! 🏆"];
+
+function formatTime(numericTime) {
+  const hour = Math.floor(numericTime);
+  const minutes = (numericTime - hour) * 60;
+  const period = hour < 12 ? 'AM' : 'PM';
+  let displayHour = hour % 12;
+  if (displayHour === 0) displayHour = 12;
+  return `${displayHour}:${String(minutes).padStart(2, '0')} ${period}`;
+}
+
+const people = [
+  'Anna', 'Leo', 'Vivian', 'Rain', 'Elsa', 'Mia', 'Kenn', 'Max', 'Sky', 'Zach', 'Joe',
+  'Aisha', 'Ben', 'Chloe', 'Diego', 'Elena', 'Fatima', 'Gabriel', 'Hana', 'Ivan', 'Jasmine'
+];
+
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const times = { '9:00 AM': 9, '10:30 AM': 10.5, '1:00 PM': 13, '2:30 PM': 14.5, '4:00 PM': 16, '11:00 AM': 11, '3:00 PM': 15, '5:00 PM': 17 };
+
+const places = [
+  'the library', 'the downtown cafe', 'Conference Room B', 'the online call',
+  'the student center', 'the science lab', 'the art studio', 'the gymnasium',
+  'the auditorium', 'the principal\'s office', 'the career center', 'the tutoring room',
+  'the outdoor pavilion', 'the virtual breakout room', 'the innovation hub'
+];
+
+const dayChanges = [
+  { text: 'the next day', change: 1 },
+  { text: 'two days later', change: 2 },
+  { text: 'the day before', change: -1 },
+  { text: 'three days later', change: 3 },
+  { text: 'this Friday instead', change: 4 },
+  { text: 'next Monday', change: 5 }
+];
+
+const timeChanges = [
+  { text: 'one hour later', change: 1 },
+  { text: 'two hours earlier', change: -2 },
+  { text: '30 minutes later', change: 0.5 },
+  { text: '45 minutes earlier', change: -0.75 },
+  { text: 'an hour and a half later', change: 1.5 },
+  { text: '15 minutes sooner', change: -0.25 },
+  { text: 'two and a half hours later', change: 2.5 }
+];
+
+window.generateQuestion = function() {
+  const person1 = people[Math.floor(Math.random() * people.length)];
+  let person2 = people[Math.floor(Math.random() * people.length)];
+  while (person1 === person2) person2 = people[Math.floor(Math.random() * people.length)];
+  const place = places[Math.floor(Math.random() * places.length)];
+  const startDayIndex = Math.floor(Math.random() * days.length);
+  const startDay = days[startDayIndex];
+  const startTimeStr = Object.keys(times)[Math.floor(Math.random() * Object.keys(times).length)];
+  const startTimeNum = times[startTimeStr];
+  const dayChange = dayChanges[Math.floor(Math.random() * dayChanges.length)];
+  const timeChange = timeChanges[Math.floor(Math.random() * timeChanges.length)];
+  const newDay = days[(startDayIndex + dayChange.change + days.length) % days.length];
+  const newTimeStr = formatTime(startTimeNum + timeChange.change);
+  const scenario = `${person1}'s meeting with ${person2} at ${place} on ${startDay} at ${startTimeStr} needs to be moved. ${person1} suggests moving it ${dayChange.text} and ${timeChange.text}.`;
+  return { scenario, correctAnswer: `${newDay} at ${newTimeStr}`, originalAnswer: `${startDay} at ${startTimeStr}` };
+};
+
+window.getOptions = function(q) {
+  let options = new Set([q.correctAnswer]);
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const timeStrings = ['9:00 AM', '10:30 AM', '1:00 PM', '2:30 PM', '4:00 PM', '11:00 AM', '12:00 PM', '3:00 PM', '5:00 PM'];
+  const [correctDay, correctTime] = q.correctAnswer.split(' at ');
+  while (options.size < 3) {
+    if (Math.random() > 0.5) {
+      const wrongDay = days[Math.floor(Math.random() * days.length)];
+      if (wrongDay !== correctDay) options.add(`${wrongDay} at ${correctTime}`);
+    } else {
+      const wrongTime = timeStrings[Math.floor(Math.random() * timeStrings.length)];
+      if (wrongTime !== correctTime) options.add(`${correctDay} at ${wrongTime}`);
+    }
+  }
+  return Array.from(options);
+};
+</script>
+
+<!-- GAME 4: COLOR CONVO -->
+<script type="text/plain" id="logic-color">
+window.gameTitle = "Color Convo Challenge 🎨";
+window.badgeName = "Eagle Eye 🦅";
+window.hasCefr = false;
+window.positiveFeedback = ["Nice one! 🎨🌟", "You got it! 👕🎯", "Awesome! 👗🚀", "Perfect! 🌈✨", "That's it! 💡", "Excellent! 🏆"];
+
+const colors = [
+  'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Black', 'White', 'Pink', 'Brown',
+  'Navy blue', 'Sky blue', 'Forest green', 'Lime green', 'Burgundy', 'Maroon',
+  'Lavender', 'Magenta', 'Teal', 'Turquoise', 'Beige', 'Tan', 'Gray', 'Silver', 'Gold'
+];
+
+const items = [
+  'hat', 'shirt', 'jacket', 'car', 'phone case', 'backpack',
+  'sweater', 'dress', 'shoes', 'scarf', 'gloves', 'umbrella',
+  'water bottle', 'laptop bag', 'sunglasses', 'watch', 'wallet', 'notebook'
+];
+
+const templates = [
+  (p1, p2, i, c1, c2, c3) => `${p1} asked, "Should I get the ${c1} ${i} or the ${c2} one?" ${p2} replied, "Hmm, I think the ${c3} one is the best."`,
+  (p1, p2, i, c1, c2, c3) => `${p1}: "I can't decide between a ${c1} or ${c2} ${i}." ${p2}: "Neither. You should definitely get the ${c3} ${i}."`,
+  (p1, p2, i, c1, c2, c3) => `${p1} said, "I like the ${c1} ${i}." ${p2} responded, "The ${c2} one is okay, but I just saw a ${c3} one that looks amazing. Let's go with that."`,
+  (p1, p2, i, c1, c2, c3) => `${p1}: "What do you think about the ${c1} ${i}?" ${p2}: "It's nice, but have you seen the ${c3} version? That's the one I'd choose."`,
+  (p1, p2, i, c1, c2, c3) => `${p1} wondered, "Is the ${c1} ${i} better than the ${c2} one?" ${p2} advised, "Actually, the ${c3} ${i} is the most popular choice right now."`,
+  (p1, p2, i, c1, c2, c3) => `${p2} suggested, "Why not try the ${c3} ${i}?" ${p1} agreed, "You're right! The ${c1} and ${c2} ones don't suit me as well."`,
+  (p1, p2, i, c1, c2, c3) => `${p1}: "I'm torn between ${c1}, ${c2}, and ${c3}." ${p2}: "If I were you, I'd go with ${c3}—it matches everything!"`,
+  (p1, p2, i, c1, c2, c3) => `${p2} noticed, "The ${c3} ${i} is on sale today!" ${p1} decided, "Perfect! I'll take the ${c3} one then."`
+];
+
+window.generateQuestion = function() {
+  const chosenColors = colors.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const [correctAnswer, distractor1, distractor2] = chosenColors;
+  const person1 = ["Anna", "Leo", "Mia", "Zach"][Math.floor(Math.random() * 4)];
+  const person2 = ["Elsa", "Kenn", "Rain", "Joe"][Math.floor(Math.random() * 4)];
+  const item = items[Math.floor(Math.random() * items.length)];
+  return {
+    scenario: templates[Math.floor(Math.random() * templates.length)](person1, person2, item, distractor1, distractor2, correctAnswer),
+    correctAnswer
+  };
+};
+
+window.getOptions = function(q) {
+  let options = new Set([q.correctAnswer]);
+  while (options.size < 3) options.add(colors[Math.floor(Math.random() * colors.length)]);
+  return Array.from(options);
+};
+</script>
+
+<!-- GAME 5: PRICE TAG PRO -->
+<script type="text/plain" id="logic-price">
+window.gameTitle = "Price Tag Pro 🛒";
+window.badgeName = "Math Whiz 🧠";
+window.hasCefr = false;
+window.positiveFeedback = ["Nice math! 🛍️🌟", "You got it! 💸🎯", "Awesome! 💰🚀", "Perfect! 🛒✨", "That's it! 🧾", "Excellent! 🏆"];
+
+const items = [
+  'sneakers', 'hoodie', 'backpack', 'calculator', 'headphones', 'jacket',
+  'textbook', 'graphing calculator', 'art supplies', 'sports equipment',
+  'lunch combo', 'school spirit shirt', 'wireless earbuds', 'tablet case',
+  'water bottle', 'planner', 'flash drive', 'desk lamp'
+];
+
+const prices = [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 150];
+const discounts = [3, 5, 7, 10, 12, 15, 18, 20, 25, 30];
+
+const scenarios = [
+  (item, price, discount) => `The ${item} usually cost ${price} dollars, but there is a ${discount} dollar discount today.`,
+  (item, price, discount) => `If you buy this ${item} for ${price} dollars, you get ${discount} dollars off at the register.`,
+  (item, price, discount) => `The original price of the ${item} is ${price} dollars, minus a ${discount} dollar student discount.`,
+  (item, price, discount) => `This ${item} is priced at ${price} dollars, but with your membership card, you save ${discount} dollars.`,
+  (item, price, discount) => `The ${item} costs ${price} dollars before tax. There's a ${discount} dollar coupon you can apply.`,
+  (item, price, discount) => `Today only: the ${item} is ${price} dollars, and you get an additional ${discount} dollars off for buying two.`,
+  (item, price, discount) => `The regular price is ${price} dollars, but it's on clearance for ${discount} dollars less.`,
+  (item, price, discount) => `You found the ${item} for ${price} dollars online, and there's a ${discount} dollar promo code at checkout.`,
+  (item, price, discount) => `The ${item} is ${price} dollars, but as a first-time buyer, you receive a ${discount} dollar welcome discount.`,
+  (item, price, discount) => `This ${item} costs ${price} dollars, and with the back-to-school sale, you save ${discount} dollars.`,
+  (item, price, discount) => `The ${item} is marked ${price} dollars, but the teacher's discount brings it down by ${discount} dollars.`
+];
+
+window.generateQuestion = function() {
+  const item = items[Math.floor(Math.random() * items.length)];
+  const price = prices[Math.floor(Math.random() * prices.length)];
+  const discount = discounts[Math.floor(Math.random() * discounts.length)];
+  const finalPrice = price - discount;
+  return {
+    scenario: scenarios[Math.floor(Math.random() * scenarios.length)](item, price, discount),
+    correctAnswer: `$${finalPrice}`
+  };
+};
+
+window.getOptions = function(q) {
+  const correct = parseInt(q.correctAnswer.replace('$', ''));
+  let opts = new Set([`$${correct}`]);
+  while(opts.size < 3) {
+    let fake = correct + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1) * 5;
+    if (fake > 0) opts.add(`$${fake}`);
+  }
+  return Array.from(opts);
+};
+</script>
+
+<!-- GAME 6: DATE DECODER -->
+<script type="text/plain" id="logic-date">
+window.gameTitle = "Date Decoder Challenge 📅";
+window.badgeName = "Calendar King 👑";
+window.hasCefr = false;
+window.positiveFeedback = ["Nice one! 📅🌟", "You got it! 📆🎯", "Awesome! 🎉🚀", "Perfect! 📝✨", "That's it! 💡", "Excellent! 🏆"];
+
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const events = [
+  'school dance', 'science fair', 'math exam', 'field trip', 'history project',
+  'college application deadline', 'scholarship interview', 'career fair',
+  'parent-teacher night', 'sports tournament', 'music concert',
+  'art show opening', 'debate competition', 'robotics challenge',
+  'volunteer orientation', 'study abroad info session', 'graduation rehearsal'
+];
+
+const days = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31];
+
+const changes = [
+  {text: 'pushed back 5 days', val: 5},
+  {text: 'delayed by 2 days', val: 2},
+  {text: 'moved up 3 days', val: -3},
+  {text: 'postponed by 1 week', val: 7},
+  {text: 'rescheduled to 4 days later', val: 4},
+  {text: 'brought forward by 1 day', val: -1},
+  {text: 'delayed by 10 days', val: 10},
+  {text: 'moved to the following week', val: 7},
+  {text: 'postponed until next month', val: 30},
+  {text: 'advanced by 2 weeks', val: -14}
+];
+
+const scenarios = [
+  (evt, m, d, chg) => `The ${evt} scheduled for ${m} ${d}th has been ${chg.text}.`,
+  (evt, m, d, chg) => `Attention students, the ${evt} on ${m} ${d}th is ${chg.text}.`,
+  (evt, m, d, chg) => `Important update: The ${evt} originally on ${m} ${d}th has been ${chg.text}.`,
+  (evt, m, d, chg) => `Please note: Due to scheduling conflicts, the ${evt} on ${m} ${d}th is now ${chg.text}.`,
+  (evt, m, d, chg) => `Reminder: The ${evt} date has changed. It was ${m} ${d}th, but now it's ${chg.text}.`,
+  (evt, m, d, chg) => `Calendar alert: The ${evt} planned for ${m} ${d}th has been ${chg.text}.`,
+  (evt, m, d, chg) => `Schedule change: The ${evt} on ${m} ${d}th will now take place ${chg.text}.`
+];
+
+window.generateQuestion = function() {
+  const m = months[Math.floor(Math.random() * months.length)];
+  const d = days[Math.floor(Math.random() * days.length)];
+  const evt = events[Math.floor(Math.random() * events.length)];
+  const chg = changes[Math.floor(Math.random() * changes.length)];
+  const newD = d + chg.val;
+  return {
+    scenario: scenarios[Math.floor(Math.random() * scenarios.length)](evt, m, d, chg),
+    correctAnswer: `${m} ${newD}th`
+  };
+};
+
+window.getOptions = function(q) {
+  const parts = q.correctAnswer.split(' ');
+  const m = parts[0];
+  const correctD = parseInt(parts[1].replace('th', ''));
+  let opts = new Set([q.correctAnswer]);
+  while(opts.size < 3) {
+    let fakeD = correctD + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 4) + 1);
+    if (fakeD > 0 && fakeD < 30) opts.add(`${m} ${fakeD}th`);
+  }
+  return Array.from(opts);
+};
+</script>
+
+<!-- GAME 7: LOCATION LISTEN-UP -->
+<script type="text/plain" id="logic-location">
+window.gameTitle = "Location Listen-Up 🗺️";
+window.badgeName = "Navigator 📍";
+window.hasCefr = true;
+window.positiveFeedback = ["That's right! 📍🌟", "You got it! 🏫🎯", "Excellent! 🏛️🏆", "Perfect! 🗺️✨", "Great listening! 🎧🚀", "You're on fire! 🔥"];
+
+const PLACES = [
+  "the library", "the park", "the community center", "town hall", "the stadium",
+  "the museum", "the cafe", "the bookstore", "the university", "the auditorium",
+  "the gallery", "the theater", "conference room A", "the main hall", "the gymnasium",
+  "room 201", "the west wing",
+  "the student union", "the science building", "the language lab", "the counseling center",
+  "the career services office", "the international student center", "the tutoring center",
+  "the computer lab", "the art studio", "the music room", "the cafeteria", "the courtyard",
+  "the parking garage", "the bus stop", "the train station", "the campus shuttle stop"
+];
+
+const EVENTS = [
+  "the meeting", "the workshop", "the seminar", "the gathering", "the presentation",
+  "the briefing", "the lecture", "the conference", "the ceremony",
+  "the orientation session", "the study group", "the club meeting", "the guest speaker event",
+  "the career workshop", "the language exchange", "the cultural festival", "the alumni reception",
+  "the research symposium", "the volunteer training", "the exam review session"
+];
+
+const TIMES = ["1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00", "6:00", "7:00"];
+const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+const difficultyConfig = {
+  'A1': [
+    (evt, p1, t1, p2) => `The ${evt} at ${p1} is moved. It is now at ${p2}.`,
+    (evt, p1, t1, p2) => `Change of plans for the ${evt}. We will meet at ${p2} instead.`,
+    (evt, p1, t1, p2) => `Hello, the ${evt} is not at ${p1}. Please go to ${p2}.`,
+    (evt, p1, t1, p2) => `The ${evt} location changed. New place: ${p2}.`,
+    (evt, p1, t1, p2) => `Go to ${p2} for the ${evt}. Not ${p1}.`
+  ],
+  'A2': [
+    (evt, p1, t1, p2) => `Attention everyone, the ${evt} planned for ${p1} has been relocated to ${p2}.`,
+    (evt, p1, t1, p2) => `Please note a schedule change. The ${evt} at ${p1} will now take place at ${p2}.`,
+    (evt, p1, t1, p2) => `Just a heads up: the ${evt} venue has changed from ${p1} to ${p2}.`,
+    (evt, p1, t1, p2) => `Update: We're moving the ${evt} to ${p2}. It was supposed to be at ${p1}.`,
+    (evt, p1, t1, p2) => `Friendly reminder: The ${evt} location is now ${p2}, not ${p1}.`
+  ],
+  'B1': [
+    (evt, p1, t1, p2) => `An important update regarding the ${evt} at ${p1}. The venue has changed to ${p2}.`,
+    (evt, p1, t1, p2) => `Due to unforeseen circumstances, we've had to relocate the ${evt} from ${p1} to ${p2}.`,
+    (evt, p1, t1, p2) => `Please be advised that the ${evt} originally scheduled for ${p1} will now be held at ${p2}.`,
+    (evt, p1, t1, p2) => `We apologize for any inconvenience, but the ${evt} location has been updated to ${p2} instead of ${p1}.`
+  ],
+  'B2': [
+    (evt, p1, t1, p2) => `We'd like to announce a change for the ${evt} at ${p1}. Due to a scheduling conflict, the event will now take place at ${p2}.`,
+    (evt, p1, t1, p2) => `This is to inform all participants that the venue for the ${evt} has been changed from ${p1} to ${p2} due to logistical considerations.`,
+    (evt, p1, t1, p2) => `Please note that owing to capacity constraints, the ${evt} will be relocated from ${p1} to the alternative venue at ${p2}.`
+  ],
+  'C1': [
+    (evt, p1, t1, p2) => `This is a general announcement concerning the ${evt} originally scheduled in ${p1}. Logistical considerations have necessitated a change of venue to ${p2}.`,
+    (evt, p1, t1, p2) => `In light of recent developments pertaining to facility availability, the ${evt} previously designated for ${p1} has been reassigned to ${p2} to ensure optimal participant experience.`,
+    (evt, p1, t1, p2) => `Following a comprehensive review of spatial requirements and accessibility protocols, the organizing committee has determined that relocating the ${evt} from ${p1} to ${p2} best serves the interests of all stakeholders.`
+  ]
+};
+
+window.generateQuestion = function(level) {
+  const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+  const originalTime = TIMES[Math.floor(Math.random() * TIMES.length)];
+  const day = DAYS[Math.floor(Math.random() * DAYS.length)];
+  let originalPlace, newPlace;
+  do {
+    originalPlace = PLACES[Math.floor(Math.random() * PLACES.length)];
+    newPlace = PLACES[Math.floor(Math.random() * PLACES.length)];
+  } while (originalPlace === newPlace);
+  const templates = difficultyConfig[level] || difficultyConfig['A1'];
+  const template = templates[Math.floor(Math.random() * templates.length)];
+  return { scenario: template(event, originalPlace, originalTime, newPlace, day), correctAnswer: newPlace, originalPlace };
+};
+
+window.getOptions = function(q) {
+  let options = new Set([q.correctAnswer]);
+  while(options.size < 3) options.add(PLACES[Math.floor(Math.random() * PLACES.length)]);
+  return Array.from(options);
+};
+</script>
+
+<!-- GAME 8: RESTAURANT ORDERS -->
+<script type="text/plain" id="logic-restaurant">
+window.gameTitle = "Restaurant Orders 🍽️";
+window.badgeName = "Top Chef 👨‍🍳";
+window.hasCefr = false;
+window.positiveFeedback = ["Delicious! 🍔", "Spot on! 🍟", "Yummy! 🍕", "Perfect order! 🥗", "Exactly! 🥪", "Great listening! 🌮"];
+
+const items = [
+  "a cheeseburger", "a caesar salad", "the spaghetti", "a grilled steak", "the tomato soup",
+  "a pepperoni pizza", "the club sandwich", "some fish tacos", "the roast chicken", "a vegetable curry",
+  "a chicken wrap", "the mushroom risotto", "a seafood pasta", "the BBQ ribs", "a garden salad",
+  "the beef stir-fry", "a veggie burger", "the shrimp scampi", "a chicken parmesan", "the lasagna",
+  "a fruit smoothie", "the chocolate cake", "a side of fries", "the onion rings", "a cup of coffee"
+];
+
+window.generateQuestion = function() {
+  const shuffled = items.sort(() => 0.5 - Math.random()).slice(0, 3);
+  const [opt1, opt2, opt3] = shuffled;
+  const waiterMale = Math.random() > 0.5;
+  const waiterGen = waiterMale ? 'M' : 'F';
+  const custGen = waiterMale ? 'F' : 'M';
+  
+  const choices = [
+    {
+      lines: [
+        { gender: waiterGen, text: "Are you ready to order?" },
+        { gender: custGen, text: `Yes. I can't decide between ${opt1}, ${opt2}, or ${opt3}.` },
+        { gender: waiterGen, text: "They are all excellent choices." },
+        { gender: custGen, text: `I think I will go with the first option, ${opt1}.` }
+      ],
+      correct: opt1
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "What can I get for you today?" },
+        { gender: custGen, text: `I'm looking at ${opt1}, ${opt2}, and ${opt3}.` },
+        { gender: waiterGen, text: "Take your time." },
+        { gender: custGen, text: `I've decided. I'll have the second option, ${opt2}, please.` }
+      ],
+      correct: opt2
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "May I take your order?" },
+        { gender: custGen, text: `I was thinking about ${opt1} or ${opt2}.` },
+        { gender: waiterGen, text: `We also have ${opt3} on special today.` },
+        { gender: custGen, text: `Oh, that sounds perfect. I will take that final option, ${opt3}.` }
+      ],
+      correct: opt3
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "Have you decided what you'd like?" },
+        { gender: custGen, text: `I'm torn between ${opt1} and ${opt2}. What do you recommend?` },
+        { gender: waiterGen, text: `Our ${opt3} is very popular this week.` },
+        { gender: custGen, text: `Sold! I'll try the ${opt3}.` }
+      ],
+      correct: opt3
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "Can I start you off with something?" },
+        { gender: custGen, text: `I was considering ${opt1}, but ${opt2} also looks good.` },
+        { gender: waiterGen, text: `Both are great, but ${opt3} is our chef's specialty.` },
+        { gender: custGen, text: `Then I'll go with the ${opt3}, please.` }
+      ],
+      correct: opt3
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "What sounds good to you today?" },
+        { gender: custGen, text: `Hmm, ${opt1} or maybe ${opt3}?` },
+        { gender: waiterGen, text: `If you like bold flavors, ${opt2} is a fantastic choice.` },
+        { gender: custGen, text: `You convinced me! I'll have the ${opt2}.` }
+      ],
+      correct: opt2
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "Ready to order?" },
+        { gender: custGen, text: `I think I want ${opt1}, but let me think...` },
+        { gender: waiterGen, text: `No rush. By the way, ${opt3} comes with a free drink today.` },
+        { gender: custGen, text: `Great! Then I'll take the ${opt3}.` }
+      ],
+      correct: opt3
+    },
+    {
+      lines: [
+        { gender: waiterGen, text: "What can I bring you?" },
+        { gender: custGen, text: `I'm leaning toward ${opt2}, but ${opt1} is tempting too.` },
+        { gender: waiterGen, text: `Actually, ${opt3} is freshly prepared right now.` },
+        { gender: custGen, text: `Perfect timing! I'll have the ${opt3}.` }
+      ],
+      correct: opt3
+    }
+  ];
+  
+  const selected = choices[Math.floor(Math.random() * choices.length)];
+  return { scenario: selected.lines, correctAnswer: selected.correct, allOptions: shuffled };
+};
+
+window.getOptions = function(q) { return q.allOptions; };
+</script>
+
+<!-- ========================================================================= -->
+<!-- UNIVERSAL GAME ENGINE (Injected into iframe)                              -->
+<!-- ========================================================================= -->
+<script type="text/plain" id="base-engine-html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Frame</title>
+<script src="https://cdn.tailwindcss.com"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><\/script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --p1-bg: #f0fdf4; --p1-accent: #15803d; --p2-bg: #eff6ff; --p2-accent: #1d4ed8; --correct-bg: #16a34a; --incorrect-bg: #dc2626; --main-text: #44403c; --btn-bg: #f3f4f6; --btn-hover-bg: #e5e7eb; --btn-text: #1f2937; --badge-bg: #fde047; --badge-text: #713f12; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+.hidden { display: none !important; }
+.game-board { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto 1fr; height: 100vh; width: 100%; }
+.single-player { grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; }
+.single-player #player-1-panel { border-right: none; }
+.game-title { grid-column: 1 / -1; font-weight: 700; font-size: 2rem; color: var(--main-text); text-align: center; padding: 0.5rem; }
+#timer-display { grid-column: 1 / -1; justify-self: center; margin-bottom: 1rem; padding: 0.5rem 2rem; font-weight: 700; background-color: #ef4444; color: white; border-radius: 12px; font-size: 1.25rem; }
+.player-panel { display: flex; flex-direction: column; justify-content: flex-start; padding: 1.5rem; transition: background-color 0.3s; }
+#player-1-panel { background-color: var(--p1-bg); border-right: 4px solid #cbd5e1; }
+#player-2-panel { background-color: var(--p2-bg); }
+.answer-buttons { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 0.5rem; order: 1; }
+.feedback-display { text-align: center; font-size: 1.75rem; font-weight: 600; margin-top: 1rem; height: 3rem; order: 2; }
+.player-header { text-align: center; margin-top: 1.5rem; position: relative; order: 3; }
+.player-name { font-size: 2.5rem; font-weight: 700; }
+#player-1-panel .player-name { color: var(--p1-accent); } #player-2-panel .player-name { color: var(--p2-accent); }
+.player-score { font-size: 1.5rem; color: var(--main-text); margin-top: 0.5rem; }
+.badges-display-container { margin-top: 1rem; min-height: 34px; }
+.badge { display: inline-block; background-color: var(--badge-bg); color: var(--badge-text); padding: 5px 12px; border-radius: 16px; font-size: 0.9rem; font-weight: 600; margin: 0 5px; }
+.score-popup { position: absolute; left: 50%; top: -30px; transform: translateX(-50%); font-size: 2.5rem; font-weight: bold; color: var(--correct-bg); opacity: 0; transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1); pointer-events: none; z-index: 50; }
+.score-popup.active { transform: translate(-50%, -70px); opacity: 1; }
+.answer-btn { padding: 1rem; width: 100%; max-width: 450px; font-size: 1.25rem; font-weight: 600; border-radius: 16px; background-color: var(--btn-bg); color: var(--btn-text); border: 3px solid #d1d5db; cursor: pointer; transition: transform 0.2s, background-color 0.2s, border-color 0.2s; box-shadow: 0 6px 10px rgba(0,0,0,0.05); }
+.answer-btn:not(:disabled):hover { transform: translateY(-4px); background-color: var(--btn-hover-bg); }
+.answer-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+.answer-btn.correct { border-color: var(--correct-bg) !important; color: var(--correct-bg) !important; background-color: #f0fdf4 !important; }
+.answer-btn.incorrect { border-color: var(--incorrect-bg) !important; color: var(--incorrect-bg) !important; background-color: #fef2f2 !important; }
+.control-btn { padding: 1rem 2rem; font-size: 1.25rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.2s; background-color: var(--btn-bg); color: var(--btn-text); border: 2px solid #d1d5db; }
+.control-btn:hover { transform: translateY(-2px); background-color: var(--btn-hover-bg); }
+.mode-btn { padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: 2px solid #cbd5e1; background: white; color: #64748b; flex: 1; transition: all 0.2s; }
+.mode-btn.selected { border-color: #0ea5e9; background: #e0f2fe; color: #0369a1; }
+#badge-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--badge-bg); color: var(--badge-text); padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 2000; font-weight: 600; transition: opacity 0.5s ease-out, transform 0.5s ease-out; opacity: 0; pointer-events: none; }
+#badge-alert.show { opacity: 1; transform: translate(-50%, 10px); }
+.start-overlay, .game-over-container { position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; z-index: 10; overflow-y: auto; justify-content: flex-start; padding-top: 10vh; }
+.start-box, .game-over-box { background: white; padding: 2rem; border-radius: 16px; text-align: center; width: 90%; max-width: 500px; }
+.start-box input, .start-box select, .start-box textarea { display: block; width: 100%; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 1.1rem; border: 2px solid #ccc; border-radius: 8px; }
+.winner-announcement { text-align: center; font-size: 2.5rem; font-weight: 700; color: #f59e0b; }
+.high-scores-container { margin-top: 1.5rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 12px; }
+#high-scores-list { list-style-position: inside; text-align: left; }
+</style>
+</head>
+<body>
+
+<div id="start-overlay" class="start-overlay">
+  <div class="start-box">
+    <h1 id="screen-title" class="text-2xl font-bold mb-4">Loading...</h1>
+    <div class="flex gap-2 mb-4">
+      <button type="button" id="btn-1p" class="mode-btn selected">1 Player</button>
+      <button type="button" id="btn-2p" class="mode-btn">2 Players</button>
+      <button type="button" id="btn-roster" class="mode-btn">Roster</button>
+    </div>
+    <select id="cefr-level" class="mb-4 text-slate-700 bg-white w-full hidden">
+      <option value="A1">CEFR Level: A1</option>
+      <option value="A2">CEFR Level: A2</option>
+      <option value="B1">CEFR Level: B1</option>
+      <option value="B2">CEFR Level: B2</option>
+      <option value="C1">CEFR Level: C1</option>
+    </select>
+    <input type="text" id="p1-name-input" placeholder="Player 1 Name" value="">
+    <input type="text" id="p2-name-input" placeholder="Player 2 Name" value="" class="hidden">
+    <textarea id="roster-input" placeholder="Paste class list here (comma or line separated)" class="hidden resize-y text-slate-700 w-full p-2 border border-slate-300 rounded-lg mb-4" rows="3"></textarea>
+    <button id="start-game-btn" class="control-btn w-full mt-2 bg-indigo-100 border-indigo-400 text-indigo-800 hover:bg-indigo-200">Start Game</button>
+  </div>
+</div>
+
+<div class="game-board hidden single-player" id="game-board">
+  <h1 class="game-title">Question: <span id="question-count">0</span> / 20</h1>
+  <div id="timer-display" class="hidden">Time: 15</div>
+  <div class="player-panel" id="player-1-panel">
+    <div class="answer-buttons" id="p1-answers">
+      <button class="answer-btn" data-player="0" disabled>&nbsp;</button>
+      <button class="answer-btn" data-player="0" disabled>&nbsp;</button>
+      <button class="answer-btn" data-player="0" disabled>&nbsp;</button>
+    </div>
+    <div class="feedback-display" id="p1-feedback"></div>
+    <div class="player-header">
+      <h2 class="player-name" id="p1-name">Player 1</h2>
+      <p class="player-score">Score: <span id="p1-score">0</span></p>
+      <div class="badges-display-container" id="p1-badges">Badges: None</div>
+      <span class="score-popup">+10</span>
+    </div>
+  </div>
+  <div class="player-panel hidden" id="player-2-panel">
+    <div class="answer-buttons" id="p2-answers">
+      <button class="answer-btn" data-player="1" disabled>&nbsp;</button>
+      <button class="answer-btn" data-player="1" disabled>&nbsp;</button>
+      <button class="answer-btn" data-player="1" disabled>&nbsp;</button>
+    </div>
+    <div class="feedback-display" id="p2-feedback"></div>
+    <div class="player-header">
+      <h2 class="player-name" id="p2-name">Player 2</h2>
+      <p class="player-score">Score: <span id="p2-score">0</span></p>
+      <div class="badges-display-container" id="p2-badges">Badges: None</div>
+      <span class="score-popup">+10</span>
+    </div>
+  </div>
+</div>
+
+<div id="game-over-container" class="game-over-container hidden">
+  <div class="game-over-box">
+    <h1 class="text-3xl font-bold">Game Over!</h1>
+    <p class="winner-announcement mt-4 mb-6" id="winner-announcement">Player 1 Wins!</p>
+    <div class="high-scores-container">
+      <h3 class="text-xl font-bold text-center mb-2">Leaderboard</h3>
+      <ol id="high-scores-list"></ol>
+    </div>
+    <button id="play-again-btn" class="control-btn w-full mt-8">Play Again</button>
+  </div>
+</div>
+<div id="badge-alert">Badge Unlocked!</div>
+
+<script>
+// === GAME LOGIC INJECTED HERE ===
+/*__INJECT_GAME_LOGIC__*/
+// ================================
+
+(function() {
+  const dom = {
+    btn1P: document.getElementById('btn-1p'), btn2P: document.getElementById('btn-2p'), btnRoster: document.getElementById('btn-roster'),
+    startOverlay: document.getElementById('start-overlay'), startGameBtn: document.getElementById('start-game-btn'),
+    cefrLevel: document.getElementById('cefr-level'), p1NameInput: document.getElementById('p1-name-input'), p2NameInput: document.getElementById('p2-name-input'), rosterInput: document.getElementById('roster-input'),
+    gameBoard: document.getElementById('game-board'), gameOverContainer: document.getElementById('game-over-container'),
+    winnerAnnouncement: document.getElementById('winner-announcement'), playAgainBtn: document.getElementById('play-again-btn'),
+    questionCount: document.getElementById('question-count'), timerDisplay: document.getElementById('timer-display'),
+    screenTitle: document.getElementById('screen-title'), highScoresList: document.getElementById('high-scores-list'), badgeAlert: document.getElementById('badge-alert'),
+    playerPanels: [
+      { name: document.getElementById('p1-name'), score: document.getElementById('p1-score'), badges: document.getElementById('p1-badges'), answers: document.getElementById('p1-answers'), feedback: document.getElementById('p1-feedback'), scorePopup: document.querySelector('#player-1-panel .score-popup') },
+      { name: document.getElementById('p2-name'), score: document.getElementById('p2-score'), badges: document.getElementById('p2-badges'), answers: document.getElementById('p2-answers'), feedback: document.getElementById('p2-feedback'), scorePopup: document.querySelector('#player-2-panel .score-popup') }
+    ]
+  };
+
+  dom.screenTitle.textContent = window.gameTitle || "Listening Challenge";
+  if(window.hasCefr === true) dom.cefrLevel.classList.remove('hidden');
+
+  const TOTAL_QUESTIONS = 20; const POINTS_PER_CORRECT = 10; const TIME_LIMIT = 15;
+  const HIGH_SCORE_KEY = (window.gameId || 'arcade') + 'HighScores';
+  
+  let gameMode = '1p', players = [], currentQuestion = {}, questionsAsked = 0, isRoundOver = false;
+  let preferredVoices = [], maleVoices = [], femaleVoices = [], questionTimer;
+  const positiveFeedback = window.positiveFeedback || ["Great job!", "Awesome!", "Perfect!", "Correct!"];
+  let correctSynth, incorrectSynth, winSynth, rosterState = {}, rosterQueue = [];
+
+  dom.btn1P.onclick = () => { gameMode = '1p'; setModeUI('1p'); };
+  dom.btn2P.onclick = () => { gameMode = '2p'; setModeUI('2p'); };
+  dom.btnRoster.onclick = () => { gameMode = 'roster'; setModeUI('roster'); };
+
+  function setModeUI(mode) {
+    [dom.btn1P, dom.btn2P, dom.btnRoster].forEach(b => b.classList.remove('selected'));
+    if(mode === '1p') { dom.btn1P.classList.add('selected'); dom.p1NameInput.classList.remove('hidden'); dom.p2NameInput.classList.add('hidden'); dom.rosterInput.classList.add('hidden'); dom.playerPanels[0].name.parentElement.parentElement.style.backgroundColor = 'var(--p1-bg)'; }
+    else if(mode === '2p') { dom.btn2P.classList.add('selected'); dom.p1NameInput.classList.remove('hidden'); dom.p2NameInput.classList.remove('hidden'); dom.rosterInput.classList.add('hidden'); dom.playerPanels[0].name.parentElement.parentElement.style.backgroundColor = 'white'; }
+    else { dom.btnRoster.classList.add('selected'); dom.p1NameInput.classList.add('hidden'); dom.p2NameInput.classList.add('hidden'); dom.rosterInput.classList.remove('hidden'); dom.playerPanels[0].name.parentElement.parentElement.style.backgroundColor = 'white'; }
+  }
+
+  function setupSounds() {
+    correctSynth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 } }).toDestination();
+    incorrectSynth = new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination();
+    winSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+  }
+
+  function playWinFanfare() {
+    if (!winSynth) return;
+    const now = Tone.now();
+    winSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+    winSynth.triggerAttackRelease(["E4", "G4", "C5"], "8n", now + 0.2);
+    winSynth.triggerAttackRelease(["G4", "C5", "E5"], "2n", now + 0.4);
+  }
+
+  // ============================================
+  // VOICE SYSTEM (Microsoft Voices Only)
+  // ============================================
+  function initSpeechSynthesis() {
+      const loadVoices = () => {
+          // Microsoft online multilingual voices
+          const allowedNames = ["giuseppe", "remy", "vivienne", "emma", "brian", "ava", "andrew", "william", "florian"];
+          const maleNames = ["brian", "andrew", "william", "giuseppe", "remy"];
+          const femaleNames = ["emma", "ava", "vivienne", "florian"]; // Florian is female
+          
+          preferredVoices = window.speechSynthesis.getVoices().filter(v => {
+              const n = v.name.toLowerCase();
+              return v.lang.toLowerCase().startsWith('en') && allowedNames.some(a => n.includes(a));
+          });
+          
+          maleVoices = preferredVoices.filter(v => maleNames.some(m => v.name.toLowerCase().includes(m)));
+          femaleVoices = preferredVoices.filter(v => femaleNames.some(f => v.name.toLowerCase().includes(f)));
+
+          // Sort to prioritize Emma and Brian as highly preferred choices
+          maleVoices.sort((a, b) => (b.name.toLowerCase().includes('brian') ? 1 : -1));
+          femaleVoices.sort((a, b) => (b.name.toLowerCase().includes('emma') ? 1 : -1));
+          
+          console.log('✅ Loaded voices:', preferredVoices.map(v => v.name).join(', '));
+          console.log('👨 Male voices:', maleVoices.map(v => v.name).join(', '));
+          console.log('👩 Female voices:', femaleVoices.map(v => v.name).join(', '));
+      };
+      
+      if ('speechSynthesis' in window) {
+          if (window.speechSynthesis.getVoices().length > 0) loadVoices();
+          window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+  }
+
+  function speak(scriptData, callback) {
+      window.speechSynthesis.cancel();
+      
+      if (!('speechSynthesis' in window) || preferredVoices.length === 0) {
+          let text = typeof scriptData === 'string' ? scriptData : scriptData.map(s => s.text).join(' ');
+          // Safely show fallback text
+          dom.playerPanels.forEach(p => {
+              if (!p.answers.parentElement.classList.contains('hidden')) p.feedback.textContent = '🗣️ ' + text;
+          });
+          if (callback) setTimeout(callback, 2500);
+          return;
+      }
+      
+      if (Array.isArray(scriptData)) {
+          // Dialogue mode (Restaurant game) - Selects one strict Male and Female at the start
+          let i = 0;
+          const selectedMale = maleVoices.length ? maleVoices[0] : preferredVoices[0];
+          const selectedFemale = femaleVoices.length ? femaleVoices[0] : preferredVoices[0];
+          
+          function nextLine() {
+              if (i >= scriptData.length) { if(callback) callback(); return; }
+              const line = scriptData[i];
+              const u = new SpeechSynthesisUtterance(line.text);
+              u.rate = 0.85;
+              u.voice = line.gender === 'M' ? selectedMale : selectedFemale;
+              u.onend = () => { i++; nextLine(); };
+              window.speechSynthesis.speak(u);
+          }
+          nextLine();
+      } else {
+          // Single voice mode
+          const voice = preferredVoices[Math.floor(Math.random() * preferredVoices.length)];
+          const utterance = new SpeechSynthesisUtterance(scriptData);
+          utterance.voice = voice;
+          utterance.rate = 0.85;
+          utterance.onend = callback;
+          window.speechSynthesis.speak(utterance);
+      }
+  }
+
+  function testVoices() {
+      if ('speechSynthesis' in window) {
+          const voices = speechSynthesis.getVoices();
+          const approved = ["giuseppe", "remy", "vivienne", "emma", "brian", "ava", "andrew", "william", "florian"];
+          const found = voices.filter(v => {
+              const n = v.name.toLowerCase();
+              return v.lang.toLowerCase().startsWith('en') && approved.some(a => n.includes(a));
+          });
+          
+          // Replaced strict alert() with soft custom UI notification
+          dom.badgeAlert.textContent = `✅ Found ${found.length} Microsoft voices`;
+          dom.badgeAlert.classList.add('show');
+          setTimeout(() => dom.badgeAlert.classList.remove('show'), 3000);
+          
+          if (found.length > 0) {
+              const test = new SpeechSynthesisUtterance('Welcome to Joel Mitchell\'s Listening Arcade!');
+              test.voice = found[0];
+              test.rate = 0.85;
+              speechSynthesis.speak(test);
+          }
+      } else {
+          dom.badgeAlert.textContent = '❌ SpeechSynthesis not supported.';
+          dom.badgeAlert.classList.add('show');
+          setTimeout(() => dom.badgeAlert.classList.remove('show'), 3000);
+      }
+  }
+  
+  function startTimer() {
+    let t = TIME_LIMIT;
+    dom.timerDisplay.textContent = `Time: ${t}`;
+    dom.timerDisplay.classList.remove('hidden');
+    questionTimer = setInterval(() => {
+      t--;
+      dom.timerDisplay.textContent = `Time: ${t}`;
+      if (t <= 0) handleTimeOut();
+    }, 1000);
+  }
+
+  function handleTimeOut() {
+    clearInterval(questionTimer);
+    if (isRoundOver) return;
+    isRoundOver = true;
+    players.forEach(p => p.correctStreak = 0);
+    incorrectSynth.triggerAttackRelease("C3", "8n", Tone.now());
+    players.forEach((p, i) => {
+      if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
+      dom.playerPanels[i].feedback.textContent = `Time's up! 😅`;
+      dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => {
+        b.disabled = true;
+        if (b.textContent === currentQuestion.correctAnswer) b.classList.add('correct');
+      });
+    });
+    setTimeout(() => {
+      if (gameMode === 'roster') rotateRoster();
+      if (questionsAsked >= TOTAL_QUESTIONS) endGame(); else askQuestion();
+    }, 2000);
+  }
+
+  function askQuestion() {
+    clearInterval(questionTimer);
+    isRoundOver = false;
+    questionsAsked++;
+    dom.questionCount.textContent = questionsAsked;
+    players.forEach((p, i) => {
+      if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
+      dom.playerPanels[i].feedback.textContent = '';
+      dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => {
+        b.className = 'answer-btn'; b.disabled = true; b.innerHTML = '&nbsp;';
+      });
+    });
+    currentQuestion = typeof window.generateQuestion === 'function' ? window.generateQuestion(dom.cefrLevel?.value) : {};
+    const baseOpts = typeof window.getOptions === 'function' ? window.getOptions(currentQuestion) : [];
+    speak(currentQuestion.scenario, () => {
+      players.forEach((p, i) => {
+        if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
+        const pOpts = [...baseOpts].sort(() => Math.random() - 0.5);
+        dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach((b, j) => {
+          b.textContent = pOpts[j]; b.disabled = false;
+        });
+      });
+      startTimer();
+    });
+  }
+
+  function handleAnswer(e) {
+    if (isRoundOver) return;
+    const btn = e.target;
+    if (!btn.matches('.answer-btn') || btn.disabled) return;
+    isRoundOver = true;
+    clearInterval(questionTimer);
+    players.forEach((p, i) => {
+      if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
+      dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+    });
+    const pIdx = parseInt(btn.dataset.player, 10);
+    if (btn.textContent === currentQuestion.correctAnswer) {
+      players[pIdx].score += POINTS_PER_CORRECT;
+      players[pIdx].correctStreak++;
+      if (gameMode !== '1p') players[1 - pIdx].correctStreak = 0;
+      btn.classList.add('correct');
+      dom.playerPanels[pIdx].feedback.textContent = positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
+      correctSynth.triggerAttackRelease("C5", "8n", Tone.now());
+      dom.playerPanels[pIdx].score.textContent = players[pIdx].score;
+      dom.playerPanels[pIdx].scorePopup.classList.add('active');
+      setTimeout(() => dom.playerPanels[pIdx].scorePopup.classList.remove('active'), 800);
+      if (players[pIdx].correctStreak === 5 && !players[pIdx].badges.includes(window.badgeName)) {
+        players[pIdx].badges.push(window.badgeName || "Superstar ⭐");
+        dom.badgeAlert.textContent = `${players[pIdx].name} unlocked: ${window.badgeName || "Superstar ⭐"}`;
+        dom.badgeAlert.classList.add('show');
+        setTimeout(() => dom.badgeAlert.classList.remove('show'), 2500);
+      }
+    } else {
+      players[pIdx].correctStreak = 0;
+      btn.classList.add('incorrect');
+      dom.playerPanels[pIdx].feedback.textContent = `Nope! 😅`;
+      incorrectSynth.triggerAttackRelease("C3", "8n", Tone.now());
+    }
+    players.forEach((p, i) => {
+      if (i===1 && gameMode !== 'roster' && gameMode !== '2p') return;
+      dom.playerPanels[i].answers.querySelectorAll('.answer-btn').forEach(b => {
+        if (b.textContent === currentQuestion.correctAnswer) b.classList.add('correct');
+      });
+    });
+    setTimeout(() => {
+      if (gameMode === 'roster') rotateRoster();
+      if (questionsAsked >= TOTAL_QUESTIONS) endGame(); else askQuestion();
+    }, 2000);
+  }
+
+  function saveRosterPlayers() {
+    if(gameMode !== 'roster') return;
+    rosterState[players[0].name].score = players[0].score;
+    rosterState[players[0].name].correctStreak = players[0].correctStreak;
+    rosterState[players[0].name].badges = [...players[0].badges];
+    rosterState[players[1].name].score = players[1].score;
+    rosterState[players[1].name].correctStreak = players[1].correctStreak;
+    rosterState[players[1].name].badges = [...players[1].badges];
+  }
+
+  function rotateRoster() {
+    if (gameMode !== 'roster') return;
+    saveRosterPlayers();
+    rosterQueue.push(rosterQueue.shift());
+    rosterQueue.push(rosterQueue.shift());
+    const p1Name = rosterQueue[0], p2Name = rosterQueue[1];
+    players[0] = { name: p1Name, ...rosterState[p1Name] };
+    players[1] = { name: p2Name, ...rosterState[p2Name] };
+    dom.playerPanels[0].name.textContent = p1Name;
+    dom.playerPanels[0].score.textContent = players[0].score;
+    dom.playerPanels[0].badges.innerHTML = players[0].badges.length ? players[0].badges.map(b => `<span class="badge">${b}</span>`).join('') : 'Badges: None';
+    dom.playerPanels[1].name.textContent = p2Name;
+    dom.playerPanels[1].score.textContent = players[1].score;
+    dom.playerPanels[1].badges.innerHTML = players[1].badges.length ? players[1].badges.map(b => `<span class="badge">${b}</span>`).join('') : 'Badges: None';
+  }
+
+  async function startGame() {
+    try {
+      await Tone.start();
+      setupSounds();
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance('');
+        u.volume = 0;
+        window.speechSynthesis.speak(u);
+      }
+      if (gameMode === 'roster') {
+        rosterQueue = dom.rosterInput.value.split(/[\n,]+/).map(s => s.trim()).filter(s => s);
+        if (rosterQueue.length < 2) rosterQueue = ["Student A", "Student B", "Student C", "Student D"];
+        rosterState = {};
+        rosterQueue.forEach(n => { rosterState[n] = { score: 0, badges: [], correctStreak: 0 }; });
+        players = [
+          { name: rosterQueue[0], score: 0, correctStreak: 0, badges: [] },
+          { name: rosterQueue[1], score: 0, correctStreak: 0, badges: [] }
+        ];
+        dom.playerPanels[0].name.textContent = players[0].name;
+        dom.playerPanels[1].name.textContent = players[1].name;
+        dom.playerPanels[0].score.textContent = "0";
+        dom.playerPanels[1].score.textContent = "0";
+        dom.playerPanels[0].badges.innerHTML = "Badges: None";
+        dom.playerPanels[1].badges.innerHTML = "Badges: None";
+        document.getElementById('player-2-panel').classList.remove('hidden');
+        dom.gameBoard.classList.remove('single-player');
+      } else {
+        players = [ { name: dom.p1NameInput.value.trim() || 'Player 1', score: 0, correctStreak: 0, badges: [] } ];
+        dom.playerPanels[0].name.textContent = players[0].name;
+        dom.playerPanels[0].score.textContent = "0";
+        dom.playerPanels[0].badges.innerHTML = "Badges: None";
+        if (gameMode === '2p') {
+          players.push({ name: dom.p2NameInput.value.trim() || 'Player 2', score: 0, correctStreak: 0, badges: [] });
+          dom.playerPanels[1].name.textContent = players[1].name;
+          dom.playerPanels[1].score.textContent = "0";
+          dom.playerPanels[1].badges.innerHTML = "Badges: None";
+          document.getElementById('player-2-panel').classList.remove('hidden');
+          dom.gameBoard.classList.remove('single-player');
+        } else {
+          document.getElementById('player-2-panel').classList.add('hidden');
+          dom.gameBoard.classList.add('single-player');
+        }
+      }
+      dom.startOverlay.classList.add('hidden');
+      dom.gameOverContainer.classList.add('hidden');
+      dom.gameBoard.classList.remove('hidden');
+      questionsAsked = 0;
+      askQuestion();
+    } catch(err) {
+      console.error('Start error:', err);
+      dom.badgeAlert.textContent = 'Game start failed. Check console.';
+      dom.badgeAlert.classList.add('show');
+      setTimeout(() => dom.badgeAlert.classList.remove('show'), 3000);
+    }
+  }
+
+  function endGame() {
+    clearInterval(questionTimer);
+    let wText;
+    if (gameMode === 'roster') {
+      saveRosterPlayers();
+      let sortedRoster = Object.entries(rosterState).map(([n, d]) => ({username: n, score: d.score})).sort((a, b) => b.score - a.score);
+      wText = `${sortedRoster[0].username} Wins Class Mode! 🎉🏆`;
+      sortedRoster.forEach(s => saveScore(s.score, s.username));
+    } else {
+      if (gameMode === '1p') { wText = `Score: ${players[0].score} ✨`; saveScore(players[0].score, players[0].name); }
+      else {
+        if (players[0].score > players[1].score) { wText = `${players[0].name} Wins! 🎉🏆`; saveScore(players[0].score, players[0].name); }
+        else if (players[1].score > players[0].score) { wText = `${players[1].name} Wins! 🎉🏆`; saveScore(players[1].score, players[1].name); }
+        else wText = "It's a Tie! 🤝";
+      }
+    }
+    dom.winnerAnnouncement.textContent = wText;
+    const hs = JSON.parse(localStorage.getItem(HIGH_SCORE_KEY) || '[]');
+    dom.highScoresList.innerHTML = hs.length ? hs.map(s => `<li>${s.username}: ${s.score}</li>`).join('') : '<li>No scores yet</li>';
+    dom.gameBoard.classList.add('hidden');
+    dom.gameOverContainer.classList.remove('hidden');
+    if (wText.includes('Wins') || wText.includes('Score')) {
+      playWinFanfare();
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#38bdf8', '#fb923c', '#34d399', '#f472b6'] });
+      }
+    }
+  }
+
+  function saveScore(score, username) {
+    const hs = JSON.parse(localStorage.getItem(HIGH_SCORE_KEY) || '[]');
+    hs.push({ score, username });
+    hs.sort((a, b) => b.score - a.score).splice(5);
+    localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(hs));
+  }
+
+  dom.startGameBtn.onclick = startGame;
+  dom.playAgainBtn.onclick = () => { dom.gameOverContainer.classList.add('hidden'); dom.startOverlay.classList.remove('hidden'); };
+  dom.playerPanels[0].answers.onclick = handleAnswer;
+  dom.playerPanels[1].answers.onclick = handleAnswer;
+  initSpeechSynthesis();
+})();
+<\/script>
+</body>
+</html>
+</script>
+
+<!-- ========================================== -->
+<!-- MAIN CONTROLLER LOGIC                      -->
+<!-- ========================================== -->
+<script>
+const iframe = document.getElementById('game-frame');
+const menuContainer = document.getElementById('menu-container');
+const iframeContainer = document.getElementById('iframe-container');
+const nav = document.getElementById('game-nav');
+const navTitle = document.getElementById('nav-title');
+
+// Robust entity decoder
+function decodeHTMLEntities(text) {
+  return text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+}
+
+function launchGame(id) {
+  try {
+    console.log(`[Arcade] Launching game: ${id}`);
+    
+    const engineEl = document.getElementById('base-engine-html');
+    const logicEl = document.getElementById('logic-' + id);
+    
+    if (!engineEl || !logicEl) {
+      console.error(`[Arcade] Missing template: engine=${!!engineEl}, logic=${!!logicEl}`);
+      // Using DOM updates instead of alert()
+      alert('Game template not found. Check console.');
+      return;
+    }
+    
+    let baseEngineRaw = engineEl.textContent;
+    let logicRaw = logicEl.textContent;
+    
+    // Decode entities
+    baseEngineRaw = decodeHTMLEntities(baseEngineRaw);
+    logicRaw = decodeHTMLEntities(logicRaw);
+    
+    // Verify injection point
+    if (!baseEngineRaw.includes('/*__INJECT_GAME_LOGIC__*/')) {
+      throw new Error('Injection marker not found in engine');
+    }
+    
+    // Safe injection using function callback
+    const html = baseEngineRaw.replace('/*__INJECT_GAME_LOGIC__*/', () => logicRaw);
+    
+    // Load iframe
+    iframe.srcdoc = html;
+    
+    // Update nav title from injected logic
+    const titleMatch = logicRaw.match(/window\.gameTitle\s*=\s*"([^"]+)"/);
+    navTitle.textContent = titleMatch ? titleMatch[1] : "Challenge";
+    
+    // Transition UI
+    menuContainer.classList.add('opacity-0');
+    setTimeout(() => {
+      menuContainer.classList.add('hidden');
+      menuContainer.classList.remove('opacity-0');
+      iframeContainer.classList.remove('hidden');
+      nav.classList.remove('hidden');
+    }, 300);
+    
+    console.log(`[Arcade] ${id} loaded successfully`);
+    
+  } catch(err) {
+    console.error('[Arcade] Launch failed:', err);
+    alert('Failed to load game. See console for details.');
+  }
+}
+
+function showMenu() {
+  iframe.srcdoc = '';
+  nav.classList.add('hidden');
+  iframeContainer.classList.add('hidden');
+  menuContainer.classList.remove('hidden');
+  menuContainer.classList.add('opacity-0');
+  void menuContainer.offsetWidth;
+  menuContainer.classList.remove('opacity-0');
+}
+
+// Show menu on load
+document.addEventListener('DOMContentLoaded', () => {
+  menuContainer.classList.remove('hidden');
+  console.log('[Arcade] Menu initialized');
+});
+</script>
+</body>
+</html>
