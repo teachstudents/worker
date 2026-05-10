@@ -14,6 +14,15 @@
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2); border-color: #38bdf8; }
         .bg-pattern { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 24px 24px; }
         .hidden { display: none !important; }
+        
+        /* Custom non-blocking alert popup */
+        @keyframes slideDown {
+            0% { transform: translate(-50%, -100%); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+        .error-toast {
+            animation: slideDown 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden font-sans bg-pattern">
@@ -110,6 +119,10 @@
         <iframe id="game-frame" class="w-full h-full border-0" allow="autoplay; speaker-selection"></iframe>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- GAME LOGIC TEMPLATES                                                      -->
+    <!-- ========================================================================= -->
+
     <!-- GAME 1: TIME TELLER -->
     <script type="text/plain" id="logic-time">
         window.gameTitle = "Time Teller Challenge 🕰️";
@@ -177,6 +190,7 @@
         };
     </script>
 
+    <!-- GAME 2: SCHEDULE CHANGE -->
     <script type="text/plain" id="logic-schedule">
         window.gameTitle = "Schedule Change Challenge 🚌";
         window.badgeName = "Schedule Master 🚆";
@@ -239,6 +253,7 @@
         };
     </script>
 
+    <!-- GAME 3: MEETING SCHEDULER -->
     <script type="text/plain" id="logic-meeting">
         window.gameTitle = "Meeting Scheduler Challenge 📅";
         window.badgeName = "Meeting Pro 🤝";
@@ -316,6 +331,7 @@
         };
     </script>
 
+    <!-- GAME 4: COLOR CONVO -->
     <script type="text/plain" id="logic-color">
         window.gameTitle = "Color Convo Challenge 🎨";
         window.badgeName = "Eagle Eye 🦅";
@@ -348,8 +364,11 @@
         window.generateQuestion = function() {
             const chosenColors = colors.sort(() => 0.5 - Math.random()).slice(0, 3);
             const [correctAnswer, distractor1, distractor2] = chosenColors;
-            const person1 = ["Anna", "Leo", "Mia", "Zach"][Math.floor(Math.random() * 4)];
-            const person2 = ["Elsa", "Kenn", "Rain", "Joe"][Math.floor(Math.random() * 4)];
+            // Re-using people array locally since this logic block is isolated
+            const localPeople = ['Anna', 'Leo', 'Vivian', 'Rain', 'Elsa', 'Mia', 'Kenn', 'Max', 'Sky', 'Zach', 'Joe'];
+            const person1 = localPeople[Math.floor(Math.random() * localPeople.length)];
+            let person2 = localPeople[Math.floor(Math.random() * localPeople.length)];
+            while (person1 === person2) person2 = localPeople[Math.floor(Math.random() * localPeople.length)];
             const item = items[Math.floor(Math.random() * items.length)];
             return {
                 scenario: templates[Math.floor(Math.random() * templates.length)](person1, person2, item, distractor1, distractor2, correctAnswer),
@@ -364,6 +383,7 @@
         };
     </script>
 
+    <!-- GAME 5: PRICE TAG PRO -->
     <script type="text/plain" id="logic-price">
         window.gameTitle = "Price Tag Pro 🛒";
         window.badgeName = "Math Whiz 🧠";
@@ -416,6 +436,7 @@
         };
     </script>
 
+    <!-- GAME 6: DATE DECODER -->
     <script type="text/plain" id="logic-date">
         window.gameTitle = "Date Decoder Challenge 📅";
         window.badgeName = "Calendar King 👑";
@@ -482,6 +503,7 @@
         };
     </script>
 
+    <!-- GAME 7: LOCATION LISTEN-UP -->
     <script type="text/plain" id="logic-location">
         window.gameTitle = "Location Listen-Up 🗺️";
         window.badgeName = "Navigator 📍";
@@ -564,6 +586,7 @@
         };
     </script>
 
+    <!-- GAME 8: RESTAURANT ORDERS -->
     <script type="text/plain" id="logic-restaurant">
         window.gameTitle = "Restaurant Orders 🍽️";
         window.badgeName = "Top Chef 👨‍🍳";
@@ -848,7 +871,7 @@
             }
 
             // ============================================
-            // VOICE SYSTEM (Mapping strictly to Brian & Emma)
+            // VOICE SYSTEM (Strictly Brian & Emma)
             // ============================================
             window.testVoices = function() {
                 if ('speechSynthesis' in window) {
@@ -872,18 +895,16 @@
             function initSpeechSynthesis() {
                 const loadVoices = () => {
                     const allowedNames = ["giuseppe", "remy", "vivienne", "emma", "brian", "ava", "andrew", "william", "florian"];
+                    const maleNames = ["brian", "andrew", "william", "giuseppe", "remy"];
+                    const femaleNames = ["emma", "ava", "vivienne", "florian"];
+                    
                     preferredVoices = window.speechSynthesis.getVoices().filter(v => {
                         const n = v.name.toLowerCase();
                         return v.lang.toLowerCase().startsWith('en') && allowedNames.some(a => n.includes(a));
                     });
                     
-                    // Strictly isolate Emma and Brian for the Restaurant logic
-                    maleVoices = preferredVoices.filter(v => ["brian"].some(m => v.name.toLowerCase().includes(m)));
-                    femaleVoices = preferredVoices.filter(v => ["emma"].some(f => v.name.toLowerCase().includes(f)));
-
-                    // Safety fallback just in case Emma/Brian are missing from the system
-                    if(maleVoices.length === 0) maleVoices = preferredVoices.filter(v => ["andrew", "william", "giuseppe", "remy"].some(m => v.name.toLowerCase().includes(m)));
-                    if(femaleVoices.length === 0) femaleVoices = preferredVoices.filter(v => ["ava", "vivienne", "florian"].some(f => v.name.toLowerCase().includes(f)));
+                    maleVoices = preferredVoices.filter(v => maleNames.some(m => v.name.toLowerCase().includes(m)));
+                    femaleVoices = preferredVoices.filter(v => femaleNames.some(f => v.name.toLowerCase().includes(f)));
                 };
                 
                 if ('speechSynthesis' in window) {
@@ -908,7 +929,7 @@
                     // Dialogue mode (Restaurant game)
                     let i = 0;
                     
-                    // Select exactly one Male (Brian) and Female (Emma) before the loop begins
+                    // Lock in exactly ONE male and ONE female voice at the start of the conversation.
                     const selectedMale = maleVoices.length ? maleVoices[0] : preferredVoices[0];
                     const selectedFemale = femaleVoices.length ? femaleVoices[0] : preferredVoices[0];
                     
@@ -1111,6 +1132,7 @@
                     askQuestion();
                 } catch(err) {
                     console.error('Start error:', err);
+                    // Safe error UI inside iframe
                     dom.badgeAlert.textContent = 'Game start failed. Check console.';
                     dom.badgeAlert.classList.add('show');
                     setTimeout(() => dom.badgeAlert.classList.remove('show'), 3000);
@@ -1164,6 +1186,9 @@
         &lt;/html&gt;
     </script>
 
+    <!-- ========================================== -->
+    <!-- MAIN CONTROLLER LOGIC                      -->
+    <!-- ========================================== -->
     <script>
         const iframe = document.getElementById('game-frame');
         const menuContainer = document.getElementById('menu-container');
@@ -1171,7 +1196,16 @@
         const nav = document.getElementById('game-nav');
         const navTitle = document.getElementById('nav-title');
 
-        // Robust HTML Entity decoder to unpack &lt; tags inside the base engine
+        // Safe visual error display (No native alert() popups!)
+        function showErrorBox(msg) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-rose-500 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transition-all font-bold error-toast";
+            errorDiv.textContent = msg;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 4000);
+        }
+
+        // Robust entity decoder
         function decodeHTMLEntities(text) {
             return text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
         }
@@ -1184,36 +1218,34 @@
                 const logicEl = document.getElementById('logic-' + id);
                 
                 if (!engineEl || !logicEl) {
-                    console.error(`[Arcade] Missing template: engine=${!!engineEl}, logic=${!!logicEl}`);
-                    // Fallback visually, never use alert()
-                    const t = document.createElement('div');
-                    t.textContent = 'Game logic missing. Please reload.';
-                    t.className = "text-center text-rose-500 font-bold mt-10";
-                    menuContainer.appendChild(t);
+                    console.error(`[Arcade] Missing template for ${id}`);
+                    showErrorBox('Game template not found. Please reload the page.');
                     return;
                 }
                 
                 let baseEngineRaw = engineEl.textContent;
                 let logicRaw = logicEl.textContent;
                 
-                // Unpack the escaped HTML from the engine template
+                // Decode entities
                 baseEngineRaw = decodeHTMLEntities(baseEngineRaw);
+                logicRaw = decodeHTMLEntities(logicRaw);
                 
-                // IMPORTANT: Safely inject logic using the corrected string marker
+                // Verify exact injection point marker
                 if (!baseEngineRaw.includes('/*__INJECT_GAME_LOGIC__*/')) {
                     throw new Error('Injection marker /*__INJECT_GAME_LOGIC__*/ not found in engine');
                 }
                 
+                // Safe injection
                 const html = baseEngineRaw.replace('/*__INJECT_GAME_LOGIC__*/', () => logicRaw);
                 
-                // Load fully assembled code into the iframe
+                // Load iframe
                 iframe.srcdoc = html;
                 
-                // Snag the specific game's title out of the raw logic block
+                // Update nav title
                 const titleMatch = logicRaw.match(/window\.gameTitle\s*=\s*["'`](.*?)["'`]/);
                 navTitle.textContent = titleMatch ? titleMatch[1] : "Challenge";
                 
-                // Smooth transition away from the menu and into the game frame
+                // Transition UI
                 menuContainer.classList.add('opacity-0');
                 setTimeout(() => {
                     menuContainer.classList.add('hidden');
@@ -1222,32 +1254,28 @@
                     nav.classList.remove('hidden');
                 }, 300);
                 
-                console.log(`[Arcade] ${id} loaded seamlessly`);
+                console.log(`[Arcade] ${id} loaded successfully`);
                 
             } catch(err) {
                 console.error('[Arcade] Launch failed:', err);
-                const t = document.createElement('div');
-                t.textContent = 'Game launch failed. Check console.';
-                t.className = "text-center text-rose-500 font-bold mt-10";
-                menuContainer.appendChild(t);
+                showErrorBox('Failed to load game. See console for details.');
             }
         }
 
         function showMenu() {
-            // Completely destroy iframe context to kill audio / speech loops
-            iframe.srcdoc = '';
+            iframe.srcdoc = ''; // Kill audio/loops
             nav.classList.add('hidden');
             iframeContainer.classList.add('hidden');
             menuContainer.classList.remove('hidden');
             menuContainer.classList.add('opacity-0');
-            void menuContainer.offsetWidth; // Reflow to guarantee transition
+            void menuContainer.offsetWidth; // Trigger reflow
             menuContainer.classList.remove('opacity-0');
         }
 
-        // Show main menu on initial load
+        // Show menu on load
         document.addEventListener('DOMContentLoaded', () => {
             menuContainer.classList.remove('hidden');
-            console.log('[Arcade] System initialized and ready');
+            console.log('[Arcade] Menu initialized');
         });
     </script>
 </body>
