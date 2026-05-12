@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>B1 Listening Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-1: #0f172a; /* Slate 900 */
+            --bg-2: #1e1b4b; /* Indigo 950 */
+        }
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            transition: background 4s ease-in-out;
+            color: white;
+        }
+
+        .screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .screen.active { display: flex; }
+
+        @keyframes flash-correct {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(74, 222, 128, 0.6); box-shadow: inset 0 0 50px rgba(74, 222, 128, 0.8); }
+            100% { background-color: transparent; }
+        }
+        @keyframes shake-incorrect {
+            0% { transform: translateX(0); background-color: transparent; }
+            20% { transform: translateX(-15px); background-color: rgba(248, 113, 113, 0.5); }
+            40% { transform: translateX(15px); }
+            60% { transform: translateX(-15px); }
+            80% { transform: translateX(15px); }
+            100% { transform: translateX(0); background-color: transparent; }
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .anim-correct { animation: flash-correct 0.6s ease-out forwards; }
+        .anim-incorrect { animation: shake-incorrect 0.5s ease-in-out forwards; }
+        .anim-pop { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 999;
+        }
+
+        /* MCQ Button styling */
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+        .choice-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Player specific button colors */
+        .p1-btn { border-color: rgba(59, 130, 246, 0.5); }
+        .p1-btn:active { background: rgba(59, 130, 246, 0.4); }
+        
+        .p2-btn { border-color: rgba(249, 115, 22, 0.5); }
+        .p2-btn:active { background: rgba(249, 115, 22, 0.4); }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-setup" class="screen active flex-col items-center justify-center bg-slate-900/90 backdrop-blur p-6">
+        <div class="max-w-lg w-full bg-slate-800 p-8 rounded-3xl shadow-2xl anim-pop border border-slate-700">
+            <h1 class="text-4xl font-extrabold text-center mb-2 text-white tracking-tight">B1 Listening Match</h1>
+            <p class="text-center text-slate-400 mb-6 font-medium">Enter student names (comma separated)</p>
+            
+            <textarea id="player-input" rows="5" class="w-full p-5 text-lg bg-slate-900 text-white border-2 border-slate-600 rounded-xl mb-4 focus:border-blue-500 outline-none resize-none" placeholder="e.g. Alex, Maria, Jordan, Taylor"></textarea>
+            
+            <button id="btn-start" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg text-xl">
+                Start Tournament
+            </button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="screen flex-col relative bg-transparent z-10">
+        
+        <!-- Top Audience Bar (Question Only) & Timer - Clickable to repeat audio -->
+        <div id="audience-bar" class="absolute top-0 left-0 w-full bg-slate-900/95 backdrop-blur shadow-2xl z-50 flex flex-col items-center border-b border-white/10 cursor-pointer active:bg-slate-800 transition-colors select-none" title="Tap to repeat audio">
+            <div class="w-full h-3 bg-slate-800 relative">
+                <div id="timer-bar" class="absolute top-0 left-0 h-full bg-amber-400 w-full transition-all"></div>
+            </div>
+            <div class="w-full py-4 px-8 text-center min-h-[5rem] flex items-center justify-center">
+                <h2 id="question-text" class="text-3xl md:text-4xl font-extrabold text-white tracking-wide drop-shadow-md">
+                    Waiting for players...
+                </h2>
+            </div>
+        </div>
+
+        <!-- Split Screen Play Area (Left / Right) -->
+        <div id="play-area" class="w-full h-full flex flex-row pt-[6rem] pb-[5rem] px-4 gap-4 box-border">
+            
+            <!-- Player 1 Zone (Left) -->
+            <div id="zone-1" class="flex-1 relative border-4 border-blue-500/30 rounded-3xl bg-blue-900/20 overflow-hidden flex flex-col">
+                <div class="flex-1 w-full pt-[10vh] px-8 flex flex-col items-center" id="choices-p1">
+                    <!-- MCQs injected here -->
+                </div>
+            </div>
+
+            <!-- Player 2 Zone (Right) -->
+            <div id="zone-2" class="flex-1 relative border-4 border-orange-500/30 rounded-3xl bg-orange-900/20 overflow-hidden flex flex-col">
+                <div class="flex-1 w-full pt-[10vh] px-8 flex flex-col items-center" id="choices-p2">
+                    <!-- MCQs injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Info Bar (Player Names, Scores, Match Info) -->
+        <div id="bottom-bar" class="absolute bottom-0 left-0 w-full h-[5rem] bg-slate-900/95 backdrop-blur border-t border-white/10 flex justify-between items-center px-8 z-50">
+            <!-- P1 Info (Bottom Left) -->
+            <div class="flex items-center space-x-4">
+                <div class="w-5 h-5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
+                <span id="btm-name-p1" class="text-2xl font-bold text-white">Player 1</span>
+                <span class="text-2xl font-mono bg-slate-800 text-blue-400 px-4 py-1 rounded-lg border border-slate-700 shadow-inner" id="btm-score-p1">0</span>
+            </div>
+
+            <!-- Match Q Info (Bottom Center) -->
+            <div class="flex flex-col items-center">
+                <span id="match-phase-label" class="text-slate-400 text-xs font-bold tracking-widest uppercase">Match Question</span>
+                <div class="text-xl font-black text-amber-400">
+                    <span id="btm-q-current">1</span> / <span id="btm-q-max">20</span>
+                </div>
+            </div>
+
+            <!-- P2 Info (Bottom Right) -->
+            <div class="flex items-center space-x-4">
+                <span class="text-2xl font-mono bg-slate-800 text-orange-400 px-4 py-1 rounded-lg border border-slate-700 shadow-inner" id="btm-score-p2">0</span>
+                <span id="btm-name-p2" class="text-2xl font-bold text-white">Player 2</span>
+                <div class="w-5 h-5 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-review" class="screen flex-col items-center justify-center bg-slate-900/95 p-6 z-[100]">
+        <div class="max-w-2xl w-full bg-slate-800 p-12 rounded-[2rem] shadow-2xl text-center border-t-8 border-amber-400 anim-pop">
+            <h2 class="text-5xl font-black text-white mb-4 tracking-wider">MATCH COMPLETE</h2>
+            <div class="flex justify-center items-center gap-8 my-8">
+                <div class="flex flex-col items-center">
+                    <span id="rev-p1-name" class="text-2xl text-slate-300 font-bold mb-2">Player 1</span>
+                    <span id="rev-p1-score" class="text-6xl font-mono text-blue-400 font-black">0</span>
+                </div>
+                <div class="text-4xl text-slate-600 font-black">VS</div>
+                <div class="flex flex-col items-center">
+                    <span id="rev-p2-name" class="text-2xl text-slate-300 font-bold mb-2">Player 2</span>
+                    <span id="rev-p2-score" class="text-6xl font-mono text-orange-400 font-black">0</span>
+                </div>
+            </div>
+            
+            <div class="bg-amber-400/20 py-4 px-8 rounded-xl inline-block border border-amber-400/50 mb-6">
+                <p id="review-winner" class="text-2xl text-amber-200 font-bold">Winner!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-final" class="screen flex-col items-center justify-center bg-slate-900/95 p-6 z-[100]">
+        <div class="max-w-3xl w-full bg-slate-800 p-12 rounded-[2rem] shadow-2xl text-center border-t-8 border-green-500 anim-pop overflow-y-auto max-h-[90vh]">
+            <h2 class="text-5xl font-black text-white mb-8 tracking-wider">🏆 FINAL LEADERBOARD 🏆</h2>
+            <table class="w-full text-left border-collapse text-white mb-8">
+                <thead class="bg-slate-700">
+                    <tr>
+                        <th class="p-4 font-bold text-slate-300 uppercase">Rank</th>
+                        <th class="p-4 font-bold text-slate-300 uppercase">Student</th>
+                        <th class="p-4 font-bold text-slate-300 uppercase">Points</th>
+                    </tr>
+                </thead>
+                <tbody id="final-leaderboard-body" class="text-xl">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+            <button onclick="location.reload()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl text-2xl transition-all shadow-lg">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const B1_ITEMS = [
+            { audio: "If it rains tomorrow, we will cancel the picnic.", question: "What is the condition for canceling the picnic?", choices: ["If it snows", "If it rains tomorrow", "If it is sunny", "If it is windy"], correct: 1 },
+            { audio: "I've been studying French for three years.", question: "How long has the speaker studied French?", choices: ["For two years", "Since they were three", "For three years", "For four years"], correct: 2 },
+            { audio: "She used to play the piano, but she doesn't anymore.", question: "Does she play the piano now?", choices: ["Yes, every day", "No, she stopped", "Only on weekends", "She is learning now"], correct: 1 },
+            { audio: "The train had already left when we arrived at the station.", question: "Did they catch the train?", choices: ["Yes, just in time", "No, they missed it", "The train was delayed", "They took a bus instead"], correct: 1 },
+            { audio: "You must wear a helmet when riding a bike.", question: "What is the rule?", type: "grammar", choices: ["A helmet is optional", "A helmet is required", "Bikes are not allowed", "Wear a hat"], correct: 1 },
+            { audio: "I would travel the world if I had a lot of money.", question: "Why isn't the speaker traveling the world?", choices: ["They don't have time", "They are scared of flying", "They don't have enough money", "They don't like traveling"], correct: 2 },
+            { audio: "The book was written by a famous author.", question: "Which passive structure is used?", choices: ["Present simple passive", "Past simple passive", "Future passive", "Present perfect passive"], correct: 1 },
+            { audio: "He asked me what time the meeting started.", question: "What is this an example of?", choices: ["Direct speech", "Reported speech", "A conditional sentence", "A relative clause"], correct: 1 },
+            { audio: "Despite the heavy rain, they went for a walk.", question: "What did they do?", choices: ["They stayed inside", "They waited for the rain to stop", "They went for a walk", "They took an umbrella"], correct: 2 },
+            { audio: "I am looking forward to seeing you next week.", question: "How does the speaker feel?", choices: ["Anxious", "Excited", "Bored", "Angry"], correct: 1 },
+            { audio: "The new mall is much bigger than the old one.", question: "How do the malls compare?", choices: ["The old mall is larger", "The new mall is larger", "They are the same size", "The old mall is newer"], correct: 1 },
+            { audio: "She is not only smart but also very hard-working.", question: "What two qualities does she have?", choices: ["Smart and lazy", "Smart and hard-working", "Funny and smart", "Hard-working and quiet"], correct: 1 },
+            { audio: "Unless you hurry, you will miss the flight.", question: "What happens if they don't hurry?", choices: ["They will catch the flight", "They will miss the flight", "The flight will be delayed", "They will have extra time"], correct: 1 },
+            { audio: "I wish I could speak Spanish fluently.", question: "Can the speaker speak Spanish fluently?", choices: ["Yes, perfectly", "No, but they want to", "They are learning right now", "They speak it a little bit"], correct: 1 },
+            { audio: "Have you ever been to Japan?", question: "What tense is used here?", choices: ["Past simple", "Present perfect", "Present continuous", "Future perfect"], correct: 1 },
+            { audio: "The car needs to be washed before the trip.", question: "What must happen to the car?", choices: ["It needs fuel", "It needs to be repaired", "It needs to be washed", "It needs new tires"], correct: 2 },
+            { audio: "He might go to the party if he finishes his homework.", question: "Is it certain he will go?", choices: ["Yes, definitely", "No, it is impossible", "It is a possibility", "He is already there"], correct: 2 },
+            { audio: "I'll call you as soon as I arrive at the hotel.", question: "When will the speaker call?", choices: ["Before leaving", "During the trip", "Immediately upon arrival", "The next day"], correct: 2 },
+            { audio: "Neither my brother nor my sister likes coffee.", question: "Who likes coffee?", choices: ["Only the brother", "Only the sister", "Both of them", "Neither of them"], correct: 3 },
+            { audio: "It's too cold to go swimming today.", question: "Why aren't they swimming?", choices: ["The water is dirty", "They don't know how", "It is too cold", "The pool is closed"], correct: 2 },
+            { audio: "By the time we get there, the movie will have started.", question: "What tense is 'will have started'?", choices: ["Future simple", "Future perfect", "Present perfect", "Past perfect"], correct: 1 },
+            { audio: "She was walking the dog when it started to rain.", question: "What interrupted her walk?", choices: ["A phone call", "A friend", "The rain", "A car"], correct: 2 },
+            { audio: "I regret not studying harder for the exam.", question: "How does the speaker feel about the exam?", choices: ["Happy with their effort", "Sorry they didn't study more", "Confident they passed", "Angry at the teacher"], correct: 1 },
+            { audio: "The museum, which was built in 1920, is being renovated.", question: "When was the museum built?", choices: ["Recently", "In 1920", "It is being built now", "In 2020"], correct: 1 },
+            { audio: "You don't have to wear a tie, but it is recommended.", question: "Is a tie mandatory?", choices: ["Yes, it is required", "No, it is optional", "Ties are forbidden", "Only for managers"], correct: 1 },
+            { audio: "If I were you, I would apologize to her.", question: "What is the speaker doing?", choices: ["Giving an order", "Making a promise", "Giving advice", "Complaining"], correct: 2 },
+            { audio: "They are supposed to arrive at 8 PM.", question: "What time is their expected arrival?", choices: ["Before 8 PM", "Exactly 8 PM", "After 8 PM", "They aren't coming"], correct: 1 },
+            { audio: "I'm used to waking up early now.", question: "Is waking up early difficult for the speaker?", choices: ["Yes, very hard", "No, it's normal now", "They hate it", "They never wake up early"], correct: 1 },
+            { audio: "She can't have left yet; her coat is still here.", question: "What is the speaker expressing?", choices: ["A logical deduction", "A wish", "An offer", "A suggestion"], correct: 0 },
+            { audio: "We had the roof repaired last week.", question: "Did they repair the roof themselves?", choices: ["Yes, they did it alone", "No, they paid someone to do it", "They are repairing it now", "They bought a new house"], correct: 1 },
+            { audio: "Although he was tired, he kept running.", question: "Did he stop running?", choices: ["Yes, because he was tired", "No, he continued", "He never started", "He sat down"], correct: 1 },
+            { audio: "I'll have a coffee, please. Make that two.", question: "How many coffees did they order in the end?", choices: ["One", "Two", "Three", "None"], correct: 1 },
+            { audio: "The meeting has been put off until next Wednesday.", question: "What does 'put off' mean?", choices: ["Canceled", "Moved forward", "Postponed", "Started"], correct: 2 },
+            { audio: "He denied breaking the window.", question: "What did he say?", choices: ["'I broke it'", "'I didn't break it'", "'I will fix it'", "'I saw who broke it'"], correct: 1 },
+            { audio: "I couldn't help laughing at the joke.", question: "What did the speaker do?", choices: ["Refused to laugh", "Laughed unavoidably", "Got angry", "Didn't hear the joke"], correct: 1 },
+            { audio: "Make sure you lock the door before leaving.", question: "What is the instruction?", choices: ["Leave the door open", "Lock the door", "Close the window", "Take the keys"], correct: 1 },
+            { audio: "There's no point in arguing about it now.", question: "What is the speaker suggesting?", choices: ["Arguing is useless", "They should argue more", "The argument is important", "They enjoy arguing"], correct: 0 },
+            { audio: "I prefer tea to coffee in the mornings.", question: "What do they like more in the morning?", choices: ["Coffee", "Tea", "Water", "Juice"], correct: 1 },
+            { audio: "She told me she would be late.", question: "What were her original words?", choices: ["'I am late'", "'I will be late'", "'I was late'", "'Don't be late'"], correct: 1 },
+            { audio: "The harder you work, the more successful you will be.", question: "What type of structure is this?", choices: ["Double comparative", "Superlative", "Passive voice", "Present continuous"], correct: 0 },
+            { audio: "I forgot to buy milk on the way home.", question: "Do they have milk?", choices: ["Yes, they bought it", "No, they forgot", "They had some already", "They drank it"], correct: 1 },
+            { audio: "You'd better check the weather before we go.", question: "What does 'You'd better' mean here?", choices: ["You have to", "It is a strong recommendation", "You liked it better", "You should not"], correct: 1 },
+            { audio: "He is likely to win the competition.", question: "What are his chances of winning?", choices: ["Zero chance", "Very low", "Probable", "He already won"], correct: 2 },
+            { audio: "I haven't seen her since she moved to London.", question: "When was the last time they saw her?", choices: ["Yesterday", "Before she moved to London", "In London", "Next week"], correct: 1 },
+            { audio: "We ran out of sugar, so I couldn't bake the cake.", question: "What does 'ran out of' mean?", choices: ["Bought more", "Used all of it", "Found some", "Dropped it"], correct: 1 },
+            { audio: "It looks as if it's going to snow.", question: "What is the speaker doing?", choices: ["Stating a fact", "Making a prediction based on appearance", "Giving a command", "Asking a question"], correct: 1 },
+            { audio: "I didn't need to take a jacket; it was warm.", question: "Did they take a jacket?", choices: ["Yes, but it was unnecessary", "No, because they knew it was warm", "It is unclear", "Yes, and they wore it"], correct: 1 },
+            { audio: "Let's grab a bite to eat before the show.", question: "What do they want to do?", choices: ["Bite someone", "Eat some food", "Go home", "Watch the show immediately"], correct: 1 },
+            { audio: "He accused me of taking his pen.", question: "What did he think the speaker did?", choices: ["Bought him a pen", "Borrowed his pen", "Stole his pen", "Lost his pen"], correct: 2 },
+            { audio: "The food was so spicy that I couldn't finish it.", question: "Why didn't they finish the food?", choices: ["It was cold", "It was too spicy", "They weren't hungry", "It was expensive"], correct: 1 },
+            { audio: "Do you mind if I open the window?", question: "What is the speaker doing?", choices: ["Ordering someone to open it", "Asking for permission", "Complaining about the heat", "Closing the window"], correct: 1 },
+            { audio: "I'll let you know as soon as I decide.", question: "When will the speaker communicate their decision?", choices: ["Never", "Immediately after deciding", "Tomorrow", "Next year"], correct: 1 },
+            { audio: "She insisted on paying for dinner.", question: "What did she do?", choices: ["Refused to pay", "Demanded to pay", "Asked someone else to pay", "Left without paying"], correct: 1 },
+            { audio: "It's high time we bought a new computer.", question: "What does the speaker think?", type: "grammar", choices: ["They should have bought one already", "They have a great computer", "They don't need a computer", "Computers are expensive"], correct: 0 },
+            { audio: "I can't afford to buy a new car right now.", question: "Why isn't the speaker buying a car?", choices: ["They don't like cars", "They don't have the money", "They already have two", "They can't drive"], correct: 1 },
+            { audio: "The concert was called off due to bad weather.", question: "What happened to the concert?", choices: ["It was moved inside", "It was excellent", "It was canceled", "It was crowded"], correct: 2 },
+            { audio: "He apologized for arriving late.", question: "What did he say?", choices: ["'I am early'", "'I am sorry I am late'", "'Where is everyone?'", "'I won't be late again'"], correct: 1 },
+            { audio: "She warned him not to touch the hot stove.", question: "What was the warning?", choices: ["'Touch the stove'", "'Clean the stove'", "'Don't touch the hot stove'", "'Turn on the stove'"], correct: 2 },
+            { audio: "I'd rather stay home than go out tonight.", question: "What is the speaker's preference?", choices: ["Going out", "Staying home", "Going to a party", "Working late"], correct: 1 },
+            { audio: "We are having the house painted next week.", question: "Who is painting the house?", choices: ["The speakers themselves", "Professional painters", "Nobody", "The neighbors"], correct: 1 }
+        ];
+
+        class AudioSystem {
+            constructor() {
+                this.speech = window.speechSynthesis;
+                this.voices = [];
+                
+                // Strictly enforce these specific voices
+                this.allowedVoiceNames = [
+                    "Giuseppe", "Vivienne", "Florian", "Seraphina", 
+                    "Emma", "Brian", "Ava", "Andrew", "William", "Remy"
+                ];
+
+                const loadVoices = () => {
+                    const allVoices = this.speech.getVoices();
+                    
+                    // Filter: Must be Microsoft Online, English, AND match the specific names
+                    this.voices = allVoices.filter(v => {
+                        const isAllowedName = this.allowedVoiceNames.some(allowed => v.name.includes(allowed));
+                        const isMicrosoftOnline = v.name.includes('Microsoft') && v.name.includes('Online');
+                        const isEnglish = v.lang.startsWith('en');
+                        return isAllowedName && isMicrosoftOnline && isEnglish;
+                    });
+
+                    // Fallback to any English Microsoft Online voice if exact names aren't found on this OS
+                    if (this.voices.length === 0) {
+                        this.voices = allVoices.filter(v => v.name.includes('Microsoft') && v.name.includes('Online') && v.lang.startsWith('en'));
+                    }
+
+                    // Ultimate fallback to any English voice if strict filtering yields 0 voices (prevents game breaking)
+                    if (this.voices.length === 0) {
+                        this.voices = allVoices.filter(v => v.lang.startsWith('en'));
+                    }
+                    if (this.voices.length === 0) {
+                        this.voices = allVoices; // Final fallback
+                    }
+                };
+
+                loadVoices();
+                if (this.speech.onvoiceschanged !== undefined) {
+                    this.speech.onvoiceschanged = loadVoices;
+                }
+            }
+
+            speak(text, priority = false) {
+                if (priority) this.speech.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95; // Slightly slower for B1 listening
+                if (this.voices.length > 0) {
+                    utterance.voice = this.voices[Math.floor(Math.random() * this.voices.length)];
+                }
+                this.speech.speak(utterance);
+            }
+        }
+
+        class GameController {
+            constructor() {
+                this.audio = new AudioSystem();
+                
+                this.players = [];
+                this.queue = [];
+                
+                // Match settings
+                this.maxMatchQuestions = 20; // 20 questions per match
+                this.matchQuestionsPool = [];
+                
+                this.timerInterval = null;
+                this.currentPair = null;
+                this.currentItem = null;
+                
+                this.roundActive = false;
+                this.phase = 'regular'; // 'regular' or 'championship'
+
+                // Encouragement phrases
+                this.phrases = {
+                    correct: ["Excellent!", "Spot on!", "Exactly right!", "Great job!"],
+                    incorrect: ["Not quite.", "Try again next time.", "That is incorrect."]
+                };
+
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                document.getElementById('btn-start').addEventListener('click', () => this.startGame());
+                
+                document.getElementById('audience-bar').addEventListener('click', () => {
+                    if(this.roundActive && this.currentItem) {
+                        this.audio.speak(this.currentItem.audio, true);
+                    }
+                });
+            }
+
+            switchScreen(id) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+            }
+
+            startGame() {
+                const input = document.getElementById('player-input').value;
+                const names = input.split(',').map(n => n.trim()).filter(n => n);
+                
+                if (names.length < 2) {
+                    alert("Please enter at least 2 player names.");
+                    return;
+                }
+
+                this.players = names.map(n => ({ name: n, score: 0 }));
+                this.buildQueue();
+                
+                this.phase = 'regular';
+                this.switchScreen('screen-game');
+                this.startNextMatch();
+            }
+
+            buildQueue() {
+                this.queue = [...this.players];
+                // Fisher-Yates shuffle
+                for (let i = this.queue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
+                }
+            }
+
+            shuffleArray(array) {
+                const newArr = [...array];
+                for (let i = newArr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+                }
+                return newArr;
+            }
+
+            startNextMatch() {
+                // If queue empty during regular play, trigger championship
+                if (this.queue.length < 2 && this.phase !== 'championship') {
+                    this.phase = 'championship';
+                    
+                    // Get top 2 globally
+                    const sorted = [...this.players].sort((a, b) => b.score - a.score);
+                    this.queue = [sorted[0], sorted[1]];
+                }
+                
+                const p1 = this.queue.shift();
+                const p2 = this.queue.shift();
+                this.currentPair = { p1, p2 };
+                
+                this.matchQuestionCount = 0;
+                
+                // Shuffle a fresh pool of questions from corpus
+                this.matchQuestionsPool = this.shuffleArray(B1_ITEMS);
+
+                this.updateBottomBar();
+                
+                // Intro phase
+                document.getElementById('choices-p1').innerHTML = '';
+                document.getElementById('choices-p2').innerHTML = '';
+                
+                let matchType = this.phase === 'championship' ? "Championship Match!" : "New Match Starting.";
+                document.getElementById('question-text').textContent = `${matchType} ${p1.name} and ${p2.name}, please come to the board.`;
+                
+                this.audio.speak(`${matchType} Players ${p1.name} and ${p2.name}, please come to the board. The match will begin in 15 seconds.`, true);
+                
+                // 15 second walk-to-board timer
+                this.startTimer(15, () => {
+                    this.nextQuestion();
+                });
+            }
+
+            nextQuestion() {
+                if (this.matchQuestionCount >= this.maxMatchQuestions) {
+                    this.endMatch();
+                    return;
+                }
+                
+                this.matchQuestionCount++;
+                this.roundActive = true;
+                
+                this.updateBottomBar();
+                this.loadListeningItem();
+            }
+
+            loadListeningItem() {
+                // Pull from shuffled pool
+                this.currentItem = this.matchQuestionsPool.pop();
+                
+                document.getElementById('question-text').textContent = this.currentItem.question;
+                
+                const c1 = document.getElementById('choices-p1');
+                const c2 = document.getElementById('choices-p2');
+                c1.innerHTML = '';
+                c2.innerHTML = '';
+
+                // Extract correct choice and exactly 2 random incorrect choices for 3 MCQs total
+                const correctChoice = { 
+                    text: this.currentItem.choices[this.currentItem.correct], 
+                    isCorrect: true 
+                };
+                
+                let incorrectChoices = this.currentItem.choices
+                    .map((text, i) => ({ text: text, isCorrect: false, originalIndex: i }))
+                    .filter(choice => choice.originalIndex !== this.currentItem.correct);
+                
+                // Shuffle incorrect choices and take only 2
+                incorrectChoices = this.shuffleArray(incorrectChoices).slice(0, 2);
+
+                const baseChoices = [correctChoice, ...incorrectChoices];
+
+                // Independently shuffle for P1 and P2 to prevent parallel cheating
+                const p1Choices = this.shuffleArray(baseChoices);
+                const p2Choices = this.shuffleArray(baseChoices);
+
+                // Render P1
+                p1Choices.forEach((choiceObj) => {
+                    const btn1 = document.createElement('button');
+                    btn1.className = 'choice-btn p1-btn';
+                    btn1.textContent = choiceObj.text;
+                    btn1.onclick = () => this.handleAnswer(1, choiceObj.isCorrect);
+                    c1.appendChild(btn1);
+                });
+
+                // Render P2
+                p2Choices.forEach((choiceObj) => {
+                    const btn2 = document.createElement('button');
+                    btn2.className = 'choice-btn p2-btn';
+                    btn2.textContent = choiceObj.text;
+                    btn2.onclick = () => this.handleAnswer(2, choiceObj.isCorrect);
+                    c2.appendChild(btn2);
+                });
+
+                // Read the audio prompt
+                this.audio.speak(this.currentItem.audio, true);
+                
+                // Start strict 15 second timer
+                this.startTimer(15, () => this.handleTimeOut());
+            }
+
+            updateBottomBar() {
+                if(!this.currentPair) return;
+                
+                document.getElementById('btm-name-p1').textContent = this.currentPair.p1.name;
+                document.getElementById('btm-score-p1').textContent = this.currentPair.p1.score;
+                
+                document.getElementById('btm-name-p2').textContent = this.currentPair.p2.name;
+                document.getElementById('btm-score-p2').textContent = this.currentPair.p2.score;
+
+                document.getElementById('btm-q-current').textContent = this.matchQuestionCount;
+                document.getElementById('match-phase-label').textContent = this.phase === 'championship' ? "CHAMPIONSHIP Q" : "MATCH QUESTION";
+            }
+
+            startTimer(durationSeconds, onComplete) {
+                clearInterval(this.timerInterval);
+                const timerBar = document.getElementById('timer-bar');
+                
+                timerBar.style.transition = 'none';
+                timerBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    timerBar.style.transition = `width ${durationSeconds}s linear`;
+                    timerBar.style.width = '0%';
+                }, 50);
+
+                let timeLeft = durationSeconds * 10; // 100ms ticks
+                this.timerInterval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(this.timerInterval);
+                        if(onComplete) onComplete();
+                    }
+                }, 100);
+            }
+
+            handleTimeOut() {
+                if (this.roundActive) {
+                    this.audio.speak("Time is up!", true);
+                }
+                
+                this.roundActive = false;
+                
+                setTimeout(() => this.nextQuestion(), 1000);
+            }
+
+            handleAnswer(playerNum, isCorrect) {
+                if (!this.roundActive) return;
+                
+                // Lock out further answers.
+                // NOTE: We DO NOT clear the timer interval. It finishes visually.
+                this.roundActive = false;
+
+                const zoneId = `zone-${playerNum}`;
+                const zoneElement = document.getElementById(zoneId);
+
+                // Disable all buttons immediately
+                document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+
+                if (isCorrect) {
+                    // Winner gets the point
+                    if (playerNum === 1) this.currentPair.p1.score++;
+                    else this.currentPair.p2.score++;
+
+                    zoneElement.classList.add('anim-correct');
+                    setTimeout(() => zoneElement.classList.remove('anim-correct'), 600);
+                    
+                    this.spawnConfetti();
+                    
+                    const phrase = this.phrases.correct[Math.floor(Math.random() * this.phrases.correct.length)];
+                    const pName = playerNum === 1 ? this.currentPair.p1.name : this.currentPair.p2.name;
+                    this.audio.speak(`${phrase} Point for ${pName}.`, true);
+                    
+                } else {
+                    // Opponent gets the point (Zero-sum penalty)
+                    if (playerNum === 1) this.currentPair.p2.score++;
+                    else this.currentPair.p1.score++;
+
+                    zoneElement.classList.add('anim-incorrect');
+                    setTimeout(() => zoneElement.classList.remove('anim-incorrect'), 500);
+
+                    const phrase = this.phrases.incorrect[Math.floor(Math.random() * this.phrases.incorrect.length)];
+                    const oppName = playerNum === 1 ? this.currentPair.p2.name : this.currentPair.p1.name;
+                    this.audio.speak(`${phrase} Point awarded to ${oppName}.`, true);
+                }
+
+                this.updateBottomBar();
+            }
+
+            spawnConfetti() {
+                for (let i = 0; i < 60; i++) {
+                    const conf = document.createElement('div');
+                    conf.className = 'confetti';
+                    conf.style.left = `${Math.random() * 100}vw`;
+                    conf.style.top = `-20px`;
+                    const colors = ['#fcd34d', '#f472b6', '#38bdf8', '#4ade80'];
+                    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    conf.style.animationDuration = `${1.5 + Math.random() * 2}s`;
+                    conf.style.animationDelay = `${Math.random() * 0.5}s`;
+                    document.body.appendChild(conf);
+                    setTimeout(() => conf.remove(), 4000);
+                }
+            }
+
+            endMatch() {
+                let matchWinnerName = "Tie";
+                if(this.currentPair.p1.score > this.currentPair.p2.score) matchWinnerName = this.currentPair.p1.name;
+                if(this.currentPair.p2.score > this.currentPair.p1.score) matchWinnerName = this.currentPair.p2.name;
+
+                let titleText = this.phase === 'championship' ? "CHAMPIONSHIP COMPLETE" : "MATCH COMPLETE";
+                document.querySelector('#screen-review h2').textContent = titleText;
+                
+                document.getElementById('review-winner').textContent = matchWinnerName === "Tie" ? "It's a Tie!" : `${matchWinnerName} wins the match!`;
+                
+                document.getElementById('rev-p1-name').textContent = this.currentPair.p1.name;
+                document.getElementById('rev-p1-score').textContent = this.currentPair.p1.score;
+                document.getElementById('rev-p2-name').textContent = this.currentPair.p2.name;
+                document.getElementById('rev-p2-score').textContent = this.currentPair.p2.score;
+
+                this.switchScreen('screen-review');
+                
+                this.audio.speak(`${titleText}. ${matchWinnerName === "Tie" ? "It is a tie." : matchWinnerName + " won this match."}`, true);
+
+                setTimeout(() => {
+                    if (this.phase === 'championship') {
+                        this.showFinalScreen();
+                    } else if (this.queue.length < 2) {
+                        // Queue empty, jump to championship
+                        this.startNextMatch(); 
+                    } else {
+                        // More players in regular queue
+                        this.switchScreen('screen-game');
+                        this.startNextMatch();
+                    }
+                }, 5000);
+            }
+
+            showFinalScreen() {
+                this.switchScreen('screen-final');
+                const sorted = [...this.players].sort((a, b) => b.score - a.score);
+                
+                const tbody = document.getElementById('final-leaderboard-body');
+                tbody.innerHTML = sorted.map((p, i) => `
+                    <tr class="border-b border-slate-600 bg-slate-700/50">
+                        <td class="p-4 font-black text-amber-400">#${i + 1}</td>
+                        <td class="p-4 font-bold text-white">${p.name}</td>
+                        <td class="p-4 font-mono font-bold text-green-400">${p.score}</td>
+                    </tr>
+                `).join('');
+
+                this.audio.speak(`Tournament complete! The grand champion is ${sorted[0].name}!`, true);
+                this.spawnConfetti();
+                setTimeout(() => this.spawnConfetti(), 1000);
+                setTimeout(() => this.spawnConfetti(), 2000);
+            }
+        }
+
+        window.onload = () => {
+            window.Game = new GameController();
+        };
+    </script>
+</body>
+</html>
