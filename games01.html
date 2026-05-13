@@ -14,9 +14,15 @@
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2); border-color: #38bdf8; }
         .bg-pattern { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 24px 24px; }
         .hidden { display: none !important; }
+        #error-toast { transition: opacity 0.3s ease, transform 0.3s ease; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden font-sans bg-pattern">
+<body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden font-sans bg-pattern relative">
+
+    <!-- Error Toast (Replaces alerts) -->
+    <div id="error-toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 opacity-0 pointer-events-none font-bold">
+        Error Message
+    </div>
 
     <nav id="game-nav" class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-20 hidden transition-all shadow-lg">
         <div class="flex items-center gap-3">
@@ -337,7 +343,6 @@
       'water bottle', 'laptop bag', 'sunglasses', 'watch', 'wallet', 'notebook'
     ];
     
-    // Borrowing the people array from the Meeting game implicitly or recreating here:
     const people = ['Anna', 'Leo', 'Vivian', 'Rain', 'Elsa', 'Mia', 'Kenn', 'Max', 'Sky', 'Zach', 'Joe'];
 
     const templates = [
@@ -577,12 +582,14 @@
     window.hasCefr = false;
     window.positiveFeedback = ["Delicious! 🍔", "Spot on! 🍟", "Yummy! 🍕", "Perfect order! 🥗", "Exactly! 🥪", "Great listening! 🌮"];
 
+    // GRAMMAR FIXED: Standardized articles used consistently
     const items = [
-      "a cheeseburger", "a caesar salad", "the spaghetti", "a grilled steak", "the tomato soup",
-      "a pepperoni pizza", "the club sandwich", "some fish tacos", "the roast chicken", "a vegetable curry",
-      "a chicken wrap", "the mushroom risotto", "a seafood pasta", "the BBQ ribs", "a garden salad",
-      "the beef stir-fry", "a veggie burger", "the shrimp scampi", "a chicken parmesan", "the lasagna",
-      "a fruit smoothie", "the chocolate cake", "a side of fries", "the onion rings", "a cup of coffee"
+      "a cheeseburger", "a Caesar salad", "the spaghetti", "a grilled steak", 
+      "tomato soup", "a pepperoni pizza", "a club sandwich", "fish tacos", 
+      "roast chicken", "a vegetable curry", "a chicken wrap", "mushroom risotto",
+      "seafood pasta", "BBQ ribs", "a garden salad", "beef stir-fry", "a veggie burger",
+      "shrimp scampi", "chicken parmesan", "lasagna", "a fruit smoothie", 
+      "chocolate cake", "French fries", "onion rings", "a cup of coffee"
     ];
 
     window.generateQuestion = function() {
@@ -716,17 +723,34 @@
     .control-btn:hover { transform: translateY(-2px); background-color: var(--btn-hover-bg); }
     .mode-btn { padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: 2px solid #cbd5e1; background: white; color: #64748b; flex: 1; transition: all 0.2s; }
     .mode-btn.selected { border-color: #0ea5e9; background: #e0f2fe; color: #0369a1; }
-    #badge-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--badge-bg); color: var(--badge-text); padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 2000; font-weight: 600; transition: opacity 0.5s ease-out, transform 0.5s ease-out; opacity: 0; pointer-events: none; }
-    #badge-alert.show { opacity: 1; transform: translate(-50%, 10px); }
+    
+    /* Animation implementation for badges */
+    @keyframes slideDown { 
+      0% { transform: translate(-50%, -20px); opacity: 0; } 
+      100% { transform: translate(-50%, 10px); opacity: 1; } 
+    }
+    
+    #badge-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--badge-bg); color: var(--badge-text); padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 2000; font-weight: 600; opacity: 0; pointer-events: none; }
+    #badge-alert.show { animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    
     .start-overlay, .game-over-container { position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; z-index: 10; overflow-y: auto; justify-content: flex-start; padding-top: 10vh; }
     .start-box, .game-over-box { background: white; padding: 2rem; border-radius: 16px; text-align: center; width: 90%; max-width: 500px; }
     .start-box input, .start-box select, .start-box textarea { display: block; width: 100%; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 1.1rem; border: 2px solid #ccc; border-radius: 8px; }
     .winner-announcement { text-align: center; font-size: 2.5rem; font-weight: 700; color: #f59e0b; }
     .high-scores-container { margin-top: 1.5rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 12px; }
     #high-scores-list { list-style-position: inside; text-align: left; }
+    
+    /* Graceful error toast inside iframe */
+    #engine-error-toast { transition: opacity 0.3s ease, transform 0.3s ease; }
     </style>
     </head>
     <body>
+    
+    <!-- Engine Toast Error -->
+    <div id="engine-error-toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl z-[9999] opacity-0 pointer-events-none font-bold">
+        Error Message
+    </div>
+
     <div id="start-overlay" class="start-overlay">
       <div class="start-box">
         <h1 id="screen-title" class="text-2xl font-bold mb-4">Loading...</h1>
@@ -809,11 +833,19 @@
         winnerAnnouncement: document.getElementById('winner-announcement'), playAgainBtn: document.getElementById('play-again-btn'),
         questionCount: document.getElementById('question-count'), timerDisplay: document.getElementById('timer-display'),
         screenTitle: document.getElementById('screen-title'), highScoresList: document.getElementById('high-scores-list'), badgeAlert: document.getElementById('badge-alert'),
+        errorToast: document.getElementById('engine-error-toast'),
         playerPanels: [
           { name: document.getElementById('p1-name'), score: document.getElementById('p1-score'), badges: document.getElementById('p1-badges'), answers: document.getElementById('p1-answers'), feedback: document.getElementById('p1-feedback'), scorePopup: document.querySelector('#player-1-panel .score-popup') },
           { name: document.getElementById('p2-name'), score: document.getElementById('p2-score'), badges: document.getElementById('p2-badges'), answers: document.getElementById('p2-answers'), feedback: document.getElementById('p2-feedback'), scorePopup: document.querySelector('#player-2-panel .score-popup') }
         ]
       };
+
+      function showError(msg) {
+        dom.errorToast.textContent = msg;
+        dom.errorToast.classList.remove('opacity-0', 'pointer-events-none');
+        dom.errorToast.classList.add('opacity-100');
+        setTimeout(() => { dom.errorToast.classList.add('opacity-0', 'pointer-events-none'); dom.errorToast.classList.remove('opacity-100'); }, 3000);
+      }
 
       dom.screenTitle.textContent = window.gameTitle || "Listening Challenge";
       if(window.hasCefr === true) dom.cefrLevel.classList.remove('hidden');
@@ -838,8 +870,9 @@
       }
 
       function setupSounds() {
-        correctSynth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 } }).toDestination();
-        incorrectSynth = new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination();
+        // Upgraded rich synth using PolySynth and specific oscillator types
+        correctSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 } }).toDestination();
+        incorrectSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'sawtooth' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination();
         winSynth = new Tone.PolySynth(Tone.Synth).toDestination();
       }
 
@@ -853,14 +886,34 @@
 
       function initSpeechSynthesis() {
         const loadVoices = () => {
-          const allowedNames = ["giuseppe", "remy", "vivienne", "emma", "brian", "ava", "andrew", "william"];
-          preferredVoices = window.speechSynthesis.getVoices().filter(v => {
-            const n = v.name.toLowerCase();
-            return v.lang.startsWith('en') && allowedNames.some(a => n.includes(a));
-          });
-          // Strictly isolate Brian for Male and Emma for Female
-          maleVoices = preferredVoices.filter(v => v.name.toLowerCase().includes("brian"));
-          femaleVoices = preferredVoices.filter(v => v.name.toLowerCase().includes("emma"));
+          const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+          
+          // Define robust fallback lists to GUARANTEE an M/F difference
+          // Giuseppe and Vivienne are priority #1
+          const maleNames = ["giuseppe", "brian", "william", "andrew", "david", "arthur", "george", "james", "mark"];
+          const femaleNames = ["vivienne", "emma", "ava", "seraphina", "samantha", "victoria", "susan", "zira", "moira"];
+          
+          maleVoices = voices.filter(v => maleNames.some(n => v.name.toLowerCase().includes(n)))
+            .sort((a, b) => {
+              const aIdx = maleNames.findIndex(n => a.name.toLowerCase().includes(n));
+              const bIdx = maleNames.findIndex(n => b.name.toLowerCase().includes(n));
+              return aIdx - bIdx;
+            });
+            
+          femaleVoices = voices.filter(v => femaleNames.some(n => v.name.toLowerCase().includes(n)))
+            .sort((a, b) => {
+              const aIdx = femaleNames.findIndex(n => a.name.toLowerCase().includes(n));
+              const bIdx = femaleNames.findIndex(n => b.name.toLowerCase().includes(n));
+              return aIdx - bIdx;
+            });
+
+          // Ultimate Fallback: if no preferred names match, split the available voices to force distinction
+          if (maleVoices.length === 0 && voices.length > 0) maleVoices = [voices[0]];
+          if (femaleVoices.length === 0 && voices.length > 1) femaleVoices = [voices[voices.length - 1]];
+          else if (femaleVoices.length === 0 && voices.length > 0) femaleVoices = [voices[0]];
+          
+          preferredVoices = [...maleVoices, ...femaleVoices];
+          if (preferredVoices.length === 0) preferredVoices = voices;
         };
         if ('speechSynthesis' in window) {
           if (window.speechSynthesis.getVoices().length > 0) loadVoices();
@@ -878,9 +931,9 @@
         }
         if (Array.isArray(scriptData)) {
           let i = 0;
-          // Lock in the singular male and female voices for the entire conversation
-          const selectedMale = maleVoices.length ? maleVoices[0] : preferredVoices[0];
-          const selectedFemale = femaleVoices.length ? femaleVoices[0] : preferredVoices[0];
+          // Lock in the distinctly separated male and female voices
+          const selectedMale = maleVoices[0] || preferredVoices[0];
+          const selectedFemale = femaleVoices[0] || preferredVoices[preferredVoices.length > 1 ? 1 : 0];
           
           function nextLine() {
             if (i >= scriptData.length) { if(callback) callback(); return; }
@@ -982,6 +1035,9 @@
           if (players[pIdx].correctStreak === 5 && !players[pIdx].badges.includes(window.badgeName)) {
             players[pIdx].badges.push(window.badgeName || "Superstar ⭐");
             dom.badgeAlert.textContent = `${players[pIdx].name} unlocked: ${window.badgeName || "Superstar ⭐"}`;
+            // trigger re-flow to ensure animation plays if unlocked rapidly
+            dom.badgeAlert.classList.remove('show');
+            void dom.badgeAlert.offsetWidth;
             dom.badgeAlert.classList.add('show');
             setTimeout(() => dom.badgeAlert.classList.remove('show'), 2500);
           }
@@ -1079,7 +1135,7 @@
           askQuestion();
         } catch(err) {
           console.error('Start error:', err);
-          alert('Game start failed. Check console for details.');
+          showError('Game start failed. Check console for details.');
         }
       }
 
@@ -1136,6 +1192,17 @@
     const iframeContainer = document.getElementById('iframe-container');
     const nav = document.getElementById('game-nav');
     const navTitle = document.getElementById('nav-title');
+    const errorToast = document.getElementById('error-toast');
+
+    function showErrorToast(msg) {
+        errorToast.textContent = msg;
+        errorToast.classList.remove('opacity-0', 'pointer-events-none');
+        errorToast.classList.add('opacity-100');
+        setTimeout(() => {
+            errorToast.classList.add('opacity-0', 'pointer-events-none');
+            errorToast.classList.remove('opacity-100');
+        }, 3000);
+    }
 
     function decodeHTMLEntities(text) {
       return text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
@@ -1150,7 +1217,7 @@
         
         if (!engineEl || !logicEl) {
           console.error(`[Arcade] Missing template: engine=${!!engineEl}, logic=${!!logicEl}`);
-          alert('Game template not found. Check console.');
+          showErrorToast('Game template not found. Please try again.');
           return;
         }
         
@@ -1183,7 +1250,7 @@
         
       } catch(err) {
         console.error('[Arcade] Launch failed:', err);
-        alert('Failed to load game. See console for details.');
+        showErrorToast('Failed to load game. Check console for details.');
       }
     }
 
