@@ -57,7 +57,7 @@
 </head>
 <body class="flex items-center justify-center p-2 sm:p-4 text-slate-800 relative">
 
-    <div id="app-container" class="w-full max-w-5xl h-full max-h-[95vh] sm:max-h-[92vh] p-4 sm:p-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
+    <div id="app-container" class="w-full max-w-7xl h-full max-h-[98vh] p-4 sm:p-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
         
         <!-- View: Main Menu (Mode Selection) -->
         <div id="main-menu-view" class="view-container text-center w-full relative z-10 overflow-y-auto min-h-0">
@@ -132,67 +132,75 @@
         <div id="game-view" class="view-container hidden w-full relative z-10 flex flex-col h-full min-h-0">
             <div class="flex-shrink-0">
                 
-                <!-- DEDICATED ALWAYS-VISIBLE HEADER BAR -->
-                <div class="flex justify-between items-center bg-slate-100 p-2 sm:p-3 rounded-2xl mb-4 shadow-sm border border-slate-200 w-full">
-                    <div class="flex gap-2">
-                        <button id="back-btn" class="px-3 py-2 sm:px-4 sm:py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-200 transition-all flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> <span class="hidden sm:inline">Back</span>
+                <!-- DEDICATED ALWAYS-VISIBLE HEADER BAR WITH STATS & ACTIONS -->
+                <div class="flex flex-col lg:flex-row justify-between items-center bg-slate-100 p-3 sm:p-4 rounded-2xl mb-6 shadow-sm border border-slate-200 w-full gap-3">
+                    
+                    <!-- Left: Navigation (Back/Home) -->
+                    <div class="flex gap-2 w-full lg:w-auto justify-center lg:justify-start">
+                        <button id="back-btn" class="px-4 py-2 sm:px-5 sm:py-3 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-200 transition-all flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> <span class="hidden sm:inline">Back</span>
                         </button>
-                        <button id="home-btn" class="px-3 py-2 sm:px-4 sm:py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-200 transition-all flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> <span class="hidden sm:inline">Home</span>
+                        <button id="home-btn" class="px-4 py-2 sm:px-5 sm:py-3 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-200 transition-all flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> <span class="hidden sm:inline">Home</span>
                         </button>
+                    </div>
+
+                    <!-- Center: Stats (Timer, Score, Progress, Streak) -->
+                    <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-white px-4 sm:px-8 py-3 rounded-xl shadow-sm border border-slate-200 w-full lg:w-auto">
+                        <!-- Timer -->
+                        <div class="flex items-center gap-2 text-sky-600 font-bold text-base sm:text-lg" title="Time Remaining">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span id="game-countdown-display">05:00</span>
+                        </div>
+                        
+                        <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                        
+                        <!-- Score -->
+                        <div class="flex items-center gap-2 text-emerald-600 font-bold text-base sm:text-lg" title="Score">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <span id="score">0</span>
+                        </div>
+
+                        <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+                        
+                        <!-- Progress -->
+                        <div class="flex items-center gap-2 text-slate-600 font-bold text-base sm:text-lg" title="Question Progress">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <span><span id="question-count">0</span><span class="text-slate-400">/<span id="total-questions">20</span></span></span>
+                        </div>
+
+                        <div class="w-px h-6 bg-slate-200 hidden sm:block"></div>
+
+                        <!-- Streak -->
+                        <div id="streak-wrapper" class="flex items-center gap-2 text-amber-600 font-bold text-base sm:text-lg transition-colors" title="Current Streak">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span id="streak-display">Streak: 0</span>
+                        </div>
                     </div>
                     
-                    <!-- Always visible Next button, disabled until answered -->
-                    <button id="header-next-btn" class="px-4 py-2 sm:px-6 sm:py-2 bg-sky-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5 sm:gap-2 opacity-50 cursor-not-allowed text-sm sm:text-base" disabled>
-                        <span class="hidden sm:inline">Next Question</span><span class="sm:hidden">Next</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                    </button>
-                </div>
-
-                <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
-                    <div>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800" id="game-module-title">Story Mode</h2>
-                        <p class="text-sm sm:text-base text-slate-500 font-medium" id="game-player-name">Player</p>
-                    </div>
-                    <div class="text-xl sm:text-2xl font-bold text-sky-600 bg-sky-50 px-4 py-2 rounded-xl border border-sky-100 flex items-center gap-2 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" sm:width="24" sm:height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span id="game-countdown-display">05:00</span>
-                    </div>
-                </div>
-                
-                <div id="game-stats" class="grid grid-cols-2 gap-3 sm:gap-4 mb-4 text-center flex-shrink-0">
-                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl shadow-sm">
-                        <div class="text-xs sm:text-sm text-slate-500 font-bold uppercase tracking-widest mb-1">Score</div>
-                        <span id="score" class="font-black text-2xl sm:text-3xl text-slate-800">0</span>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl shadow-sm">
-                        <div class="text-xs sm:text-sm text-slate-500 font-bold uppercase tracking-widest mb-1">Progress</div>
-                        <span id="question-count" class="font-black text-2xl sm:text-3xl text-slate-800">0</span>
-                        <span class="text-lg sm:text-xl text-slate-400 font-bold">/<span id="total-questions">20</span></span>
+                    <!-- Right: Actions (Repeat, Next) -->
+                    <div class="flex gap-2 w-full lg:w-auto justify-center lg:justify-end">
+                        <button id="repeat-button" class="px-4 py-2 sm:px-5 sm:py-3 bg-white hover:bg-slate-50 text-sky-600 font-bold rounded-xl shadow-sm border border-slate-200 transition-all flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base disabled:opacity-50" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span class="hidden sm:inline">Repeat</span>
+                        </button>
+                        <button id="header-next-btn" class="px-6 py-2 sm:px-8 sm:py-3 bg-sky-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5 sm:gap-2 opacity-50 cursor-not-allowed text-sm sm:text-base" disabled>
+                            <span class="hidden sm:inline">Next Question</span><span class="sm:hidden">Next</span> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
                     </div>
                 </div>
             </div>
             
-            <!-- Added overflow-y-auto and min-h-0 so the question area scrolls if the screen is too small -->
-            <div id="question-area" class="w-full flex-grow flex flex-col relative bg-white border-2 border-slate-200 rounded-2xl shadow-sm p-4 sm:p-6 min-h-0 overflow-y-auto">
-                <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                    <div class="bg-amber-100 text-amber-800 text-xs sm:text-sm font-extrabold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                        <span id="streak-display">Streak: 0</span>
-                    </div>
-                    <button id="repeat-button" class="text-sky-600 hover:text-sky-800 hover:bg-sky-50 font-bold py-1.5 px-3 rounded-xl transition-colors flex items-center gap-1.5 text-sm sm:text-base border-2 border-transparent hover:border-sky-200 disabled:opacity-50" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        <span class="hidden sm:inline">Repeat Audio</span><span class="sm:hidden">Repeat</span>
-                    </button>
-                </div>
-
-                <p id="question-text" class="mb-4 sm:mb-6 text-xl sm:text-3xl font-extrabold text-center text-slate-800 min-h-[60px] flex items-center justify-center leading-relaxed flex-shrink-0"></p>
+            <div id="question-area" class="w-full flex-grow flex flex-col items-center relative bg-white border-2 border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10 min-h-0 overflow-y-auto">
                 
-                <div id="answer-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 flex-grow mt-auto min-h-0"></div>
+                <p id="question-text" class="w-full mb-8 text-2xl sm:text-4xl font-extrabold text-center text-slate-800 min-h-[80px] flex items-center justify-center leading-relaxed flex-shrink-0 mt-4"></p>
                 
-                <div id="feedback" aria-live="polite" class="mt-4 font-extrabold text-center min-h-[32px] text-lg sm:text-xl transition-colors flex-shrink-0"></div>
-                <div id="example-sentence-feedback" class="hidden mt-3 p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-slate-600 text-center text-sm sm:text-base font-semibold shadow-inner flex-shrink-0"></div>
-                <button id="next-btn" class="hidden mt-4 w-full bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-lg sm:text-xl py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 flex-shrink-0">Next Question</button>
+                <div id="answer-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl flex-shrink-0"></div>
+                
+                <div id="feedback" aria-live="polite" class="mt-8 font-extrabold text-center min-h-[36px] text-xl sm:text-2xl transition-colors flex-shrink-0 w-full"></div>
+                
+                <!-- Displayed securely below everything else as a block -->
+                <div id="example-sentence-feedback" class="hidden mt-6 w-full max-w-4xl p-5 sm:p-8 bg-sky-50 border-2 border-sky-100 rounded-2xl text-center shadow-sm flex-shrink-0"></div>
             </div>
         </div>
 
@@ -346,20 +354,92 @@
         // 3. General Past Tense Data (20 per CEFR Level)
         const generalData = {
             A1: [
-                { verb: "was", sentence: "The weather was nice yesterday." }, { verb: "had", sentence: "I had a big breakfast." }, { verb: "went", sentence: "She went to the shop." }, { verb: "saw", sentence: "He saw a bird in the garden." }, { verb: "did", sentence: "We did our homework." }, { verb: "said", sentence: "The teacher said hello." }, { verb: "got", sentence: "They got a new car." }, { verb: "made", sentence: "My mother made a cake." }, { verb: "knew", sentence: "I knew the answer." }, { verb: "took", sentence: "He took a photo." },
-                { verb: "worked", sentence: "My father worked late yesterday." }, { verb: "called", sentence: "She called her friend on the phone." }, { verb: "tried", sentence: "I tried the new food." }, { verb: "asked", sentence: "He asked a very good question." }, { verb: "needed", sentence: "We needed more time for the test." }, { verb: "felt", sentence: "She felt happy after the game." }, { verb: "left", sentence: "He left the party early." }, { verb: "put", sentence: "I put the book on the table." }, { verb: "kept", sentence: "He kept his promise to help." }, { verb: "began", sentence: "The movie began at 8 PM." }
+                { verb: "was", sentence: "The weather was nice yesterday.", distractors: ["is", "were", "been"] },
+                { verb: "had", sentence: "I had a big breakfast this morning.", distractors: ["has", "have", "having"] },
+                { verb: "went", sentence: "She went to the shop to buy milk.", distractors: ["go", "goes", "gone"] },
+                { verb: "saw", sentence: "He saw a beautiful bird in the garden.", distractors: ["see", "seen", "seeing"] },
+                { verb: "did", sentence: "We did our homework after school.", distractors: ["do", "does", "done"] },
+                { verb: "said", sentence: "The teacher said hello to everyone.", distractors: ["say", "says", "saying"] },
+                { verb: "got", sentence: "They got a new car last week.", distractors: ["get", "gets", "getting"] },
+                { verb: "made", sentence: "My mother made a delicious chocolate cake.", distractors: ["make", "makes", "making"] },
+                { verb: "knew", sentence: "I knew the answer to the question immediately.", distractors: ["know", "knows", "known"] },
+                { verb: "took", sentence: "He took a wonderful photo of the mountains.", distractors: ["take", "takes", "taken"] },
+                { verb: "worked", sentence: "My father worked late yesterday evening.", distractors: ["work", "works", "working"] },
+                { verb: "called", sentence: "She called her best friend on the phone.", distractors: ["call", "calls", "calling"] },
+                { verb: "tried", sentence: "I tried the new food and it was delicious.", distractors: ["try", "tries", "trying"] },
+                { verb: "asked", sentence: "He asked a very good question in class.", distractors: ["ask", "asks", "asking"] },
+                { verb: "needed", sentence: "We needed more time to finish the test.", distractors: ["need", "needs", "needing"] },
+                { verb: "felt", sentence: "She felt very happy after winning the game.", distractors: ["feel", "feels", "feeling"] },
+                { verb: "left", sentence: "He left the party early to go home.", distractors: ["leave", "leaves", "leaving"] },
+                { verb: "put", sentence: "I put the heavy book on the wooden table.", distractors: ["puts", "putting", "putted"] },
+                { verb: "kept", sentence: "He kept his promise to help his sister.", distractors: ["keep", "keeps", "keeping"] },
+                { verb: "began", sentence: "The exciting movie began at exactly 8 PM.", distractors: ["begin", "begins", "begun"] }
             ],
             A2: [
-                { verb: "bought", sentence: "I bought a new phone last week." }, { verb: "drank", sentence: "She drank all the juice." }, { verb: "drove", sentence: "He drove his car to the mountains." }, { verb: "ate", sentence: "We ate at a nice restaurant." }, { verb: "forgot", sentence: "I forgot to lock the door." }, { verb: "flew", sentence: "They flew to Spain for their holiday." }, { verb: "grew", sentence: "My uncle grew tomatoes in his garden." }, { verb: "hid", sentence: "The cat hid under the bed." }, { verb: "hit", sentence: "He hit the ball very hard." }, { verb: "taught", sentence: "My father taught me how to drive." },
-                { verb: "hurt", sentence: "I hurt my leg when I fell." }, { verb: "learnt", sentence: "We learnt a lot at the museum." }, { verb: "paid", sentence: "He paid the electricity bill yesterday." }, { verb: "read", sentence: "I read an interesting book last night." }, { verb: "rode", sentence: "She rode her bike to school today." }, { verb: "rang", sentence: "The phone rang three times." }, { verb: "ran", sentence: "The children ran quickly in the park." }, { verb: "slept", sentence: "The dog slept all day on the sofa." }, { verb: "spoke", sentence: "I spoke to my boss this morning." }, { verb: "spent", sentence: "We spent all our money on vacation." }
+                { verb: "bought", sentence: "I bought a new phone last week.", distractors: ["buy", "buys", "buying"] },
+                { verb: "drank", sentence: "She drank all the fresh orange juice.", distractors: ["drink", "drinks", "drunk"] },
+                { verb: "drove", sentence: "He drove his car all the way to the mountains.", distractors: ["drive", "drives", "driven"] },
+                { verb: "ate", sentence: "We ate our dinner at a really nice restaurant.", distractors: ["eat", "eats", "eaten"] },
+                { verb: "forgot", sentence: "I forgot to lock the front door this morning.", distractors: ["forget", "forgets", "forgotten"] },
+                { verb: "flew", sentence: "They flew to Spain for their summer holiday.", distractors: ["fly", "flies", "flown"] },
+                { verb: "grew", sentence: "My uncle grew huge tomatoes in his garden.", distractors: ["grow", "grows", "grown"] },
+                { verb: "hid", sentence: "The frightened cat hid under the large bed.", distractors: ["hide", "hides", "hidden"] },
+                { verb: "hit", sentence: "He hit the baseball very hard with his bat.", distractors: ["hits", "hitting", "hitted"] },
+                { verb: "taught", sentence: "My father taught me how to drive safely.", distractors: ["teach", "teaches", "teaching"] },
+                { verb: "hurt", sentence: "I hurt my leg badly when I fell down.", distractors: ["hurts", "hurting", "hurted"] },
+                { verb: "learnt", sentence: "We learnt a lot of history at the museum.", distractors: ["learn", "learns", "learning"] },
+                { verb: "paid", sentence: "He paid the expensive electricity bill yesterday.", distractors: ["pay", "pays", "paying"] },
+                { verb: "read", sentence: "I read an extremely interesting book last night.", distractors: ["reads", "reading", "readed"] },
+                { verb: "rode", sentence: "She rode her new bike to school today.", distractors: ["ride", "rides", "ridden"] },
+                { verb: "rang", sentence: "The telephone rang three times before it stopped.", distractors: ["ring", "rings", "rung"] },
+                { verb: "ran", sentence: "The children ran quickly through the green park.", distractors: ["run", "runs", "running"] },
+                { verb: "slept", sentence: "The tired dog slept all day on the sofa.", distractors: ["sleep", "sleeps", "sleeping"] },
+                { verb: "spoke", sentence: "I spoke to my strict boss early this morning.", distractors: ["speak", "speaks", "spoken"] },
+                { verb: "spent", sentence: "We spent all our saved money on the vacation.", distractors: ["spend", "spends", "spending"] }
             ],
             B1: [
-                { verb: "admitted", sentence: "He admitted that he had made a mistake." }, { verb: "advised", sentence: "The doctor advised him to rest." }, { verb: "agreed", sentence: "She agreed to help me with my project." }, { verb: "allowed", sentence: "My parents allowed me to go to the party." }, { verb: "announced", sentence: "The company announced its new product." }, { verb: "apologized", sentence: "He apologized for being late." }, { verb: "appeared", sentence: "A new problem appeared suddenly." }, { verb: "convinced", sentence: "I convinced him to join our team." }, { verb: "discovered", sentence: "Columbus discovered America in 1492." }, { verb: "invented", sentence: "Alexander Bell invented the telephone." },
-                { verb: "beat", sentence: "Our team beat the champions in the final." }, { verb: "became", sentence: "He became a famous actor in his twenties." }, { verb: "bent", sentence: "The strong wind bent the trees over." }, { verb: "bit", sentence: "The angry dog bit the postman." }, { verb: "blew", sentence: "The cold wind blew the leaves away." }, { verb: "broke", sentence: "She broke a plate while washing the dishes." }, { verb: "burnt", sentence: "I accidentally burnt the toast this morning." }, { verb: "complained", sentence: "He complained about the noisy neighbours." }, { verb: "confirmed", sentence: "She confirmed her flight reservation online." }, { verb: "consisted", sentence: "The delicious meal consisted of three courses." }
+                { verb: "admitted", sentence: "He admitted that he had made a terrible mistake.", distractors: ["admit", "admits", "admitting"] },
+                { verb: "advised", sentence: "The wise doctor advised him to rest completely.", distractors: ["advise", "advises", "advising"] },
+                { verb: "agreed", sentence: "She agreed to help me with my complex project.", distractors: ["agree", "agrees", "agreeing"] },
+                { verb: "allowed", sentence: "My parents allowed me to go to the late party.", distractors: ["allow", "allows", "allowing"] },
+                { verb: "announced", sentence: "The successful company announced its new product.", distractors: ["announce", "announces", "announcing"] },
+                { verb: "apologized", sentence: "He immediately apologized for being so terribly late.", distractors: ["apologize", "apologizes", "apologizing"] },
+                { verb: "appeared", sentence: "A completely new problem appeared very suddenly.", distractors: ["appear", "appears", "appearing"] },
+                { verb: "convinced", sentence: "I convinced him to join our competitive team.", distractors: ["convince", "convinces", "convincing"] },
+                { verb: "discovered", sentence: "Columbus discovered America in the year 1492.", distractors: ["discover", "discovers", "discovering"] },
+                { verb: "invented", sentence: "Alexander Bell invented the brilliant telephone.", distractors: ["invent", "invents", "inventing"] },
+                { verb: "beat", sentence: "Our strong team beat the champions in the final.", distractors: ["beats", "beating", "beaten"] },
+                { verb: "became", sentence: "He became a famous movie actor in his twenties.", distractors: ["become", "becomes", "becoming"] },
+                { verb: "bent", sentence: "The incredibly strong wind bent the trees over.", distractors: ["bend", "bends", "bending"] },
+                { verb: "bit", sentence: "The aggressive, angry dog bit the unfortunate postman.", distractors: ["bite", "bites", "bitten"] },
+                { verb: "blew", sentence: "The bitter, cold wind blew the dry leaves away.", distractors: ["blow", "blows", "blown"] },
+                { verb: "broke", sentence: "She accidentally broke a plate while washing dishes.", distractors: ["break", "breaks", "broken"] },
+                { verb: "burnt", sentence: "I accidentally burnt the breakfast toast this morning.", distractors: ["burn", "burns", "burning"] },
+                { verb: "complained", sentence: "He frequently complained about the noisy neighbours.", distractors: ["complain", "complains", "complaining"] },
+                { verb: "confirmed", sentence: "She successfully confirmed her flight reservation online.", distractors: ["confirm", "confirms", "confirming"] },
+                { verb: "consisted", sentence: "The delicious, hot meal consisted of three courses.", distractors: ["consist", "consists", "consisting"] }
             ],
             B2: [
-                { verb: "accomplished", sentence: "She accomplished her goal of running a marathon." }, { verb: "acknowledged", sentence: "He acknowledged the team's hard work." }, { verb: "anticipated", sentence: "We anticipated a rise in sales." }, { verb: "appreciated", sentence: "I appreciated her thoughtful gesture." }, { verb: "clarified", sentence: "The teacher clarified the complex topic." }, { verb: "collaborated", sentence: "The two artists collaborated on a masterpiece." }, { verb: "compensated", sentence: "The company compensated the employees." }, { verb: "demonstrated", sentence: "The scientist demonstrated the new technology." }, { verb: "implemented", sentence: "The government implemented a new policy." }, { verb: "persuaded", sentence: "They persuaded him to reconsider his decision." },
-                { verb: "broadcast", sentence: "The important news was broadcast all over the world." }, { verb: "conceived", sentence: "He conceived the brilliant idea for the new app." }, { verb: "conducted", sentence: "The orchestra conducted a magnificent performance." }, { verb: "confronted", sentence: "She finally confronted her fear of public speaking." }, { verb: "consulted", sentence: "They consulted a legal expert before making a decision." }, { verb: "contradicted", sentence: "The new evidence contradicted his previous statement." }, { verb: "conveyed", sentence: "The beautiful painting conveyed a deep sense of peace." }, { verb: "derived", sentence: "The word 'algebra' derived from an ancient Arabic term." }, { verb: "differentiated", sentence: "The complex study differentiated between the two groups." }, { verb: "diminished", sentence: "His powerful influence diminished greatly over the years." }
+                { verb: "accomplished", sentence: "She successfully accomplished her goal of running a marathon.", distractors: ["accomplish", "accomplishes", "accomplishing"] },
+                { verb: "acknowledged", sentence: "He publicly acknowledged the dedicated team's hard work.", distractors: ["acknowledge", "acknowledges", "acknowledging"] },
+                { verb: "anticipated", sentence: "We eagerly anticipated a significant rise in our sales.", distractors: ["anticipate", "anticipates", "anticipating"] },
+                { verb: "appreciated", sentence: "I greatly appreciated her surprisingly thoughtful gesture.", distractors: ["appreciate", "appreciates", "appreciating"] },
+                { verb: "clarified", sentence: "The experienced teacher clarified the incredibly complex topic.", distractors: ["clarify", "clarifies", "clarifying"] },
+                { verb: "collaborated", sentence: "The two talented artists collaborated perfectly on a masterpiece.", distractors: ["collaborate", "collaborates", "collaborating"] },
+                { verb: "compensated", sentence: "The generous company fully compensated the injured employees.", distractors: ["compensate", "compensates", "compensating"] },
+                { verb: "demonstrated", sentence: "The brilliant scientist demonstrated the impressive new technology.", distractors: ["demonstrate", "demonstrates", "demonstrating"] },
+                { verb: "implemented", sentence: "The cautious government properly implemented a strict new policy.", distractors: ["implement", "implements", "implementing"] },
+                { verb: "persuaded", sentence: "They finally persuaded him to seriously reconsider his decision.", distractors: ["persuade", "persuades", "persuading"] },
+                { verb: "broadcast", sentence: "The highly important news was broadcast swiftly all over the world.", distractors: ["broadcasts", "broadcasting", "broadcasted"] },
+                { verb: "conceived", sentence: "He brilliantly conceived the genius idea for the revolutionary new app.", distractors: ["conceive", "conceives", "conceiving"] },
+                { verb: "conducted", sentence: "The prestigious orchestra conducted a truly magnificent musical performance.", distractors: ["conduct", "conducts", "conducting"] },
+                { verb: "confronted", sentence: "She bravely and finally confronted her deep fear of public speaking.", distractors: ["confront", "confronts", "confronting"] },
+                { verb: "consulted", sentence: "They wisely consulted a professional legal expert before making a decision.", distractors: ["consult", "consults", "consulting"] },
+                { verb: "contradicted", sentence: "The shocking new evidence completely contradicted his previous statement.", distractors: ["contradict", "contradicts", "contradicting"] },
+                { verb: "conveyed", sentence: "The stunning, beautiful painting conveyed a profound and deep sense of peace.", distractors: ["convey", "conveys", "conveying"] },
+                { verb: "derived", sentence: "The fascinating word 'algebra' officially derived from an ancient Arabic term.", distractors: ["derive", "derives", "deriving"] },
+                { verb: "differentiated", sentence: "The extensively complex study clearly differentiated between the two groups.", distractors: ["differentiate", "differentiates", "differentiating"] },
+                { verb: "diminished", sentence: "His previously powerful influence slowly diminished greatly over the years.", distractors: ["diminish", "diminishes", "diminishing"] }
             ]
         };
 
@@ -375,8 +455,6 @@
             levelButtons: document.querySelectorAll('.level-btn'),
             backToMainBtn: document.getElementById('back-to-main-btn'),
             
-            gameModuleTitle: document.getElementById('game-module-title'),
-            gamePlayerName: document.getElementById('game-player-name'),
             scoreDisplay: document.getElementById('score'),
             questionCountDisplay: document.getElementById('question-count'),
             totalQuestionsDisplay: document.getElementById('total-questions'),
@@ -385,13 +463,12 @@
             backBtn: document.getElementById('back-btn'),
             homeBtn: document.getElementById('home-btn'),
             headerNextBtn: document.getElementById('header-next-btn'),
+            repeatButton: document.getElementById('repeat-button'),
             
             questionTextDisplay: document.getElementById('question-text'),
             answerOptionsContainer: document.getElementById('answer-options'),
             feedbackDisplay: document.getElementById('feedback'),
             exampleSentenceFeedback: document.getElementById('example-sentence-feedback'),
-            repeatButton: document.getElementById('repeat-button'),
-            nextBtn: document.getElementById('next-btn'),
             
             finalScore: document.getElementById('final-score'),
             finalAccuracy: document.getElementById('final-accuracy'),
@@ -424,6 +501,8 @@
                 voices: [],
                 preferredVoices: [],
                 isReady: false,
+                voicesPopulated: false,
+                fallbackMode: false
             }
         };
 
@@ -446,27 +525,36 @@
         }
 
         function populateVoiceList() {
-            if (state.audio.voices.length > 0) return;
+            if (state.audio.voicesPopulated) return;
             state.audio.voices = speechSynthesis.getVoices();
             
             if (state.audio.voices.length > 0) {
-                // EXCLUSIVE target voices for Microsoft Multilingual Online (Properly Capitalized)
-                const targetVoices = [
-                    "Giuseppe", "Vivienne", "Florian", "Seraphina", 
-                    "Emma", "Brian", "Ava", "Andrew", "William", "Remy"
+                // EXCLUSIVE target voices for Microsoft Multilingual Online
+                const targetNames = [
+                    "giuseppe", "vivienne", "florian", "seraphina", 
+                    "emma", "brian", "ava", "andrew", "william", "remy"
                 ];
                 
-                // STRICT FILTERING: Match case-insensitively using toLowerCase() on both
-                state.audio.preferredVoices = state.audio.voices.filter(v => 
-                    targetVoices.some(name => v.name.toLowerCase().includes(name.toLowerCase()))
-                );
+                // STRICT FILTERING: Must be Microsoft Online/Multilingual AND match one of the target names
+                state.audio.preferredVoices = state.audio.voices.filter(v => {
+                    const voiceName = v.name.toLowerCase();
+                    const isMicrosoftMultilingual = voiceName.includes('microsoft') && 
+                                                    (voiceName.includes('online') || voiceName.includes('multilingual'));
+                    const matchesTargetName = targetNames.some(target => voiceName.includes(target));
+                    
+                    return isMicrosoftMultilingual && matchesTargetName;
+                });
+
+                state.audio.voicesPopulated = true;
 
                 if (state.audio.preferredVoices.length === 0) {
-                    console.warn("STRICT TTS MODE: Target Microsoft voices not found.");
+                    console.warn("STRICT TTS MODE: Target Microsoft Multilingual Online voices not found. Using fallback text-only mode.");
                     console.log("Available voices on this device:", state.audio.voices.map(v => v.name));
-                    dom.mainPrompt.innerHTML = '<span class="text-rose-500 font-bold">Warning:</span> Target Microsoft voices not found. Game will play without audio.';
+                    dom.mainPrompt.innerHTML = '<span class="text-rose-500 font-bold">Audio unavailable:</span> Target Microsoft voices not found. Game will play in text-only mode.';
+                    state.audio.fallbackMode = true;
                 } else {
                     state.audio.isReady = true;
+                    state.audio.fallbackMode = false;
                     dom.mainPrompt.textContent = 'Ready! Enter your name and select a module.';
                 }
                 
@@ -480,26 +568,31 @@
                 if (speechSynthesis.onvoiceschanged !== undefined) {
                     speechSynthesis.onvoiceschanged = populateVoiceList;
                 }
-                // Hard-fallback timeout in case voices fail to trigger the changed event
+                // Hard-fallback timeout in case voices fail to trigger the changed event or no voices exist
                 setTimeout(() => {
-                    if (!state.audio.isReady && state.audio.voices.length === 0) {
-                        dom.mainPrompt.textContent = 'No audio detected. Enter your name.';
+                    if (!state.audio.voicesPopulated) {
+                        state.audio.fallbackMode = true;
+                        dom.mainPrompt.innerHTML = '<span class="text-rose-500 font-bold">Audio unavailable</span> - running in text-only mode.';
                         dom.modeButtons.forEach(btn => btn.disabled = false);
                     }
                 }, 1500);
             } else {
-                dom.mainPrompt.innerHTML = '<span class="text-rose-500 font-bold">Error:</span> Text-to-speech not supported on this browser. Game will run without audio.';
+                state.audio.fallbackMode = true;
+                dom.mainPrompt.innerHTML = '<span class="text-rose-500 font-bold">Error:</span> Text-to-speech not supported. Game will run in text-only mode.';
                 dom.modeButtons.forEach(btn => btn.disabled = false);
             }
         }
 
         function speak(text, voice, callback) {
-            if (!('speechSynthesis' in window) || !text) {
+            // Cancel any ongoing speech
+            if ('speechSynthesis' in window && speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+            if (!('speechSynthesis' in window) || !text || state.audio.fallbackMode) {
                 if (callback) setTimeout(callback, 0);
                 return;
             }
-
-            if (speechSynthesis.speaking) speechSynthesis.cancel();
 
             const onceCallback = callback ? (() => { let c=false; return () => { if (!c) { c=true; callback(); } }; })() : () => {};
             const utterance = new SpeechSynthesisUtterance(text);
@@ -527,8 +620,8 @@
         }
 
         async function handleModeSelection(mode) {
-            const nameInput = dom.usernameInput.value.trim();
-            if (!nameInput) {
+            const nameInput = dom.usernameInput.value.trim().slice(0, 20); // Limit length
+            if (!nameInput || nameInput.length < 2) {
                 dom.usernameInput.classList.add('border-rose-500', 'ring-rose-200');
                 dom.usernameInput.focus();
                 return;
@@ -550,6 +643,8 @@
         }
 
         function startRound(level) {
+            clearInterval(state.timers.game); 
+            
             state.level = level;
             state.score = 0;
             state.questionsAnswered = 0;
@@ -561,18 +656,14 @@
             let pool = [];
             if (state.mode === 'story') {
                 pool = [...storyData];
-                dom.gameModuleTitle.textContent = "Story Mode: The Hike";
             } else if (state.mode === 'phrasal') {
                 pool = shuffleArray(phrasalData[level]).slice(0, config.QUESTIONS_PER_ROUND);
-                dom.gameModuleTitle.textContent = `Phrasal Verbs (${level})`;
             } else if (state.mode === 'general') {
                 pool = shuffleArray(generalData[level]).slice(0, config.QUESTIONS_PER_ROUND);
-                dom.gameModuleTitle.textContent = `General Past Tense (${level})`;
             }
 
             state.shuffledQuestions = pool;
             dom.totalQuestionsDisplay.textContent = pool.length;
-            dom.gamePlayerName.textContent = state.username;
 
             updateGameStats();
             startOverallTimer();
@@ -629,27 +720,31 @@
             const voiceIndex = state.questionsAnswered % (state.audio.preferredVoices.length || 1);
             state.currentQuestion.voice = state.audio.preferredVoices.length > 0 ? state.audio.preferredVoices[voiceIndex] : null;
 
+            // Hide repeat button entirely if in fallback mode
+            dom.repeatButton.style.display = state.audio.fallbackMode ? 'none' : 'flex';
+
             // Reset UI
             dom.feedbackDisplay.textContent = '';
             dom.exampleSentenceFeedback.classList.add('hidden');
             dom.answerOptionsContainer.innerHTML = '';
             
-            // Ensure next buttons are visually disabled until question is answered
-            dom.nextBtn.classList.add('hidden');
-            
             dom.headerNextBtn.disabled = true;
             dom.headerNextBtn.classList.add('opacity-50', 'cursor-not-allowed');
             dom.headerNextBtn.classList.remove('hover:bg-sky-600', 'animate-pulse', 'ring-4', 'ring-sky-200');
 
-            speak(state.currentQuestion.sentence, state.currentQuestion.voice, () => {
-                dom.repeatButton.disabled = false;
+            if (!state.audio.fallbackMode && state.currentQuestion.voice) {
+                speak(state.currentQuestion.sentence, state.currentQuestion.voice, () => {
+                    dom.repeatButton.disabled = false;
+                    renderOptions();
+                });
+            } else {
                 renderOptions();
-            });
+            }
         }
 
         function renderOptions() {
             const { verb, distractors } = state.currentQuestion;
-            let optionsPool = distractors ? [...distractors] : generateDistractors(verb);
+            let optionsPool = (distractors && distractors.length > 0) ? [...distractors] : generateDistractors(verb);
             let options = shuffleArray([verb, ...optionsPool.slice(0,3)]); // Ensure 4 options max
 
             dom.answerOptionsContainer.innerHTML = '';
@@ -681,28 +776,26 @@
                 state.correctStreak++;
                 button.classList.add('flash-correct');
                 feedbackMsg = "Spot on!";
-                dom.feedbackDisplay.className = 'mt-4 font-extrabold text-center min-h-[32px] text-xl text-emerald-600 flex-shrink-0';
+                dom.feedbackDisplay.className = 'mt-8 font-extrabold text-center min-h-[36px] text-xl sm:text-2xl text-emerald-600 flex-shrink-0 w-full';
             } else {
                 try { if (state.audio.synth && Tone.context.state === 'running') state.audio.synth.triggerAttackRelease("C3", "8n"); } catch(e) { console.warn("Audio block", e); }
                 state.correctStreak = 0;
                 button.classList.add('flash-incorrect', '!bg-rose-500', '!text-white', '!border-rose-600');
                 feedbackMsg = `Not quite. The correct verb was "${correct}".`;
-                dom.feedbackDisplay.className = 'mt-4 font-extrabold text-center min-h-[32px] text-xl text-rose-600 flex-shrink-0';
+                dom.feedbackDisplay.className = 'mt-8 font-extrabold text-center min-h-[36px] text-xl sm:text-2xl text-rose-600 flex-shrink-0 w-full';
                 state.incorrectAnswers.push({ ...state.currentQuestion, selectedAnswer: selected });
             }
             
             dom.feedbackDisplay.textContent = feedbackMsg;
             state.questionsAnswered++;
             
-            // Show full sentence for secondary students to read
-            dom.exampleSentenceFeedback.innerHTML = `Full sentence: <br/> <strong class="text-lg text-slate-800 mt-1 block">${state.currentQuestion.sentence}</strong>`;
+            // Show full sentence for secondary students to read, forced to be on its own block below
+            dom.exampleSentenceFeedback.innerHTML = `<span class="block text-sm sm:text-base text-sky-600 font-bold uppercase tracking-wider mb-2">Full Sentence:</span><strong class="text-xl sm:text-2xl text-slate-800 block w-full">${state.currentQuestion.sentence}</strong>`;
             dom.exampleSentenceFeedback.classList.remove('hidden');
             
             updateGameStats();
 
-            // Enable and highlight the Next buttons 
-            dom.nextBtn.classList.remove('hidden');
-            
+            // Enable and highlight the Header Next button 
             dom.headerNextBtn.disabled = false;
             dom.headerNextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             dom.headerNextBtn.classList.add('hover:bg-sky-600', 'animate-pulse', 'ring-4', 'ring-sky-200');
@@ -713,12 +806,15 @@
             dom.questionCountDisplay.textContent = state.questionsAnswered;
             dom.streakDisplay.textContent = `Streak: ${state.correctStreak}`;
             
-            if(state.correctStreak >= 3) {
-                dom.streakDisplay.parentElement.classList.remove('bg-amber-100', 'text-amber-800');
-                dom.streakDisplay.parentElement.classList.add('bg-orange-500', 'text-white', 'shadow-md');
-            } else {
-                dom.streakDisplay.parentElement.classList.add('bg-amber-100', 'text-amber-800');
-                dom.streakDisplay.parentElement.classList.remove('bg-orange-500', 'text-white', 'shadow-md');
+            const streakContainer = document.getElementById('streak-wrapper');
+            if (streakContainer) {
+                if(state.correctStreak >= 3) {
+                    streakContainer.classList.add('text-orange-600');
+                    streakContainer.classList.remove('text-amber-600');
+                } else {
+                    streakContainer.classList.add('text-amber-600');
+                    streakContainer.classList.remove('text-orange-600');
+                }
             }
         }
 
@@ -789,13 +885,13 @@
             });
 
             // Next button
-            dom.nextBtn.addEventListener('click', loadNextQuestion);
             dom.headerNextBtn.addEventListener('click', loadNextQuestion);
 
             // End Screen
             dom.playAgainButton.addEventListener('click', () => {
                 switchView(dom.mainMenuView);
-                if (!state.audio.isReady) {
+                // In fallback mode, the resources are technically "loaded" as unavailable
+                if (!state.audio.isReady && !state.audio.fallbackMode) {
                     dom.modeButtons.forEach(btn => btn.disabled = true);
                     dom.mainPrompt.textContent = 'Loading audio resources...';
                     initSpeechSynthesis();
@@ -804,7 +900,7 @@
 
             // Audio Repeat
             dom.repeatButton.addEventListener('click', () => {
-                if (state.currentQuestion?.sentence && state.currentQuestion?.voice) {
+                if (!state.audio.fallbackMode && state.currentQuestion?.sentence && state.currentQuestion?.voice) {
                     speak(state.currentQuestion.sentence, state.currentQuestion.voice, () => {
                         dom.repeatButton.disabled = false;
                     });
@@ -818,7 +914,7 @@
             initAudio();
             initSpeechSynthesis();
             
-            // Disable mode buttons until TTS is ready
+            // Disable mode buttons until TTS is ready or fallback starts
             dom.modeButtons.forEach(btn => btn.disabled = true);
         }
 
