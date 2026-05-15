@@ -39,7 +39,6 @@
             <div class="text-center mb-10">
                 <div class="inline-block mb-4 text-rose-500 text-5xl"><i class="fas fa-headphones"></i></div>
                 <h1 class="text-5xl md:text-6xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-purple-500 to-indigo-500 drop-shadow-sm tracking-tight">IELTS Listening Arcade</h1>
-                <p class="text-slate-400 text-lg max-w-2xl mx-auto">Master the 8 core traps of the IELTS Listening exam. All scenarios are designed for secondary students, and audio is locked at 85% speed for optimal training.</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -119,26 +118,54 @@
     window.gameTitle = "Form Filler: Spelling Traps 📝";
     window.badgeName = "Perfect Speller 🔠";
     
+    // Exactly 20 distinct names, spelled with letters separated by commas to enforce pronunciation as letters.
     const lastNames = [
-        { spoken: "My surname is Smythe. That's S, M, Y, T, H, E.", correct: "SMYTHE", wrong1: "SMITH", wrong2: "SMITHE" },
-        { spoken: "The club president is Aaron. That's double A, R, O, N.", correct: "AARON", wrong1: "ARON", wrong2: "ARRON" },
-        { spoken: "I live on MacAulay Street. That's M, A, C, capital A, U, L, A, Y.", correct: "MACAULAY", wrong1: "MCAULAY", wrong2: "MACALAY" },
-        { spoken: "The teacher's name is Ms. Davies. D, A, V, I, E, S.", correct: "DAVIES", wrong1: "DAVIS", wrong2: "DAVES" },
-        { spoken: "It's near the Keighley building. K, E, I, G, H, L, E, Y.", correct: "KEIGHLEY", wrong1: "KIEGHLEY", wrong2: "KEELEY" },
-        { spoken: "My last name is O'Connor. O, apostrophe, C, O, double N, O, R.", correct: "O'CONNOR", wrong1: "OCONNER", wrong2: "O'CONER" },
-        { spoken: "The email is sent to J. Phillip. P, H, I, double L, I, P.", correct: "PHILLIP", wrong1: "PHILIP", wrong2: "PHILLIPE" },
-        { spoken: "My surname is Beaumont. B, E, A, U, M, O, N, T.", correct: "BEAUMONT", wrong1: "BEUMONT", wrong2: "BAUMONT" },
-        { spoken: "The new principal is Mr. Higgins. That's H, I, double G, I, N, S.", correct: "HIGGINS", wrong1: "HIGINS", wrong2: "HEGGINS" },
-        { spoken: "The coach's name is Ms. Alistair. A, L, I, S, T, A, I, R.", correct: "ALISTAIR", wrong1: "ALISTER", wrong2: "ALLISTAIR" },
-        { spoken: "Send the permission slip to J. Faulkner. F, A, U, L, K, N, E, R.", correct: "FAULKNER", wrong1: "FAULNER", wrong2: "FALKNER" }
+        { name: "SMYTHE", spelled: "S, M, Y, T, H, E.", w1: "SMITH", w2: "SMITHE" },
+        { name: "AARON", spelled: "A, A, R, O, N.", w1: "ARON", w2: "ARRON" },
+        { name: "MACAULAY", spelled: "M, A, C, A, U, L, A, Y.", w1: "MCAULAY", w2: "MACALAY" },
+        { name: "DAVIES", spelled: "D, A, V, I, E, S.", w1: "DAVIS", w2: "DAVES" },
+        { name: "KEIGHLEY", spelled: "K, E, I, G, H, L, E, Y.", w1: "KIEGHLEY", w2: "KEELEY" },
+        { name: "OCONNOR", spelled: "O, C, O, N, N, O, R.", w1: "OCONNER", w2: "OCONER" },
+        { name: "PHILLIP", spelled: "P, H, I, L, L, I, P.", w1: "PHILIP", w2: "PHILLIPE" },
+        { name: "BEAUMONT", spelled: "B, E, A, U, M, O, N, T.", w1: "BEUMONT", w2: "BAUMONT" },
+        { name: "HIGGINS", spelled: "H, I, G, G, I, N, S.", w1: "HIGINS", w2: "HEGGINS" },
+        { name: "ALISTAIR", spelled: "A, L, I, S, T, A, I, R.", w1: "ALISTER", w2: "ALLISTAIR" },
+        { name: "FAULKNER", spelled: "F, A, U, L, K, N, E, R.", w1: "FAULNER", w2: "FALKNER" },
+        { name: "VAUGHAN", spelled: "V, A, U, G, H, A, N.", w1: "VAUGHN", w2: "VAGHAN" },
+        { name: "KNIGHT", spelled: "K, N, I, G, H, T.", w1: "NIGHT", w2: "KNIHT" },
+        { name: "MCLEOD", spelled: "M, C, L, E, O, D.", w1: "MACLEOD", w2: "MCLOED" },
+        { name: "PRITCHARD", spelled: "P, R, I, T, C, H, A, R, D.", w1: "PRICHARD", w2: "PRICHERD" },
+        { name: "SCHROEDER", spelled: "S, C, H, R, O, E, D, E, R.", w1: "SHROEDER", w2: "SCHRODER" },
+        { name: "WRIGHT", spelled: "W, R, I, G, H, T.", w1: "RIGHT", w2: "WRIGHTE" },
+        { name: "GALLAGHER", spelled: "G, A, L, L, A, G, H, E, R.", w1: "GALAGHER", w2: "GALLIGER" },
+        { name: "BUCHANAN", spelled: "B, U, C, H, A, N, A, N.", w1: "BUCKANAN", w2: "BUCHANNAN" },
+        { name: "SINCLAIR", spelled: "S, I, N, C, L, A, I, R.", w1: "SINCLARE", w2: "SYNCLAIR" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = lastNames[Math.floor(Math.random() * lastNames.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...lastNames].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
+        
+        // Use two alternating voices for the Form Filler dialogue
+        const isMaleFirst = Math.random() > 0.5;
+        const g1 = isMaleFirst ? 'M' : 'F';
+        const g2 = isMaleFirst ? 'F' : 'M';
+        
+        const lines = [
+            { gender: g1, text: "To register you, I need your details. Could you please spell your surname for me?" },
+            { gender: g2, text: `Yes, of course. It's ${q.name}. That is spelled ${q.spelled}` }
+        ];
+
         return { 
-            scenario: `To register for the after-school club, I need your details. ${q.spoken}`, 
-            correctAnswer: q.correct,
-            allOptions: [q.correct, q.wrong1, q.wrong2]
+            scenario: lines, 
+            correctAnswer: q.name,
+            allOptions: [q.name, q.w1, q.w2]
         };
     };
 
@@ -152,23 +179,39 @@
     window.gameTitle = "Tricky Teens: Number Traps 🔢";
     window.badgeName = "Number Ninja 🧮";
     
+    // Exactly 20 distinct scenarios strictly testing the 13/30 through 19/90 traps with varied phrases.
     const numberScenarios = [
-        { text: "Your new locker number for this term is 14.", ans: "14", w1: "40", w2: "4" },
-        { text: "The school field trip will cost exactly 15 pounds.", ans: "£15", w1: "£50", w2: "£5" },
-        { text: "Please turn to page 13 in your history textbook.", ans: "13", w1: "30", w2: "3" },
-        { text: "We have 18 students signed up for the debate team.", ans: "18", w1: "80", w2: "8" },
-        { text: "The drama club meets in room 16.", ans: "16", w1: "60", w2: "6" },
-        { text: "You need 17 credits to graduate early.", ans: "17", w1: "70", w2: "7" },
-        { text: "The cafeteria lunch special is 19 dollars this month.", ans: "$19", w1: "$90", w2: "$9" },
-        { text: "The bus to the science museum leaves from bay 15.", ans: "Bay 15", w1: "Bay 50", w2: "Bay 5" },
-        { text: "The track and field team meets at 3:15 PM.", ans: "3:15", w1: "3:50", w2: "3:05" },
-        { text: "Your biology textbook weighs roughly 14 ounces.", ans: "14 oz", w1: "40 oz", w2: "4 oz" },
-        { text: "We have exactly 50 seats available in the main lecture theater.", ans: "50", w1: "15", w2: "5" },
-        { text: "The robotics club fee is 18 dollars per semester.", ans: "$18", w1: "$80", w2: "$8" }
+        { text: "We need to order 13 new microscopes for the science lab.", ans: "13", w1: "30", w2: "3" },
+        { text: "The total distance for the charity run is 30 kilometers.", ans: "30", w1: "13", w2: "3" },
+        { text: "Your assignment is to summarize the article in exactly 14 sentences.", ans: "14", w1: "40", w2: "4" },
+        { text: "There are 40 spaces left in the senior parking lot.", ans: "40", w1: "14", w2: "4" },
+        { text: "The school choir practice will begin at 4:15 PM.", ans: "4:15 PM", w1: "4:50 PM", w2: "4:05 PM" },
+        { text: "Please make sure you bring 50 blank sheets of paper to the exam.", ans: "50", w1: "15", w2: "5" },
+        { text: "The geography presentation must be no longer than 16 minutes.", ans: "16", w1: "60", w2: "6" },
+        { text: "We collected over 60 canned goods during the food drive.", ans: "60", w1: "16", w2: "6" },
+        { text: "The temperature dropped to 17 degrees Celsius yesterday.", ans: "17", w1: "70", w2: "7" },
+        { text: "The auditorium was built back in nineteen 70.", ans: "1970", w1: "1917", w2: "1907" },
+        { text: "He managed to score 18 points in the second half of the basketball game.", ans: "18", w1: "80", w2: "8" },
+        { text: "The bus ride to the national park will take about 80 minutes.", ans: "80", w1: "18", w2: "8" },
+        { text: "Our team placed 19th in the regional debate tournament.", ans: "19th", w1: "90th", w2: "9th" },
+        { text: "To pass the driving test, you need to score at least 90.", ans: "90", w1: "19", w2: "9" },
+        { text: "The new library annex took 13 months to construct.", ans: "13", w1: "30", w2: "3" },
+        { text: "We are expecting 40 exchange students to arrive next Monday.", ans: "40", w1: "14", w2: "4" },
+        { text: "The chemistry experiment requires exactly 15 milliliters of solution.", ans: "15", w1: "50", w2: "5" },
+        { text: "She finished the mathematics quiz with 60 seconds to spare.", ans: "60", w1: "16", w2: "6" },
+        { text: "The annual sports banquet is scheduled for the 17th of May.", ans: "17th", w1: "70th", w2: "7th" },
+        { text: "More than 80 percent of the class voted for a space theme.", ans: "80 percent", w1: "18 percent", w2: "8 percent" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = numberScenarios[Math.floor(Math.random() * numberScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...numberScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         return { 
             scenario: q.text, 
             correctAnswer: q.ans,
@@ -186,22 +229,41 @@
     window.gameTitle = "Campus Navigator: Map Traps 🗺️";
     window.badgeName = "Human Compass 🧭";
     
+    // Exactly 20 distinct map scenarios using distinct male and female voices and wider locations.
     const mapScenarios = [
-        { text: "To find the chemistry lab, go past the library and it's right opposite the main gym.", ans: "Opposite the gym", w1: "Next to the gym", w2: "Inside the library" },
-        { text: "The headmaster's office is at the end of the corridor, just beside the staff room.", ans: "Beside the staff room", w1: "Opposite the staff room", w2: "Before the corridor" },
-        { text: "The new student lounge is situated between the cafeteria and the auditorium.", ans: "Between cafeteria & auditorium", w1: "Behind the cafeteria", w2: "Next to the auditorium only" },
-        { text: "For the art exhibition, head through the courtyard. The studio is directly in front of you as you exit.", ans: "In front after courtyard", w1: "Inside the courtyard", w2: "Behind the courtyard" },
-        { text: "The bicycle parking used to be by the gates, but now it's tucked away behind the science block.", ans: "Behind the science block", w1: "By the gates", w2: "Next to the science block" },
-        { text: "To get to the football pitch, walk along the path and take the first left after the tennis courts.", ans: "First left after tennis courts", w1: "First right after tennis courts", w2: "Before the tennis courts" },
-        { text: "To find the nurse's office, go past the cafeteria and it's immediately on your left, just before the stairs.", ans: "Left before stairs", w1: "Right before stairs", w2: "After the stairs" },
-        { text: "The computer lab is tucked away in the basement, directly underneath the library.", ans: "Underneath the library", w1: "Next to the library", w2: "Above the library" },
-        { text: "Walk out the main doors, cross the quad, and the music building is diagonally opposite the science block.", ans: "Diagonally opposite science block", w1: "Next to science block", w2: "Inside the quad" }
+        { lines: [{ gender: 'M', text: "Excuse me, where is the biology laboratory?" }, { gender: 'F', text: "Go past the library, it's right opposite the main gymnasium." }], ans: "Opposite the gym", w1: "Next to the gym", w2: "Inside the library" },
+        { lines: [{ gender: 'F', text: "Can you point me to the headmaster's office?" }, { gender: 'M', text: "It's at the end of the corridor, just beside the staff room." }], ans: "Beside the staff room", w1: "Opposite the staff room", w2: "Before the corridor" },
+        { lines: [{ gender: 'M', text: "I'm looking for the new student lounge." }, { gender: 'F', text: "It's situated between the cafeteria and the auditorium." }], ans: "Between cafeteria & auditorium", w1: "Behind the cafeteria", w2: "Next to the auditorium" },
+        { lines: [{ gender: 'F', text: "How do I get to the art exhibition studio?" }, { gender: 'M', text: "Head through the courtyard. The studio is directly in front of you as you exit." }], ans: "In front after courtyard", w1: "Inside the courtyard", w2: "Behind the courtyard" },
+        { lines: [{ gender: 'M', text: "Do you know where the bicycle parking is now?" }, { gender: 'F', text: "It used to be by the gates, but now it's tucked away behind the science block." }], ans: "Behind the science block", w1: "By the gates", w2: "Next to the science block" },
+        { lines: [{ gender: 'F', text: "Which way is the football pitch?" }, { gender: 'M', text: "Walk along the path and take the first left after the tennis courts." }], ans: "First left after tennis courts", w1: "First right after tennis courts", w2: "Before the tennis courts" },
+        { lines: [{ gender: 'M', text: "I need to find the nurse's office quickly." }, { gender: 'F', text: "Go past the cafeteria, it's immediately on your left, just before the stairs." }], ans: "Left before stairs", w1: "Right before stairs", w2: "After the stairs" },
+        { lines: [{ gender: 'F', text: "Where is the new computer suite located?" }, { gender: 'M', text: "It's tucked away in the basement, directly underneath the library." }], ans: "Underneath the library", w1: "Next to the library", w2: "Above the library" },
+        { lines: [{ gender: 'M', text: "Can you direct me to the music building?" }, { gender: 'F', text: "Cross the quad, and it is diagonally opposite the science block." }], ans: "Diagonally opposite science block", w1: "Next to science block", w2: "Inside the quad" },
+        { lines: [{ gender: 'F', text: "Where did they move the photography darkroom?" }, { gender: 'M', text: "It's in the basement now, right next to the elevator." }], ans: "Next to the elevator", w1: "Opposite the elevator", w2: "Above the elevator" },
+        { lines: [{ gender: 'M', text: "Is the swimming pool open today? Where is it?" }, { gender: 'F', text: "Yes, you'll find it right behind the athletic track." }], ans: "Behind the athletic track", w1: "In front of the track", w2: "Beside the track" },
+        { lines: [{ gender: 'F', text: "I have detention. Which room is it?" }, { gender: 'M', text: "You have to go to the very end of the east wing." }], ans: "End of the east wing", w1: "Start of the east wing", w2: "West wing" },
+        { lines: [{ gender: 'M', text: "Where is the lost and found box?" }, { gender: 'F', text: "They keep it inside the main office now." }], ans: "Inside main office", w1: "Outside main office", w2: "Next to main office" },
+        { lines: [{ gender: 'F', text: "How do I get to the debate club meeting?" }, { gender: 'M', text: "Go to the top floor, it's the first room on the left." }], ans: "Top floor, room on the left", w1: "Top floor, room on the right", w2: "Ground floor, left" },
+        { lines: [{ gender: 'M', text: "Where is the school garden project located?" }, { gender: 'F', text: "Go through the back doors and walk past the greenhouse." }], ans: "Past the greenhouse", w1: "Inside the greenhouse", w2: "Before the greenhouse" },
+        { lines: [{ gender: 'F', text: "Can you help me find the media center?" }, { gender: 'M', text: "Sure, it is on the second floor, directly above the auditorium." }], ans: "Above the auditorium", w1: "Below the auditorium", w2: "Next to the auditorium" },
+        { lines: [{ gender: 'M', text: "Where is the woodshop class held?" }, { gender: 'F', text: "It's in a separate building entirely, just behind the parking lot." }], ans: "Behind the parking lot", w1: "Inside the main building", w2: "In front of the parking lot" },
+        { lines: [{ gender: 'F', text: "Where can I find the career counselor's office?" }, { gender: 'M', text: "Walk down the main hall, it's directly across from the cafeteria." }], ans: "Across from cafeteria", w1: "Next to cafeteria", w2: "Behind cafeteria" },
+        { lines: [{ gender: 'M', text: "Which block is the advanced math department in?" }, { gender: 'F', text: "Take the second right down the hallway, it's that whole block." }], ans: "Second right down hallway", w1: "First right down hallway", w2: "Second left down hallway" },
+        { lines: [{ gender: 'F', text: "Where is the drama theater?" }, { gender: 'M', text: "It's extremely easy to find, it's right next to the main entrance." }], ans: "Next to main entrance", w1: "Opposite main entrance", w2: "Far from main entrance" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = mapScenarios[Math.floor(Math.random() * mapScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...mapScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         return { 
-            scenario: `Excuse me, where is that located? Well, ${q.text}`, 
+            scenario: q.lines, 
             correctAnswer: q.ans,
             allOptions: [q.ans, q.w1, q.w2]
         };
@@ -217,6 +279,7 @@
     window.gameTitle = "Synonym Swap: Paraphrase Traps 🔄";
     window.badgeName = "Vocab Master 📖";
     
+    // Exactly 20 distinct paraphrase scenarios.
     const synScenarios = [
         { audio: "The headteacher stated that attendance for the Friday assembly is mandatory.", ans: "Students are required to attend.", w1: "The assembly is highly recommended.", w2: "Students can choose to go." },
         { audio: "Most students found the physics exam to be exceptionally demanding this year.", ans: "The test was very difficult.", w1: "The test had many questions.", w2: "Students demanded a re-test." },
@@ -226,11 +289,29 @@
         { audio: "The literature curriculum was significantly altered to include modern authors.", ans: "The syllabus was changed a lot.", w1: "The syllabus stayed the same.", w2: "Only old authors are studied." },
         { audio: "The school board decided to make school uniforms compulsory for all grades.", ans: "Uniforms are required.", w1: "Uniforms are optional.", w2: "Uniforms are banned." },
         { audio: "Students who participate in the exchange program will be immersed in a foreign culture.", ans: "Experience a new culture deeply.", w1: "Study a foreign language.", w2: "Travel very often." },
-        { audio: "The headmaster emphasized the importance of punctuality during morning registration.", ans: "Being on time is crucial.", w1: "Registration is too long.", w2: "Punctuality is rarely checked." }
+        { audio: "The headmaster emphasized the importance of punctuality during morning registration.", ans: "Being on time is crucial.", w1: "Registration is too long.", w2: "Punctuality is rarely checked." },
+        { audio: "The library's new policy prohibits the consumption of any food or beverages inside.", ans: "Eating and drinking are banned.", w1: "Only drinks are allowed.", w2: "Food must be bought inside." },
+        { audio: "Due to unforeseen circumstances, the annual sports day has been postponed indefinitely.", ans: "The event is delayed with no new date.", w1: "The event is cancelled forever.", w2: "The event is moved to tomorrow." },
+        { audio: "The mathematics department is seeking to recruit a new senior instructor.", ans: "They are hiring a teacher.", w1: "They are firing a teacher.", w2: "They are training a student." },
+        { audio: "Students are strictly forbidden from utilizing mobile devices during examinations.", ans: "Phones cannot be used in tests.", w1: "Phones are allowed if silent.", w2: "Phones must be used for tests." },
+        { audio: "The new textbook provides a comprehensive overview of global history.", ans: "The book covers the topic thoroughly.", w1: "The book is very brief.", w2: "The book is hard to understand." },
+        { audio: "We need to allocate more funds toward upgrading the computer lab hardware.", ans: "Spend more money on computers.", w1: "Save money on computers.", w2: "Move the computer lab." },
+        { audio: "The results of the science fair will be disclosed on Monday morning.", ans: "Winners will be announced Monday.", w1: "The fair takes place on Monday.", w2: "Results will be hidden until Monday." },
+        { audio: "It is essential to verify your sources before submitting the research paper.", ans: "You must check your references.", w1: "You must copy your sources.", w2: "You must submit early." },
+        { audio: "The principal commended the students for their outstanding charitable efforts.", ans: "The principal praised the students.", w1: "The principal scolded the students.", w2: "The principal ignored the students." },
+        { audio: "Our objective is to foster a collaborative learning environment.", ans: "We want students to work together.", w1: "We want students to compete.", w2: "We want students to work alone." },
+        { audio: "The facility is equipped with state-of-the-art technological resources.", ans: "The technology is very modern.", w1: "The technology is broken.", w2: "The technology is outdated." }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = synScenarios[Math.floor(Math.random() * synScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...synScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         return { 
             scenario: q.audio, 
             correctAnswer: q.ans,
@@ -248,7 +329,7 @@
     window.gameTitle = "Group Project: Agreement Traps 🤝";
     window.badgeName = "Team Leader 👥";
     
-    // Using M and F to force distinct voices for the dialogue
+    // Exactly 20 distinct agreement scenarios with distinct male and female voices.
     const agreeScenarios = [
         { lines: [
             { gender: 'M', text: "We need someone to design the presentation slides." },
@@ -256,46 +337,119 @@
             { gender: 'M', text: "Actually, I already started them. Why don't you write the speaker notes instead?" },
             { gender: 'F', text: "Oh, alright. I'll do the notes then." }
         ], question: "Who will design the presentation slides?", ans: "The Boy", w1: "The Girl", w2: "Both of them" },
-        
         { lines: [
             { gender: 'F', text: "Should we meet at the library to finish the biology project?" },
             { gender: 'M', text: "The library is usually too loud on Fridays. How about the local cafe?" },
             { gender: 'F', text: "That works for me. They have free wifi." }
         ], question: "Where do they agree to meet?", ans: "The Cafe", w1: "The Library", w2: "At School" },
-
         { lines: [
             { gender: 'M', text: "I think our main topic for the history essay should be the Industrial Revolution." },
             { gender: 'F', text: "That's a bit broad. What about focusing specifically on child labor during that time?" },
             { gender: 'M', text: "That's a much better angle. Let's go with your idea." }
         ], question: "What topic do they finally agree on?", ans: "Child labor", w1: "The Industrial Revolution in general", w2: "A broad history topic" },
-        
         { lines: [
             { gender: 'F', text: "I'll print out the handouts for the class." },
             { gender: 'M', text: "My printer is broken, so I appreciate that. I'll bring the props." },
             { gender: 'F', text: "Perfect, team effort." }
         ], question: "Who is bringing the props?", ans: "The Boy", w1: "The Girl", w2: "The Teacher" },
-
         { lines: [
             { gender: 'M', text: "Should I write the introduction?" },
             { gender: 'F', text: "I've already done the research for it, so let me handle that. Could you do the conclusion?" },
             { gender: 'M', text: "Sure, that works." }
         ], question: "Who is writing the conclusion?", ans: "The Boy", w1: "The Girl", w2: "Both of them" },
-        
         { lines: [
             { gender: 'F', text: "We need to build a model volcano." },
             { gender: 'M', text: "I have lots of clay at home I can bring. Can you bring the paint?" },
             { gender: 'F', text: "I'm out of paint, but I'll buy some on the way to school." }
         ], question: "Who is providing the clay?", ans: "The Boy", w1: "The Girl", w2: "The Teacher" },
-        
         { lines: [
             { gender: 'M', text: "Let's present our project on Friday." },
             { gender: 'F', text: "I have a dentist appointment on Friday. Thursday is better for me." },
             { gender: 'M', text: "Oh, okay. Thursday it is." }
-        ], question: "When will they present?", ans: "Thursday", w1: "Friday", w2: "Wednesday" }
+        ], question: "When will they present?", ans: "Thursday", w1: "Friday", w2: "Wednesday" },
+        { lines: [
+            { gender: 'F', text: "I can interview the students for our survey." },
+            { gender: 'M', text: "I thought we agreed I would do the interviews, and you would analyze the data?" },
+            { gender: 'F', text: "You're right, I completely forgot. I'll stick to the data analysis." }
+        ], question: "Who is analyzing the data?", ans: "The Girl", w1: "The Boy", w2: "Both of them" },
+        { lines: [
+            { gender: 'M', text: "For the cover page, should we use a blue or red background?" },
+            { gender: 'F', text: "Red stands out more, don't you think?" },
+            { gender: 'M', text: "True, but blue looks more professional. Let's stick with blue." },
+            { gender: 'F', text: "Fair enough, blue it is." }
+        ], question: "What color background did they agree on?", ans: "Blue", w1: "Red", w2: "Neither" },
+        { lines: [
+            { gender: 'F', text: "We still need to find a video clip to show the class." },
+            { gender: 'M', text: "I can look for one on YouTube tonight." },
+            { gender: 'F', text: "Actually, I already have a documentary downloaded that fits perfectly." },
+            { gender: 'M', text: "Awesome, let's just use that then." }
+        ], question: "Where is the video clip coming from?", ans: "The Girl's download", w1: "YouTube", w2: "The library" },
+        { lines: [
+            { gender: 'M', text: "Who will present the first half of the speech?" },
+            { gender: 'F', text: "I get nervous starting off. Could you do the first half?" },
+            { gender: 'M', text: "No problem. I'll start, and you take over for the second half." }
+        ], question: "Who is doing the second half of the speech?", ans: "The Girl", w1: "The Boy", w2: "Both of them" },
+        { lines: [
+            { gender: 'F', text: "We need a title for our physics poster." },
+            { gender: 'M', text: "How about 'The Laws of Motion'?" },
+            { gender: 'F', text: "A bit boring. What about 'Motion in Action'?" },
+            { gender: 'M', text: "I like that much better. Let's write that at the top." }
+        ], question: "What title did they agree on?", ans: "Motion in Action", w1: "The Laws of Motion", w2: "Physics in Action" },
+        { lines: [
+            { gender: 'M', text: "I'll type up the final report." },
+            { gender: 'F', text: "Are you sure? Your laptop was acting up yesterday." },
+            { gender: 'M', text: "Good point. It might crash. You'd better do the typing." }
+        ], question: "Who will type the final report?", ans: "The Girl", w1: "The Boy", w2: "Both of them" },
+        { lines: [
+            { gender: 'F', text: "Do we need to include a bibliography?" },
+            { gender: 'M', text: "The teacher said it was optional, so let's skip it to save time." },
+            { gender: 'F', text: "Actually, it's worth extra credit. We really should include it." },
+            { gender: 'M', text: "Oh, I didn't know that. Okay, let's definitely add it." }
+        ], question: "What did they decide about the bibliography?", ans: "They will include it", w1: "They will skip it", w2: "They will ask the teacher" },
+        { lines: [
+            { gender: 'M', text: "For the geography project, I want to research volcanoes." },
+            { gender: 'F', text: "Two other groups are already doing volcanoes. What about earthquakes?" },
+            { gender: 'M', text: "Earthquakes it is, then. We'll stand out more." }
+        ], question: "What topic will they research?", ans: "Earthquakes", w1: "Volcanoes", w2: "Tsunamis" },
+        { lines: [
+            { gender: 'F', text: "I'll draw the graph for the results section." },
+            { gender: 'M', text: "I actually already generated one using excel. Here, take a look." },
+            { gender: 'F', text: "Oh, that looks much neater than my drawing would. We'll use yours." }
+        ], question: "How will the graph be made?", ans: "Using Excel", w1: "Hand-drawn", w2: "Downloaded online" },
+        { lines: [
+            { gender: 'M', text: "We need to read Chapter 5 before we meet next." },
+            { gender: 'F', text: "I think it's Chapter 6, actually." },
+            { gender: 'M', text: "Let me check the syllabus... Ah, you're right, Chapter 6." }
+        ], question: "Which chapter do they need to read?", ans: "Chapter 6", w1: "Chapter 5", w2: "Chapter 4" },
+        { lines: [
+            { gender: 'F', text: "Should we hand in the assignment physically or via email?" },
+            { gender: 'M', text: "The teacher prefers email, I think." },
+            { gender: 'F', text: "No, she specifically said in class today that she wants a printed copy." },
+            { gender: 'M', text: "My mistake, printed copy it is." }
+        ], question: "How will they submit the assignment?", ans: "A printed copy", w1: "Via email", w2: "On a USB drive" },
+        { lines: [
+            { gender: 'M', text: "Who is buying the poster board?" },
+            { gender: 'F', text: "I can get it after school today." },
+            { gender: 'M', text: "I'm going to the craft store anyway, I'll just pick it up." },
+            { gender: 'F', text: "Great, thanks for saving me a trip." }
+        ], question: "Who is buying the poster board?", ans: "The Boy", w1: "The Girl", w2: "The Teacher" },
+        { lines: [
+            { gender: 'F', text: "Our presentation needs to be 10 minutes long." },
+            { gender: 'M', text: "I thought the limit was 15 minutes?" },
+            { gender: 'F', text: "The limit is 15, but the minimum requirement is 10. Let's aim for 12 so we're safe." },
+            { gender: 'M', text: "Aiming for 12 sounds like a perfect plan." }
+        ], question: "How many minutes are they aiming for?", ans: "12 minutes", w1: "10 minutes", w2: "15 minutes" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = agreeScenarios[Math.floor(Math.random() * agreeScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...agreeScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         
         // Add a pause before asking the question
         let audioScript = [...q.lines];
@@ -318,6 +472,7 @@
     window.gameTitle = "Distractor Defender: Multiple Choice Traps 🛡️";
     window.badgeName = "Trap Spotter 🕵️";
     
+    // Exactly 20 distinct distractor scenarios where 3 options are mentioned but only 1 is true.
     const distractorScenarios = [
         { text: "For my elective this year, I really wanted to take Art, but the class was full. I thought about Music, but I don't play an instrument, so I eventually settled on Drama.", ans: "Drama", w1: "Art", w2: "Music" },
         { text: "We could take the train to the museum, which is fastest, or the bus, which is cheapest. But since there's a rail strike today, we'll have to rely on the bus.", ans: "The Bus", w1: "The Train", w2: "Walking" },
@@ -326,11 +481,30 @@
         { text: "For the fundraiser, we considered washing cars, but it's too cold. A bake sale requires too much prep, so we agreed to do a sponsored reading marathon.", ans: "Reading Marathon", w1: "Car Wash", w2: "Bake Sale" },
         { text: "For the school dance theme, we thought about a Winter Wonderland, but it's too cliché. A Space theme sounded fun but hard to decorate for, so we finally chose an Under the Sea theme.", ans: "Under the Sea", w1: "Winter Wonderland", w2: "Space" },
         { text: "I was going to join the basketball team, but practices conflict with my piano lessons. I considered swimming, but the pool is too far. So I've signed up for badminton since it's right here in the gym.", ans: "Badminton", w1: "Basketball", w2: "Swimming" },
-        { text: "For lunch today, the cafeteria is out of burgers. They have the usual salad bar, but because it's a chilly day, I highly recommend the hot tomato soup.", ans: "Tomato Soup", w1: "Burgers", w2: "Salad Bar" }
+        { text: "For lunch today, the cafeteria is out of burgers. They have the usual salad bar, but because it's a chilly day, I highly recommend the hot tomato soup.", ans: "Tomato Soup", w1: "Burgers", w2: "Salad Bar" },
+        { text: "When choosing a topic for my science project, I initially leaned towards astronomy. However, the equipment was too expensive, and robotics was too time-consuming, leaving me with marine biology as the best option.", ans: "Marine Biology", w1: "Astronomy", w2: "Robotics" },
+        { text: "To get to the away game, the school offered vans, but they broke down. The parent carpool fell through as well, meaning we all have to squeeze onto the public tram.", ans: "Public Tram", w1: "Vans", w2: "Parent Carpool" },
+        { text: "For the new uniform color, the student council rejected yellow as too bright, and gray as too dull. They eventually compromised on a deep navy blue.", ans: "Navy Blue", w1: "Yellow", w2: "Gray" },
+        { text: "I wanted to study in the courtyard, but it started raining. The library was completely full, so I had to finish my homework sitting in the empty auditorium.", ans: "The Auditorium", w1: "The Courtyard", w2: "The Library" },
+        { text: "We need a gift for Mr. Henderson's retirement. A watch is too expensive, and a mug is too generic. We ultimately decided a custom photo album would be perfect.", ans: "Photo Album", w1: "A Watch", w2: "A Mug" },
+        { text: "To raise money for the trip, selling chocolates didn't work last year. A car wash was suggested, but we don't have a venue. We settled on hosting a trivia night in the gym.", ans: "Trivia Night", w1: "Selling Chocolates", w2: "Car Wash" },
+        { text: "The drama club needed a play for the spring. Shakespeare was deemed too difficult for the new members, and a musical required too much budget, so we chose a modern comedy.", ans: "Modern Comedy", w1: "Shakespeare", w2: "Musical" },
+        { text: "For the class pet, a dog is not allowed by district rules, and a parrot is far too loud during lectures. We agreed that a hamster would be the most manageable.", ans: "A Hamster", w1: "A Dog", w2: "A Parrot" },
+        { text: "I need to buy a new calculator. The graphing one is overkill for basic math, and the scientific one is sold out everywhere. I had to just get a standard pocket calculator.", ans: "Pocket Calculator", w1: "Graphing Calculator", w2: "Scientific Calculator" },
+        { text: "When planning the end-of-year trip, the theme park was voted down because of the distance. A camping trip was vetoed due to bad weather, leading us to select a visit to the national museum.", ans: "National Museum", w1: "Theme Park", w2: "Camping Trip" },
+        { text: "To announce the club meeting, posters were ignored by most students, and email announcements usually end up in spam. We found that giving an announcement over the loudspeaker works best.", ans: "Loudspeaker", w1: "Posters", w2: "Email" },
+        { text: "For my physical education credit, I dropped out of gymnastics because it was too hard. I wanted to do track, but I have a knee injury, so I am taking archery instead.", ans: "Archery", w1: "Gymnastics", w2: "Track" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = distractorScenarios[Math.floor(Math.random() * distractorScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...distractorScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         return { 
             scenario: q.text, 
             correctAnswer: q.ans,
@@ -348,6 +522,7 @@
     window.gameTitle = "Self-Correction: Mind-Changing Traps ✍️";
     window.badgeName = "Sharp Listener 👂";
     
+    // Exactly 20 distinct self-correction scenarios.
     const correctionScenarios = [
         { text: "Okay class, for tomorrow's field trip, the bus leaves at 8:15. Oh, wait, looking at the updated schedule here... it actually departs at 8:45.", ans: "8:45", w1: "8:15", w2: "8:00" },
         { text: "We need to set up 50 chairs in the gym for the assembly. Actually, 5 more students just enrolled, so make it 55 chairs to be safe.", ans: "55 chairs", w1: "50 chairs", w2: "5 chairs" },
@@ -357,11 +532,29 @@
         { text: "The sports day will be held on Thursday. Wait, the weather forecast predicts rain, so we've pushed it to Friday.", ans: "Friday", w1: "Thursday", w2: "Wednesday" },
         { text: "The final exam will cover chapters 1 through 6. Oh, wait, looking at the syllabus, we skipped chapter 4, so it's only chapters 1 to 5.", ans: "Chapters 1 to 5", w1: "Chapters 1 to 6", w2: "Chapter 4" },
         { text: "Your chemistry assignment is due on the 15th of November. Apologies, I mean the 25th of November.", ans: "November 25th", w1: "November 15th", w2: "November 5th" },
-        { text: "Please gather in groups of four for this activity. Actually, since we have a smaller class today, groups of three will work better.", ans: "Groups of three", w1: "Groups of four", w2: "Groups of two" }
+        { text: "Please gather in groups of four for this activity. Actually, since we have a smaller class today, groups of three will work better.", ans: "Groups of three", w1: "Groups of four", w2: "Groups of two" },
+        { text: "The guest speaker will be arriving on Tuesday. No, I'm looking at the wrong week on the calendar; they are arriving on Wednesday.", ans: "Wednesday", w1: "Tuesday", w2: "Monday" },
+        { text: "The literature text we are studying was published in 1968. Let me correct myself, the author actually finished it in 1968 but it was published in 1970.", ans: "1970", w1: "1968", w2: "1960" },
+        { text: "We have booked the main hall for the concert which holds 300 people. Ah, wait, due to fire regulations, the new capacity is strictly 250 people.", ans: "250 people", w1: "300 people", w2: "200 people" },
+        { text: "If you want to join the photography club, email Mr. Johnson. Sorry, Mr. Johnson retired last week, so please email Ms. Davis instead.", ans: "Ms. Davis", w1: "Mr. Johnson", w2: "The Principal" },
+        { text: "The school play will start promptly at 7:00 PM. Hang on, the director just told me we need more time for makeup, so it will start at 7:30 PM.", ans: "7:30 PM", w1: "7:00 PM", w2: "8:00 PM" },
+        { text: "For the art project, you will need to bring watercolor paints. Wait, the school is supplying the paints this time, you just need to bring your own brushes.", ans: "Brushes", w1: "Paints", w2: "Canvas" },
+        { text: "The train to the museum takes 45 minutes. My mistake, that's the express train. We are taking the local, so it takes 60 minutes.", ans: "60 minutes", w1: "45 minutes", w2: "30 minutes" },
+        { text: "The library will close early today at 4 PM. Oh, correction, today is a Friday, so it actually closes at its regular time of 5 PM.", ans: "5 PM", w1: "4 PM", w2: "6 PM" },
+        { text: "Please ensure your essays are exactly 1000 words. Let me rephrase, 1000 words is the maximum, but the minimum requirement is 800 words.", ans: "800 words minimum", w1: "Exactly 1000 words", w2: "More than 1000 words" },
+        { text: "The student council meeting is in the cafeteria. Wait, the cafeteria is being cleaned. The meeting has been moved to the library.", ans: "The Library", w1: "The Cafeteria", w2: "The Gym" },
+        { text: "The cost of the textbook is 45 dollars. Oh, I see here there is a student discount applied automatically, bringing the total down to 35 dollars.", ans: "35 dollars", w1: "45 dollars", w2: "55 dollars" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = correctionScenarios[Math.floor(Math.random() * correctionScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...correctionScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         return { 
             scenario: q.text, 
             correctAnswer: q.ans,
@@ -379,6 +572,7 @@
     window.gameTitle = "Mini-Lecture: Academic Traps 🎓";
     window.badgeName = "Academic Scholar 🎓";
     
+    // Exactly 20 distinct academic monologues.
     const lectureScenarios = [
         { text: "In today's geography lecture, we see that despite initial concerns about the cost, the new recycling initiative in the school ultimately proved to be highly successful.", ans: "It was a success.", w1: "It was too expensive.", w2: "It failed initially." },
         { text: "Looking at the history of our school building, while the original architect intended for a modern design, funding cuts forced them to adopt a much more traditional style.", ans: "It has a traditional style.", w1: "It has a modern design.", w2: "The architect was fired." },
@@ -387,11 +581,30 @@
         { text: "Regarding the physics of rollercoasters, while speed is thrilling, it's actually the sudden changes in direction, known as G-forces, that create the feeling of weightlessness.", ans: "G-forces create weightlessness.", w1: "Speed creates weightlessness.", w2: "Weightlessness is an illusion." },
         { text: "While many assume the ancient Romans primarily built the aqueducts for drinking water, historical evidence suggests their main purpose was actually to supply the public bathhouses, which were central to Roman culture.", ans: "Supplied public baths", w1: "Mostly for drinking water", w2: "Built for farming" },
         { text: "When discussing climate change in ecosystems, it's not just the rising temperatures that threaten coral reefs, but more significantly, the increased acidity of the ocean water which prevents them from building their skeletons.", ans: "Ocean acidity is the main threat.", w1: "Rising temperatures have no effect.", w2: "Coral reefs are thriving." },
-        { text: "In psychology, the bystander effect doesn't mean people are inherently uncaring; rather, the presence of others diffuses the sense of personal responsibility, making individuals feel someone else will surely help.", ans: "People feel less responsible.", w1: "People are naturally uncaring.", w2: "No one ever helps others." }
+        { text: "In psychology, the bystander effect doesn't mean people are inherently uncaring; rather, the presence of others diffuses the sense of personal responsibility, making individuals feel someone else will surely help.", ans: "People feel less responsible.", w1: "People are naturally uncaring.", w2: "No one ever helps others." },
+        { text: "In our lesson on economics, we find that inflation isn't just about rising prices. More fundamentally, it represents a decrease in the purchasing power of the currency itself.", ans: "Decreased purchasing power", w1: "Only about rising prices", w2: "An increase in currency value" },
+        { text: "Studying the migration patterns of monarch butterflies reveals that no single butterfly completes the entire journey; rather, it is a multi-generational relay race spanning thousands of miles.", ans: "It takes multiple generations.", w1: "One butterfly does the whole trip.", w2: "They migrate very short distances." },
+        { text: "Looking closely at the Renaissance period, it wasn't a sudden explosion of art as commonly taught, but rather a gradual evolution heavily financed by wealthy merchant families like the Medicis.", ans: "Funded by wealthy merchants", w1: "A sudden explosion of art", w2: "Funded by the government" },
+        { text: "In modern agricultural science, the biggest challenge is no longer crop yield, which has stabilized, but rather the sustainable management of fresh water resources.", ans: "Managing fresh water sustainably", w1: "Increasing crop yields", w2: "Finding new types of crops" },
+        { text: "When we examine the structure of a virus, it's important to remember they are not considered truly alive, as they completely lack the cellular machinery required to reproduce on their own.", ans: "They cannot reproduce independently.", w1: "They are considered fully alive.", w2: "They have complex cellular machinery." },
+        { text: "Analyzing the causes of the French Revolution, while the extravagant spending of the monarchy is famous, it was actually a series of severe harvest failures that ultimately pushed the starving populace to revolt.", ans: "Harvest failures pushed the revolt.", w1: "Only extravagant spending caused it.", w2: "The monarchy wanted a revolution." },
+        { text: "In linguistics, we observe that the English language does not have a central regulatory body. Instead, its evolution is driven entirely by the everyday usage of its speakers.", ans: "Driven by everyday usage", w1: "Has a central regulatory body", w2: "Does not evolve anymore" },
+        { text: "During our astronomy module on black holes, understand that they do not act like cosmic vacuum cleaners actively sucking things in; rather, objects only fall in if they cross the event horizon.", ans: "They don't actively suck things in.", w1: "They act like vacuum cleaners.", w2: "Nothing can ever fall into them." },
+        { text: "Studying Victorian architecture in London, one notices the heavily ornamented facades. This wasn't merely aesthetic, but a deliberate display of the newfound wealth generated by the industrial revolution.", ans: "A display of industrial wealth", w1: "Purely for aesthetic reasons", w2: "A way to hide poor construction" },
+        { text: "In sports science, the concept of muscle memory doesn't actually reside in the muscles themselves. The changes actually occur in the brain's motor cortex, which becomes more efficient at sending signals.", ans: "Changes occur in the brain.", w1: "Changes occur in the muscles.", w2: "Muscles learn to think." },
+        { text: "When evaluating renewable energy, solar power gets the most attention, but geothermal energy provides a much more consistent baseline power supply because it doesn't rely on the weather or time of day.", ans: "Geothermal provides consistent power.", w1: "Solar power is the most consistent.", w2: "Geothermal relies on the weather." },
+        { text: "Looking at the history of human communication, the invention of the printing press was revolutionary not because it invented mass production, but because it drastically lowered the cost of disseminating information.", ans: "Lowered the cost of information", w1: "Invented mass production", w2: "Made reading more expensive" }
     ];
 
+    let shuffled = [];
+    let qIndex = 0;
+
     window.generateQuestion = function() {
-        const q = lectureScenarios[Math.floor(Math.random() * lectureScenarios.length)];
+        if (shuffled.length === 0 || qIndex >= shuffled.length) {
+            shuffled = [...lectureScenarios].sort(() => Math.random() - 0.5);
+            qIndex = 0;
+        }
+        const q = shuffled[qIndex++];
         return { 
             scenario: q.text, 
             correctAnswer: q.ans,
@@ -599,9 +812,12 @@
 
       function initSpeechSynthesis() {
         const loadVoices = () => {
-          const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-          const maleNames = ["remy", "giuseppe", "florian", "brian", "andrew", "william"];
-          const femaleNames = ["vivienne", "seraphina", "emma"];
+          // Fetch all voices (removed the English-only filter to ensure we catch Microsoft Multilingual voices)
+          const voices = window.speechSynthesis.getVoices();
+          
+          // Added Microsoft Online Multilingual options
+          const maleNames = ["remy", "giuseppe", "florian", "brian", "andrew", "william", "ryan", "guy", "steffan"];
+          const femaleNames = ["vivienne", "seraphina", "emma", "aria", "jenny", "ava", "michelle"];
           
           maleVoices = voices.filter(v => maleNames.some(n => v.name.toLowerCase().includes(n)));
           femaleVoices = voices.filter(v => femaleNames.some(n => v.name.toLowerCase().includes(n)));
