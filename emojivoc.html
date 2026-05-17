@@ -451,7 +451,7 @@
 
                     <div class="bg-black/20 p-3 md:p-5 rounded-2xl mb-4 shrink-0">
                         <h2 class="text-lg md:text-xl mb-2 font-bold text-white">2. Enter Class Roster:</h2>
-                        <textarea id="roster-input" rows="3" placeholder="Enter student names, one per line..." class="w-full text-base md:text-lg p-2 rounded-xl text-slate-800 font-semibold border-4 border-transparent focus:border-yellow-400 outline-none transition-all resize-none shadow-inner"></textarea>
+                        <textarea id="roster-input" rows="3" placeholder="Enter student names, separated by commas or lines..." class="w-full text-base md:text-lg p-2 rounded-xl text-slate-800 font-semibold border-4 border-transparent focus:border-yellow-400 outline-none transition-all resize-none shadow-inner"></textarea>
                     </div>
 
                     <div class="shrink-0">
@@ -490,7 +490,8 @@
             appState.roster = [];
             
             let rosterInput = document.getElementById('roster-input').value.trim();
-            let names = rosterInput.split('\n').map(n => n.trim()).filter(n => n);
+            // Split by newline OR comma
+            let names = rosterInput.split(/[\n,]+/).map(n => n.trim()).filter(n => n);
             
             if (names.length === 0) {
                 // Generate default names if empty
@@ -570,7 +571,7 @@
                 <div class="glass-panel p-12 rounded-3xl text-center animate-pop-in">
                     <h2 class="text-6xl font-bold text-yellow-300 mb-4 drop-shadow-lg">Round ${roundNum}</h2>
                     <p class="text-3xl font-bold text-white mb-8">Learn ${CARDS_PER_ROUND} New Words!</p>
-                    <div class="text-[100px] animate-bounce">🧠</div>
+                    <div class="text-[100px] animate-bounce">😃</div>
                 </div>
             `;
 
@@ -592,7 +593,7 @@
             app.innerHTML = `
                 <div class="glass-panel w-full max-w-[59rem] h-[84vh] flex flex-col items-center justify-center p-8 rounded-3xl animate-pop-in relative overflow-hidden">
                     <div class="flex-1 flex items-center justify-center">
-                        <div class="text-[126px] md:text-[189px] lg:text-[231px] leading-none emoji-shadow">${card.icon}</div>
+                        <div class="text-[138px] md:text-[208px] lg:text-[254px] leading-none emoji-shadow">${card.icon}</div>
                     </div>
                     <div class="flex-none mb-10 text-4xl md:text-6xl font-bold text-white tracking-wide bg-black/20 px-8 py-4 rounded-3xl shadow-inner text-center lowercase max-w-full truncate">
                         ${currentLabel}
@@ -697,7 +698,7 @@
                 playerOptions.forEach((opt, oIdx) => {
                     btnsHtml += `
                         <button onclick="handleAnswer(${pIdx}, '${opt.id}', '${q.target.id}', event, this)" 
-                                class="w-full flex-1 flex items-center justify-center text-center py-2 md:py-3 px-2 mb-2 bg-white text-slate-800 font-bold text-lg md:text-xl lg:text-2xl rounded-2xl shadow-md border-b-4 border-slate-300 hover:bg-slate-50 transition-transform active:scale-95 leading-tight lowercase h-full min-h-[50px]">
+                                class="player-btn-${pIdx} w-full flex-1 flex items-center justify-center text-center py-2 md:py-3 px-2 mb-2 bg-white text-slate-800 font-bold text-lg md:text-xl lg:text-2xl rounded-2xl shadow-md border-b-4 border-slate-300 hover:bg-slate-50 transition-all active:scale-95 leading-tight lowercase h-full min-h-[50px]">
                             ${getLabel(opt)}
                         </button>
                     `;
@@ -705,8 +706,8 @@
 
                 zonesHtml += `
                     <div class="flex flex-col items-center p-2 lg:p-4 rounded-3xl h-full" style="background: rgba(0,0,0,0.2);">
-                        <div class="text-sm md:text-base lg:text-lg font-bold mb-2 py-1 px-3 md:px-4 rounded-full shadow-inner whitespace-nowrap overflow-hidden text-ellipsis max-w-full" style="background: ${player.color}; color: white;">
-                            ${player.name}: <span id="score-${pIdx}">${player.score}</span>
+                        <div class="text-sm md:text-base lg:text-lg font-bold mb-2 py-1 px-3 md:px-4 rounded-full shadow-inner whitespace-nowrap overflow-hidden text-ellipsis max-w-full transition-all" style="background: ${player.color}; color: white;">
+                            ${player.name}: <span id="score-${pIdx}" class="transition-all inline-block">${player.score}</span>
                         </div>
                         <div class="w-full flex-grow flex flex-col justify-between gap-1 h-full">
                             ${btnsHtml}
@@ -728,9 +729,9 @@
                     </div>
 
                     <!-- Top: Target Emoji -->
-                    <div class="flex-1 min-h-0 flex items-start justify-center p-2 mt-16 md:mt-12 lg:mt-10">
-                        <div class="bg-white/10 rounded-full aspect-square w-[135px] h-[135px] md:w-[168px] md:h-[168px] lg:w-[202px] lg:h-[202px] flex items-center justify-center shadow-2xl backdrop-blur-sm border-4 border-white/20">
-                            <span class="text-[74px] md:text-[95px] lg:text-[116px] leading-none emoji-shadow block animate-glow">${q.target.icon}</span>
+                    <div class="flex-1 min-h-0 flex items-start justify-center p-2 mt-8 md:mt-6 lg:mt-4">
+                        <div class="bg-white/10 rounded-full aspect-square w-[150px] h-[150px] md:w-[185px] md:h-[185px] lg:w-[222px] lg:h-[222px] flex items-center justify-center shadow-2xl backdrop-blur-sm border-4 border-white/20">
+                            <span class="text-[82px] md:text-[105px] lg:text-[128px] leading-none emoji-shadow block animate-glow">${q.target.icon}</span>
                         </div>
                     </div>
                     
@@ -789,9 +790,31 @@
 
             } else {
                 playWrongSound();
+
+                // Disable all buttons for this player so they don't get a second chance
+                document.querySelectorAll(`.player-btn-${pIdx}`).forEach(btn => {
+                    btn.disabled = true;
+                    if (btn !== btnElement) {
+                        btn.classList.add('opacity-50');
+                        btn.classList.remove('hover:bg-slate-50', 'active:scale-95');
+                    }
+                });
+
                 btnElement.classList.add('animate-shake', 'bg-red-300', 'text-red-900', 'border-red-500');
                 btnElement.classList.remove('bg-white');
-                btnElement.disabled = true; // Disable just this wrong choice
+                
+                // Reward other players with points for the mistake
+                appState.players.forEach((otherPlayer, otherIdx) => {
+                    if (otherIdx !== pIdx) {
+                        otherPlayer.score += 10;
+                        let scoreEl = document.getElementById(`score-${otherIdx}`);
+                        if(scoreEl) {
+                            scoreEl.innerText = otherPlayer.score;
+                            scoreEl.classList.add('text-green-300', 'scale-150');
+                            setTimeout(() => scoreEl.classList.remove('text-green-300', 'scale-150'), 400);
+                        }
+                    }
+                });
                 
                 setTimeout(() => {
                     btnElement.classList.remove('animate-shake');
