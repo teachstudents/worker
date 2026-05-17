@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Flashcard Champions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            /* Animated gradient background */
+            background: linear-gradient(-45deg, #1e3a8a, #9333ea, #ec4899, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+            color: white;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-game {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .btn-game:active {
+            transform: scale(0.95);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in { animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 1); }
+        }
+        .animate-glow { animation: pulse-glow 2s infinite; }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .animate-progress { animation: progress linear forwards; }
+
+        .emoji-shadow {
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-center p-2 lg:p-4 selection:bg-pink-500 selection:text-white">
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Main Container -->
+    <div id="app" class="w-full h-full max-w-7xl flex flex-col items-center justify-center relative z-10">
+        <!-- Content gets injected here by JS -->
+    </div>
+
+    <script>
+        // Thematic Decks (10 Themes x 10 Cards = 100 Cards) 
+        // Array maps to Levels: [Level 1 (1 word), Level 2 (2 words), Level 3 (3 words)]
+        const THEMED_DECKS = [
+            // Theme 1: Fruits & Veggies
+            [
+                { id: 'apple', icon: '🍎', levels: ['apple', 'red apple', 'crisp red apple'] }, 
+                { id: 'banana', icon: '🍌', levels: ['banana', 'yellow banana', 'potassium rich banana'] },
+                { id: 'grapes', icon: '🍇', levels: ['grapes', 'purple grapes', 'bunch of purple grapes'] }, 
+                { id: 'watermelon', icon: '🍉', levels: ['watermelon', 'summer watermelon', 'juicy summer watermelon'] },
+                { id: 'strawberry', icon: '🍓', levels: ['strawberry', 'wild strawberry', 'sweet wild strawberry'] }, 
+                { id: 'cherry', icon: '🍒', levels: ['cherry', 'red cherry', 'tart cherry pair'] },
+                { id: 'peach', icon: '🍑', levels: ['peach', 'tree peach', 'fuzzy tree peach'] }, 
+                { id: 'pineapple', icon: '🍍', levels: ['pineapple', 'tropical pineapple', 'spiky tropical pineapple'] },
+                { id: 'coconut', icon: '🥥', levels: ['coconut', 'shell coconut', 'hard shell coconut'] }, 
+                { id: 'broccoli', icon: '🥦', levels: ['broccoli', 'green broccoli', 'steamed green broccoli'] }
+            ],
+            // Theme 2: Prepared Foods
+            [
+                { id: 'pizza', icon: '🍕', levels: ['pizza', 'cheese pizza', 'cheesy pepperoni slice'] }, 
+                { id: 'burger', icon: '🍔', levels: ['burger', 'beef burger', 'grilled beef burger'] },
+                { id: 'fries', icon: '🍟', levels: ['fries', 'salted fries', 'crispy salted fries'] }, 
+                { id: 'hotdog', icon: '🌭', levels: ['hotdog', 'stadium hotdog', 'grilled stadium hotdog'] },
+                { id: 'taco', icon: '🌮', levels: ['taco', 'beef taco', 'spicy beef taco'] }, 
+                { id: 'sushi', icon: '🍣', levels: ['sushi', 'salmon sushi', 'fresh salmon sushi'] },
+                { id: 'rice', icon: '🍚', levels: ['rice', 'white rice', 'steamed white rice'] }, 
+                { id: 'pasta', icon: '🍝', levels: ['pasta', 'saucy pasta', 'saucy spaghetti bowl'] },
+                { id: 'bread', icon: '🍞', levels: ['bread', 'baked bread', 'fresh baked bread'] }, 
+                { id: 'cheese', icon: '🧀', levels: ['cheese', 'cheddar cheese', 'aged cheddar cheese'] }
+            ],
+            // Theme 3: Domestic & Farm Animals
+            [
+                { id: 'dog', icon: '🐶', levels: ['dog', 'canine dog', 'loyal canine companion'] }, 
+                { id: 'cat', icon: '🐱', levels: ['cat', 'feline cat', 'purring feline pet'] },
+                { id: 'mouse', icon: '🐭', levels: ['mouse', 'field mouse', 'tiny field mouse'] }, 
+                { id: 'cow', icon: '🐮', levels: ['cow', 'dairy cow', 'grazing dairy cow'] },
+                { id: 'pig', icon: '🐷', levels: ['pig', 'muddy pig', 'mud loving pig'] }, 
+                { id: 'chicken', icon: '🐔', levels: ['chicken', 'laying chicken', 'egg laying chicken'] },
+                { id: 'horse', icon: '🐴', levels: ['horse', 'galloping horse', 'galloping field stallion'] }, 
+                { id: 'goat', icon: '🐐', levels: ['goat', 'climbing goat', 'mountain climbing goat'] },
+                { id: 'sheep', icon: '🐑', levels: ['sheep', 'grazing sheep', 'wooly grazing sheep'] }, 
+                { id: 'rabbit', icon: '🐰', levels: ['rabbit', 'garden rabbit', 'hopping garden bunny'] }
+            ],
+            // Theme 4: Wild Animals
+            [
+                { id: 'fox', icon: '🦊', levels: ['fox', 'red fox', 'cunning red fox'] }, 
+                { id: 'bear', icon: '🐻', levels: ['bear', 'forest bear', 'grizzly forest bear'] },
+                { id: 'panda', icon: '🐼', levels: ['panda', 'eating panda', 'bamboo eating panda'] }, 
+                { id: 'tiger', icon: '🐯', levels: ['tiger', 'jungle tiger', 'striped jungle tiger'] },
+                { id: 'lion', icon: '🦁', levels: ['lion', 'savannah lion', 'roaring savannah lion'] }, 
+                { id: 'elephant', icon: '🐘', levels: ['elephant', 'african elephant', 'trunked african elephant'] },
+                { id: 'giraffe', icon: '🦒', levels: ['giraffe', 'necked giraffe', 'long necked giraffe'] }, 
+                { id: 'monkey', icon: '🐵', levels: ['monkey', 'tree monkey', 'swinging tree monkey'] },
+                { id: 'zebra', icon: '🦓', levels: ['zebra', 'savannah zebra', 'striped savannah zebra'] }, 
+                { id: 'rhino', icon: '🦏', levels: ['rhino', 'horned rhino', 'heavy horned rhinoceros'] }
+            ],
+            // Theme 5: Birds & Flying Creatures
+            [
+                { id: 'penguin', icon: '🐧', levels: ['penguin', 'ice penguin', 'waddling ice penguin'] }, 
+                { id: 'bird', icon: '🐦', levels: ['bird', 'song bird', 'chirping song bird'] },
+                { id: 'duck', icon: '🦆', levels: ['duck', 'pond duck', 'quacking pond duck'] }, 
+                { id: 'eagle', icon: '🦅', levels: ['eagle', 'bald eagle', 'soaring bald eagle'] },
+                { id: 'owl', icon: '🦉', levels: ['owl', 'hooting owl', 'nocturnal hooting owl'] }, 
+                { id: 'bat', icon: '🦇', levels: ['bat', 'cave bat', 'cave dwelling bat'] },
+                { id: 'bee', icon: '🐝', levels: ['bee', 'gathering bee', 'pollen gathering bee'] }, 
+                { id: 'butterfly', icon: '🦋', levels: ['butterfly', 'winged butterfly', 'colorful winged butterfly'] },
+                { id: 'flamingo', icon: '🦩', levels: ['flamingo', 'wading flamingo', 'pink wading flamingo'] }, 
+                { id: 'parrot', icon: '🦜', levels: ['parrot', 'tropical parrot', 'talking tropical parrot'] }
+            ],
+            // Theme 6: Aquatic Life
+            [
+                { id: 'shark', icon: '🦈', levels: ['shark', 'white shark', 'predatory great white'] }, 
+                { id: 'dolphin', icon: '🐬', levels: ['dolphin', 'ocean dolphin', 'playful ocean dolphin'] },
+                { id: 'whale', icon: '🐳', levels: ['whale', 'blue whale', 'massive blue whale'] }, 
+                { id: 'octopus', icon: '🐙', levels: ['octopus', 'tentacled octopus', 'eight tentacled octopus'] },
+                { id: 'squid', icon: '🦑', levels: ['squid', 'sea squid', 'deep sea squid'] }, 
+                { id: 'crab', icon: '🦀', levels: ['crab', 'shore crab', 'pinching shore crab'] },
+                { id: 'lobster', icon: '🦞', levels: ['lobster', 'marine lobster', 'clawed marine lobster'] }, 
+                { id: 'turtle', icon: '🐢', levels: ['turtle', 'shelled turtle', 'slow shelled turtle'] },
+                { id: 'pufferfish', icon: '🐡', levels: ['pufferfish', 'ocean pufferfish', 'spiky ocean pufferfish'] }, 
+                { id: 'fish', icon: '🐠', levels: ['fish', 'coral fish', 'vibrant coral fish'] }
+            ],
+            // Theme 7: Vehicles & Transit
+            [
+                { id: 'policecar', icon: '🚓', levels: ['police car', 'police cruiser', 'blaring police cruiser'] }, 
+                { id: 'firetruck', icon: '🚒', levels: ['fire truck', 'fire engine', 'red fire engine'] },
+                { id: 'ambulance', icon: '🚑', levels: ['ambulance', 'medical ambulance', 'emergency medical ambulance'] }, 
+                { id: 'bus', icon: '🚌', levels: ['bus', 'school bus', 'yellow school bus'] },
+                { id: 'train', icon: '🚆', levels: ['train', 'speed train', 'high speed locomotive'] }, 
+                { id: 'airplane', icon: '✈️', levels: ['airplane', 'passenger airplane', 'commercial passenger jet'] },
+                { id: 'boat', icon: '⛴️', levels: ['boat', 'shipping boat', 'cargo shipping vessel'] }, 
+                { id: 'helicopter', icon: '🚁', levels: ['helicopter', 'transport helicopter', 'hovering transport helicopter'] },
+                { id: 'bicycle', icon: '🚲', levels: ['bicycle', 'powered bicycle', 'pedal powered bicycle'] }, 
+                { id: 'rocket', icon: '🚀', levels: ['rocket', 'space rocket', 'deep space rocket'] }
+            ],
+            // Theme 8: Civic & Essential Buildings
+            [
+                { id: 'hospital', icon: '🏥', levels: ['hospital', 'care hospital', 'medical care hospital'] }, 
+                { id: 'school', icon: '🏫', levels: ['school', 'public school', 'educational public school'] },
+                { id: 'bank', icon: '🏦', levels: ['bank', 'city bank', 'secure financial bank'] }, 
+                { id: 'police', icon: '🚓', levels: ['police station', 'police precinct', 'local police precinct'] },
+                { id: 'firestation', icon: '🚒', levels: ['fire station', 'municipal firehouse', 'local municipal firehouse'] }, 
+                { id: 'cityhall', icon: '🏛️', levels: ['city hall', 'historic city hall', 'historic local city hall'] },
+                { id: 'postoffice', icon: '📮', levels: ['post office', 'regional post office', 'local regional post office'] }, 
+                { id: 'courthouse', icon: '⚖️', levels: ['court house', 'justice court house', 'local justice courthouse'] },
+                { id: 'library', icon: '📚', levels: ['library', 'public library', 'quiet public library'] }, 
+                { id: 'pharmacy', icon: '💊', levels: ['pharmacy', 'local pharmacy', 'neighborhood health pharmacy'] }
+            ],
+            // Theme 9: Recreational Places
+            [
+                { id: 'park', icon: '🌲', levels: ['park', 'central park', 'grassy central park'] }, 
+                { id: 'stadium', icon: '🏟️', levels: ['stadium', 'sports stadium', 'crowded sports stadium'] },
+                { id: 'mall', icon: '🛍️', levels: ['mall', 'shopping mall', 'indoor shopping mall'] }, 
+                { id: 'amusement', icon: '🎢', levels: ['amusement park', 'thrilling amusement park', 'thrilling rides amusement park'] },
+                { id: 'pool', icon: '🏊', levels: ['pool', 'public pool', 'chlorinated public pool'] }, 
+                { id: 'theater', icon: '🎬', levels: ['theater', 'movie theater', 'popcorn movie theater'] },
+                { id: 'gym', icon: '🏋️', levels: ['gym', 'lifting gym', 'heavy lifting gym'] }, 
+                { id: 'bowling', icon: '🎳', levels: ['bowling alley', 'slippery bowling alley', 'slippery wooden bowling alley'] },
+                { id: 'arcade', icon: '🕹️', levels: ['arcade', 'retro arcade', 'neon retro arcade'] }, 
+                { id: 'circus', icon: '🎪', levels: ['circus', 'top circus', 'traveling big top circus'] }
+            ],
+            // Theme 10: Geographical & Outdoor Features
+            [
+                { id: 'volcano', icon: '🌋', levels: ['volcano', 'hot volcano', 'erupting hot volcano'] }, 
+                { id: 'mountain', icon: '🏔️', levels: ['mountain', 'capped mountain', 'snow capped mountain'] },
+                { id: 'desert', icon: '🏜️', levels: ['desert', 'sandy desert', 'dry sandy desert'] }, 
+                { id: 'island', icon: '🏝️', levels: ['island', 'tropical island', 'isolated tropical island'] },
+                { id: 'beach', icon: '🏖️', levels: ['beach', 'ocean beach', 'sunny ocean beach'] }, 
+                { id: 'campsite', icon: '🏕️', levels: ['camp site', 'wilderness camp site', 'outdoor wilderness camp site'] },
+                { id: 'sunrise', icon: '🌅', levels: ['sunrise', 'morning sunrise', 'warm morning sunrise'] }, 
+                { id: 'nightsky', icon: '🌌', levels: ['night sky', 'starry night sky', 'dark starry night sky'] },
+                { id: 'storm', icon: '⛈️', levels: ['storm', 'thunder storm', 'crashing thunder storm'] }, 
+                { id: 'rainbow', icon: '🌈', levels: ['rainbow', 'weather rainbow', 'colorful weather rainbow'] }
+            ]
+        ];
+
+        const CARDS_PER_ROUND = 10;
+        const TOTAL_ROUNDS = 10; // 10 rounds * 10 cards = 100 cards
+        const TEACH_TIME_MS = 6000;
+
+        let appState = {
+            numPlayers: 1,
+            difficulty: 1, // Default Level 1
+            players: [],
+            currentRound: 0,
+            currentCardIndex: 0,
+            deck: [],
+            roundCards: [],
+            quizQuestions: [],
+            quizTimeout: null,
+            quizRoundTimeout: null,
+            audioCtx: null,
+            availableVoices: [],
+            currentVoice: null
+        };
+
+        // DOM Element
+        const app = document.getElementById('app');
+
+        function getLabel(card) {
+            // Arrays are 0-indexed, so level 1 is index 0
+            return card.levels[appState.difficulty - 1];
+        }
+
+        function initAudio() {
+            if (!appState.audioCtx) {
+                appState.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (appState.audioCtx.state === 'suspended') {
+                appState.audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, vol=0.1) {
+            if (!appState.audioCtx) return;
+            const osc = appState.audioCtx.createOscillator();
+            const gain = appState.audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, appState.audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(vol, appState.audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, appState.audioCtx.currentTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(appState.audioCtx.destination);
+            osc.start();
+            osc.stop(appState.audioCtx.currentTime + duration);
+        }
+
+        function playWinSound() {
+            initAudio();
+            setTimeout(() => playTone(523.25, 'sine', 0.2), 0);   // C5
+            setTimeout(() => playTone(659.25, 'sine', 0.2), 100); // E5
+            setTimeout(() => playTone(783.99, 'sine', 0.2), 200); // G5
+            setTimeout(() => playTone(1046.50, 'sine', 0.4), 300); // C6
+        }
+
+        function playWrongSound() {
+            initAudio();
+            playTone(150, 'sawtooth', 0.3, 0.2);
+            setTimeout(() => playTone(100, 'sawtooth', 0.4, 0.2), 150);
+        }
+
+        function playTickSound() {
+            initAudio();
+            playTone(800, 'triangle', 0.1, 0.05);
+        }
+
+        const TARGET_VOICES = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Andrew"];
+
+        function loadVoices() {
+            let voices = window.speechSynthesis.getVoices();
+            if(voices.length > 0) {
+                let foundVoices = [];
+                // Look for specifically requested voices
+                TARGET_VOICES.forEach(name => {
+                    let match = voices.find(vo => vo.name.includes(name) && vo.lang.startsWith('en'));
+                    if(match) foundVoices.push(match);
+                });
+                
+                // Set the pool of available voices
+                if(foundVoices.length > 0) {
+                    appState.availableVoices = foundVoices;
+                } else {
+                    appState.availableVoices = voices.filter(vo => vo.lang.startsWith('en'));
+                    if(appState.availableVoices.length === 0) appState.availableVoices = [voices[0]];
+                }
+                
+                // Initialize current voice
+                appState.currentVoice = appState.availableVoices[0];
+            }
+        }
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+
+        function speak(text) {
+            window.speechSynthesis.cancel(); // Stop current speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (appState.currentVoice) utterance.voice = appState.currentVoice;
+            utterance.rate = 0.9; // Slightly slower for ESL
+            utterance.pitch = 1.1; // Friendly pitch
+            window.speechSynthesis.speak(utterance);
+        }
+
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createParticles(x, y, color) {
+            const colors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', color || '#ffffff'];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 0.5) * 20 - 5, // Upward bias
+                    size: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 1,
+                    decay: Math.random() * 0.02 + 0.015
+                });
+            }
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.5; // Gravity
+                p.life -= p.decay;
+                
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+            requestAnimationFrame(animateConfetti);
+        }
+        animateConfetti();
+
+        function triggerConfetti(e) {
+            let x = window.innerWidth / 2;
+            let y = window.innerHeight / 2;
+            if(e && e.clientX) {
+                x = e.clientX;
+                y = e.clientY;
+            } else if (e && e.target) {
+                const rect = e.target.getBoundingClientRect();
+                x = rect.left + rect.width / 2;
+                y = rect.top + rect.height / 2;
+            }
+            createParticles(x, y);
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function renderMenu() {
+            app.innerHTML = `
+                <div class="glass-panel p-4 md:p-8 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
+                    <div class="text-5xl md:text-7xl mb-2 drop-shadow-xl mt-2">🌟</div>
+                    <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-400 leading-tight">
+                        Emoji Flashcard<br/>Champions
+                    </h1>
+                    
+                    <div class="bg-black/20 p-4 md:p-6 rounded-2xl mb-6">
+                        <h2 class="text-xl md:text-2xl mb-4 font-bold text-white">Select Difficulty:</h2>
+                        <div class="flex flex-col md:flex-row gap-3 justify-center">
+                            <button id="btn-diff-1" onclick="setDifficulty(1, this)" class="diff-btn flex-1 bg-yellow-400 text-slate-900 border-2 border-yellow-500 font-bold py-2 md:py-3 px-3 rounded-xl transition shadow-md">Level 1 (1 word)</button>
+                            <button id="btn-diff-2" onclick="setDifficulty(2, this)" class="diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 md:py-3 px-3 rounded-xl transition">Level 2 (2 words)</button>
+                            <button id="btn-diff-3" onclick="setDifficulty(3, this)" class="diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 md:py-3 px-3 rounded-xl transition">Level 3 (3 words)</button>
+                        </div>
+                    </div>
+
+                    <h2 class="text-xl md:text-2xl mb-4 font-bold text-white drop-shadow-md">How many players?</h2>
+                    <div class="flex flex-col md:flex-row gap-3 justify-center mb-2">
+                        <button onclick="selectPlayers(1)" class="btn-game flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 md:py-4 px-4 rounded-2xl text-xl md:text-2xl shadow-lg border-b-4 border-blue-700">1 Player</button>
+                        <button onclick="selectPlayers(2)" class="btn-game flex-1 bg-green-500 hover:bg-green-400 text-white font-bold py-3 md:py-4 px-4 rounded-2xl text-xl md:text-2xl shadow-lg border-b-4 border-green-700">2 Players</button>
+                        <button onclick="selectPlayers(3)" class="btn-game flex-1 bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 md:py-4 px-4 rounded-2xl text-xl md:text-2xl shadow-lg border-b-4 border-pink-700">3 Players</button>
+                    </div>
+                </div>
+            `;
+            
+            // Set initial difficulty visual state
+            appState.difficulty = 1;
+        }
+
+        function setDifficulty(level, btnElement) {
+            playTickSound();
+            appState.difficulty = level;
+            
+            // Reset styles for all diff buttons
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.className = "diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-3 px-4 rounded-xl transition";
+            });
+
+            // Apply active styles
+            btnElement.className = "diff-btn flex-1 bg-yellow-400 text-slate-900 border-2 border-yellow-500 font-bold py-3 px-4 rounded-xl transition shadow-md";
+        }
+
+        function selectPlayers(num) {
+            initAudio(); // Required user interaction to start Audio context
+            playTickSound();
+            appState.numPlayers = num;
+            renderRoster();
+        }
+
+        function renderRoster() {
+            let inputs = '';
+            const colors = ['text-blue-300', 'text-green-300', 'text-pink-300'];
+            for(let i=0; i<appState.numPlayers; i++) {
+                inputs += `
+                    <div class="mb-3">
+                        <label class="block text-lg md:text-xl font-bold mb-1 md:mb-2 ${colors[i]}">Player ${i+1} Name:</label>
+                        <input type="text" id="p${i}" placeholder="Enter Name" class="w-full text-xl md:text-2xl p-3 md:p-4 rounded-xl text-slate-800 font-bold border-4 border-transparent focus:border-yellow-400 outline-none transition-all" />
+                    </div>
+                `;
+            }
+
+            app.innerHTML = `
+                <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-lg w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-yellow-300">Who is playing?</h2>
+                    ${inputs}
+                    <button onclick="startGame()" class="mt-4 md:mt-6 btn-game w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold py-3 md:py-4 px-6 md:px-8 rounded-2xl text-2xl md:text-3xl shadow-lg border-b-4 border-yellow-600 animate-glow">
+                        START GAME! 🚀
+                    </button>
+                    <button onclick="renderMenu()" class="mt-3 text-slate-300 hover:text-white underline font-semibold text-lg">Back</button>
+                </div>
+            `;
+        }
+
+        function startGame() {
+            playWinSound();
+            appState.players = [];
+            const colors = ['#3b82f6', '#10b981', '#ec4899']; // Blue, Green, Pink
+            
+            for(let i=0; i<appState.numPlayers; i++) {
+                let nameInput = document.getElementById(`p${i}`).value.trim();
+                let name = nameInput || `Player ${i+1}`;
+                appState.players.push({ name: name, score: 0, color: colors[i] });
+            }
+
+            // Shuffle the order of the themed decks to randomize the rounds
+            appState.deck = shuffle([...THEMED_DECKS]);
+            appState.currentRound = 0;
+            
+            startRound();
+        }
+
+        function startRound() {
+            if (appState.currentRound >= TOTAL_ROUNDS) {
+                renderChampion();
+                return;
+            }
+
+            // Rotate the speaker voice for this round
+            if (appState.availableVoices.length > 0) {
+                appState.currentVoice = appState.availableVoices[appState.currentRound % appState.availableVoices.length];
+            }
+
+            // Extract the 10 cards for this specific themed round
+            appState.roundCards = shuffle([...appState.deck[appState.currentRound]]);
+            
+            appState.currentCardIndex = 0;
+            renderRoundIntro();
+        }
+
+        function renderRoundIntro() {
+            let roundNum = appState.currentRound + 1;
+            speak(`Round ${roundNum}! Let's learn 10 new words!`);
+            
+            app.innerHTML = `
+                <div class="glass-panel p-12 rounded-3xl text-center animate-pop-in">
+                    <h2 class="text-6xl font-bold text-yellow-300 mb-4 drop-shadow-lg">Round ${roundNum}</h2>
+                    <p class="text-3xl font-bold text-white mb-8">Learn ${CARDS_PER_ROUND} New Words!</p>
+                    <div class="text-[100px] animate-bounce">🧠</div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                showTeachCard();
+            }, 3000);
+        }
+
+        function showTeachCard() {
+            if (appState.currentCardIndex >= CARDS_PER_ROUND) {
+                // Done teaching, start quiz
+                prepQuizPhase();
+                return;
+            }
+
+            const card = appState.roundCards[appState.currentCardIndex];
+            const currentLabel = getLabel(card);
+            
+            app.innerHTML = `
+                <div class="glass-panel w-full max-w-4xl h-[80vh] flex flex-col items-center justify-center p-8 rounded-3xl animate-pop-in relative overflow-hidden">
+                    <div class="flex-1 flex items-center justify-center">
+                        <div class="text-[120px] md:text-[180px] lg:text-[220px] leading-none emoji-shadow">${card.icon}</div>
+                    </div>
+                    <div class="flex-none mb-10 text-4xl md:text-6xl font-bold text-white tracking-wide bg-black/20 px-8 py-4 rounded-3xl shadow-inner text-center lowercase max-w-full truncate">
+                        ${currentLabel}
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="absolute bottom-0 left-0 h-4 bg-yellow-400 animate-progress" style="animation-duration: ${TEACH_TIME_MS}ms;"></div>
+                    
+                    <div class="absolute top-4 right-6 text-2xl font-bold text-white/50">
+                        ${appState.currentCardIndex + 1} / ${CARDS_PER_ROUND}
+                    </div>
+                </div>
+            `;
+
+            speak(currentLabel);
+
+            appState.quizTimeout = setTimeout(() => {
+                appState.currentCardIndex++;
+                showTeachCard();
+            }, TEACH_TIME_MS);
+        }
+
+        function prepQuizPhase() {
+            clearTimeout(appState.quizTimeout);
+            
+            let names = appState.players.map(p => p.name).join(' and ');
+            let promptText = `Come to the board, ${names}!`;
+            speak(`Time to play! ${promptText}`);
+
+            app.innerHTML = `
+                <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
+                    <div class="text-6xl md:text-8xl mb-4">🏃‍♂️🏃‍♀️</div>
+                    <h2 class="text-4xl md:text-5xl font-bold text-yellow-300 mb-6 drop-shadow-lg leading-tight">To the Board!</h2>
+                    <p class="text-2xl md:text-3xl text-white font-bold mb-8 md:mb-10 leading-snug">${promptText}</p>
+                    <button onclick="startQuiz()" class="btn-game bg-green-500 hover:bg-green-400 text-white font-bold py-4 md:py-6 px-10 md:px-12 rounded-full text-3xl md:text-4xl shadow-xl border-b-8 border-green-700 animate-pulse">
+                        READY!
+                    </button>
+                </div>
+            `;
+        }
+
+        function startQuiz() {
+            playTickSound();
+            // Generate 10 questions for this round based on roundCards
+            appState.quizQuestions = [];
+            let shuffledRound = shuffle([...appState.roundCards]);
+            
+            shuffledRound.forEach(target => {
+                // Pick 2 wrong answers from the CURRENT round to reinforce learning
+                let others = appState.roundCards.filter(c => c.id !== target.id);
+                others = shuffle(others);
+                
+                // Do not shuffle options here yet, we will shuffle them individually per player later!
+                let options = [target, others[0], others[1]];
+                
+                appState.quizQuestions.push({
+                    target: target,
+                    options: options
+                });
+            });
+
+            appState.currentCardIndex = 0;
+            renderQuizScreen();
+        }
+
+        function handleTimeout() {
+            document.querySelectorAll('button').forEach(b => b.disabled = true);
+            playWrongSound();
+            speak("Time is up!");
+            
+            app.classList.add('animate-shake');
+            
+            setTimeout(() => {
+                app.classList.remove('animate-shake');
+                appState.currentCardIndex++;
+                renderQuizScreen();
+            }, 3000);
+        }
+
+        function renderQuizScreen() {
+            if (appState.currentCardIndex >= CARDS_PER_ROUND) {
+                endRound();
+                return;
+            }
+
+            clearTimeout(appState.quizRoundTimeout);
+
+            const q = appState.quizQuestions[appState.currentCardIndex];
+            
+            // Build Player Zones
+            let zonesHtml = '';
+            let gridCols = appState.numPlayers === 1 ? 'grid-cols-1' : appState.numPlayers === 2 ? 'grid-cols-2' : 'grid-cols-3';
+            
+            appState.players.forEach((player, pIdx) => {
+                let btnsHtml = '';
+                
+                // Shuffle options specifically for this player so ABC order differs per person
+                let playerOptions = shuffle([...q.options]);
+                
+                playerOptions.forEach((opt, oIdx) => {
+                    btnsHtml += `
+                        <button onclick="handleAnswer(${pIdx}, '${opt.id}', '${q.target.id}', event, this)" 
+                                class="w-full flex-1 flex items-center justify-center text-center py-2 md:py-3 px-2 mb-2 bg-white text-slate-800 font-bold text-lg md:text-xl lg:text-2xl rounded-2xl shadow-md border-b-4 border-slate-300 hover:bg-slate-50 transition-transform active:scale-95 leading-tight lowercase h-full min-h-[50px]">
+                            ${getLabel(opt)}
+                        </button>
+                    `;
+                });
+
+                zonesHtml += `
+                    <div class="flex flex-col items-center p-2 lg:p-4 rounded-3xl h-full" style="background: rgba(0,0,0,0.2);">
+                        <div class="text-lg lg:text-xl font-bold mb-2 py-1 px-4 rounded-full shadow-inner whitespace-nowrap" style="background: ${player.color}; color: white;">
+                            ${player.name}: <span id="score-${pIdx}">${player.score}</span>
+                        </div>
+                        <div class="w-full flex-grow flex flex-col justify-between gap-1 h-full">
+                            ${btnsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            app.innerHTML = `
+                <div class="w-full h-full flex flex-col relative animate-pop-in overflow-hidden">
+                    <!-- 10 Second Timer Bar -->
+                    <div class="absolute top-0 left-0 w-full h-2 lg:h-3 bg-black/30 rounded-full overflow-hidden z-20">
+                        <div id="quiz-timer-bar" class="h-full bg-red-500 animate-progress origin-left" style="animation-duration: 10000ms;"></div>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="absolute top-4 right-4 text-lg lg:text-xl font-bold bg-black/30 px-4 py-1 rounded-full z-20 text-white">
+                        ${appState.currentCardIndex + 1} / 10
+                    </div>
+
+                    <!-- Top: Target Emoji -->
+                    <div class="flex-1 min-h-0 flex items-center justify-center p-2 mt-8 lg:mt-4">
+                        <div class="bg-white/10 rounded-full aspect-square w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 flex items-center justify-center shadow-2xl backdrop-blur-sm border-4 border-white/20">
+                            <span class="text-[70px] md:text-[90px] lg:text-[110px] leading-none emoji-shadow block animate-glow">${q.target.icon}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom: Player Zones -->
+                    <div class="flex-none grid ${gridCols} gap-2 lg:gap-4 w-full max-w-7xl mx-auto h-[55%] lg:h-[50%] pb-2">
+                        ${zonesHtml}
+                    </div>
+                </div>
+            `;
+            
+            // Start the 10 second countdown
+            appState.quizRoundTimeout = setTimeout(() => {
+                handleTimeout();
+            }, 10000);
+        }
+
+        function handleAnswer(pIdx, selectedId, targetId, event, btnElement) {
+            if(btnElement.disabled) return; // Prevent double clicks
+            
+            const isCorrect = selectedId === targetId;
+            const player = appState.players[pIdx];
+
+            if (isCorrect) {
+                // Pause Timer visually and clear timeout
+                const timerBar = document.getElementById('quiz-timer-bar');
+                if(timerBar) timerBar.style.animationPlayState = 'paused';
+                clearTimeout(appState.quizRoundTimeout);
+
+                // Disable all buttons immediately
+                document.querySelectorAll('button').forEach(b => b.disabled = true);
+                
+                // Praise and Sound
+                const praises = ["great job", "awesome", "excellent", "fantastic", "spot on"];
+                let praise = praises[Math.floor(Math.random() * praises.length)];
+                
+                let targetObj = appState.quizQuestions[appState.currentCardIndex].target;
+                speak(`${praise}, ${player.name}! it is the ${getLabel(targetObj)}.`);
+                
+                playWinSound();
+                triggerConfetti(event);
+                
+                // Visual feedback on button
+                btnElement.classList.remove('bg-white', 'text-slate-800', 'border-slate-300');
+                btnElement.classList.add('bg-green-400', 'text-white', 'border-green-600', 'animate-pulse');
+                
+                // Add Score
+                player.score += 10;
+                document.getElementById(`score-${pIdx}`).innerText = player.score;
+                
+                // Delay updated to 4000ms so it is shorter and more fast-paced
+                setTimeout(() => {
+                    appState.currentCardIndex++;
+                    renderQuizScreen();
+                }, 4000);
+
+            } else {
+                playWrongSound();
+                btnElement.classList.add('animate-shake', 'bg-red-300', 'text-red-900', 'border-red-500');
+                btnElement.classList.remove('bg-white');
+                btnElement.disabled = true; // Disable just this wrong choice
+                
+                setTimeout(() => {
+                    btnElement.classList.remove('animate-shake');
+                }, 400);
+            }
+        }
+
+        function endRound() {
+            playWinSound();
+            speak(`Round Complete! Great effort everyone!`);
+            
+            let standings = [...appState.players].sort((a,b) => b.score - a.score);
+            let leaderHtml = standings.map(p => `
+                <div class="flex justify-between items-center text-xl md:text-3xl font-bold bg-white/10 px-6 md:px-8 py-3 md:py-4 rounded-2xl mb-3">
+                    <span>${p.name}</span>
+                    <span class="text-yellow-300">${p.score} pts</span>
+                </div>
+            `).join('');
+
+            app.innerHTML = `
+                <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-2xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
+                    <div class="text-6xl md:text-8xl mb-4">🏆</div>
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Round ${appState.currentRound + 1} Complete!</h2>
+                    <div class="mb-8 w-full text-left">
+                        ${leaderHtml}
+                    </div>
+                    <button onclick="nextRound()" class="btn-game bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 md:py-5 px-8 md:px-10 rounded-2xl text-2xl md:text-3xl shadow-lg border-b-4 border-blue-700 w-full">
+                        NEXT ROUND ➡️
+                    </button>
+                </div>
+            `;
+            
+            triggerConfetti();
+        }
+
+        function nextRound() {
+            playTickSound();
+            appState.currentRound++;
+            startRound();
+        }
+
+        function renderChampion() {
+            let standings = [...appState.players].sort((a,b) => b.score - a.score);
+            let winner = standings[0];
+            
+            // Generate huge confetti
+            let confInterval = setInterval(() => {
+                createParticles(Math.random() * window.innerWidth, window.innerHeight);
+            }, 300);
+
+            setTimeout(() => clearInterval(confInterval), 5000);
+            
+            playWinSound();
+            setTimeout(() => playWinSound(), 500);
+            setTimeout(() => playWinSound(), 1000);
+            
+            speak(`Game Over! The Champion is ${winner.name} with ${winner.score} points! Congratulations!`);
+
+            let standingsHtml = standings.map((p, i) => `
+                <div class="flex justify-between items-center text-xl md:text-3xl font-bold ${i===0 ? 'bg-yellow-400/20 border-2 border-yellow-400' : 'bg-white/10'} px-6 md:px-8 py-3 md:py-4 rounded-2xl mb-3">
+                    <span>${i+1}. ${p.name}</span>
+                    <span>${p.score} pts</span>
+                </div>
+            `).join('');
+
+            app.innerHTML = `
+                <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto mt-4">
+                    <div class="text-[80px] md:text-[120px] mb-2 animate-bounce leading-none">👑</div>
+                    <h1 class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 mb-2">
+                        CHAMPION!
+                    </h1>
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-8">${winner.name}</h2>
+                    
+                    <div class="w-full mb-8 text-left">
+                        ${standingsHtml}
+                    </div>
+
+                    <button onclick="location.reload()" class="btn-game bg-pink-500 hover:bg-pink-400 text-white font-bold py-4 md:py-6 px-8 md:px-12 rounded-3xl text-2xl md:text-3xl shadow-xl border-b-8 border-pink-700">
+                        PLAY AGAIN 🔄
+                    </button>
+                </div>
+            `;
+        }
+
+        // Run setup
+        window.onload = () => {
+            renderMenu();
+            loadVoices();
+        };
+
+    </script>
+</body>
+</html>
