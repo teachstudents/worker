@@ -232,9 +232,11 @@
         const TEACH_TIME_MS = 6000;
 
         let appState = {
-            numPlayers: 1,
+            numPlayersPerRound: 1,
             difficulty: 1, // Default Level 1
-            players: [],
+            roster: [], // Stores all students in the class
+            rosterQueue: [], // Queue to keep track of who hasn't played
+            players: [], // Active players for the CURRENT round
             currentRound: 0,
             currentCardIndex: 0,
             deck: [],
@@ -334,6 +336,31 @@
             window.speechSynthesis.speak(utterance);
         }
 
+        function speakWithCallback(text, callback) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (appState.currentVoice) utterance.voice = appState.currentVoice;
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+
+            let callbackFired = false;
+            const fireCallback = () => {
+                if(!callbackFired) {
+                    callbackFired = true;
+                    if(callback) callback();
+                }
+            };
+
+            // Trigger callback when speaking completes
+            utterance.onend = fireCallback;
+            utterance.onerror = fireCallback;
+            window.speechSynthesis.speak(utterance);
+
+            // Safety fallback in case onend fails (common browser bug)
+            const estimatedTime = (text.split(' ').length * 300) + 1500;
+            setTimeout(fireCallback, estimatedTime);
+        }
+
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -407,26 +434,33 @@
 
         function renderMenu() {
             app.innerHTML = `
-                <div class="glass-panel p-4 md:p-8 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
-                    <div class="text-5xl md:text-7xl mb-2 drop-shadow-xl mt-2">🌟</div>
-                    <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-400 leading-tight">
-                        Emoji Flashcard<br/>Champions
+                <div class="glass-panel p-4 md:p-6 lg:p-8 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full flex flex-col justify-center overflow-y-auto">
+                    <div class="text-4xl md:text-6xl mb-2 drop-shadow-xl">🌟</div>
+                    <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-400 leading-tight">
+                        Emoji Flashcard Champions
                     </h1>
                     
-                    <div class="bg-black/20 p-4 md:p-6 rounded-2xl mb-6">
-                        <h2 class="text-xl md:text-2xl mb-4 font-bold text-white">Select Difficulty:</h2>
-                        <div class="flex flex-col md:flex-row gap-3 justify-center">
-                            <button id="btn-diff-1" onclick="setDifficulty(1, this)" class="diff-btn flex-1 bg-yellow-400 text-slate-900 border-2 border-yellow-500 font-bold py-2 md:py-3 px-3 rounded-xl transition shadow-md">Level 1 (1 word)</button>
-                            <button id="btn-diff-2" onclick="setDifficulty(2, this)" class="diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 md:py-3 px-3 rounded-xl transition">Level 2 (2 words)</button>
-                            <button id="btn-diff-3" onclick="setDifficulty(3, this)" class="diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 md:py-3 px-3 rounded-xl transition">Level 3 (3 words)</button>
+                    <div class="bg-black/20 p-3 md:p-5 rounded-2xl mb-4 shrink-0">
+                        <h2 class="text-lg md:text-xl mb-3 font-bold text-white">1. Select Difficulty:</h2>
+                        <div class="flex flex-col md:flex-row gap-2 justify-center">
+                            <button id="btn-diff-1" onclick="setDifficulty(1, this)" class="diff-btn flex-1 bg-yellow-400 text-slate-900 border-2 border-yellow-500 font-bold py-2 px-3 rounded-xl transition shadow-md text-sm md:text-base">Level 1 (1 word)</button>
+                            <button id="btn-diff-2" onclick="setDifficulty(2, this)" class="diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 px-3 rounded-xl transition text-sm md:text-base">Level 2 (2 words)</button>
+                            <button id="btn-diff-3" onclick="setDifficulty(3, this)" class="diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 px-3 rounded-xl transition text-sm md:text-base">Level 3 (3 words)</button>
                         </div>
                     </div>
 
-                    <h2 class="text-xl md:text-2xl mb-4 font-bold text-white drop-shadow-md">How many players?</h2>
-                    <div class="flex flex-col md:flex-row gap-3 justify-center mb-2">
-                        <button onclick="selectPlayers(1)" class="btn-game flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 md:py-4 px-4 rounded-2xl text-xl md:text-2xl shadow-lg border-b-4 border-blue-700">1 Player</button>
-                        <button onclick="selectPlayers(2)" class="btn-game flex-1 bg-green-500 hover:bg-green-400 text-white font-bold py-3 md:py-4 px-4 rounded-2xl text-xl md:text-2xl shadow-lg border-b-4 border-green-700">2 Players</button>
-                        <button onclick="selectPlayers(3)" class="btn-game flex-1 bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 md:py-4 px-4 rounded-2xl text-xl md:text-2xl shadow-lg border-b-4 border-pink-700">3 Players</button>
+                    <div class="bg-black/20 p-3 md:p-5 rounded-2xl mb-4 shrink-0">
+                        <h2 class="text-lg md:text-xl mb-2 font-bold text-white">2. Enter Class Roster:</h2>
+                        <textarea id="roster-input" rows="3" placeholder="Enter student names, one per line..." class="w-full text-base md:text-lg p-2 rounded-xl text-slate-800 font-semibold border-4 border-transparent focus:border-yellow-400 outline-none transition-all resize-none shadow-inner"></textarea>
+                    </div>
+
+                    <div class="shrink-0">
+                        <h2 class="text-lg md:text-xl mb-3 font-bold text-white drop-shadow-md">3. Players per round:</h2>
+                        <div class="flex flex-row gap-3 justify-center mb-2">
+                            <button onclick="startGame(1)" class="btn-game flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 md:py-4 px-2 rounded-2xl text-lg md:text-xl shadow-lg border-b-4 border-blue-700">1 Player</button>
+                            <button onclick="startGame(2)" class="btn-game flex-1 bg-green-500 hover:bg-green-400 text-white font-bold py-3 md:py-4 px-2 rounded-2xl text-lg md:text-xl shadow-lg border-b-4 border-green-700">2 Players</button>
+                            <button onclick="startGame(3)" class="btn-game flex-1 bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 md:py-4 px-2 rounded-2xl text-lg md:text-xl shadow-lg border-b-4 border-pink-700">3 Players</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -441,54 +475,37 @@
             
             // Reset styles for all diff buttons
             document.querySelectorAll('.diff-btn').forEach(btn => {
-                btn.className = "diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-3 px-4 rounded-xl transition";
+                btn.className = "diff-btn flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 font-bold py-2 px-3 rounded-xl transition text-sm md:text-base";
             });
 
             // Apply active styles
-            btnElement.className = "diff-btn flex-1 bg-yellow-400 text-slate-900 border-2 border-yellow-500 font-bold py-3 px-4 rounded-xl transition shadow-md";
+            btnElement.className = "diff-btn flex-1 bg-yellow-400 text-slate-900 border-2 border-yellow-500 font-bold py-2 px-3 rounded-xl transition shadow-md text-sm md:text-base";
         }
 
-        function selectPlayers(num) {
+        function startGame(playersPerRound) {
             initAudio(); // Required user interaction to start Audio context
-            playTickSound();
-            appState.numPlayers = num;
-            renderRoster();
-        }
-
-        function renderRoster() {
-            let inputs = '';
-            const colors = ['text-blue-300', 'text-green-300', 'text-pink-300'];
-            for(let i=0; i<appState.numPlayers; i++) {
-                inputs += `
-                    <div class="mb-3">
-                        <label class="block text-lg md:text-xl font-bold mb-1 md:mb-2 ${colors[i]}">Player ${i+1} Name:</label>
-                        <input type="text" id="p${i}" placeholder="Enter Name" class="w-full text-xl md:text-2xl p-3 md:p-4 rounded-xl text-slate-800 font-bold border-4 border-transparent focus:border-yellow-400 outline-none transition-all" />
-                    </div>
-                `;
-            }
-
-            app.innerHTML = `
-                <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-lg w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-yellow-300">Who is playing?</h2>
-                    ${inputs}
-                    <button onclick="startGame()" class="mt-4 md:mt-6 btn-game w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold py-3 md:py-4 px-6 md:px-8 rounded-2xl text-2xl md:text-3xl shadow-lg border-b-4 border-yellow-600 animate-glow">
-                        START GAME! 🚀
-                    </button>
-                    <button onclick="renderMenu()" class="mt-3 text-slate-300 hover:text-white underline font-semibold text-lg">Back</button>
-                </div>
-            `;
-        }
-
-        function startGame() {
             playWinSound();
-            appState.players = [];
-            const colors = ['#3b82f6', '#10b981', '#ec4899']; // Blue, Green, Pink
             
-            for(let i=0; i<appState.numPlayers; i++) {
-                let nameInput = document.getElementById(`p${i}`).value.trim();
-                let name = nameInput || `Player ${i+1}`;
-                appState.players.push({ name: name, score: 0, color: colors[i] });
+            appState.numPlayersPerRound = playersPerRound;
+            appState.roster = [];
+            
+            let rosterInput = document.getElementById('roster-input').value.trim();
+            let names = rosterInput.split('\n').map(n => n.trim()).filter(n => n);
+            
+            if (names.length === 0) {
+                // Generate default names if empty
+                for(let i=0; i<Math.max(playersPerRound, 5); i++) {
+                    names.push(`student ${i+1}`);
+                }
             }
+
+            // Create global roster
+            names.forEach((name, i) => {
+                appState.roster.push({ id: i, name: name, score: 0 });
+            });
+            
+            // Initial queue contains everyone
+            appState.rosterQueue = [...appState.roster];
 
             // Shuffle the order of the themed decks to randomize the rounds
             appState.deck = shuffle([...THEMED_DECKS]);
@@ -507,6 +524,36 @@
             if (appState.availableVoices.length > 0) {
                 appState.currentVoice = appState.availableVoices[appState.currentRound % appState.availableVoices.length];
             }
+
+            appState.players = [];
+            let N = appState.numPlayersPerRound;
+            N = Math.min(N, appState.roster.length); // Cap at max roster size
+
+            if (appState.rosterQueue.length >= N) {
+                // Enough unplayed students in the queue
+                appState.players = appState.rosterQueue.splice(0, N);
+            } else {
+                // Odd number left: Take remainder, fill rest with top scorers
+                let remainder = appState.rosterQueue.splice(0, appState.rosterQueue.length);
+                appState.players.push(...remainder);
+                
+                let numNeeded = N - appState.players.length;
+                let eligibleFillers = [...appState.roster].filter(s => !appState.players.includes(s));
+                
+                // Sort by score descending to give top scorers the extra spot
+                eligibleFillers.sort((a, b) => b.score - a.score);
+                appState.players.push(...eligibleFillers.slice(0, numNeeded));
+                
+                // Refill the queue for next round, excluding current players
+                appState.rosterQueue = [...appState.roster].filter(s => !appState.players.includes(s));
+                appState.rosterQueue = shuffle(appState.rosterQueue);
+            }
+
+            // Assign active colors
+            const activeColors = ['#3b82f6', '#10b981', '#ec4899'];
+            appState.players.forEach((p, idx) => {
+                p.color = activeColors[idx % activeColors.length];
+            });
 
             // Extract the 10 cards for this specific themed round
             appState.roundCards = shuffle([...appState.deck[appState.currentRound]]);
@@ -598,7 +645,7 @@
                 let others = appState.roundCards.filter(c => c.id !== target.id);
                 others = shuffle(others);
                 
-                // Do not shuffle options here yet, we will shuffle them individually per player later!
+                // Options will be shuffled individually per player
                 let options = [target, others[0], others[1]];
                 
                 appState.quizQuestions.push({
@@ -614,15 +661,17 @@
         function handleTimeout() {
             document.querySelectorAll('button').forEach(b => b.disabled = true);
             playWrongSound();
-            speak("Time is up!");
             
             app.classList.add('animate-shake');
-            
-            setTimeout(() => {
-                app.classList.remove('animate-shake');
-                appState.currentCardIndex++;
-                renderQuizScreen();
-            }, 3000);
+            setTimeout(() => app.classList.remove('animate-shake'), 1000);
+
+            speakWithCallback("time is up!", () => {
+                // Advance after speech is done
+                setTimeout(() => {
+                    appState.currentCardIndex++;
+                    renderQuizScreen();
+                }, 1000);
+            });
         }
 
         function renderQuizScreen() {
@@ -637,7 +686,7 @@
             
             // Build Player Zones
             let zonesHtml = '';
-            let gridCols = appState.numPlayers === 1 ? 'grid-cols-1' : appState.numPlayers === 2 ? 'grid-cols-2' : 'grid-cols-3';
+            let gridCols = appState.players.length === 1 ? 'grid-cols-1' : appState.players.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
             
             appState.players.forEach((player, pIdx) => {
                 let btnsHtml = '';
@@ -656,7 +705,7 @@
 
                 zonesHtml += `
                     <div class="flex flex-col items-center p-2 lg:p-4 rounded-3xl h-full" style="background: rgba(0,0,0,0.2);">
-                        <div class="text-lg lg:text-xl font-bold mb-2 py-1 px-4 rounded-full shadow-inner whitespace-nowrap" style="background: ${player.color}; color: white;">
+                        <div class="text-sm md:text-base lg:text-lg font-bold mb-2 py-1 px-3 md:px-4 rounded-full shadow-inner whitespace-nowrap overflow-hidden text-ellipsis max-w-full" style="background: ${player.color}; color: white;">
                             ${player.name}: <span id="score-${pIdx}">${player.score}</span>
                         </div>
                         <div class="w-full flex-grow flex flex-col justify-between gap-1 h-full">
@@ -668,13 +717,13 @@
 
             app.innerHTML = `
                 <div class="w-full h-full flex flex-col relative animate-pop-in overflow-hidden">
-                    <!-- 10 Second Timer Bar -->
+                    <!-- 15 Second Timer Bar -->
                     <div class="absolute top-0 left-0 w-full h-2 lg:h-3 bg-black/30 rounded-full overflow-hidden z-20">
-                        <div id="quiz-timer-bar" class="h-full bg-red-500 animate-progress origin-left" style="animation-duration: 10000ms;"></div>
+                        <div id="quiz-timer-bar" class="h-full bg-red-500 animate-progress origin-left" style="animation-duration: 15000ms;"></div>
                     </div>
 
                     <!-- Progress -->
-                    <div class="absolute top-4 right-4 text-lg lg:text-xl font-bold bg-black/30 px-4 py-1 rounded-full z-20 text-white">
+                    <div class="absolute top-4 right-4 text-base md:text-lg lg:text-xl font-bold bg-black/30 px-3 md:px-4 py-1 rounded-full z-20 text-white">
                         ${appState.currentCardIndex + 1} / 10
                     </div>
 
@@ -686,16 +735,16 @@
                     </div>
                     
                     <!-- Bottom: Player Zones -->
-                    <div class="flex-none grid ${gridCols} gap-2 lg:gap-4 w-full max-w-7xl mx-auto h-[55%] lg:h-[50%] pb-2">
+                    <div class="flex-none grid ${gridCols} gap-2 lg:gap-4 w-full max-w-7xl mx-auto h-[55%] lg:h-[50%] pb-2 px-2">
                         ${zonesHtml}
                     </div>
                 </div>
             `;
             
-            // Start the 10 second countdown
+            // Start the 15 second countdown
             appState.quizRoundTimeout = setTimeout(() => {
                 handleTimeout();
-            }, 10000);
+            }, 15000);
         }
 
         function handleAnswer(pIdx, selectedId, targetId, event, btnElement) {
@@ -713,16 +762,6 @@
                 // Disable all buttons immediately
                 document.querySelectorAll('button').forEach(b => b.disabled = true);
                 
-                // Praise and Sound
-                const praises = ["great job", "awesome", "excellent", "fantastic", "spot on"];
-                let praise = praises[Math.floor(Math.random() * praises.length)];
-                
-                let targetObj = appState.quizQuestions[appState.currentCardIndex].target;
-                speak(`${praise}, ${player.name}! it is the ${getLabel(targetObj)}.`);
-                
-                playWinSound();
-                triggerConfetti(event);
-                
                 // Visual feedback on button
                 btnElement.classList.remove('bg-white', 'text-slate-800', 'border-slate-300');
                 btnElement.classList.add('bg-green-400', 'text-white', 'border-green-600', 'animate-pulse');
@@ -730,12 +769,23 @@
                 // Add Score
                 player.score += 10;
                 document.getElementById(`score-${pIdx}`).innerText = player.score;
+
+                // Praise and Sound
+                const praises = ["great job", "awesome", "excellent", "fantastic", "spot on"];
+                let praise = praises[Math.floor(Math.random() * praises.length)];
                 
-                // Delay updated to 4000ms so it is shorter and more fast-paced
-                setTimeout(() => {
-                    appState.currentCardIndex++;
-                    renderQuizScreen();
-                }, 4000);
+                let targetObj = appState.quizQuestions[appState.currentCardIndex].target;
+                
+                playWinSound();
+                triggerConfetti(event);
+
+                // Sync UI transition AFTER speech + 3 seconds delay
+                speakWithCallback(`${praise}, ${player.name}! it is the ${getLabel(targetObj)}.`, () => {
+                    setTimeout(() => {
+                        appState.currentCardIndex++;
+                        renderQuizScreen();
+                    }, 3000); // Wait 3 seconds AFTER speaking is finished
+                });
 
             } else {
                 playWrongSound();
@@ -751,24 +801,26 @@
 
         function endRound() {
             playWinSound();
-            speak(`Round Complete! Great effort everyone!`);
+            speak(`round complete! great effort everyone!`);
             
-            let standings = [...appState.players].sort((a,b) => b.score - a.score);
-            let leaderHtml = standings.map(p => `
-                <div class="flex justify-between items-center text-xl md:text-3xl font-bold bg-white/10 px-6 md:px-8 py-3 md:py-4 rounded-2xl mb-3">
-                    <span>${p.name}</span>
-                    <span class="text-yellow-300">${p.score} pts</span>
+            // Show the standings of ALL students in the roster
+            let standings = [...appState.roster].sort((a,b) => b.score - a.score);
+            let leaderHtml = standings.slice(0, 5).map((p, i) => `
+                <div class="flex justify-between items-center text-lg md:text-2xl font-bold bg-white/10 px-4 md:px-8 py-2 md:py-3 rounded-2xl mb-2">
+                    <span class="truncate pr-4">${i+1}. ${p.name}</span>
+                    <span class="text-yellow-300 shrink-0">${p.score} pts</span>
                 </div>
             `).join('');
 
             app.innerHTML = `
                 <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-2xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto">
-                    <div class="text-6xl md:text-8xl mb-4">🏆</div>
-                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Round ${appState.currentRound + 1} Complete!</h2>
-                    <div class="mb-8 w-full text-left">
+                    <div class="text-5xl md:text-7xl mb-4">🏆</div>
+                    <h2 class="text-2xl md:text-4xl font-bold text-white mb-6">Round ${appState.currentRound + 1} Complete!</h2>
+                    <h3 class="text-xl text-yellow-300 font-bold mb-4">Class Leaderboard (Top 5)</h3>
+                    <div class="mb-6 w-full text-left">
                         ${leaderHtml}
                     </div>
-                    <button onclick="nextRound()" class="btn-game bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 md:py-5 px-8 md:px-10 rounded-2xl text-2xl md:text-3xl shadow-lg border-b-4 border-blue-700 w-full">
+                    <button onclick="nextRound()" class="btn-game bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 md:py-5 px-8 md:px-10 rounded-2xl text-xl md:text-3xl shadow-lg border-b-4 border-blue-700 w-full">
                         NEXT ROUND ➡️
                     </button>
                 </div>
@@ -784,7 +836,7 @@
         }
 
         function renderChampion() {
-            let standings = [...appState.players].sort((a,b) => b.score - a.score);
+            let standings = [...appState.roster].sort((a,b) => b.score - a.score);
             let winner = standings[0];
             
             // Generate huge confetti
@@ -798,28 +850,28 @@
             setTimeout(() => playWinSound(), 500);
             setTimeout(() => playWinSound(), 1000);
             
-            speak(`Game Over! The Champion is ${winner.name} with ${winner.score} points! Congratulations!`);
+            speak(`game over! the champion is ${winner.name} with ${winner.score} points! congratulations!`);
 
             let standingsHtml = standings.map((p, i) => `
-                <div class="flex justify-between items-center text-xl md:text-3xl font-bold ${i===0 ? 'bg-yellow-400/20 border-2 border-yellow-400' : 'bg-white/10'} px-6 md:px-8 py-3 md:py-4 rounded-2xl mb-3">
-                    <span>${i+1}. ${p.name}</span>
-                    <span>${p.score} pts</span>
+                <div class="flex justify-between items-center text-lg md:text-2xl font-bold ${i===0 ? 'bg-yellow-400/20 border-2 border-yellow-400' : 'bg-white/10'} px-4 md:px-6 py-2 md:py-3 rounded-2xl mb-2">
+                    <span class="truncate pr-4">${i+1}. ${p.name}</span>
+                    <span class="shrink-0">${p.score} pts</span>
                 </div>
             `).join('');
 
             app.innerHTML = `
-                <div class="glass-panel p-6 md:p-12 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full overflow-y-auto mt-4">
-                    <div class="text-[80px] md:text-[120px] mb-2 animate-bounce leading-none">👑</div>
-                    <h1 class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 mb-2">
+                <div class="glass-panel p-6 md:p-8 rounded-3xl text-center max-w-3xl w-full mx-auto animate-pop-in max-h-full flex flex-col mt-4">
+                    <div class="text-[60px] md:text-[90px] mb-2 animate-bounce leading-none shrink-0">👑</div>
+                    <h1 class="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 mb-2 shrink-0">
                         CHAMPION!
                     </h1>
-                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-8">${winner.name}</h2>
+                    <h2 class="text-2xl md:text-4xl font-bold text-white mb-6 shrink-0">${winner.name}</h2>
                     
-                    <div class="w-full mb-8 text-left">
+                    <div class="w-full mb-6 text-left flex-1 overflow-y-auto pr-2">
                         ${standingsHtml}
                     </div>
 
-                    <button onclick="location.reload()" class="btn-game bg-pink-500 hover:bg-pink-400 text-white font-bold py-4 md:py-6 px-8 md:px-12 rounded-3xl text-2xl md:text-3xl shadow-xl border-b-8 border-pink-700">
+                    <button onclick="location.reload()" class="shrink-0 btn-game bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 md:py-5 px-8 md:px-12 rounded-3xl text-xl md:text-2xl shadow-xl border-b-8 border-pink-700">
                         PLAY AGAIN 🔄
                     </button>
                 </div>
