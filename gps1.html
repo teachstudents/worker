@@ -648,10 +648,25 @@
 
         // --- Grid Generation & Shuffle Logic ---
         function shuffleMap() {
-            // Randomly shuffle the 50 item pool
-            let shuffled = [...MASTER_LOCATION_POOL].sort(() => 0.5 - Math.random());
-            // Extract the first 24 to populate the grid
-            let selected = shuffled.slice(0, 24);
+            // Separate hazards and safe locations
+            const hazards = MASTER_LOCATION_POOL.filter(l => l.isHazard || l.isWater);
+            const safeLocations = MASTER_LOCATION_POOL.filter(l => !l.isHazard && !l.isWater);
+
+            // Shuffle both pools
+            const shuffledHazards = hazards.sort(() => 0.5 - Math.random());
+            const shuffledSafe = safeLocations.sort(() => 0.5 - Math.random());
+
+            // Pick 1 to 3 hazards randomly
+            const numHazards = Math.floor(Math.random() * 3) + 1; 
+
+            // Combine selected hazards and fill the rest of the 24 slots with safe locations
+            let selectedItems = [
+                ...shuffledHazards.slice(0, numHazards),
+                ...shuffledSafe.slice(0, 24 - numHazards)
+            ];
+
+            // Shuffle the final selected 24 items so hazards aren't always in the same spots
+            let selected = selectedItems.sort(() => 0.5 - Math.random());
             
             TOWN_DATA = [];
             let itemIdx = 0;
