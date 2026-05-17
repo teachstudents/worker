@@ -9,8 +9,8 @@
     <style>
         body {
             font-family: 'Fredoka', sans-serif;
-            /* Animated gradient background */
-            background: linear-gradient(-45deg, #1e3a8a, #9333ea, #ec4899, #3b82f6);
+            /* Animated gradient background with orange, black, and blue */
+            background: linear-gradient(-45deg, #000000, #ea580c, #1e3a8a, #000000, #3b82f6, #ea580c);
             background-size: 400% 400%;
             animation: gradientBG 20s ease infinite;
             color: white;
@@ -86,144 +86,144 @@
 
     <canvas id="confetti-canvas"></canvas>
 
-    <!-- Main Container -->
-    <div id="app" class="w-full h-full max-w-7xl flex flex-col items-center justify-center relative z-10">
+    <div id="app" class="w-full h-full max-w-7xl flex flex-col items-center justify-center relative z-10 overflow-hidden">
         <!-- Content gets injected here by JS -->
     </div>
 
     <script>
         // Thematic Decks (10 Themes x 10 Cards = 100 Cards) 
         // Array maps to Levels: [Level 1 (1 word), Level 2 (2 words), Level 3 (3 words)]
+        // All words are strictly lowercase and progressively natural for ESL learners
         const THEMED_DECKS = [
             // Theme 1: Fruits & Veggies
             [
                 { id: 'apple', icon: '🍎', levels: ['apple', 'red apple', 'crisp red apple'] }, 
-                { id: 'banana', icon: '🍌', levels: ['banana', 'yellow banana', 'potassium rich banana'] },
-                { id: 'grapes', icon: '🍇', levels: ['grapes', 'purple grapes', 'bunch of purple grapes'] }, 
-                { id: 'watermelon', icon: '🍉', levels: ['watermelon', 'summer watermelon', 'juicy summer watermelon'] },
-                { id: 'strawberry', icon: '🍓', levels: ['strawberry', 'wild strawberry', 'sweet wild strawberry'] }, 
-                { id: 'cherry', icon: '🍒', levels: ['cherry', 'red cherry', 'tart cherry pair'] },
-                { id: 'peach', icon: '🍑', levels: ['peach', 'tree peach', 'fuzzy tree peach'] }, 
-                { id: 'pineapple', icon: '🍍', levels: ['pineapple', 'tropical pineapple', 'spiky tropical pineapple'] },
-                { id: 'coconut', icon: '🥥', levels: ['coconut', 'shell coconut', 'hard shell coconut'] }, 
-                { id: 'broccoli', icon: '🥦', levels: ['broccoli', 'green broccoli', 'steamed green broccoli'] }
+                { id: 'banana', icon: '🍌', levels: ['banana', 'yellow banana', 'sweet yellow banana'] },
+                { id: 'grapes', icon: '🍇', levels: ['grapes', 'purple grapes', 'sweet purple grapes'] }, 
+                { id: 'watermelon', icon: '🍉', levels: ['watermelon', 'green watermelon', 'juicy green watermelon'] },
+                { id: 'strawberry', icon: '🍓', levels: ['strawberry', 'red strawberry', 'sweet red strawberry'] }, 
+                { id: 'cherry', icon: '🍒', levels: ['cherry', 'red cherry', 'fresh red cherries'] },
+                { id: 'peach', icon: '🍑', levels: ['peach', 'juicy peach', 'juicy fuzzy peach'] }, 
+                { id: 'pineapple', icon: '🍍', levels: ['pineapple', 'yellow pineapple', 'spiky yellow pineapple'] },
+                { id: 'coconut', icon: '🥥', levels: ['coconut', 'brown coconut', 'hard brown coconut'] }, 
+                { id: 'broccoli', icon: '🥦', levels: ['broccoli', 'green broccoli', 'healthy green broccoli'] }
             ],
             // Theme 2: Prepared Foods
             [
-                { id: 'pizza', icon: '🍕', levels: ['pizza', 'cheese pizza', 'cheesy pepperoni slice'] }, 
-                { id: 'burger', icon: '🍔', levels: ['burger', 'beef burger', 'grilled beef burger'] },
-                { id: 'fries', icon: '🍟', levels: ['fries', 'salted fries', 'crispy salted fries'] }, 
-                { id: 'hotdog', icon: '🌭', levels: ['hotdog', 'stadium hotdog', 'grilled stadium hotdog'] },
+                { id: 'pizza', icon: '🍕', levels: ['pizza', 'cheese pizza', 'hot cheese pizza'] }, 
+                { id: 'burger', icon: '🍔', levels: ['burger', 'beef burger', 'juicy beef burger'] },
+                { id: 'fries', icon: '🍟', levels: ['fries', 'french fries', 'crispy french fries'] }, 
+                { id: 'hotdog', icon: '🌭', levels: ['hotdog', 'hot dog', 'grilled hot dog'] },
                 { id: 'taco', icon: '🌮', levels: ['taco', 'beef taco', 'spicy beef taco'] }, 
-                { id: 'sushi', icon: '🍣', levels: ['sushi', 'salmon sushi', 'fresh salmon sushi'] },
-                { id: 'rice', icon: '🍚', levels: ['rice', 'white rice', 'steamed white rice'] }, 
-                { id: 'pasta', icon: '🍝', levels: ['pasta', 'saucy pasta', 'saucy spaghetti bowl'] },
-                { id: 'bread', icon: '🍞', levels: ['bread', 'baked bread', 'fresh baked bread'] }, 
-                { id: 'cheese', icon: '🧀', levels: ['cheese', 'cheddar cheese', 'aged cheddar cheese'] }
+                { id: 'sushi', icon: '🍣', levels: ['sushi', 'fish sushi', 'fresh fish sushi'] },
+                { id: 'rice', icon: '🍚', levels: ['rice', 'white rice', 'sticky white rice'] }, 
+                { id: 'pasta', icon: '🍝', levels: ['pasta', 'tomato pasta', 'hot tomato pasta'] },
+                { id: 'bread', icon: '🍞', levels: ['bread', 'white bread', 'sliced white bread'] }, 
+                { id: 'cheese', icon: '🧀', levels: ['cheese', 'yellow cheese', 'yellow cheddar cheese'] }
             ],
             // Theme 3: Domestic & Farm Animals
             [
-                { id: 'dog', icon: '🐶', levels: ['dog', 'canine dog', 'loyal canine companion'] }, 
-                { id: 'cat', icon: '🐱', levels: ['cat', 'feline cat', 'purring feline pet'] },
-                { id: 'mouse', icon: '🐭', levels: ['mouse', 'field mouse', 'tiny field mouse'] }, 
-                { id: 'cow', icon: '🐮', levels: ['cow', 'dairy cow', 'grazing dairy cow'] },
-                { id: 'pig', icon: '🐷', levels: ['pig', 'muddy pig', 'mud loving pig'] }, 
-                { id: 'chicken', icon: '🐔', levels: ['chicken', 'laying chicken', 'egg laying chicken'] },
-                { id: 'horse', icon: '🐴', levels: ['horse', 'galloping horse', 'galloping field stallion'] }, 
-                { id: 'goat', icon: '🐐', levels: ['goat', 'climbing goat', 'mountain climbing goat'] },
-                { id: 'sheep', icon: '🐑', levels: ['sheep', 'grazing sheep', 'wooly grazing sheep'] }, 
-                { id: 'rabbit', icon: '🐰', levels: ['rabbit', 'garden rabbit', 'hopping garden bunny'] }
+                { id: 'dog', icon: '🐶', levels: ['dog', 'pet dog', 'loyal pet dog'] }, 
+                { id: 'cat', icon: '🐱', levels: ['cat', 'pet cat', 'fluffy pet cat'] },
+                { id: 'mouse', icon: '🐭', levels: ['mouse', 'gray mouse', 'tiny gray mouse'] }, 
+                { id: 'cow', icon: '🐮', levels: ['cow', 'farm cow', 'spotted farm cow'] },
+                { id: 'pig', icon: '🐷', levels: ['pig', 'muddy pig', 'pink muddy pig'] }, 
+                { id: 'chicken', icon: '🐔', levels: ['chicken', 'farm chicken', 'white farm chicken'] },
+                { id: 'horse', icon: '🐴', levels: ['horse', 'brown horse', 'fast brown horse'] }, 
+                { id: 'goat', icon: '🐐', levels: ['goat', 'farm goat', 'hungry farm goat'] },
+                { id: 'sheep', icon: '🐑', levels: ['sheep', 'white sheep', 'wooly white sheep'] }, 
+                { id: 'rabbit', icon: '🐰', levels: ['rabbit', 'white rabbit', 'hopping white rabbit'] }
             ],
             // Theme 4: Wild Animals
             [
-                { id: 'fox', icon: '🦊', levels: ['fox', 'red fox', 'cunning red fox'] }, 
-                { id: 'bear', icon: '🐻', levels: ['bear', 'forest bear', 'grizzly forest bear'] },
-                { id: 'panda', icon: '🐼', levels: ['panda', 'eating panda', 'bamboo eating panda'] }, 
+                { id: 'fox', icon: '🦊', levels: ['fox', 'red fox', 'clever red fox'] }, 
+                { id: 'bear', icon: '🐻', levels: ['bear', 'brown bear', 'big brown bear'] },
+                { id: 'panda', icon: '🐼', levels: ['panda', 'panda bear', 'giant panda bear'] }, 
                 { id: 'tiger', icon: '🐯', levels: ['tiger', 'jungle tiger', 'striped jungle tiger'] },
-                { id: 'lion', icon: '🦁', levels: ['lion', 'savannah lion', 'roaring savannah lion'] }, 
-                { id: 'elephant', icon: '🐘', levels: ['elephant', 'african elephant', 'trunked african elephant'] },
-                { id: 'giraffe', icon: '🦒', levels: ['giraffe', 'necked giraffe', 'long necked giraffe'] }, 
-                { id: 'monkey', icon: '🐵', levels: ['monkey', 'tree monkey', 'swinging tree monkey'] },
-                { id: 'zebra', icon: '🦓', levels: ['zebra', 'savannah zebra', 'striped savannah zebra'] }, 
-                { id: 'rhino', icon: '🦏', levels: ['rhino', 'horned rhino', 'heavy horned rhinoceros'] }
+                { id: 'lion', icon: '🦁', levels: ['lion', 'wild lion', 'roaring wild lion'] }, 
+                { id: 'elephant', icon: '🐘', levels: ['elephant', 'gray elephant', 'giant gray elephant'] },
+                { id: 'giraffe', icon: '🦒', levels: ['giraffe', 'yellow giraffe', 'tall yellow giraffe'] }, 
+                { id: 'monkey', icon: '🐵', levels: ['monkey', 'brown monkey', 'swinging brown monkey'] },
+                { id: 'zebra', icon: '🦓', levels: ['zebra', 'wild zebra', 'striped wild zebra'] }, 
+                { id: 'rhino', icon: '🦏', levels: ['rhino', 'gray rhino', 'heavy gray rhino'] }
             ],
             // Theme 5: Birds & Flying Creatures
             [
-                { id: 'penguin', icon: '🐧', levels: ['penguin', 'ice penguin', 'waddling ice penguin'] }, 
-                { id: 'bird', icon: '🐦', levels: ['bird', 'song bird', 'chirping song bird'] },
-                { id: 'duck', icon: '🦆', levels: ['duck', 'pond duck', 'quacking pond duck'] }, 
-                { id: 'eagle', icon: '🦅', levels: ['eagle', 'bald eagle', 'soaring bald eagle'] },
-                { id: 'owl', icon: '🦉', levels: ['owl', 'hooting owl', 'nocturnal hooting owl'] }, 
-                { id: 'bat', icon: '🦇', levels: ['bat', 'cave bat', 'cave dwelling bat'] },
-                { id: 'bee', icon: '🐝', levels: ['bee', 'gathering bee', 'pollen gathering bee'] }, 
-                { id: 'butterfly', icon: '🦋', levels: ['butterfly', 'winged butterfly', 'colorful winged butterfly'] },
-                { id: 'flamingo', icon: '🦩', levels: ['flamingo', 'wading flamingo', 'pink wading flamingo'] }, 
-                { id: 'parrot', icon: '🦜', levels: ['parrot', 'tropical parrot', 'talking tropical parrot'] }
+                { id: 'penguin', icon: '🐧', levels: ['penguin', 'ice penguin', 'cold ice penguin'] }, 
+                { id: 'bird', icon: '🐦', levels: ['bird', 'flying bird', 'small flying bird'] },
+                { id: 'duck', icon: '🦆', levels: ['duck', 'pond duck', 'yellow pond duck'] }, 
+                { id: 'eagle', icon: '🦅', levels: ['eagle', 'bald eagle', 'flying bald eagle'] },
+                { id: 'owl', icon: '🦉', levels: ['owl', 'night owl', 'wise night owl'] }, 
+                { id: 'bat', icon: '🦇', levels: ['bat', 'black bat', 'flying black bat'] },
+                { id: 'bee', icon: '🐝', levels: ['bee', 'yellow bee', 'buzzing yellow bee'] }, 
+                { id: 'butterfly', icon: '🦋', levels: ['butterfly', 'flying butterfly', 'colorful flying butterfly'] },
+                { id: 'flamingo', icon: '🦩', levels: ['flamingo', 'pink flamingo', 'tall pink flamingo'] }, 
+                { id: 'parrot', icon: '🦜', levels: ['parrot', 'talking parrot', 'colorful talking parrot'] }
             ],
             // Theme 6: Aquatic Life
             [
-                { id: 'shark', icon: '🦈', levels: ['shark', 'white shark', 'predatory great white'] }, 
-                { id: 'dolphin', icon: '🐬', levels: ['dolphin', 'ocean dolphin', 'playful ocean dolphin'] },
-                { id: 'whale', icon: '🐳', levels: ['whale', 'blue whale', 'massive blue whale'] }, 
-                { id: 'octopus', icon: '🐙', levels: ['octopus', 'tentacled octopus', 'eight tentacled octopus'] },
-                { id: 'squid', icon: '🦑', levels: ['squid', 'sea squid', 'deep sea squid'] }, 
-                { id: 'crab', icon: '🦀', levels: ['crab', 'shore crab', 'pinching shore crab'] },
-                { id: 'lobster', icon: '🦞', levels: ['lobster', 'marine lobster', 'clawed marine lobster'] }, 
-                { id: 'turtle', icon: '🐢', levels: ['turtle', 'shelled turtle', 'slow shelled turtle'] },
-                { id: 'pufferfish', icon: '🐡', levels: ['pufferfish', 'ocean pufferfish', 'spiky ocean pufferfish'] }, 
-                { id: 'fish', icon: '🐠', levels: ['fish', 'coral fish', 'vibrant coral fish'] }
+                { id: 'shark', icon: '🦈', levels: ['shark', 'ocean shark', 'scary ocean shark'] }, 
+                { id: 'dolphin', icon: '🐬', levels: ['dolphin', 'gray dolphin', 'playful gray dolphin'] },
+                { id: 'whale', icon: '🐳', levels: ['whale', 'blue whale', 'giant blue whale'] }, 
+                { id: 'octopus', icon: '🐙', levels: ['octopus', 'ocean octopus', 'eight legged octopus'] },
+                { id: 'squid', icon: '🦑', levels: ['squid', 'sea squid', 'fast swimming squid'] }, 
+                { id: 'crab', icon: '🦀', levels: ['crab', 'red crab', 'red pinching crab'] },
+                { id: 'lobster', icon: '🦞', levels: ['lobster', 'red lobster', 'red ocean lobster'] }, 
+                { id: 'turtle', icon: '🐢', levels: ['turtle', 'green turtle', 'slow green turtle'] },
+                { id: 'pufferfish', icon: '🐡', levels: ['pufferfish', 'spiky pufferfish', 'round spiky pufferfish'] }, 
+                { id: 'fish', icon: '🐠', levels: ['fish', 'swimming fish', 'colorful swimming fish'] }
             ],
             // Theme 7: Vehicles & Transit
             [
-                { id: 'policecar', icon: '🚓', levels: ['police car', 'police cruiser', 'blaring police cruiser'] }, 
-                { id: 'firetruck', icon: '🚒', levels: ['fire truck', 'fire engine', 'red fire engine'] },
-                { id: 'ambulance', icon: '🚑', levels: ['ambulance', 'medical ambulance', 'emergency medical ambulance'] }, 
+                { id: 'policecar', icon: '🚓', levels: ['police car', 'fast police car', 'fast blue police car'] }, 
+                { id: 'firetruck', icon: '🚒', levels: ['fire truck', 'red fire truck', 'loud red fire truck'] },
+                { id: 'ambulance', icon: '🚑', levels: ['ambulance', 'white ambulance', 'fast white ambulance'] }, 
                 { id: 'bus', icon: '🚌', levels: ['bus', 'school bus', 'yellow school bus'] },
-                { id: 'train', icon: '🚆', levels: ['train', 'speed train', 'high speed locomotive'] }, 
-                { id: 'airplane', icon: '✈️', levels: ['airplane', 'passenger airplane', 'commercial passenger jet'] },
-                { id: 'boat', icon: '⛴️', levels: ['boat', 'shipping boat', 'cargo shipping vessel'] }, 
-                { id: 'helicopter', icon: '🚁', levels: ['helicopter', 'transport helicopter', 'hovering transport helicopter'] },
-                { id: 'bicycle', icon: '🚲', levels: ['bicycle', 'powered bicycle', 'pedal powered bicycle'] }, 
-                { id: 'rocket', icon: '🚀', levels: ['rocket', 'space rocket', 'deep space rocket'] }
+                { id: 'train', icon: '🚆', levels: ['train', 'passenger train', 'fast passenger train'] }, 
+                { id: 'airplane', icon: '✈️', levels: ['airplane', 'passenger airplane', 'flying passenger airplane'] },
+                { id: 'boat', icon: '⛴️', levels: ['boat', 'ocean boat', 'large ocean boat'] }, 
+                { id: 'helicopter', icon: '🚁', levels: ['helicopter', 'flying helicopter', 'flying rescue helicopter'] },
+                { id: 'bicycle', icon: '🚲', levels: ['bicycle', 'two wheels', 'two wheeled bicycle'] }, 
+                { id: 'rocket', icon: '🚀', levels: ['rocket', 'space rocket', 'fast space rocket'] }
             ],
             // Theme 8: Civic & Essential Buildings
             [
-                { id: 'hospital', icon: '🏥', levels: ['hospital', 'care hospital', 'medical care hospital'] }, 
-                { id: 'school', icon: '🏫', levels: ['school', 'public school', 'educational public school'] },
-                { id: 'bank', icon: '🏦', levels: ['bank', 'city bank', 'secure financial bank'] }, 
-                { id: 'police', icon: '🚓', levels: ['police station', 'police precinct', 'local police precinct'] },
-                { id: 'firestation', icon: '🚒', levels: ['fire station', 'municipal firehouse', 'local municipal firehouse'] }, 
-                { id: 'cityhall', icon: '🏛️', levels: ['city hall', 'historic city hall', 'historic local city hall'] },
-                { id: 'postoffice', icon: '📮', levels: ['post office', 'regional post office', 'local regional post office'] }, 
-                { id: 'courthouse', icon: '⚖️', levels: ['court house', 'justice court house', 'local justice courthouse'] },
+                { id: 'hospital', icon: '🏥', levels: ['hospital', 'city hospital', 'city health hospital'] }, 
+                { id: 'school', icon: '🏫', levels: ['school', 'elementary school', 'local elementary school'] },
+                { id: 'bank', icon: '🏦', levels: ['bank', 'money bank', 'secure money bank'] }, 
+                { id: 'police', icon: '🚓', levels: ['police station', 'local police station', 'city police station'] },
+                { id: 'firestation', icon: '🚒', levels: ['fire station', 'local fire station', 'city fire station'] }, 
+                { id: 'cityhall', icon: '🏛️', levels: ['city hall', 'local city hall', 'historic city hall'] },
+                { id: 'postoffice', icon: '📮', levels: ['post office', 'local post office', 'city post office'] }, 
+                { id: 'courthouse', icon: '⚖️', levels: ['court house', 'city court house', 'local court house'] },
                 { id: 'library', icon: '📚', levels: ['library', 'public library', 'quiet public library'] }, 
-                { id: 'pharmacy', icon: '💊', levels: ['pharmacy', 'local pharmacy', 'neighborhood health pharmacy'] }
+                { id: 'pharmacy', icon: '💊', levels: ['pharmacy', 'health pharmacy', 'local health pharmacy'] }
             ],
             // Theme 9: Recreational Places
             [
-                { id: 'park', icon: '🌲', levels: ['park', 'central park', 'grassy central park'] }, 
+                { id: 'park', icon: '🌲', levels: ['park', 'city park', 'green city park'] }, 
                 { id: 'stadium', icon: '🏟️', levels: ['stadium', 'sports stadium', 'crowded sports stadium'] },
-                { id: 'mall', icon: '🛍️', levels: ['mall', 'shopping mall', 'indoor shopping mall'] }, 
-                { id: 'amusement', icon: '🎢', levels: ['amusement park', 'thrilling amusement park', 'thrilling rides amusement park'] },
-                { id: 'pool', icon: '🏊', levels: ['pool', 'public pool', 'chlorinated public pool'] }, 
-                { id: 'theater', icon: '🎬', levels: ['theater', 'movie theater', 'popcorn movie theater'] },
-                { id: 'gym', icon: '🏋️', levels: ['gym', 'lifting gym', 'heavy lifting gym'] }, 
-                { id: 'bowling', icon: '🎳', levels: ['bowling alley', 'slippery bowling alley', 'slippery wooden bowling alley'] },
-                { id: 'arcade', icon: '🕹️', levels: ['arcade', 'retro arcade', 'neon retro arcade'] }, 
-                { id: 'circus', icon: '🎪', levels: ['circus', 'top circus', 'traveling big top circus'] }
+                { id: 'mall', icon: '🛍️', levels: ['mall', 'shopping mall', 'large shopping mall'] }, 
+                { id: 'amusement', icon: '🎢', levels: ['amusement park', 'fun amusement park', 'thrilling amusement park'] },
+                { id: 'pool', icon: '🏊', levels: ['pool', 'swimming pool', 'deep swimming pool'] }, 
+                { id: 'theater', icon: '🎬', levels: ['theater', 'movie theater', 'dark movie theater'] },
+                { id: 'gym', icon: '🏋️', levels: ['gym', 'fitness gym', 'local fitness gym'] }, 
+                { id: 'bowling', icon: '🎳', levels: ['bowling alley', 'indoor bowling alley', 'wooden bowling alley'] },
+                { id: 'arcade', icon: '🕹️', levels: ['arcade', 'video arcade', 'fun video arcade'] }, 
+                { id: 'circus', icon: '🎪', levels: ['circus', 'big circus', 'traveling big circus'] }
             ],
             // Theme 10: Geographical & Outdoor Features
             [
-                { id: 'volcano', icon: '🌋', levels: ['volcano', 'hot volcano', 'erupting hot volcano'] }, 
-                { id: 'mountain', icon: '🏔️', levels: ['mountain', 'capped mountain', 'snow capped mountain'] },
-                { id: 'desert', icon: '🏜️', levels: ['desert', 'sandy desert', 'dry sandy desert'] }, 
-                { id: 'island', icon: '🏝️', levels: ['island', 'tropical island', 'isolated tropical island'] },
-                { id: 'beach', icon: '🏖️', levels: ['beach', 'ocean beach', 'sunny ocean beach'] }, 
-                { id: 'campsite', icon: '🏕️', levels: ['camp site', 'wilderness camp site', 'outdoor wilderness camp site'] },
-                { id: 'sunrise', icon: '🌅', levels: ['sunrise', 'morning sunrise', 'warm morning sunrise'] }, 
-                { id: 'nightsky', icon: '🌌', levels: ['night sky', 'starry night sky', 'dark starry night sky'] },
-                { id: 'storm', icon: '⛈️', levels: ['storm', 'thunder storm', 'crashing thunder storm'] }, 
-                { id: 'rainbow', icon: '🌈', levels: ['rainbow', 'weather rainbow', 'colorful weather rainbow'] }
+                { id: 'volcano', icon: '🌋', levels: ['volcano', 'hot volcano', 'hot erupting volcano'] }, 
+                { id: 'mountain', icon: '🏔️', levels: ['mountain', 'snowy mountain', 'tall snowy mountain'] },
+                { id: 'desert', icon: '🏜️', levels: ['desert', 'sandy desert', 'hot sandy desert'] }, 
+                { id: 'island', icon: '🏝️', levels: ['island', 'tropical island', 'small tropical island'] },
+                { id: 'beach', icon: '🏖️', levels: ['beach', 'sandy beach', 'sunny sandy beach'] }, 
+                { id: 'campsite', icon: '🏕️', levels: ['camp site', 'outdoor camp site', 'forest camp site'] },
+                { id: 'sunrise', icon: '🌅', levels: ['sunrise', 'morning sunrise', 'beautiful morning sunrise'] }, 
+                { id: 'nightsky', icon: '🌌', levels: ['night sky', 'starry sky', 'dark starry sky'] },
+                { id: 'storm', icon: '⛈️', levels: ['storm', 'thunder storm', 'dark thunder storm'] }, 
+                { id: 'rainbow', icon: '🌈', levels: ['rainbow', 'colorful rainbow', 'bright colorful rainbow'] }
             ]
         ];
 
