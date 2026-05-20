@@ -74,8 +74,8 @@
         const Flame = (p) => <Icon {...p}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></Icon>;
 
         // --- CONFIGURATION ---
-        const TOTAL_QUESTIONS_PER_ROUND = 20; // Changed to 20 questions
-        const FIXED_SPEECH_RATE = 0.85; // Locked strictly to 85%
+        const TOTAL_QUESTIONS_PER_ROUND = 20;
+        const FIXED_SPEECH_RATE = 0.85; // Locked strictly to 85% for secondary student comprehension
 
         // --- AUDIO FX ---
         const playSoundFx = (type) => {
@@ -761,24 +761,38 @@
             const [questionsLeft, setQuestionsLeft] = useState(TOTAL_QUESTIONS_PER_ROUND);
             const [showHint, setShowHint] = useState(false);
             const isCancelled = useRef(false);
+            const utteranceRef = useRef(null); // Prevents Safari/Chrome garbage collection bugs
 
             useEffect(() => {
-                const initVoices = () => setVoices(window.speechSynthesis.getVoices());
+                const initVoices = () => {
+                    const availableVoices = window.speechSynthesis.getVoices();
+                    if (availableVoices.length > 0) {
+                        setVoices(availableVoices);
+                    }
+                };
                 initVoices();
                 window.speechSynthesis.onvoiceschanged = initVoices;
             }, []);
 
+            // Safely fetch voices and gracefully fallback if specific ones aren't installed
             const getVoicePair = () => {
+                let currentVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+                
                 const maleTargets = ['Remy', 'Giuseppe', 'Florian', 'Brian', 'Andrew'];
                 const femaleTargets = ['Vivienne', 'Seraphina', 'Emma'];
-                const targets = [...maleTargets, ...femaleTargets];
                 
-                const validVoices = voices.filter(v => v.name.includes('Microsoft') && targets.some(t => v.name.includes(t)));
-                const females = validVoices.filter(v => femaleTargets.some(t => v.name.includes(t)));
-                const males = validVoices.filter(v => maleTargets.some(t => v.name.includes(t)));
+                // Try strict Microsoft targets first
+                const msFemales = currentVoices.filter(v => v.name.includes('Microsoft') && femaleTargets.some(t => v.name.includes(t)));
+                const msMales = currentVoices.filter(v => v.name.includes('Microsoft') && maleTargets.some(t => v.name.includes(t)));
 
-                let female = females.length > 0 ? females[Math.floor(Math.random() * females.length)] : (voices.find(v => v.name.includes('Female')) || voices[0]);
-                let male = males.length > 0 ? males[Math.floor(Math.random() * males.length)] : (voices.find(v => v.name.includes('Male')) || voices[1] || voices[0]);
+                // Fallback targets (useful for iPads/Chromebooks in high schools)
+                const engVoices = currentVoices.filter(v => v.lang.startsWith('en'));
+                
+                let female = msFemales.length > 0 ? msFemales[Math.floor(Math.random() * msFemales.length)] : 
+                             (engVoices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen')) || engVoices[0] || currentVoices[0]);
+                             
+                let male = msMales.length > 0 ? msMales[Math.floor(Math.random() * msMales.length)] : 
+                           (engVoices.find(v => v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('Fred')) || engVoices[1] || engVoices[0] || currentVoices[0]);
 
                 return Math.random() > 0.5 ? { A: female, B: male } : { A: male, B: female };
             };
@@ -788,9 +802,16 @@
                 setIsPlaying(true);
                 window.speechSynthesis.cancel();
                 
+                // Give browser a tiny window to clear previous speech queue
+                await new Promise(resolve => setTimeout(resolve, 50));
+                if (isCancelled.current) return;
+                
                 const { A, B } = getVoicePair();
-                if (!A && !B && voices.length === 0) {
-                    alert("Voices still loading, please try again in a moment.");
+                let activeVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+
+                if (!A && !B && activeVoices.length === 0) {
+                    alert("Voices are still loading or not supported on this browser. Please check device settings.");
+                    setIsPlaying(false);
                     return;
                 }
                 
@@ -798,12 +819,23 @@
                     if (isCancelled.current) break;
                     await new Promise(resolve => {
                         const utt = new SpeechSynthesisUtterance(line.text);
-                        utt.voice = line.speaker === 'A' ? A : B;
-                        utt.rate = FIXED_SPEECH_RATE; // Always 0.85
+                        utteranceRef.current = utt; // Prevents Safari/Chrome garbage collection bug!
+
+                        if (line.speaker === 'A' && A) utt.voice = A;
+                        if (line.speaker === 'B' && B) utt.voice = B;
+                        
+                        utt.rate = FIXED_SPEECH_RATE; // Strictly locked to 85% for secondary students
                         utt.pitch = 1;
-                        utt.lang = 'en-GB';
-                        utt.onend = () => setTimeout(resolve, 500); 
-                        utt.onerror = () => resolve();
+                        if (utt.voice) utt.lang = utt.voice.lang;
+                        
+                        utt.onend = () => {
+                            setTimeout(resolve, 500); 
+                        };
+                        utt.onerror = (e) => {
+                            console.error("TTS Error:", e);
+                            resolve(); // Resolve anyway so it doesn't hang
+                        };
+                        
                         window.speechSynthesis.speak(utt);
                     });
                 }
@@ -896,6 +928,19 @@
                                     <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">{activeCat.icon}</div>
                                     <h2 className="font-bold text-xl leading-none">{activeCat.name}</h2>
                                 </div>
+                                {question && (
+                                    <div className="flex items-center gap-2 border-l-2 border-slate-200 pl-4">
+                                        {!isPlaying ? (
+                                            <button onClick={() => speakScript(question.script)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white w-10 h-10 rounded-full shadow-[0_3px_0_rgb(29,78,216)] active:shadow-none active:translate-y-1 transition-all" title="Play Audio">
+                                                <Play className="fill-current w-5 h-5 ml-1" />
+                                            </button>
+                                        ) : (
+                                            <button onClick={stopAudio} className="flex items-center justify-center bg-red-500 hover:bg-red-400 text-white w-10 h-10 rounded-full shadow-[0_3px_0_rgb(185,28,28)] active:shadow-none active:translate-y-1 transition-all" title="Stop Audio">
+                                                <Square className="fill-current w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex items-center gap-3 ml-auto">
                                 <div className="bg-blue-600 text-white px-4 py-1.5 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
@@ -945,19 +990,7 @@
                                         </h3>
                                         {question.type === 12 && <MapVisual />}
                                         
-                                        <div className="flex flex-wrap items-center gap-4 mb-8">
-                                            {!isPlaying ? (
-                                                <button onClick={() => speakScript(question.script)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white pl-5 pr-6 py-3 rounded-full font-bold text-lg shadow-[0_4px_0_rgb(29,78,216)] active:shadow-none active:translate-y-1 transition-all w-full md:w-auto justify-center">
-                                                    <Play className="fill-current w-5 h-5" /> Listen (85% Speed)
-                                                </button>
-                                            ) : (
-                                                <button onClick={stopAudio} className="flex items-center gap-2 bg-red-500 hover:bg-red-400 text-white pl-5 pr-6 py-3 rounded-full font-bold text-lg shadow-[0_4px_0_rgb(185,28,28)] active:shadow-none active:translate-y-1 transition-all w-full md:w-auto justify-center">
-                                                    <Square className="fill-current w-5 h-5" /> Stop
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        <form onSubmit={handleCheck} className="relative">
+                                        <form onSubmit={handleCheck} className="relative mt-8">
                                             <input 
                                                 type="text" 
                                                 value={input}
