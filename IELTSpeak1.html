@@ -175,7 +175,13 @@
                         <!-- Grammar & Frameworks -->
                         <div id="grammar-container" class="bg-rose-50/40 border border-rose-100 rounded-2xl p-4 shadow-sm flex flex-col">
                             <span class="text-sm font-bold text-rose-700 uppercase tracking-wider mb-2 flex items-center"><i class="fas fa-cogs mr-2 opacity-70"></i> Grammar & Framework</span>
-                            <div id="grammar-list" class="flex flex-wrap gap-2 content-start"></div>
+                            <div id="grammar-list" class="flex flex-wrap gap-2 content-start mb-3"></div>
+                            
+                            <!-- Framework Outline Box -->
+                            <div id="framework-container" class="hidden bg-white/60 border border-rose-200 rounded-xl p-3 shadow-inner">
+                                <span class="text-xs font-bold text-rose-800 uppercase mb-2 block border-b border-rose-100 pb-1">Framework Outline</span>
+                                <ul id="framework-list" class="space-y-1.5 text-sm text-gray-800 font-medium"></ul>
+                            </div>
                         </div>
 
                         <!-- Sentence Starters -->
@@ -414,6 +420,8 @@
             fillersList: document.getElementById('fillers-list'),
             grammarContainer: document.getElementById('grammar-container'),
             grammarList: document.getElementById('grammar-list'),
+            frameworkContainer: document.getElementById('framework-container'),
+            frameworkList: document.getElementById('framework-list'),
             startersContainer: document.getElementById('starters-container'),
             startersList: document.getElementById('starters-list'),
             wordBankContainer: document.getElementById('word-bank-container'),
@@ -583,6 +591,34 @@
             renderChips(ui.grammarList, q.grammar || [], 'rose');
             renderChips(ui.startersList, q.starters || [], 'blue');
             
+            // Populate Framework Outline based on Part
+            const frameworks = {
+                "Part 1": [
+                    "<strong>1. Answer:</strong> Answer directly",
+                    "<strong>2. Reason:</strong> Say why",
+                    "<strong>3. Example:</strong> Give an example"
+                ],
+                "Part 2": [
+                    "<strong>1. Past:</strong> Share background context",
+                    "<strong>2. Present:</strong> Describe main details",
+                    "<strong>3. Future:</strong> Share feelings or hopes"
+                ],
+                "Part 3": [
+                    "<strong>1. Opinion:</strong> State your view",
+                    "<strong>2. Reason:</strong> Explain why",
+                    "<strong>3. Example:</strong> Give real-world proof",
+                    "<strong>4. Opinion:</strong> Restate your view"
+                ]
+            };
+            
+            const fwData = frameworks[q.type.trim()];
+            if (fwData) {
+                ui.frameworkContainer.classList.remove('hidden');
+                ui.frameworkList.innerHTML = fwData.map(item => `<li><i class="fas fa-angle-right text-rose-400 mr-2 text-xs"></i>${item}</li>`).join('');
+            } else {
+                ui.frameworkContainer.classList.add('hidden');
+            }
+
             ui.grammarContainer.classList.remove('hidden');
             ui.startersContainer.classList.remove('hidden');
 
