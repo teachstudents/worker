@@ -111,15 +111,6 @@
             #certificate-to-print, #certificate-to-print * { visibility: visible; }
             #certificate-to-print { position: absolute; left: 0; top: 0; width: 100%; padding: 40px; border: 10px solid #451a03; background: #fff; }
         }
-
-        /* Floating Emoji */
-        #emoji-floating-container { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
-        .floating-emoji { position: absolute; font-size: 28px; will-change: transform, opacity; white-space: nowrap; user-select: none; opacity: 0; display: inline-block; text-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        @keyframes floatAcross { 0% { transform: translateX(-10vw); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateX(110vw); opacity: 0; } }
-        @keyframes bob { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
-        .floating-emoji.canoe { font-size: 38px; animation-name: floatAcross; animation-timing-function: linear; animation-iteration-count: 1; }
-        .floating-emoji.canoe .inner { animation: bob 3s ease-in-out infinite; display:inline-block; }
-        .floating-emoji.scenic { font-size: 30px; animation-name: floatAcross; animation-timing-function: linear; animation-iteration-count: 1; }
     
         /* Reward Animation Styles */
         .particle { position: fixed; pointer-events: none; z-index: 9999; will-change: transform, opacity; opacity: 1; transition: opacity 0.5s ease-out; }
@@ -155,8 +146,6 @@
         </div>
     </header>
 
-    <div id="emoji-floating-container" aria-hidden="true"></div>
-
     <div id="app-container" class="max-w-6xl mx-auto p-4 sm:p-6 md:p-8">
         <section id="page-title-screen" class="page active text-center bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-10">
             <div class="h-full flex flex-col justify-center items-center">
@@ -170,6 +159,15 @@
     </div>
     
     <script>
+        // --- Helper for true shuffling ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         // ===================================================================================
         // --- LESSON CONTENT CONFIGURATION (UNIT 5: THE HUMAN JOURNEY) ---
         // ===================================================================================
@@ -270,7 +268,7 @@
                         <li>How do you think early sailors crossed the Pacific Ocean thousands of years before compasses and GPS were invented?</li>
                         <li>What makes a human journey a "fantastic voyage" rather than just a trip?</li>
                     </ol>` } },
-                { id: 'vocab-start', type: 'simple', content: { title: 'Unit Vocabulary <span aria-hidden="true">📚</span>', text: 'Let\'s learn the key terms for this unit. Click "Next" to see each word.' } },
+                { id: 'vocab-start', type: 'simple', content: { title: 'Unit Vocabulary <span aria-hidden="true">📚</span>', text: 'Let\'s learn the key terms for this unit. Click "Next" to see each word. The vocabulary words will be read automatically for you.' } },
                 { id: 'vocab-game', type: 'vocab-game', content: { title: 'Vocabulary Review Game <span aria-hidden="true">🎮</span>'} },
                 
                 // 4. Reading & Comprehension
@@ -303,7 +301,7 @@
                     ]
                 } },
 
-                { id: 'reading-quiz-gap-fill', type: 'quiz-gap-fill', content: { title: 'Comprehension: Gap Fill', sentences: [] } },
+                { id: 'reading-quiz-gap-fill', type: 'quiz-gap-fill', content: { title: 'Comprehension: Gap Fill', sentences: [], wordBank: [] } },
                 { id: 'reading-quiz-tf', type: 'quiz-tf', content: { title: 'Comprehension: True / False', questions: [] } },
                 { id: 'reading-quiz-mcq', type: 'quiz-mcq', content: { title: 'Comprehension: Multiple Choice', questions: [] } },
                 
@@ -347,6 +345,7 @@ Host 2: But recently, archaeologists have found human artifacts in South America
 Host 1: This is where it gets exciting! The new leading theory is the 'Kelp Highway' or the coastal route. Scientists now believe early Americans used small boats to travel down the Pacific coastline, surviving on fish and kelp, bypassing the massive glaciers entirely.` } },
                 { id: 'podcast-convo-quiz-mcq', type: 'quiz-mcq', content: { title: 'Podcast Quiz (MCQ)', questions: [] } },
                 { id: 'podcast-convo-quiz-tf', type: 'quiz-tf', content: { title: 'Podcast Quiz (True/False)', questions: [] } },
+                { id: 'podcast-convo-quiz-gap-fill', type: 'quiz-gap-fill', content: { title: 'Podcast Quiz (Gap Fill)', sentences: [], wordBank: [] } },
                 
                 // 9. Discussion: DNA Debate
                 { id: 'debate-planning', type: 'dialogue', content: { title: 'Discussion: DNA Data Debate <span aria-hidden="true">🤔</span>', dialogue: `Moderator: Welcome. Today’s topic: Commercial DNA ancestry kits are wildly popular, but are they safe? Maria, let’s start with you.
@@ -360,7 +359,9 @@ Carlos: I understand Maria’s concern about privacy, but we cannot ignore the i
 Maria: But Carlos, the user gives up all control. You don't know who is using your DNA or what they are doing with it. It's a massive corporate profit scheme disguised as fun science.
 
 Carlos: Users sign agreements, Maria. It's an informed choice. The potential to understand our shared human journey and cure diseases far outweighs the hypothetical risks of data breaches.` } },
+                { id: 'debate-planning-quiz-mcq', type: 'quiz-mcq', content: { title: 'Debate Quiz (MCQ)', questions: [] } },
                 { id: 'debate-planning-quiz-tf', type: 'quiz-tf', content: { title: 'Debate Quiz (True/False)', questions: [] } },
+                { id: 'debate-planning-quiz-gap-fill', type: 'quiz-gap-fill', content: { title: 'Debate Quiz (Gap Fill)', sentences: [], wordBank: [] } },
 
                 // 10. Thinking & Exam Prep
                 { id: 'thinking-prompts', type: 'html-content', content: { title: 'Thinking & Exam Prep <span aria-hidden="true">📝</span>', html: `
@@ -583,10 +584,6 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
         let completedSections = new Set();
         let vocabGameTimer;
         
-        let emojiSpawnerInterval = null;
-        const emojiContainer = document.getElementById('emoji-floating-container');
-        const spawnIntervalMs = 900;
-
         let particles = [];
         let rewardAfHandle = null;
 
@@ -776,7 +773,14 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
             if (isNowEnabled) {
                 const pageData = lessonData.pages.find(p => p.id === currentPage);
                 const targetPage = document.getElementById(`page-${currentPage}`);
-                if (pageData && pageData.type === 'dialogue') {
+                
+                if (currentPage.startsWith('vocab-') && currentPage !== 'vocab-start' && currentPage !== 'vocab-game') {
+                    const vocabIndex = parseInt(currentPage.split('-')[1]);
+                    const v = lessonData.vocabulary[vocabIndex];
+                    const speakers = ['Emma', 'Brian', 'Seraphina', 'Andrew', 'Ava', 'William', 'Vivienne', 'Florian'];
+                    const speaker = speakers[vocabIndex % speakers.length];
+                    speechService.speakDialogue(`${speaker}: ${v.word}.\n\n${speaker}: ${v.def}\n\n${speaker}: For example. ${v.sentence}`);
+                } else if (pageData && pageData.type === 'dialogue') {
                     speechService.speakDialogue(pageData.content.dialogue);
                 } else if (targetPage) {
                     const readableContent = targetPage.querySelector('.readable-content');
@@ -826,28 +830,28 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
             targetPage.classList.add('active');
             currentPage = pageId;
             if (pageHistory[pageHistory.length - 1] !== currentPage) pageHistory.push(currentPage);
-
-            if (pageId.startsWith('vocab-') || pageId === 'warm-up' || pageId === 'vocab-start' || pageId === 'vocab-game') {
-                startFloatingEmojis();
-            } else {
-                stopFloatingEmojis();
-            }
             
             const pageData = lessonData.pages.find(p => p.id === pageId);
-            if (pageData) {
-                if (pageData.type === 'timer') {
+            if (pageData || pageId.startsWith('vocab-')) {
+                if (pageData && pageData.type === 'timer') {
                     const timerEl = document.getElementById(pageData.content.timerId);
                     if (timerEl) startTimer(pageData.content.duration, timerEl, goNext);
-                } else if (pageData.type === 'vocab-game') {
+                } else if (pageData && pageData.type === 'vocab-game') {
                     startVocabGame();
                 } else if (pageId === 'certificate') {
                     startConfetti();
                     showBadgeToast('🎉 Module Complete! Well done! 🎉');
                 }
                 
-                if (pageData.type === 'dialogue') {
+                if (pageId.startsWith('vocab-') && pageId !== 'vocab-start' && pageId !== 'vocab-game') {
+                    const vocabIndex = parseInt(pageId.split('-')[1]);
+                    const v = lessonData.vocabulary[vocabIndex];
+                    const speakers = ['Emma', 'Brian', 'Seraphina', 'Andrew', 'Ava', 'William', 'Vivienne', 'Florian'];
+                    const speaker = speakers[vocabIndex % speakers.length];
+                    speechService.speakDialogue(`${speaker}: ${v.word}.\n\n${speaker}: ${v.def}\n\n${speaker}: For example. ${v.sentence}`);
+                } else if (pageData && pageData.type === 'dialogue') {
                     speechService.speakDialogue(pageData.content.dialogue);
-                } else if (pageData.type === 'reflection-prompt') {
+                } else if (pageData && pageData.type === 'reflection-prompt') {
                     // Do not auto-speak full text area on reflection prompt
                     speechService.speak(pageData.content.title + ". " + pageData.content.prompt);
                 } else {
@@ -922,7 +926,7 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
             } else {
                 playIncorrectSound();
                 clickedButton.className = clickedButton.className.replace(/bg-\w+-500/, 'bg-red-600');
-                const correctBtn = Array.from(buttonContainer.children).find(btn => btn.textContent === correctAnswer);
+                const correctBtn = Array.from(buttonContainer.children).find(btn => btn.textContent === correctAnswer.charAt(0));
                 if (correctBtn) correctBtn.className = correctBtn.className.replace(/bg-\w+-500/, 'bg-green-500');
             }
             setTimeout(checkCompletionAndMark, 100);
@@ -1045,7 +1049,7 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
             
             const optionsContainer = document.getElementById('vocab-game-options');
             optionsContainer.innerHTML = '';
-            options.sort(() => 0.5 - Math.random()).forEach(opt => {
+            shuffleArray(options).forEach(opt => {
                 const button = document.createElement('button');
                 button.className = 'quiz-option p-4 rounded-xl text-left bg-slate-100 hover:bg-slate-200 border border-slate-200 font-medium text-slate-800 text-xl';
                 button.textContent = opt;
@@ -1226,71 +1230,123 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
                 { question: 'According to the DNA trail, where did the first modern humans originate?', options: ['South America', 'Western Asia', 'Europe', 'Africa'], correctAnswer: 'Africa' },
                 { question: 'What was the primary method early scientists used before DNA technology?', options: ['Satellite imagery', 'Studying scattered bones and artifacts', 'Reading ancient written records', 'Tracking ocean currents'], correctAnswer: 'Studying scattered bones and artifacts' },
                 { question: 'How did early Polynesians navigate the Pacific without modern instruments?', options: ['They used advanced metal compasses.', 'They followed the trails of large whales.', 'They read clouds, bird flights, and ocean swells.', 'They stayed close to the coastlines.'], correctAnswer: 'They read clouds, bird flights, and ocean swells.' },
-                { question: 'What does the text say about human migration?', options: ['It stopped once humans reached the Americas.', 'It is an unnatural behavior forced by climate change.', 'It is a unique phenomenon driven by our curious nature.', 'It only happened because humans were looking for gold.'], correctAnswer: 'It is a unique phenomenon driven by our curious nature.' }
+                { question: 'What does the text say about human migration?', options: ['It stopped once humans reached the Americas.', 'It is an unnatural behavior forced by climate change.', 'It is a unique phenomenon driven by our curious nature.', 'It only happened because humans were looking for gold.'], correctAnswer: 'It is a unique phenomenon driven by our curious nature.' },
+                { question: 'About when did one small group leave Africa for western Asia?', options: ['Between 10,000 and 15,000 years ago.', 'Between 20,000 and 30,000 years ago.', 'Between 50,000 and 70,000 years ago.', 'Between 100,000 and 200,000 years ago.'], correctAnswer: 'Between 50,000 and 70,000 years ago.' }
             ];
 
             const lectureMcq = lessonData.pages.find(p => p.id === 'lecture-uni-quiz-mcq');
             if(lectureMcq) lectureMcq.content.questions = [
                 { question: 'What is a genetic marker?', options: ['A type of bone found in Africa.', 'A rare mutation or spelling mistake in the DNA code.', 'A tool used to draw maps.', 'A blood disease.'], correctAnswer: 'A rare mutation or spelling mistake in the DNA code.' },
                 { question: 'What specific parts of the DNA do geneticists use to trace ancestry?', options: ['White blood cells and red blood cells.', 'Mitochondrial DNA and the Y chromosome.', 'Hair and skin cells.', 'Only the DNA of identical twins.'], correctAnswer: 'Mitochondrial DNA and the Y chromosome.' },
-                { question: 'What does the lecture claim about every non-African person alive today?', options: ['They have different ancestors.', 'They evolved completely independently in Asia.', 'They are descendants of one small group that left Africa.', 'They have no genetic markers.'], correctAnswer: 'They are descendants of one small group that left Africa.' }
+                { question: 'What does the lecture claim about every non-African person alive today?', options: ['They have different ancestors.', 'They evolved completely independently in Asia.', 'They are descendants of one small group that left Africa.', 'They have no genetic markers.'], correctAnswer: 'They are descendants of one small group that left Africa.' },
+                { question: 'What does every drop of human blood contain, according to the professor?', options: ['A record of our ancestors\' journeys.', 'Different levels of gravity.', 'Markers of specific ancient diseases only.', 'Only information from the father.'], correctAnswer: 'A record of our ancestors\' journeys.' },
+                { question: 'Around how many years ago did the group likely cross the Red Sea?', options: ['10,000 years ago', '30,000 years ago', '60,000 years ago', '200,000 years ago'], correctAnswer: '60,000 years ago' }
             ];
             const lectureTf = lessonData.pages.find(p => p.id === 'lecture-uni-quiz-tf');
             if(lectureTf) lectureTf.content.questions = [
                 { statement: 'Genetic markers are passed down from generation to generation.', correctAnswer: 'True' },
                 { statement: 'Mitochondrial DNA gets completely mixed up every generation.', correctAnswer: 'False' },
-                { statement: 'The "Out of Africa" migration likely crossed the Red Sea.', correctAnswer: 'True' }
+                { statement: 'The "Out of Africa" migration likely crossed the Red Sea.', correctAnswer: 'True' },
+                { statement: 'The history of human migration was fully understood before DNA technology.', correctAnswer: 'False' },
+                { statement: 'All non-African people today descend from a single group that left Africa.', correctAnswer: 'True' }
             ];
             const lectureGap = lessonData.pages.find(p => p.id === 'lecture-uni-quiz-gap-fill');
             if(lectureGap) {
                 lectureGap.content.sentences = [
                     { text: ['A genetic marker is a rare', 'in the DNA code.'], answer: 'mutation' },
                     { text: ['These markers are passed down to all the', 'of that person.'], answer: 'descendants' },
-                    { text: ['Geneticists', 'these markers backwards in time.'], answer: 'trace' }
+                    { text: ['Geneticists', 'these markers backwards in time.'], answer: 'trace' },
+                    { text: ['The human', 'is our greatest history book.'], answer: 'genome' },
+                    { text: ['They likely crossed the Red', 'roughly 60,000 years ago.'], answer: 'Sea' }
                 ];
-                lectureGap.content.wordBank = ['mutation', 'descendants', 'trace'];
+                lectureGap.content.wordBank = ['mutation', 'descendants', 'trace', 'genome', 'Sea'];
             }
             
             const expertMcq = lessonData.pages.find(p => p.id === 'lecture-expert-quiz-mcq');
             if(expertMcq) expertMcq.content.questions = [
                 { question: 'What is the name of the ancestors of the Polynesians?', options: ['The Clovis people', 'The Lapita people', 'The Neanderthals', 'The Beringians'], correctAnswer: 'The Lapita people' },
                 { question: 'What was the most crucial tool for Polynesian navigators?', options: ['The star compass', 'A magnetic compass', 'A map drawn on animal skin', 'A telescope'], correctAnswer: 'The star compass' },
-                { question: 'How did birds help the navigators find land?', options: ['By singing specific songs.', 'By dropping seeds on the boat.', 'By flying back to land with fish in their mouths at dusk.', 'By attacking the boat when near land.'], correctAnswer: 'By flying back to land with fish in their mouths at dusk.' }
+                { question: 'How did birds help the navigators find land?', options: ['By singing specific songs.', 'By dropping seeds on the boat.', 'By flying back to land with fish in their mouths at dusk.', 'By attacking the boat when near land.'], correctAnswer: 'By flying back to land with fish in their mouths at dusk.' },
+                { question: 'What did navigators read during the day when it was cloudy?', options: ['The ocean swells', 'The wind speed', 'The color of the sky', 'The fish in the water'], correctAnswer: 'The ocean swells' },
+                { question: 'What kind of instruments did the Lapita use to cross the ocean?', options: ['Early metal astrolabes', 'Magnetic compasses and maps', 'Telescopes', 'None, they used natural navigation'], correctAnswer: 'None, they used natural navigation' }
             ];
             const expertTf = lessonData.pages.find(p => p.id === 'lecture-expert-quiz-tf');
             if(expertTf) expertTf.content.questions = [
                 { statement: 'The Lapita people used metal instruments to navigate.', correctAnswer: 'False' },
                 { statement: 'Navigators could read the ocean swells bouncing back from islands.', correctAnswer: 'True' },
-                { statement: 'The star compass was an incredibly complex system passed down orally.', correctAnswer: 'True' }
+                { statement: 'The star compass was an incredibly complex system passed down orally.', correctAnswer: 'True' },
+                { statement: 'Navigators memorized the rising and setting points of dozens of stars.', correctAnswer: 'True' },
+                { statement: 'Birds flying out to fish at dusk indicated where land was.', correctAnswer: 'False' }
             ];
             const expertGap = lessonData.pages.find(p => p.id === 'lecture-expert-quiz-gap-fill');
             if(expertGap) {
                 expertGap.content.sentences = [
                     { text: ['The Lapita people used what we call natural', '.'], answer: 'navigation' },
                     { text: ['Navigators memorized the rising and setting points of dozens of', '.'], answer: 'stars' }, 
-                    { text: ['They could feel the direction of the ocean', 'bouncing back from islands.'], answer: 'swells' }
+                    { text: ['They could feel the direction of the ocean', 'bouncing back from islands.'], answer: 'swells' },
+                    { text: ['Birds fly back to land with', 'in their mouths.'], answer: 'fish' },
+                    { text: ['It was a complex system passed down', 'from generation to generation.'], answer: 'orally' }
                 ];
-                expertGap.content.wordBank = ['navigation', 'stars', 'swells'];
+                expertGap.content.wordBank = ['navigation', 'stars', 'swells', 'fish', 'orally'];
             }
 
             const convoMcq = lessonData.pages.find(p => p.id === 'podcast-convo-quiz-mcq');
             if(convoMcq) convoMcq.content.questions = [
                 { question: 'What was the traditional "textbook" theory for how humans reached the Americas?', options: ['They sailed across the Atlantic.', 'They walked across the Bering Land Bridge.', 'They flew in early hot air balloons.', 'They evolved there independently.'], correctAnswer: 'They walked across the Bering Land Bridge.' },
-                { question: 'What is the "Kelp Highway" theory?', options: ['A road made of seaweed in Asia.', 'The idea that humans drove across ice.', 'The theory that early Americans used small boats to travel down the Pacific coast.', 'A new way to cook fish.'], correctAnswer: 'The theory that early Americans used small boats to travel down the Pacific coast.' }
+                { question: 'What is the "Kelp Highway" theory?', options: ['A road made of seaweed in Asia.', 'The idea that humans drove across ice.', 'The theory that early Americans used small boats to travel down the Pacific coast.', 'A new way to cook fish.'], correctAnswer: 'The theory that early Americans used small boats to travel down the Pacific coast.' },
+                { question: 'What caused sea levels to drop and create the land bridge?', options: ['A massive earthquake', 'The last Ice Age', 'A long period of drought', 'Volcanic activity'], correctAnswer: 'The last Ice Age' },
+                { question: 'What blocked the inland route for a long time?', options: ['Large mountain ranges', 'Hostile animal species', 'Massive glaciers', 'Deep canyons'], correctAnswer: 'Massive glaciers' },
+                { question: 'Where have older human artifacts recently been found that challenge the old theory?', options: ['South America', 'Central America', 'Greenland', 'Canada'], correctAnswer: 'South America' }
             ];
             const convoTf = lessonData.pages.find(p => p.id === 'podcast-convo-quiz-tf');
             if(convoTf) convoTf.content.questions = [
                 { statement: 'The Bering Land Bridge was a frozen strip of land connecting Siberia to Alaska.', correctAnswer: 'True' },
-                { statement: 'Archaeologists found artifacts in South America that are younger than the ice-free corridor.', correctAnswer: 'False' },
-                { statement: 'The coastal route theory suggests humans bypassed the glaciers using boats.', correctAnswer: 'True' }
+                { statement: 'Artifacts in South America are younger than the ice-free corridor.', correctAnswer: 'False' },
+                { statement: 'The coastal route theory suggests humans bypassed the glaciers using boats.', correctAnswer: 'True' },
+                { statement: 'The Clovis First theory suggested an ice-free corridor was used.', correctAnswer: 'True' },
+                { statement: 'The Kelp Highway theory assumes early Americans survived entirely on large land animals.', correctAnswer: 'False' }
+            ];
+            const convoGap = lessonData.pages.find(p => p.id === 'podcast-convo-quiz-gap-fill');
+            if(convoGap) {
+                convoGap.content.sentences = [
+                    { text: ['Sea levels dropped creating a land', '.'], answer: 'bridge' },
+                    { text: ['The new leading theory is called the coastal', '.'], answer: 'route' },
+                    { text: ['Early Americans survived on fish and', 'while traveling.'], answer: 'kelp' },
+                    { text: ['The inland route was blocked by massive', '.'], answer: 'glaciers' },
+                    { text: ['The traditional theory was known as Clovis', '.'], answer: 'First' }
+                ];
+                convoGap.content.wordBank = ['bridge', 'route', 'kelp', 'glaciers', 'First'];
+            }
+
+            const debateMcq = lessonData.pages.find(p => p.id === 'debate-planning-quiz-mcq');
+            if(debateMcq) debateMcq.content.questions = [
+                { question: 'What is Maria’s main concern about commercial DNA testing kits?', options: ['They are too expensive.', 'They are highly inaccurate.', 'They pose immense privacy risks with personal genetic data.', 'They cause arguments within families.'], correctAnswer: 'They pose immense privacy risks with personal genetic data.' },
+                { question: 'What does Carlos argue is the main benefit of DNA testing?', options: ['It is a fun hobby.', 'It helps researchers trace human migration and cure genetic diseases.', 'It creates jobs for doctors.', 'It replaces traditional passports.'], correctAnswer: 'It helps researchers trace human migration and cure genetic diseases.' },
+                { question: 'What does Maria call the DNA testing industry?', options: ['A fun science experiment', 'A massive corporate profit scheme', 'A vital part of history', 'A modern medical miracle'], correctAnswer: 'A massive corporate profit scheme' },
+                { question: 'What might health insurance companies do with the data, according to Maria?', options: ['Lower premiums', 'Deny coverage', 'Offer free checkups', 'Fund genetic research'], correctAnswer: 'Deny coverage' },
+                { question: 'How does Carlos justify the risk of sharing DNA data?', options: ['He says the data is easily changed.', 'He believes nobody cares about the data.', 'Users sign agreements and make an informed choice.', 'He argues that hacking is impossible.'], correctAnswer: 'Users sign agreements and make an informed choice.' }
             ];
 
             const debateTf = lessonData.pages.find(p => p.id === 'debate-planning-quiz-tf');
             if(debateTf) debateTf.content.questions = [
                 { statement: 'Maria worries that health insurance companies might use DNA data to deny coverage.', correctAnswer: 'True' },
                 { statement: 'Carlos believes that the risk of data breaches is greater than the scientific benefits.', correctAnswer: 'False' },
-                { statement: 'Users must sign agreements before taking commercial DNA tests.', correctAnswer: 'True' }
+                { statement: 'Users must sign agreements before taking commercial DNA tests.', correctAnswer: 'True' },
+                { statement: 'Maria believes commercial DNA tests are completely safe from hackers.', correctAnswer: 'False' },
+                { statement: 'Carlos states that massive databases help cure genetic diseases.', correctAnswer: 'True' }
             ];
+
+            const debateGap = lessonData.pages.find(p => p.id === 'debate-planning-quiz-gap-fill');
+            if(debateGap) {
+                debateGap.content.sentences = [
+                    { text: ['Handing over your genetic code is an', 'privacy risk.'], answer: 'immense' },
+                    { text: ['Databases help researchers trace our shared human', '.'], answer: 'journey' },
+                    { text: ['Maria calls it a corporate profit', 'disguised as science.'], answer: 'scheme' },
+                    { text: ['Users must sign', 'before taking the test.'], answer: 'agreements' },
+                    { text: ['Carlos says that providing the data is an informed', '.'], answer: 'choice' }
+                ];
+                debateGap.content.wordBank = ['immense', 'journey', 'scheme', 'agreements', 'choice'];
+            }
         }
 
         function initializeLesson() {
@@ -1354,7 +1410,10 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
                 'lecture-expert-quiz-tf': ['lecture-expert-quiz-gap-fill'],
                 'podcast-convo': ['podcast-convo-quiz-mcq'],
                 'podcast-convo-quiz-mcq': ['podcast-convo-quiz-tf'],
-                'debate-planning': ['debate-planning-quiz-tf'],
+                'podcast-convo-quiz-tf': ['podcast-convo-quiz-gap-fill'],
+                'debate-planning': ['debate-planning-quiz-mcq'],
+                'debate-planning-quiz-mcq': ['debate-planning-quiz-tf'],
+                'debate-planning-quiz-tf': ['debate-planning-quiz-gap-fill'],
                 'thinking-prompts': ['perspective-intro'],
                 'perspective-intro': ['perspective-1']
             };
@@ -1453,13 +1512,14 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
                     case 'quiz-gap-fill':
                         let questionsHTML = '';
                         if (page.type === 'quiz-tf' && page.content.questions) {
-                            questionsHTML = page.content.questions.map((q, i) => `<div class="question-group flex flex-col md:flex-row items-center gap-6 p-6 rounded-2xl bg-slate-50 border border-slate-200"><p class="font-semibold flex-1 text-left text-slate-800 text-2xl">${i + 1}. ${q.statement}</p><div class="flex-shrink-0 flex gap-4">${['True', 'False'].map(a => `<button onclick="checkTfAnswer(this, '${a}', '${q.correctAnswer}')" class="tf-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl text-xl">${a}</button>`).join('')}</div></div>`).join('');
+                            questionsHTML = page.content.questions.map((q, i) => `<div class="question-group flex flex-col md:flex-row items-center gap-6 p-6 rounded-2xl bg-slate-50 border border-slate-200"><p class="font-semibold flex-1 text-left text-slate-800 text-2xl">${i + 1}. ${q.statement}</p><div class="flex-shrink-0 flex gap-4">${['True', 'False'].map(a => `<button onclick="checkTfAnswer(this, '${a}', '${q.correctAnswer}')" class="tf-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl text-xl">${a.charAt(0)}</button>`).join('')}</div></div>`).join('');
                         } else if (page.type === 'quiz-mcq' && page.content.questions) {
                             questionsHTML = page.content.questions.map((q, i) => `<div class="question-group ${i > 0 ? 'border-t-2 border-gray-200 pt-8 mt-8' : ''}"><p class="font-bold mb-6 text-left text-slate-800 text-2xl">${i + 1}. ${q.question}</p><div class="space-y-4">${q.options.map(opt => `<button onclick="checkMcqAnswer(this, ${opt === q.correctAnswer})" data-correct="${opt === q.correctAnswer}" class="quiz-option p-5 rounded-xl text-left w-full bg-slate-100 hover:bg-blue-50 border border-slate-200 text-slate-800 font-medium text-xl">${opt}</button>`).join('')}</div></div>`).join('');
                         } else if (page.type === 'quiz-gap-fill' && page.content.sentences) {
-                            const words = page.content.wordBank 
-                                ? [...page.content.wordBank].sort(() => Math.random() - 0.5)
-                                : page.content.sentences.map(s => s.answer).sort(() => Math.random() - 0.5);
+                            let words = page.content.wordBank 
+                                ? [...page.content.wordBank]
+                                : page.content.sentences.map(s => s.answer);
+                            words = shuffleArray(words);
                             questionsHTML = `<div class="gap-fill-container text-left">${page.content.sentences.map((s, i) => `<p class="text-2xl mb-8 text-slate-800 leading-loose">${i + 1}. ${s.text[0]} <span class="gap" data-answer="${s.answer}"></span> ${s.text[1] || ''}</p>`).join('')}</div><div class="word-bank-container flex flex-wrap justify-center gap-4 p-6 mt-8 bg-slate-100 border border-slate-200 rounded-2xl">${words.map(w => `<div class="word-bank-word border border-slate-300 shadow-sm text-blue-800 text-xl py-3 px-6" draggable="true" data-word="${w}">${w}</div>`).join('')}</div>`;
                         }
                         pageHTML = `<div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-10 pt-16"><h3 class="text-4xl font-bold text-amber-600 mb-8 text-center">${page.content.title}</h3><div class="space-y-8 max-w-4xl mx-auto">${questionsHTML}</div></div>`;
@@ -1490,63 +1550,6 @@ Carlos: Users sign agreements, Maria. It's an informed choice. The potential to 
             });
             updateNavButtons();
         }
-
-        // ----------------------------
-        // Floating emoji logic
-        // ----------------------------
-        function spawnFloatingEmoji() {
-            const container = emojiContainer;
-            if (!container) return;
-            const palette = ['🌍','🛶','🧬','👣','🧭','🌊','⛰️','🌌','🦴','⛺'];
-            const maxOnScreen = 18;
-
-            if (container.children.length >= maxOnScreen) return;
-            const emoji = palette[Math.floor(Math.random() * palette.length)];
-            const el = document.createElement('div');
-            el.className = 'floating-emoji ' + (emoji === '🛶' ? 'canoe' : 'scenic');
-            el.innerHTML = `<span class="inner">${emoji}</span>`;
-            
-            const top = Math.random() * 75 + 5; 
-            el.style.top = `${top}%`;
-            el.style.left = `-8vw`;
-            
-            const base = (emoji === '🛶') ? 14000 : (8000 + Math.random() * 12000);
-            const jitter = Math.random() * 4000 - 2000;
-            const duration = Math.max(6000, base + jitter);
-            el.style.animationDuration = `${duration}ms`;
-            
-            const scale = 0.85 + Math.random() * 0.6;
-            el.style.transform = `scale(${scale})`;
-            
-            el.addEventListener('animationend', () => {
-                if (container.contains(el)) container.removeChild(el);
-            });
-            container.appendChild(el);
-        }
-
-        function startFloatingEmojis() {
-            if (!emojiSpawnerInterval && emojiContainer) {
-                emojiSpawnerInterval = setInterval(spawnFloatingEmoji, spawnIntervalMs);
-            }
-        }
-
-        function stopFloatingEmojis() {
-            if (emojiSpawnerInterval) {
-                clearInterval(emojiSpawnerInterval);
-                emojiSpawnerInterval = null;
-            }
-            if (emojiContainer) {
-                emojiContainer.innerHTML = ''; 
-            }
-        }
-
-        (function setupFloatingEmojis() {
-            window.spawnEmojiBurst = function(count = 6) {
-                for (let i = 0; i < count; i++) {
-                    setTimeout(spawnFloatingEmoji, i * 120);
-                }
-            }
-        })();
 
         // ----------------------------
         // Initialization and background particle animation
