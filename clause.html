@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Grammar Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Comic Neue', cursive; overflow: hidden; }
+        .tile-base { transition: transform 0.1s ease; cursor: pointer; user-select: none; }
+        .word-tile { background: white; border-bottom: 4px solid #a7f3d0; color: #134e4a; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; }
+        .conj-tile { background: #3b82f6; border-bottom: 4px solid #1d4ed8; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; }
+        .punct-tile { background: #e2e8f0; border-bottom: 4px solid #cbd5e1; color: #475569; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; }
+        .drop-zone { min-height: 60px; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; border-radius: 12px; }
+        .scrollable-y { overflow-y: auto; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col">
+
+    <header class="bg-emerald-600 text-white p-3 shadow-lg flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-4">
+            <button onclick="goToMenu()" id="home-btn" class="hidden hover:text-yellow-300"><i class="fas fa-home text-2xl"></i></button>
+            <h1 class="text-xl font-bold">Grammar Master</h1>
+        </div>
+        <div class="flex items-center gap-4 font-bold">
+            <div id="count-display" class="bg-emerald-700 px-3 py-1 rounded-full text-sm hidden">1 / 60</div>
+            <div id="score-display" class="bg-yellow-400 text-emerald-900 px-3 py-1 rounded-full text-sm">Score: 0</div>
+        </div>
+    </header>
+
+    <main class="flex-grow relative w-full max-w-7xl mx-auto p-4 flex flex-col scrollable-y">
+        <div id="menu-screen" class="bg-white rounded-3xl shadow-2xl p-8 text-center border-4 border-emerald-200 m-auto max-w-2xl w-full">
+            <h1 class="text-4xl font-bold text-emerald-600 mb-6">Choose Your Challenge</h1>
+            <input type="text" id="username-input" class="border-2 border-emerald-300 rounded-xl w-full py-3 px-4 mb-6 text-center text-2xl" placeholder="Enter Name">
+            <div class="grid grid-cols-1 gap-4">
+                <button onclick="startMode('compound')" class="bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-2xl text-xl font-bold">Compound Sentences</button>
+                <button onclick="startMode('complex')" class="bg-purple-500 hover:bg-purple-600 text-white py-4 rounded-2xl text-xl font-bold">Complex & Adverbial</button>
+                <button onclick="startMode('mixed')" class="bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-2xl text-xl font-bold">Mixed Challenge</button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="hidden flex flex-col h-full w-full">
+            <!-- Question row at top -->
+            <div class="bg-white rounded-2xl shadow p-4 mb-2 border-l-4 border-emerald-500 shrink-0">
+                <h2 class="text-xl font-bold text-slate-800" id="question-text">combine ideas!</h2>
+            </div>
+            
+            <!-- 3 Columns on the same row -->
+            <div class="flex flex-row gap-2 flex-grow min-h-0 overflow-hidden">
+                <div class="w-1/4 bg-blue-100 rounded-2xl p-2 flex flex-col items-center overflow-y-auto">
+                    <h3 class="font-bold text-blue-800 text-xs mb-2 uppercase tracking-wide">Joining Words</h3>
+                    <div id="conj-bank" class="flex flex-wrap gap-2 justify-center w-full"></div>
+                </div>
+                <div class="w-1/2 flex flex-col min-h-0 bg-white rounded-2xl shadow-inner border-2 border-dashed border-slate-300 p-2">
+                    <span class="text-xs text-gray-400 font-bold uppercase mb-1">Build Sentence Here</span>
+                    <div id="answer-area" class="drop-zone flex flex-row flex-wrap gap-2 content-start w-full h-full overflow-y-auto"></div>
+                </div>
+                <div class="w-1/4 bg-emerald-100 rounded-2xl p-2 flex flex-col items-center overflow-y-auto">
+                    <h3 class="font-bold text-emerald-800 text-xs mb-2 uppercase tracking-wide">Words</h3>
+                    <div id="word-bank" class="flex flex-wrap gap-2 justify-center w-full"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    const allConjunctions = ['but', 'so', 'or', 'and', 'because', 'while', 'if', 'since', 'until', 'unless', 'who', 'which', 'where'];
+    
+    const masterDB = [
+        { cat: 'compound', type: 'c_coord', c1: 'I like soccer', c2: 'I do not like tennis', conj: 'but' },
+        { cat: 'compound', type: 'c_coord', c1: 'He runs fast', c2: 'he wins the race', conj: 'so' },
+        { cat: 'compound', type: 'c_coord', c1: 'We can swim', c2: 'we can play basketball', conj: 'or' },
+        { cat: 'compound', type: 'c_coord', c1: 'She trains hard', c2: 'she is strong', conj: 'and' },
+        { cat: 'compound', type: 'c_coord', c1: 'I have a dog', c2: 'I have a cat', conj: 'and' },
+        { cat: 'complex', type: 'c_sub', c1: 'I drink water', c2: 'I am thirsty', conj: 'because' },
+        { cat: 'complex', type: 'c_sub', c1: 'I fell down', c2: 'I was running', conj: 'while' },
+        { cat: 'complex', type: 'c_sub', c1: 'You will pass', c2: 'you study hard', conj: 'if' },
+        { cat: 'complex', type: 'c_sub', c1: 'The rain stops', c2: 'we cannot play', conj: 'until' },
+        { cat: 'complex', type: 'c_rel', c1: 'I thanked the man', c2: 'helped me', conj: 'who' },
+        { cat: 'complex', type: 'c_rel', c1: 'I read the book', c2: 'was exciting', conj: 'which' }
+    ];
+
+    let state = { score: 0, currentMode: 'compound', filteredDB: [], currentQ: 0, playerName: '', approvedVoices: [] };
+
+    window.onload = loadVoices;
+
+    function loadVoices() {
+        const target = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Andrew", "William"];
+        const all = window.speechSynthesis.getVoices();
+        state.approvedVoices = all.filter(v => target.some(name => v.name.includes(name)) && v.lang.startsWith('en'));
+    }
+
+    function startMode(mode) {
+        state.currentMode = mode;
+        state.playerName = document.getElementById('username-input').value || "Student";
+        state.filteredDB = (mode === 'mixed') ? [...masterDB] : masterDB.filter(q => q.cat === mode);
+        document.getElementById('menu-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('home-btn').classList.remove('hidden');
+        document.getElementById('count-display').classList.remove('hidden');
+        state.currentQ = 0;
+        loadQuestion();
+    }
+
+    function goToMenu() {
+        document.getElementById('menu-screen').classList.remove('hidden');
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('home-btn').classList.add('hidden');
+        document.getElementById('count-display').classList.add('hidden');
+    }
+
+    function loadQuestion() {
+        const q = state.filteredDB[state.currentQ];
+        document.getElementById('count-display').innerText = `${state.currentQ + 1} / ${state.filteredDB.length}`;
+        
+        // Lowercase the prompt so we don't give away the starting word
+        const formatCombine = (text) => text.toLowerCase().replace(/\bi\b/g, 'I');
+        document.getElementById('question-text').innerText = "combine: " + formatCombine(q.c1) + " / " + formatCombine(q.c2);
+        
+        const wb = document.getElementById('word-bank');
+        const cb = document.getElementById('conj-bank');
+        wb.innerHTML = '';
+        cb.innerHTML = '';
+        document.getElementById('answer-area').innerHTML = '';
+
+        // Add sentence components
+        [q.c1, q.c2, ".", ","].forEach(text => {
+            const el = document.createElement('div');
+            el.className = (text === '.' || text === ',') ? 'punct-tile tile-base' : 'word-tile tile-base';
+            el.innerText = text.toLowerCase();
+            el.onclick = () => toggle(el);
+            wb.appendChild(el);
+        });
+
+        // Add correct conjunction + 3 random distractors
+        let options = new Set([q.conj]);
+        while(options.size < 4) {
+            let randomConj = allConjunctions[Math.floor(Math.random() * allConjunctions.length)];
+            options.add(randomConj);
+        }
+        
+        Array.from(options).sort(() => Math.random() - 0.5).forEach(word => {
+            const conj = document.createElement('div');
+            conj.className = 'conj-tile tile-base';
+            conj.innerText = word;
+            conj.onclick = () => toggle(conj);
+            cb.appendChild(conj);
+        });
+    }
+
+    function toggle(el) {
+        const aa = document.getElementById('answer-area');
+        const wb = document.getElementById('word-bank');
+        const cb = document.getElementById('conj-bank');
+        
+        if(el.parentElement.id === 'answer-area') {
+            if(el.classList.contains('conj-tile')) cb.appendChild(el);
+            else if(el.classList.contains('punct-tile')) wb.appendChild(el);
+            else wb.appendChild(el);
+        } else {
+            aa.appendChild(el);
+        }
+        applyCapitalization();
+        check();
+    }
+
+    function applyCapitalization() {
+        const aa = document.getElementById('answer-area');
+        Array.from(aa.children).forEach((el, i) => {
+            let txt = el.innerText.toLowerCase();
+            const proper = ["i", "tom", "dad", "mom", "japan"];
+            if(i === 0 || proper.includes(txt)) {
+                el.innerText = txt.charAt(0).toUpperCase() + txt.slice(1);
+            } else {
+                el.innerText = txt;
+            }
+        });
+    }
+
+    function check() {
+        const aa = document.getElementById('answer-area');
+        const q = state.filteredDB[state.currentQ];
+        const tiles = Array.from(aa.children);
+        const text = tiles.map(c => c.innerText.toLowerCase()).join(' ');
+        
+        // Strictly check for structural presence (e.g. must contain C1, C2, Conj, comma, period)
+        const hasComma = tiles.some(t => t.innerText === ',');
+        const hasPeriod = tiles.some(t => t.innerText === '.');
+        
+        if (text.includes(q.c1.toLowerCase()) && text.includes(q.c2.toLowerCase()) && text.includes(q.conj) && hasComma && hasPeriod) {
+            state.score += 10;
+            document.getElementById('score-display').innerText = "Score: " + state.score;
+            confetti();
+            setTimeout(() => {
+                state.currentQ++;
+                if(state.currentQ >= state.filteredDB.length) {
+                    alert("Challenge Complete! Score: " + state.score);
+                    goToMenu();
+                } else {
+                    loadQuestion();
+                }
+            }, 1000);
+        }
+    }
+</script>
+</body>
+</html>
