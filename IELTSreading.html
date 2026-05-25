@@ -22,7 +22,8 @@
         body { font-family: 'Inter', -apple-system, sans-serif; background-color: #f8fafc; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .reading-text { line-height: 1.8; font-size: 1.05rem; }
+        /* Font size increased by 30% (1.05rem * 1.3 = 1.365rem) */
+        .reading-text { line-height: 1.8; font-size: 1.365rem; }
         /* Color Coding Highlight Styles */
         .evidence-highlight { padding: 0.125rem 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s; }
         .trap-highlight { padding: 0.125rem 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s; }
@@ -52,13 +53,11 @@
             const speak = (text) => {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
-                    // Strip HTML tags for reading
                     const plainText = text.replace(/<[^>]*>?/gm, ''); 
                     const utterance = new SpeechSynthesisUtterance(plainText);
                     utterance.rate = 0.85; 
                     utterance.pitch = 1;
                     
-                    // Microsoft Multilingual Online English TTS voices
                     const targetNames = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Andrew", "William"];
                     const preferredVoice = voices.find(v => targetNames.some(name => v.name.includes(name)));
                     if (preferredVoice) {
@@ -83,170 +82,117 @@
             return { speak, stop, isSpeaking };
         };
 
-        // --- DATA BANK (31 Passages) ---
-        const practiceBank = [
-            {
-                id: 1,
-                title: "1. The Extracurricular Balancing Act",
-                text: `In recent years, the pressure on secondary school students to build impressive applications has skyrocketed. <span class="trap-highlight">A recent survey revealed that students involved in three or more clubs sleep only five hours per night</span>. However, to combat exhaustion, <span class="evidence-highlight">counselors are advising students to focus on one or two activities they are genuinely passionate about</span>, as colleges look for depth rather than a superficial list of memberships.`,
-                skill: "Identifying Main Ideas / Multiple Choice",
-                strategy: "Always read to the end of the paragraph. The first statistic is a distractor describing the problem, but the actual recommendation comes at the end.",
-                type: "mcq",
-                question: "According to the passage, what do school counselors recommend students do?",
-                options: ["Quit all extracurriculars to focus on grades.", "Commit deeply to a small number of activities.", "Join as many clubs as possible.", "Take frequent naps during the day."],
-                answer: "Commit deeply to a small number of activities."
-            },
-            {
-                id: 2,
-                title: "2. The Homework Debate",
-                text: `Many teachers believe homework reinforces learning. However, students argue it causes burnout. While <span class="trap-highlight">math teachers assign an average of two hours</span>, <span class="evidence-highlight">the overall daily average across all subjects combined is actually three hours</span>.`,
-                skill: "Scanning for Specific Information",
-                strategy: "Don't stop at the first number you see. Match the noun in the question ('total daily average') with the exact noun phrase in the text.",
-                type: "mcq",
-                question: "What is the overall daily average of homework time across all subjects?",
-                options: ["One hour", "Two hours", "Three hours", "Not Given"],
-                answer: "Three hours"
-            },
-            {
-                id: 3,
-                title: "3. School Sports Funding",
-                text: `The school board recently discussed the athletics budget. While the football team receives the most funding, <span class="trap-highlight">the debate team requested an additional $500 for travel</span>. Ultimately, <span class="evidence-highlight">the board decided to freeze all extracurricular budgets for the upcoming semester</span> due to statewide cuts.`,
-                skill: "True / False / Not Given",
-                strategy: "Look out for 'requests' vs 'decisions'. Just because a group asked for money doesn't mean they received it.",
-                type: "tfng",
-                question: "The debate team successfully secured an additional $500 for travel.",
-                options: ["True", "False", "Not Given"],
-                answer: "False"
-            },
-            {
-                id: 4,
-                title: "4. Cafeteria Nutrition Standards",
-                text: `New state laws mandate healthier school lunches. <span class="trap-highlight">Vending machines will no longer stock sugary sodas</span>. Furthermore, <span class="evidence-highlight">all meals must contain at least one serving of fresh vegetables, replacing the previous requirement of canned fruit</span>.`,
-                skill: "Identifying Distractors",
-                strategy: "Focus on the specific question constraint. The question asks about *meals*, not vending machines.",
-                type: "mcq",
-                question: "What must all new cafeteria meals include?",
-                options: ["Sugary sodas", "Canned fruit", "Fresh vegetables", "Vending machine snacks"],
-                answer: "Fresh vegetables"
-            },
-            {
-                id: 5,
-                title: "5. Sleep Deprivation in Teens",
-                text: `Doctors recommend that teenagers get 8-10 hours of sleep per night. <span class="evidence-highlight">Early school start times have been linked to chronic sleep deprivation</span>, which impairs memory retention. <span class="trap-highlight">Some parents believe social media is the sole cause of tiredness</span>, but studies show school schedules play a larger role.`,
-                skill: "Matching Claims",
-                strategy: "Distinguish between what 'some parents believe' (an opinion) and what 'studies show' (evidence).",
-                type: "tfng",
-                question: "Studies confirm that social media is the only reason teenagers are tired.",
-                options: ["True", "False", "Not Given"],
-                answer: "False"
-            },
-            {
-                id: 6,
-                title: "6. Part-Time Jobs",
-                text: `Many juniors take on part-time jobs. While <span class="evidence-highlight">working helps students learn financial responsibility</span>, <span class="trap-highlight">working more than 20 hours a week often leads to a drop in academic performance</span>.`,
-                skill: "Summarizing Information",
-                strategy: "Identify the positive outcome versus the negative condition.",
-                type: "mcq",
-                question: "What is a positive benefit of having a part-time job mentioned in the text?",
-                options: ["A drop in academic performance", "Working over 20 hours", "Learning financial responsibility", "Improving grades"],
-                answer: "Learning financial responsibility"
-            },
-            {
-                id: 7,
-                title: "7. College Admissions Exams",
-                text: `Historically, the SAT and ACT were mandatory for university entry. Recently, <span class="trap-highlight">some top-tier universities announced they would remain test-optional indefinitely</span>. However, <span class="evidence-highlight">several state university systems have reinstated the standardized testing requirement</span> for the incoming fall class.`,
-                skill: "True / False / Not Given",
-                strategy: "Pay attention to qualifiers like 'some', 'all', or 'several'. They completely change the truth value of a statement.",
-                type: "tfng",
-                question: "All universities have permanently removed standardized testing requirements.",
-                options: ["True", "False", "Not Given"],
-                answer: "False"
-            },
-            {
-                id: 8,
-                title: "8. Bullying Prevention Programs",
-                text: `<span class="trap-highlight">Old methods of discipline relied heavily on suspension</span>. Modern bullying prevention programs focus on restorative justice. <span class="evidence-highlight">These new initiatives require students to engage in mediated dialogue to resolve conflicts</span> rather than simply being sent home.`,
-                skill: "Identifying Process Differences",
-                strategy: "Compare past methods ('old methods') with current requirements ('new initiatives').",
-                type: "mcq",
-                question: "How do modern prevention programs primarily handle student conflicts?",
-                options: ["Through immediate suspension", "By sending students home", "Through mediated dialogue", "By ignoring the conflict"],
-                answer: "Through mediated dialogue"
-            },
-            {
-                id: 9,
-                title: "9. Standardized Dress Codes",
-                text: `Proponents of school uniforms argue they reduce distractions. <span class="trap-highlight">A survey showed 60% of parents support the idea</span>, but <span class="evidence-highlight">the student council voted overwhelmingly against uniform implementation</span>, stating it stifles personal expression.`,
-                skill: "Recognizing Opposing Views",
-                strategy: "Track who holds which opinion. The question asks for the *student council's* view, not the parents'.",
-                type: "tfng",
-                question: "The student council supports the implementation of school uniforms.",
-                options: ["True", "False", "Not Given"],
-                answer: "False"
-            },
-            {
-                id: 10,
-                title: "10. Driver's Education",
-                text: `Getting a driver's license is a major milestone. <span class="trap-highlight">In the past, high schools provided free in-class driving instruction</span>. Today, due to budget constraints, <span class="evidence-highlight">students must complete their driving hours through private, paid academies</span>.`,
-                skill: "Chronological Scanning",
-                strategy: "Watch out for past vs. present tense. 'In the past' is the distractor for a question about current policy.",
-                type: "mcq",
-                question: "How do students currently complete their driving hours?",
-                options: ["Through free high school classes", "By driving with parents only", "Through paid private academies", "Not Given"],
-                answer: "Through paid private academies"
-            },
-            { id: 11, title: "11. Technology in the Classroom", text: `Schools are adopting tablets rapidly. <span class="trap-highlight">While teachers find them useful for grading</span>, <span class="evidence-highlight">the primary reason administrators purchased them was to reduce textbook costs</span> over five years.`, skill: "Identifying Primary Reasons", strategy: "Distinguish between a 'side benefit' and the 'primary reason'.", type: "mcq", question: "What was the administrators' main reason for buying tablets?", options: ["To help teachers grade", "To reduce textbook costs", "To play games", "Not Given"], answer: "To reduce textbook costs" },
-            { id: 12, title: "12. Block Scheduling", text: `Under the new block schedule, <span class="trap-highlight">students attend four 90-minute classes per day</span> instead of eight 45-minute ones. <span class="evidence-highlight">This allows for deeper laboratory experiments in science courses</span>.`, skill: "Cause and Effect", strategy: "Identify the direct result of the schedule change mentioned in the text.", type: "mcq", question: "What is an advantage of the new block schedule mentioned in the text?", options: ["Shorter school days", "More classes per day", "Deeper laboratory experiments", "Less homework"], answer: "Deeper laboratory experiments" },
-            { id: 13, title: "13. Arts Education Funding", text: `<span class="evidence-highlight">Despite evidence that arts education improves cognitive skills, funding for music and theater programs continues to be slashed</span>. <span class="trap-highlight">The math department, however, received a large grant</span>.`, skill: "True / False / Not Given", strategy: "Ensure the statement perfectly aligns with the text. A reduction in funding means it is not increasing.", type: "tfng", question: "Funding for music and theater programs is currently increasing.", options: ["True", "False", "Not Given"], answer: "False" },
-            { id: 14, title: "14. Volunteering Requirements", text: `To graduate, <span class="trap-highlight">seniors must complete 40 hours of community service</span>. However, <span class="evidence-highlight">students in the IB program must complete 150 hours of CAS (Creativity, Activity, Service)</span>.`, skill: "Detail Matching", strategy: "Pay close attention to specific groups (seniors vs. IB students).", type: "mcq", question: "How many hours of service must an IB student complete?", options: ["40 hours", "100 hours", "150 hours", "No hours required"], answer: "150 hours" },
-            { id: 15, title: "15. The Senior Prom", text: `The prom committee announced that <span class="trap-highlight">the dance would be held in the school gym</span> to save money. After a student protest, <span class="evidence-highlight">they relocated the event to the downtown hotel ballroom</span>.`, skill: "Tracking Changes", strategy: "Follow the narrative timeline. The final outcome is the correct answer.", type: "mcq", question: "Where will the prom ultimately be held?", options: ["The school gym", "The downtown hotel ballroom", "The football field", "Not Given"], answer: "The downtown hotel ballroom" },
-            { id: 16, title: "16. Mental Health Days", text: `Some districts now allow students to take excused 'mental health days'. <span class="evidence-highlight">Students can take up to three days per semester without a doctor's note</span>. <span class="trap-highlight">Taking more than five requires a formal medical evaluation</span>.`, skill: "Number Checking", strategy: "Read the specific conditions tied to the numbers.", type: "tfng", question: "Students need a doctor's note to take two mental health days.", options: ["True", "False", "Not Given"], answer: "False" },
-            { id: 17, title: "17. Study Groups", text: `While studying alone allows for intense focus, <span class="evidence-highlight">peer study groups are proven to enhance long-term memory retention</span>. <span class="trap-highlight">They can, however, easily turn into social hangouts</span> if not properly moderated.`, skill: "Weighing Pros and Cons", strategy: "Identify the proven academic benefit versus the potential risk.", type: "mcq", question: "What is a proven academic benefit of peer study groups?", options: ["They turn into social hangouts", "They allow for intense focus alone", "They enhance long-term memory retention", "Not Given"], answer: "They enhance long-term memory retention" },
-            { id: 18, title: "18. Student Council Elections", text: `The race for class president was tight. <span class="trap-highlight">Candidate A promised longer lunch breaks</span>, but <span class="evidence-highlight">Candidate B won by focusing on improving campus Wi-Fi</span>.`, skill: "Identifying Outcomes", strategy: "Focus on the winning condition, not the initial promises.", type: "mcq", question: "Why did Candidate B win the election?", options: ["Promising longer lunches", "Focusing on campus Wi-Fi", "Having more posters", "Not Given"], answer: "Focusing on campus Wi-Fi" },
-            { id: 19, title: "19. Locker Searches", text: `Due to safety concerns, <span class="evidence-highlight">administration retains the right to search student lockers at any time</span>. <span class="trap-highlight">Students must provide their own padlocks</span>, but they must give the combination to the main office.`, skill: "True / False / Not Given", strategy: "Check the rules of ownership vs. rights of access.", type: "tfng", question: "The school is not allowed to search lockers without student permission.", options: ["True", "False", "Not Given"], answer: "False" },
-            { id: 20, title: "20. Class Size Reductions", text: `To improve teacher-student ratios, <span class="trap-highlight">the district hired ten new administrators</span>. More importantly, <span class="evidence-highlight">they capped all freshman English classes at 20 students</span>.`, skill: "Distinguishing Actions", strategy: "Distinguish between administrative changes and classroom changes.", type: "mcq", question: "How did the district change freshman English classes?", options: ["Hired ten administrators", "Capped them at 20 students", "Moved them to block scheduling", "Not Given"], answer: "Capped them at 20 students" },
-            { id: 21, title: "21. AP Class Enrollment", text: `Open enrollment policies have allowed more students to take Advanced Placement (AP) classes. <span class="evidence-highlight">This has increased overall college readiness</span>, though <span class="trap-highlight">average AP exam scores have slightly dipped</span>.`, skill: "True / False / Not Given", strategy: "Notice the contrasting outcomes (increased readiness vs. dipped scores).", type: "tfng", question: "Open enrollment has caused a massive increase in average AP exam scores.", options: ["True", "False", "Not Given"], answer: "False" },
-            { id: 22, title: "22. Summer Reading Lists", text: `The English department revised the summer reading list. <span class="trap-highlight">Classic literature is still required</span>, but <span class="evidence-highlight">students must now also choose one contemporary non-fiction book</span>.`, skill: "Identifying Additions", strategy: "Look for words like 'also' or 'in addition' to spot new requirements.", type: "mcq", question: "What new requirement was added to the summer reading list?", options: ["Classic literature", "A contemporary non-fiction book", "Writing an essay", "Not Given"], answer: "A contemporary non-fiction book" },
-            { id: 23, title: "23. Peer Tutoring", text: `<span class="evidence-highlight">The National Honor Society offers free peer tutoring in the library after school</span>. <span class="trap-highlight">Private tutors charge upwards of $50 an hour</span>.`, skill: "Comparing Options", strategy: "Differentiate between the school-provided service and the external service.", type: "tfng", question: "The National Honor Society charges $50 an hour for peer tutoring.", options: ["True", "False", "Not Given"], answer: "False" },
-            { id: 24, title: "24. Cellphone Policies", text: `The new policy bans cellphones in classrooms. <span class="trap-highlight">Students caught texting will receive a warning for the first offense</span>. <span class="evidence-highlight">A second offense results in the phone being confiscated until a parent retrieves it</span>.`, skill: "Tracking Consequences", strategy: "Read carefully to separate the consequence of the first offense from the second.", type: "mcq", question: "What happens on a student's second cellphone offense?", options: ["A warning", "Suspension", "Phone confiscated until a parent retrieves it", "Not Given"], answer: "Phone confiscated until a parent retrieves it" },
-            { id: 25, title: "25. Foreign Exchange Programs", text: `Studying abroad offers incredible cultural immersion. <span class="trap-highlight">While trips to Europe remain the most popular</span>, <span class="evidence-highlight">applications for language programs in South America have doubled this year</span>.`, skill: "True / False / Not Given", strategy: "Check the statistics mentioned (most popular vs. highest growth).", type: "tfng", question: "Applications for programs in South America have increased.", options: ["True", "False", "Not Given"], answer: "True" },
-            { id: 26, title: "26. Yearbook Committee", text: `The yearbook deadline is approaching. <span class="evidence-highlight">The photography team has finalized all senior portraits</span>, but <span class="trap-highlight">the sports section is missing captions for the basketball games</span>.`, skill: "Identifying Completion Status", strategy: "Scan for completed tasks versus pending tasks.", type: "mcq", question: "Which section of the yearbook has been completely finalized?", options: ["The sports section", "Senior portraits", "The club section", "Not Given"], answer: "Senior portraits" },
-            { id: 27, title: "27. School Play Auditions", text: `Auditions for the spring musical, 'Grease', start next week. <span class="trap-highlight">Students must prepare a monologue</span> and <span class="evidence-highlight">sing a 16-bar vocal solo of their choosing</span>.`, skill: "Listing Requirements", strategy: "Ensure you capture all parts of a compound requirement.", type: "mcq", question: "What must students sing at the audition?", options: ["A monologue", "A duet", "A 16-bar vocal solo", "Not Given"], answer: "A 16-bar vocal solo" },
-            { id: 28, title: "28. Graduation Requirements", text: `State law recently changed diploma requirements. <span class="trap-highlight">Physical education is still mandatory for two years</span>. However, <span class="evidence-highlight">students must now pass a personal finance course to graduate</span>.`, skill: "True / False / Not Given", strategy: "Focus on the newly added condition to the law.", type: "tfng", question: "Students do not need to pass a personal finance course to graduate.", options: ["True", "False", "Not Given"], answer: "False" },
-            { id: 29, title: "29. College Fairs", text: `The regional college fair will host over 100 universities. <span class="trap-highlight">State colleges will be in the main gymnasium</span>. <span class="evidence-highlight">Ivy League recruiters will be located in the library to accommodate larger crowds</span>.`, skill: "Locating Information", strategy: "Match the specific noun (Ivy League) to the location.", type: "mcq", question: "Where will Ivy League recruiters be located?", options: ["Main gymnasium", "Cafeteria", "The library", "Not Given"], answer: "The library" },
-            { id: 30, title: "30. Late Arrival Policies", text: `<span class="trap-highlight">Tardy students used to sign in at the front desk</span>. Now, <span class="evidence-highlight">they must scan their digital ID cards at the kiosk before entering class</span> to automate attendance tracking.`, skill: "Identifying New Procedures", strategy: "Contrast the old habit with the new required action.", type: "mcq", question: "What must tardy students do now?", options: ["Sign in at the front desk", "Scan digital ID cards at the kiosk", "Go straight to class", "Not Given"], answer: "Scan digital ID cards at the kiosk" },
-            { id: 31, title: "31. The Science Fair", text: `The annual science fair is mandatory for honors students. <span class="trap-highlight">Biology projects are the most common submission</span>, but <span class="evidence-highlight">engineering projects have won the top prize for the last three years consecutively</span>.`, skill: "True / False / Not Given", strategy: "Pay attention to the difference between 'most common' and 'most successful'.", type: "tfng", question: "Biology projects win the top prize every year.", options: ["True", "False", "Not Given"], answer: "False" }
+        // --- DATA BANK (58 Passages) ---
+        // Numbers removed from titles
+        const rawPracticeBank = [
+            { id: 1, title: "The Extracurricular Balancing Act", text: `In recent years, the pressure on secondary school students to build impressive applications has skyrocketed. <span class="trap-highlight">A recent survey revealed that students involved in three or more clubs sleep only five hours per night</span>. However, to combat exhaustion, <span class="evidence-highlight">counselors are advising students to focus on one or two activities they are genuinely passionate about</span>, as colleges look for depth rather than a superficial list of memberships.`, skill: "Identifying Main Ideas / Multiple Choice", strategy: "Always read to the end of the paragraph. The first statistic is a distractor describing the problem, but the actual recommendation comes at the end.", type: "mcq", question: "According to the passage, what do school counselors recommend students do?", options: ["Quit all extracurriculars to focus on grades.", "Commit deeply to a small number of activities.", "Join as many clubs as possible.", "Take frequent naps during the day."], answer: "Commit deeply to a small number of activities." },
+            { id: 2, title: "The Homework Debate", text: `Many teachers believe homework reinforces learning. However, students argue it causes burnout. While <span class="trap-highlight">math teachers assign an average of two hours</span>, <span class="evidence-highlight">the overall daily average across all subjects combined is actually three hours</span>.`, skill: "Scanning for Specific Information", strategy: "Don't stop at the first number you see. Match the noun in the question ('total daily average') with the exact noun phrase in the text.", type: "mcq", question: "What is the overall daily average of homework time across all subjects?", options: ["One hour", "Two hours", "Three hours", "Not Given"], answer: "Three hours" },
+            { id: 3, title: "School Sports Funding", text: `The school board recently discussed the athletics budget. While the football team receives the most funding, <span class="trap-highlight">the debate team requested an additional $500 for travel</span>. Ultimately, <span class="evidence-highlight">the board decided to freeze all extracurricular budgets for the upcoming semester</span> due to statewide cuts.`, skill: "True / False / Not Given", strategy: "Look out for 'requests' vs 'decisions'. Just because a group asked for money doesn't mean they received it.", type: "tfng", question: "The debate team successfully secured an additional $500 for travel.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 4, title: "Cafeteria Nutrition Standards", text: `New state laws mandate healthier school lunches. <span class="trap-highlight">Vending machines will no longer stock sugary sodas</span>. Furthermore, <span class="evidence-highlight">all meals must contain at least one serving of fresh vegetables, replacing the previous requirement of canned fruit</span>.`, skill: "Identifying Distractors", strategy: "Focus on the specific question constraint. The question asks about *meals*, not vending machines.", type: "mcq", question: "What must all new cafeteria meals include?", options: ["Sugary sodas", "Canned fruit", "Fresh vegetables", "Vending machine snacks"], answer: "Fresh vegetables" },
+            { id: 5, title: "Sleep Deprivation in Teens", text: `Doctors recommend that teenagers get 8-10 hours of sleep per night. <span class="evidence-highlight">Early school start times have been linked to chronic sleep deprivation</span>, which impairs memory retention. <span class="trap-highlight">Some parents believe social media is the sole cause of tiredness</span>, but studies show school schedules play a larger role.`, skill: "Matching Claims", strategy: "Distinguish between what 'some parents believe' (an opinion) and what 'studies show' (evidence).", type: "tfng", question: "Studies confirm that social media is the only reason teenagers are tired.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 6, title: "Part-Time Jobs", text: `Many juniors take on part-time jobs. While <span class="evidence-highlight">working helps students learn financial responsibility</span>, <span class="trap-highlight">working more than 20 hours a week often leads to a drop in academic performance</span>.`, skill: "Summarizing Information", strategy: "Identify the positive outcome versus the negative condition.", type: "mcq", question: "What is a positive benefit of having a part-time job mentioned in the text?", options: ["A drop in academic performance", "Working over 20 hours", "Learning financial responsibility", "Improving grades"], answer: "Learning financial responsibility" },
+            { id: 7, title: "College Admissions Exams", text: `Historically, the SAT and ACT were mandatory for university entry. Recently, <span class="trap-highlight">some top-tier universities announced they would remain test-optional indefinitely</span>. However, <span class="evidence-highlight">several state university systems have reinstated the standardized testing requirement</span> for the incoming fall class.`, skill: "True / False / Not Given", strategy: "Pay attention to qualifiers like 'some', 'all', or 'several'. They completely change the truth value of a statement.", type: "tfng", question: "All universities have permanently removed standardized testing requirements.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 8, title: "Bullying Prevention Programs", text: `<span class="trap-highlight">Old methods of discipline relied heavily on suspension</span>. Modern bullying prevention programs focus on restorative justice. <span class="evidence-highlight">These new initiatives require students to engage in mediated dialogue to resolve conflicts</span> rather than simply being sent home.`, skill: "Identifying Process Differences", strategy: "Compare past methods ('old methods') with current requirements ('new initiatives').", type: "mcq", question: "How do modern prevention programs primarily handle student conflicts?", options: ["Through immediate suspension", "By sending students home", "Through mediated dialogue", "By ignoring the conflict"], answer: "Through mediated dialogue" },
+            { id: 9, title: "Standardized Dress Codes", text: `Proponents of school uniforms argue they reduce distractions. <span class="trap-highlight">A survey showed 60% of parents support the idea</span>, but <span class="evidence-highlight">the student council voted overwhelmingly against uniform implementation</span>, stating it stifles personal expression.`, skill: "Recognizing Opposing Views", strategy: "Track who holds which opinion. The question asks for the *student council's* view, not the parents'.", type: "tfng", question: "The student council supports the implementation of school uniforms.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 10, title: "Driver's Education", text: `Getting a driver's license is a major milestone. <span class="trap-highlight">In the past, high schools provided free in-class driving instruction</span>. Today, due to budget constraints, <span class="evidence-highlight">students must complete their driving hours through private, paid academies</span>.`, skill: "Chronological Scanning", strategy: "Watch out for past vs. present tense. 'In the past' is the distractor for a question about current policy.", type: "mcq", question: "How do students currently complete their driving hours?", options: ["Through free high school classes", "By driving with parents only", "Through paid private academies", "Not Given"], answer: "Through paid private academies" },
+            { id: 11, title: "Technology in the Classroom", text: `Schools are adopting tablets rapidly. <span class="trap-highlight">While teachers find them useful for grading</span>, <span class="evidence-highlight">the primary reason administrators purchased them was to reduce textbook costs</span> over five years.`, skill: "Identifying Primary Reasons", strategy: "Distinguish between a 'side benefit' and the 'primary reason'.", type: "mcq", question: "What was the administrators' main reason for buying tablets?", options: ["To help teachers grade", "To reduce textbook costs", "To play games", "Not Given"], answer: "To reduce textbook costs" },
+            { id: 12, title: "Block Scheduling", text: `Under the new block schedule, <span class="trap-highlight">students attend four 90-minute classes per day</span> instead of eight 45-minute ones. <span class="evidence-highlight">This allows for deeper laboratory experiments in science courses</span>.`, skill: "Cause and Effect", strategy: "Identify the direct result of the schedule change mentioned in the text.", type: "mcq", question: "What is an advantage of the new block schedule mentioned in the text?", options: ["Shorter school days", "More classes per day", "Deeper laboratory experiments", "Less homework"], answer: "Deeper laboratory experiments" },
+            { id: 13, title: "Arts Education Funding", text: `<span class="evidence-highlight">Despite evidence that arts education improves cognitive skills, funding for music and theater programs continues to be slashed</span>. <span class="trap-highlight">The math department, however, received a large grant</span>.`, skill: "True / False / Not Given", strategy: "Ensure the statement perfectly aligns with the text. A reduction in funding means it is not increasing.", type: "tfng", question: "Funding for music and theater programs is currently increasing.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 14, title: "Volunteering Requirements", text: `To graduate, <span class="trap-highlight">seniors must complete 40 hours of community service</span>. However, <span class="evidence-highlight">students in the IB program must complete 150 hours of CAS (Creativity, Activity, Service)</span>.`, skill: "Detail Matching", strategy: "Pay close attention to specific groups (seniors vs. IB students).", type: "mcq", question: "How many hours of service must an IB student complete?", options: ["40 hours", "100 hours", "150 hours", "No hours required"], answer: "150 hours" },
+            { id: 15, title: "The Senior Prom", text: `The prom committee announced that <span class="trap-highlight">the dance would be held in the school gym</span> to save money. After a student protest, <span class="evidence-highlight">they relocated the event to the downtown hotel ballroom</span>.`, skill: "Tracking Changes", strategy: "Follow the narrative timeline. The final outcome is the correct answer.", type: "mcq", question: "Where will the prom ultimately be held?", options: ["The school gym", "The downtown hotel ballroom", "The football field", "Not Given"], answer: "The downtown hotel ballroom" },
+            { id: 16, title: "Mental Health Days", text: `Some districts now allow students to take excused 'mental health days'. <span class="evidence-highlight">Students can take up to three days per semester without a doctor's note</span>. <span class="trap-highlight">Taking more than five requires a formal medical evaluation</span>.`, skill: "Number Checking", strategy: "Read the specific conditions tied to the numbers.", type: "tfng", question: "Students need a doctor's note to take two mental health days.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 17, title: "Study Groups", text: `While studying alone allows for intense focus, <span class="evidence-highlight">peer study groups are proven to enhance long-term memory retention</span>. <span class="trap-highlight">They can, however, easily turn into social hangouts</span> if not properly moderated.`, skill: "Weighing Pros and Cons", strategy: "Identify the proven academic benefit versus the potential risk.", type: "mcq", question: "What is a proven academic benefit of peer study groups?", options: ["They turn into social hangouts", "They allow for intense focus alone", "They enhance long-term memory retention", "Not Given"], answer: "They enhance long-term memory retention" },
+            { id: 18, title: "Student Council Elections", text: `The race for class president was tight. <span class="trap-highlight">Candidate A promised longer lunch breaks</span>, but <span class="evidence-highlight">Candidate B won by focusing on improving campus Wi-Fi</span>.`, skill: "Identifying Outcomes", strategy: "Focus on the winning condition, not the initial promises.", type: "mcq", question: "Why did Candidate B win the election?", options: ["Promising longer lunches", "Focusing on campus Wi-Fi", "Having more posters", "Not Given"], answer: "Focusing on campus Wi-Fi" },
+            { id: 19, title: "Locker Searches", text: `Due to safety concerns, <span class="evidence-highlight">administration retains the right to search student lockers at any time</span>. <span class="trap-highlight">Students must provide their own padlocks</span>, but they must give the combination to the main office.`, skill: "True / False / Not Given", strategy: "Check the rules of ownership vs. rights of access.", type: "tfng", question: "The school is not allowed to search lockers without student permission.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 20, title: "Class Size Reductions", text: `To improve teacher-student ratios, <span class="trap-highlight">the district hired ten new administrators</span>. More importantly, <span class="evidence-highlight">they capped all freshman English classes at 20 students</span>.`, skill: "Distinguishing Actions", strategy: "Distinguish between administrative changes and classroom changes.", type: "mcq", question: "How did the district change freshman English classes?", options: ["Hired ten administrators", "Capped them at 20 students", "Moved them to block scheduling", "Not Given"], answer: "Capped them at 20 students" },
+            { id: 21, title: "AP Class Enrollment", text: `Open enrollment policies have allowed more students to take Advanced Placement (AP) classes. <span class="evidence-highlight">This has increased overall college readiness</span>, though <span class="trap-highlight">average AP exam scores have slightly dipped</span>.`, skill: "True / False / Not Given", strategy: "Notice the contrasting outcomes (increased readiness vs. dipped scores).", type: "tfng", question: "Open enrollment has caused a massive increase in average AP exam scores.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 22, title: "Summer Reading Lists", text: `The English department revised the summer reading list. <span class="trap-highlight">Classic literature is still required</span>, but <span class="evidence-highlight">students must now also choose one contemporary non-fiction book</span>.`, skill: "Identifying Additions", strategy: "Look for words like 'also' or 'in addition' to spot new requirements.", type: "mcq", question: "What new requirement was added to the summer reading list?", options: ["Classic literature", "A contemporary non-fiction book", "Writing an essay", "Not Given"], answer: "A contemporary non-fiction book" },
+            { id: 23, title: "Peer Tutoring", text: `<span class="evidence-highlight">The National Honor Society offers free peer tutoring in the library after school</span>. <span class="trap-highlight">Private tutors charge upwards of $50 an hour</span>.`, skill: "Comparing Options", strategy: "Differentiate between the school-provided service and the external service.", type: "tfng", question: "The National Honor Society charges $50 an hour for peer tutoring.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 24, title: "Cellphone Policies", text: `The new policy bans cellphones in classrooms. <span class="trap-highlight">Students caught texting will receive a warning for the first offense</span>. <span class="evidence-highlight">A second offense results in the phone being confiscated until a parent retrieves it</span>.`, skill: "Tracking Consequences", strategy: "Read carefully to separate the consequence of the first offense from the second.", type: "mcq", question: "What happens on a student's second cellphone offense?", options: ["A warning", "Suspension", "Phone confiscated until a parent retrieves it", "Not Given"], answer: "Phone confiscated until a parent retrieves it" },
+            { id: 25, title: "Foreign Exchange Programs", text: `Studying abroad offers incredible cultural immersion. <span class="trap-highlight">While trips to Europe remain the most popular</span>, <span class="evidence-highlight">applications for language programs in South America have doubled this year</span>.`, skill: "True / False / Not Given", strategy: "Check the statistics mentioned (most popular vs. highest growth).", type: "tfng", question: "Applications for programs in South America have increased.", options: ["True", "False", "Not Given"], answer: "True" },
+            { id: 26, title: "Yearbook Committee", text: `The yearbook deadline is approaching. <span class="evidence-highlight">The photography team has finalized all senior portraits</span>, but <span class="trap-highlight">the sports section is missing captions for the basketball games</span>.`, skill: "Identifying Completion Status", strategy: "Scan for completed tasks versus pending tasks.", type: "mcq", question: "Which section of the yearbook has been completely finalized?", options: ["The sports section", "Senior portraits", "The club section", "Not Given"], answer: "Senior portraits" },
+            { id: 27, title: "School Play Auditions", text: `Auditions for the spring musical, 'Grease', start next week. <span class="trap-highlight">Students must prepare a monologue</span> and <span class="evidence-highlight">sing a 16-bar vocal solo of their choosing</span>.`, skill: "Listing Requirements", strategy: "Ensure you capture all parts of a compound requirement.", type: "mcq", question: "What must students sing at the audition?", options: ["A monologue", "A duet", "A 16-bar vocal solo", "Not Given"], answer: "A 16-bar vocal solo" },
+            { id: 28, title: "Graduation Requirements", text: `State law recently changed diploma requirements. <span class="trap-highlight">Physical education is still mandatory for two years</span>. However, <span class="evidence-highlight">students must now pass a personal finance course to graduate</span>.`, skill: "True / False / Not Given", strategy: "Focus on the newly added condition to the law.", type: "tfng", question: "Students do not need to pass a personal finance course to graduate.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 29, title: "College Fairs", text: `The regional college fair will host over 100 universities. <span class="trap-highlight">State colleges will be in the main gymnasium</span>. <span class="evidence-highlight">Ivy League recruiters will be located in the library to accommodate larger crowds</span>.`, skill: "Locating Information", strategy: "Match the specific noun (Ivy League) to the location.", type: "mcq", question: "Where will Ivy League recruiters be located?", options: ["Main gymnasium", "Cafeteria", "The library", "Not Given"], answer: "The library" },
+            { id: 30, title: "Late Arrival Policies", text: `<span class="trap-highlight">Tardy students used to sign in at the front desk</span>. Now, <span class="evidence-highlight">they must scan their digital ID cards at the kiosk before entering class</span> to automate attendance tracking.`, skill: "Identifying New Procedures", strategy: "Contrast the old habit with the new required action.", type: "mcq", question: "What must tardy students do now?", options: ["Sign in at the front desk", "Scan digital ID cards at the kiosk", "Go straight to class", "Not Given"], answer: "Scan digital ID cards at the kiosk" },
+            { id: 31, title: "The Science Fair", text: `The annual science fair is mandatory for honors students. <span class="trap-highlight">Biology projects are the most common submission</span>, but <span class="evidence-highlight">engineering projects have won the top prize for the last three years consecutively</span>.`, skill: "True / False / Not Given", strategy: "Pay attention to the difference between 'most common' and 'most successful'.", type: "tfng", question: "Biology projects win the top prize every year.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 32, title: "Robots at Work (Robotics Team)", text: `The high school robotics team recently unveiled their newest creation, which automates cafeteria cleanup. <span class="trap-highlight">Many students worried the robot would replace student volunteer hours entirely</span>. However, <span class="evidence-highlight">the club advisor clarified that the robot's primary goal is to handle hazardous spills, freeing up volunteers for more engaging tasks</span>.`, skill: "Identifying Primary Goals", strategy: "Distinguish between students' worries (distractor) and the advisor's clarified purpose.", type: "mcq", question: "What is the primary goal of the new cafeteria robot?", options: ["To replace student volunteers entirely", "To handle hazardous spills", "To cook the cafeteria food", "Not Given"], answer: "To handle hazardous spills" },
+            { id: 33, title: "Nature or Nurture? (AP Psychology)", text: `During the AP Psychology debate, students argued over the origins of intelligence. <span class="evidence-highlight">Team A presented studies showing that genetics determine the baseline potential for academic success</span>. <span class="trap-highlight">Team B argued that studying hard is the only thing that matters</span>, though the teacher pointed out this was an oversimplification.`, skill: "Summarizing Arguments", strategy: "Match the specific team/speaker to their exact argument.", type: "mcq", question: "What did Team A's studies suggest about academic success?", options: ["Studying hard is the only thing that matters", "Genetics determine the baseline potential", "It is purely based on early childhood education", "Not Given"], answer: "Genetics determine the baseline potential" },
+            { id: 34, title: "Succeeding at Interviews (College Admissions)", text: `Preparing for college admissions interviews can be daunting for seniors. <span class="trap-highlight">While memorizing a script might seem like a good idea to avoid awkward pauses</span>, <span class="evidence-highlight">admissions officers actually prefer applicants who speak conversationally and show genuine passion</span>.`, skill: "Identifying Preferences", strategy: "Contrast what 'seems like a good idea' with what the actual authority figure prefers.", type: "mcq", question: "What do college admissions officers prefer in an interview?", options: ["Applicants who memorize a script", "Applicants who speak conversationally", "Applicants who avoid awkward pauses", "Not Given"], answer: "Applicants who speak conversationally" },
+            { id: 35, title: "Effective Presentations (DECA Club)", text: `The DECA club president gave a seminar on effective presentations. <span class="trap-highlight">She noted that using flashy animations can impress some judges</span>, but <span class="evidence-highlight">the most critical factor for a winning score is maintaining strong eye contact with the audience</span>.`, skill: "Prioritizing Information", strategy: "Look for superlatives like 'most critical factor' to identify the main point.", type: "mcq", question: "What is the most critical factor for a winning presentation score?", options: ["Using flashy animations", "Impressing the judges", "Maintaining strong eye contact", "Not Given"], answer: "Maintaining strong eye contact" },
+            { id: 36, title: "Why Being Bored is Stimulating (Study Hall)", text: `Students often complain about having nothing to do during free study periods. <span class="trap-highlight">Most teenagers immediately reach for their smartphones to scroll through social media</span>. Yet, <span class="evidence-highlight">psychologists argue that allowing the mind to wander without digital distraction actually triggers creative problem-solving</span>.`, skill: "True / False / Not Given", strategy: "Identify the psychological claim versus the typical student behavior.", type: "tfng", question: "Allowing the mind to wander without digital distraction triggers creative problem-solving.", options: ["True", "False", "Not Given"], answer: "True" },
+            { id: 37, title: "The Zebras' Long Walk (Biology Field Trip)", text: `On the virtual biology field trip, students tracked zebra migrations. <span class="evidence-highlight">They learned that zebras navigate primarily by relying on their incredible memory of rainfall patterns from previous years</span>. <span class="trap-highlight">Some students assumed they just followed the scent of water</span>.`, skill: "Distinguishing Facts from Assumptions", strategy: "Separate what the students 'learned' (the fact) from what they 'assumed' (the distractor).", type: "mcq", question: "How do zebras primarily navigate during migrations?", options: ["By following the scent of water", "By relying on their memory of rainfall patterns", "By migrating to new regions", "Not Given"], answer: "By relying on their memory of rainfall patterns" },
+            { id: 38, title: "The Tourist Gaze (Senior Class Trip)", text: `While planning the senior class trip to Washington D.C., the committee discussed the concept of tourism. <span class="trap-highlight">Most students just wanted to visit the famous monuments for photo opportunities</span>. However, <span class="evidence-highlight">the history teacher challenged them to engage with the local culture rather than just acting as passive observers</span>.`, skill: "Identifying Challenges", strategy: "Focus on the specific directive given by the teacher.", type: "mcq", question: "What did the history teacher challenge the students to do?", options: ["Visit famous monuments", "Take photo opportunities", "Engage with the local culture", "Act as passive observers"], answer: "Engage with the local culture" },
+            { id: 39, title: "Early Childhood Education (Volunteer Program)", text: `High school students volunteering at the local preschool observed how toddlers learn. <span class="trap-highlight">They noticed the teachers spending a lot of time reading aloud</span>, but <span class="evidence-highlight">they soon realized that structured playtime is actually the foundation of early cognitive development</span>.`, skill: "Summarizing Discoveries", strategy: "Identify the core realization or conclusion drawn by the observers.", type: "mcq", question: "What is the foundation of early cognitive development according to the volunteers' realization?", options: ["Reading aloud", "Structured playtime", "Observing toddlers", "Not Given"], answer: "Structured playtime" },
+            { id: 40, title: "Does Education Fuel Economic Growth? (Economics)", text: `In the AP Economics final project, a student analyzed the impact of education on the economy. <span class="evidence-highlight">Her data clearly demonstrated a direct correlation between a high school's graduation rate and the average income of the surrounding community</span>. <span class="trap-highlight">She initially hypothesized that tax cuts were the main driver</span>, but the data proved otherwise.`, skill: "Data Analysis", strategy: "Distinguish between the initial hypothesis and the final data-backed conclusion.", type: "mcq", question: "What did the student's data demonstrate a direct correlation between?", options: ["Tax cuts and average income", "Graduation rate and surrounding community income", "Economic growth and tax cuts", "Not Given"], answer: "Graduation rate and surrounding community income" },
+            { id: 41, title: "Hives for Hire (Ecology Project)", text: `The school's ecology club started a local beekeeping initiative. <span class="trap-highlight">They successfully sold over 100 jars of honey at the spring fair</span>. More importantly, <span class="evidence-highlight">they contracted their hives out to local apple orchards to assist with spring pollination</span>.`, skill: "True / False / Not Given", strategy: "Ensure the statement focuses on the primary ecological impact mentioned.", type: "tfng", question: "The ecology club contracted their hives out to assist with spring pollination.", options: ["True", "False", "Not Given"], answer: "True" },
+            { id: 42, title: "Capturing the Dance of Light (Physics)", text: `The art and physics departments collaborated on a stained-glass project. <span class="trap-highlight">The art students focused primarily on choosing vibrant colors</span>. Meanwhile, <span class="evidence-highlight">the physics students calculated the specific angles of refraction needed to cast rainbows across the classroom</span>.`, skill: "Role Identification", strategy: "Match the specific task to the correct group of students.", type: "mcq", question: "What did the physics students calculate for the project?", options: ["Vibrant colors", "Angles of refraction", "The size of the glass", "Not Given"], answer: "Angles of refraction" },
+            { id: 43, title: "Reaching for the Sky (Drafting Class)", text: `In the advanced drafting class, students designed futuristic skyscrapers. <span class="evidence-highlight">The winning design utilized a flexible steel core to absorb wind turbulence</span>. <span class="trap-highlight">The runner-up relied on thick, rigid concrete walls</span>, which the judges deemed too brittle for earthquake zones.`, skill: "Identifying Reasons for Success", strategy: "Contrast the winning feature with the flawed feature of the runner-up.", type: "mcq", question: "Why did the winning skyscraper design utilize a flexible steel core?", options: ["To rely on thick, rigid concrete walls", "Because it was cheaper", "To absorb wind turbulence", "Not Given"], answer: "To absorb wind turbulence" },
+            { id: 44, title: "The Megafires of California (Environmental Science)", text: `During the unit on climate change, the class studied California's megafires. <span class="trap-highlight">Many news outlets blame the fires entirely on prolonged droughts</span>. The textbook, however, emphasized that <span class="evidence-highlight">a century of aggressive fire-suppression tactics has allowed highly flammable underbrush to accumulate</span>, worsening the problem.`, skill: "Recognizing Opposing Views", strategy: "Differentiate between the media's blame and the textbook's emphasis.", type: "mcq", question: "What does the textbook emphasize as a worsening factor for the megafires?", options: ["Prolonged droughts", "Aggressive fire-suppression tactics allowing underbrush to accumulate", "Climate change unit", "Not Given"], answer: "Aggressive fire-suppression tactics allowing underbrush to accumulate" },
+            { id: 45, title: "Information Theory (Computer Science)", text: `The AP Computer Science teacher introduced Information Theory. <span class="evidence-highlight">He explained that all digital communication can be broken down into fundamental units called bits</span>. <span class="trap-highlight">Students were surprised to learn that this theory wasn't developed for computers, but originally for telegraph systems</span>.`, skill: "Detail Extraction", strategy: "Locate the definition of the fundamental units within the explanation.", type: "mcq", question: "What are the fundamental units of all digital communication?", options: ["Telegraph systems", "Computers", "Bits", "Not Given"], answer: "Bits" },
+            { id: 46, title: "Green Wave Shopping (Student Council)", text: `The student council launched a campaign to make the school store eco-friendly. <span class="trap-highlight">They replaced all plastic packaging with paper alternatives</span>. However, their biggest impact came when <span class="evidence-highlight">they convinced the administration to only stock clothing made from 100% recycled materials</span>.`, skill: "Evaluating Impact", strategy: "Look for phrases like 'biggest impact' to identify the most significant action.", type: "mcq", question: "What was the student council's biggest impact in making the store eco-friendly?", options: ["Replacing plastic packaging with paper", "Launching a campaign", "Stocking clothing made from 100% recycled materials", "Not Given"], answer: "Stocking clothing made from 100% recycled materials" },
+            { id: 47, title: "Urban Farming (True / False / Not Given)", text: `In a recent environmental studies module, students examined aeroponic farming in Paris. The text noted that <span class="evidence-highlight">urban farming can take place above or below ground</span>, depending on the facility's design. <span class="trap-highlight">Some students assumed that urban farming relies more heavily on electricity than traditional farming due to the indoor lighting</span>, but the textbook explicitly stated this was false because modern LEDs are highly efficient. It also mentioned that specialized equipment is used, but didn't mention if it could be made by hand.`, skill: "1. True / False / Not Given", strategy: "High School Strategy: Think of T/F/NG like grading a peer's essay based on a rubric. Does their claim match the rubric (True), contradict it (False), or is it entirely absent from the rubric (Not Given)?", type: "tfng", question: "Urban farming can take place above or below ground.", options: ["True", "False", "Not Given"], answer: "True" },
+            { id: 48, title: "Industrial Revolution (Matching Headings)", text: `During the AP European History lecture on the Industrial Revolution, the teacher focused on Britain. <span class="trap-highlight">She initially mentioned the fear of unemployment among textile workers</span>. However, <span class="evidence-highlight">the primary focus of Paragraph A was detailing the two specific advantages Britain had: immense coal reserves and a robust naval fleet</span>, which catalyzed their early industrial success.`, skill: "2. Matching Headings", strategy: "High School Strategy: When writing an outline for a research paper, your Roman numeral (I, II, III) is the heading. It must cover the entire paragraph's main idea, not just one small detail (like the fear of unemployment).", type: "mcq", question: "Which heading best summarizes the main idea of Paragraph A?", options: ["i. The search for the reasons for an increase in population", "ii. Industrialisation and the fear of unemployment", "vii. Two keys to Britain's industrial revolution", "iv. The decline of the naval fleet"], answer: "vii. Two keys to Britain's industrial revolution" },
+            { id: 49, title: "Museum Art (Summary Completion)", text: `In art history class, students learned about the value of original art in museums. The reading explained that <span class="trap-highlight">while modern mass production uses mechanical processes</span>, the renaissance was different. <span class="evidence-highlight">In historical times, master artists such as Leonardo were happy to instruct their assistants to produce copies of their work</span> for lesser patrons.`, skill: "3. Summary Completion", strategy: "High School Strategy: Treat this like a fill-in-the-blank vocabulary quiz. Read the sentence with the blank: 'However, in historical times artists such as Leonardo were happy to instruct 29 ________ to produce copies...'. Find the exact match in the text.", type: "mcq", question: "Complete the summary: 'However, in historical times artists such as Leonardo were happy to instruct ________ to produce copies of their work...'", options: ["A. institution", "B. mass production", "C. mechanical processes", "L. assistants"], answer: "L. assistants" },
+            { id: 50, title: "Space Junk (Matching Features)", text: `The Astronomy club was reading an article titled 'Conquering Earth’s space junk problem'. Several experts were quoted. <span class="trap-highlight">Carolin Frueh discussed the cost of satellite damage</span>, while Holger Krag focused on international treaties. <span class="evidence-highlight">Marlon Sorge explicitly stated that knowing the exact location of space junk would help prevent any possible danger to future missions</span>.`, skill: "4. Matching Features", strategy: "High School Strategy: This is just like a matching quiz where you draw a line from a famous quote on the left to the historical figure who said it on the right. Scan for the specific name and read their specific quote.", type: "mcq", question: "Match the statement 'Knowing the exact location of space junk would help prevent any possible danger' to the correct expert.", options: ["A. Carolin Frueh", "B. Holger Krag", "C. Marlon Sorge", "D. Moriba Jah"], answer: "C. Marlon Sorge" },
+            { id: 51, title: "Thinking Differently (Multiple Choice)", text: `In a psychology seminar titled 'A neuroscientist reveals how to think differently', students studied brain efficiency. <span class="trap-highlight">Some students guessed it was because the brain generates its own energy quickly</span>. However, the writer explained that <span class="evidence-highlight">the brain works efficiently because it relies on previous events and patterns to predict future outcomes</span>, saving cognitive processing power.`, skill: "5. Multiple Choice", strategy: "High School Strategy: Like a standard multiple-choice test, eliminate the distractors (like generating energy) and find the answer that perfectly aligns with the writer's stated reason.", type: "mcq", question: "According to the writer, why does the brain work efficiently?", options: ["A. it uses the eyes quickly.", "B. it interprets data logically.", "C. it generates its own energy.", "D. it relies on previous events."], answer: "D. it relies on previous events." },
+            { id: 52, title: "Vertical Farming (Sentence Completion)", text: `Returning to the urban farming project, the agriculture students reviewed the hydroponic setups used in Paris. <span class="trap-highlight">While traditional farms grow corn and wheat in flat fields</span>, the urban setups are different. <span class="evidence-highlight">Vertical tubes are used to grow strawberries, lettuces and herbs</span> to maximize the limited warehouse space.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: This is a strict instruction-following test. If the prompt says 'NO MORE THAN TWO WORDS', writing 'some lettuces' might be wrong if 'lettuces' alone is the exact text match. Copy exactly from the text.", type: "mcq", question: "Choose NO MORE THAN TWO WORDS from the passage: 'Vertical tubes are used to grow strawberries, ________ and herbs.'", options: ["corn and wheat", "lettuces", "traditional crops", "Not Given"], answer: "lettuces" },
+            { id: 53, title: "Debate Club Tournament (Matching Features)", text: `During the state debate tournament, several students presented views on school uniform policies. <span class="trap-highlight">Sarah argued that uniforms significantly reduce bullying incidents across all grade levels</span>. <span class="evidence-highlight">David strongly claimed that mandatory uniforms stifle personal expression and creativity</span>. Meanwhile, Emily presented statistical data showing uniforms have no measurable effect on overall academic performance.`, skill: "4. Matching Features", strategy: "High School Strategy: You are matching an argument to the person who made it. Scan for the keyword 'stifle personal expression' and trace it back to the exact speaker.", type: "mcq", question: "Match the statement 'Uniforms restrict personal identity and creativity' to the correct speaker.", options: ["A. Sarah", "B. David", "C. Emily", "D. The debate judge"], answer: "B. David" },
+            { id: 54, title: "College Admissions Advice (Matching Features)", text: `At the senior career fair, students received varying advice on college applications. <span class="trap-highlight">Mr. Harris, the school counselor, advised students to focus intensely on crafting a unique personal essay</span>. In contrast, <span class="evidence-highlight">Ms. Jenkins, an Ivy League recruiter, emphasized that high standardized SAT and ACT scores remain the primary filter for competitive programs</span>. Finally, a recent alumni suggested visiting the campus to show demonstrated interest.`, skill: "4. Matching Features", strategy: "High School Strategy: Like matching a teacher to their syllabus rules. Find the concept (standardized tests/scores) and identify the specific person who emphasized it.", type: "mcq", question: "Match the view 'Standardized test scores are the most critical filtering tool' to the correct person.", options: ["A. Mr. Harris", "B. Ms. Jenkins", "C. The recent alumni", "D. The school principal"], answer: "B. Ms. Jenkins" },
+            { id: 55, title: "AP History Perspectives (Matching Features)", text: `In AP US History, students analyzed different historical interpretations of the Revolutionary War. <span class="trap-highlight">Historian Smith viewed the revolution primarily as an economic struggle over taxation</span>. However, <span class="evidence-highlight">Historian Clark argued it was a purely ideological conflict driven by Enlightenment philosophies of liberty</span>. A third scholar, Historian Miller, believed it was ultimately decided by foreign interference and naval support.`, skill: "4. Matching Features", strategy: "High School Strategy: Match the thesis to the author. The question asks about 'ideas/ideologies'. Scan for that concept.", type: "mcq", question: "Match the thesis 'The war was fundamentally a conflict over ideas and philosophy' to the correct historian.", options: ["A. Historian Smith", "B. Historian Clark", "C. Historian Miller", "D. Not Given"], answer: "B. Historian Clark" },
+            { id: 56, title: "Track Team Requirements (Sentence Completion)", text: `The athletic director posted the new rules for the varsity track team. All varsity members are expected to attend mandatory practice every weekday afternoon. Furthermore, to participate in the upcoming regional meet, <span class="evidence-highlight">athletes must purchase a custom uniform jacket</span> by Friday. <span class="trap-highlight">Optional sweatpants are also available for order</span>.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: Strict word limits mean you must copy exactly from the text. The prompt allows up to THREE words.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: To participate in the regional meet, athletes must buy a ________ before the end of the week.", options: ["custom uniform jacket", "optional sweatpants", "varsity member", "mandatory practice"], answer: "custom uniform jacket" },
+            { id: 57, title: "Library Study Room Rules (Sentence Completion)", text: `During final exam week, the school library strictly enforced study room policies. Rooms can only be reserved for a maximum of two hours to allow fair access for everyone. When a group's time is up, <span class="evidence-highlight">students must clean the whiteboards</span> and <span class="trap-highlight">push in all their chairs before leaving the space</span>.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: Find the exact action that pairs with 'clean the whiteboards' in the text.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: Before exiting the study room, students must ________ and push in their chairs.", options: ["clean the whiteboards", "reserve for maximum", "allow fair access", "Not Given"], answer: "clean the whiteboards" },
+            { id: 58, title: "Science Lab Safety (Sentence Completion)", text: `Mr. Henderson reviewed the safety protocol for the AP Chemistry lab. Safety is paramount, especially during the upcoming titration experiments. <span class="trap-highlight">While wearing a lab coat is recommended for all activities</span>, <span class="evidence-highlight">students handling acidic solutions must wear protective safety goggles at all times</span> to prevent severe eye damage.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: The prompt asks what MUST be worn for acids. Find the exact noun phrase in the text matching that condition.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: When dealing with acids, students must wear ________.", options: ["a lab coat", "protective safety goggles", "titration experiments", "Not Given"], answer: "protective safety goggles" }
         ];
+
+        // --- DYNAMICALLY CATEGORIZE DATA ---
+        const practiceBank = rawPracticeBank.map(p => {
+            let cat = "5. Multiple Choice & Specific Details";
+            if(p.title.includes("True") || p.skill.includes("True")) cat = "1. True / False / Not Given";
+            else if(p.title.includes("Heading") || p.skill.includes("Heading")) cat = "2. Matching Headings";
+            else if(p.title.includes("Summary") || p.skill.includes("Summary")) cat = "3. Summary Completion";
+            else if(p.title.includes("Feature") || p.skill.includes("Feature")) cat = "4. Matching Features";
+            else if(p.title.includes("Sentence") || p.title.includes("Note") || p.skill.includes("Completion")) cat = "6. Sentence / Note Completion";
+            return { ...p, category: cat };
+        });
+
+        const groupedPassages = practiceBank.reduce((acc, p, index) => {
+            if(!acc[p.category]) acc[p.category] = [];
+            acc[p.category].push({ ...p, globalIndex: index });
+            return acc;
+        }, {});
+
 
         // --- COMPONENTS ---
 
-        const Sidebar = ({ currentView, setCurrentView }) => {
+        const Sidebar = ({ currentView, navigateToView }) => {
             const menuItems = [
-                { id: 'dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
+                { id: 'dashboard', icon: 'layout-dashboard', label: 'Skills Overview' },
                 { id: 'strategies', icon: 'lightbulb', label: 'Skills & Strategies' },
                 { id: 'practice', icon: 'book-open', label: 'Practice Databank' }
             ];
 
             return (
-                <div className="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col min-h-screen">
-                    <div className="p-6">
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <i data-lucide="graduation-cap" className="text-blue-400"></i>
-                            IELTS Reading
+                // Sidebar width shrunk by ~30% (from w-64 to w-[11.2rem])
+                <div className="w-full md:w-[11.2rem] bg-slate-900 text-slate-300 flex flex-col min-h-screen shrink-0">
+                    <div className="p-4 border-b border-slate-800">
+                        <h1 className="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="graduation-cap" className="text-blue-400 w-5 h-5"></i>
+                            IELTS
                         </h1>
                     </div>
-                    <nav className="flex-1 mt-6">
+                    <nav className="flex-1 mt-4">
                         {menuItems.map(item => (
                             <button
                                 key={item.id}
-                                onClick={() => setCurrentView(item.id)}
-                                className={`w-full flex items-center gap-3 px-6 py-4 transition-colors ${
+                                onClick={() => navigateToView(item.id)}
+                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-sm font-medium ${
                                     currentView === item.id 
                                     ? 'bg-blue-600 text-white border-r-4 border-blue-400' 
                                     : 'hover:bg-slate-800 hover:text-white'
                                 }`}
                             >
-                                <i data-lucide={item.icon} className="w-5 h-5"></i>
+                                <i data-lucide={item.icon} className="w-4 h-4"></i>
                                 {item.label}
                             </button>
                         ))}
@@ -255,117 +201,164 @@
             );
         };
 
-        const DashboardView = ({ setCurrentView }) => (
-            <div className="p-8 w-full md:w-1/2 mx-auto animate-in fade-in duration-500">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-4">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
-                        <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                            <i data-lucide="target" className="w-8 h-8"></i>
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-800">Target Band</h3>
-                        <p className="text-3xl font-bold text-blue-600 mt-2">7.0</p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
-                        <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-                            <i data-lucide="check-circle" className="w-8 h-8"></i>
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-800">Passages Completed</h3>
-                        <p className="text-3xl font-bold text-green-600 mt-2">12</p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
-                        <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-4">
-                            <i data-lucide="clock" className="w-8 h-8"></i>
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-800">Avg. Time / Passage</h3>
-                        <p className="text-3xl font-bold text-purple-600 mt-2">18m</p>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-slate-800">Recommended for You</h3>
-                    </div>
-                    <div className="p-6">
-                        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100 mb-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center">
-                                    <i data-lucide="book-open"></i>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-slate-800">New Practice Databank</h4>
-                                    <p className="text-sm text-slate-600">Master identifying main ideas across 31 new passages.</p>
-                                </div>
-                            </div>
-                            <button onClick={() => setCurrentView('practice')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm">
-                                Start Practice
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-
-        const StrategiesView = () => {
-            const { speak, stop, isSpeaking } = useSpeech();
-
-            const strategies = [
-                {
-                    title: "Skimming (Reading for the Gist)",
-                    icon: "wind",
-                    color: "text-sky-500",
-                    bg: "bg-sky-100",
-                    description: "Reading quickly to understand the general idea of the passage.",
-                    textToSpeak: "Skimming. Reading quickly to understand the general idea."
-                },
-                {
-                    title: "Scanning (Looking for Specifics)",
-                    icon: "search",
-                    color: "text-purple-500",
-                    bg: "bg-purple-100",
-                    description: "Moving your eyes quickly down the page seeking specific words or phrases.",
-                    textToSpeak: "Scanning. Moving your eyes quickly down the page seeking specific words."
-                },
-                {
-                    title: "True / False / Not Given",
-                    icon: "help-circle",
-                    color: "text-orange-500",
-                    bg: "bg-orange-100",
-                    description: "Deciding if statements agree with the text, contradict it, or aren't there at all.",
-                    textToSpeak: "True, False, Not Given. True means the fact matches the text. False means the text contradicts the statement. Not given means the text never mentioned that specific detail."
-                }
+        const DashboardView = ({ navigateToPractice, groupedPassages }) => {
+            
+            // Skill descriptions for the dashboard cards
+            const skillCards = [
+                { cat: "1. True / False / Not Given", icon: "help-circle", color: "text-orange-500", bg: "bg-orange-100", desc: "Decide if statements agree with facts, contradict them, or aren't mentioned at all." },
+                { cat: "2. Matching Headings", icon: "layout-list", color: "text-green-500", bg: "bg-green-100", desc: "Choose the correct title/heading that perfectly summarizes an entire paragraph." },
+                { cat: "3. Summary Completion", icon: "align-left", color: "text-pink-500", bg: "bg-pink-100", desc: "Fill in the blanks of a summary text using specific vocabulary from the reading." },
+                { cat: "4. Matching Features", icon: "link", color: "text-purple-500", bg: "bg-purple-100", desc: "Match specific arguments, quotes, or features to the correct person or category." },
+                { cat: "5. Multiple Choice & Specific Details", icon: "check-square", color: "text-blue-500", bg: "bg-blue-100", desc: "Standard format testing your ability to locate exact details or understand the main purpose." },
+                { cat: "6. Sentence / Note Completion", icon: "edit-3", color: "text-amber-500", bg: "bg-amber-100", desc: "Complete sentences using strict word limits exactly as they appear in the text." }
             ];
 
             return (
-                <div className="p-8 w-full md:w-1/2 mx-auto animate-in fade-in duration-500">
-                    <header className="mb-8">
-                        <h2 className="text-3xl font-bold text-slate-800">Skills & Strategies</h2>
+                // Right panel expanded to fill all available space by removing width restrictions
+                <div className="p-8 w-full mx-auto animate-in fade-in duration-500 max-w-7xl">
+                    <header className="mb-8 mt-4">
+                        <h2 className="text-3xl font-bold text-slate-800">IELTS Reading Skills Overview</h2>
+                        <p className="text-slate-600 mt-2 text-lg">Master the 6 core question types to hit your target band score.</p>
                     </header>
 
-                    <div className="grid gap-6">
-                        {strategies.map((strat, index) => (
-                            <div 
-                                key={index} 
-                                onClick={() => isSpeaking ? stop() : speak(strat.textToSpeak)}
-                                className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-start cursor-pointer hover:bg-slate-50 transition"
-                            >
-                                <div className={`w-16 h-16 shrink-0 rounded-2xl ${strat.bg} ${strat.color} flex items-center justify-center`}>
-                                    <i data-lucide={isSpeaking ? "square" : "play"} className="w-8 h-8"></i>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+                        {skillCards.map((skill, idx) => {
+                            const group = groupedPassages[skill.cat] || [];
+                            const passageCount = group.length;
+                            const firstIndex = passageCount > 0 ? group[0].globalIndex : 0;
+
+                            return (
+                                <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-start hover:shadow-md transition">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${skill.bg} ${skill.color}`}>
+                                        <i data-lucide={skill.icon} className="w-6 h-6"></i>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 mb-2">{skill.cat.substring(3)}</h3>
+                                    <p className="text-sm text-slate-600 mb-6 flex-1">{skill.desc}</p>
+                                    
+                                    <button 
+                                        onClick={() => navigateToPractice(firstIndex)}
+                                        className="w-full py-2 bg-slate-50 text-blue-600 font-semibold rounded-lg border border-blue-100 hover:bg-blue-50 hover:border-blue-300 transition text-sm flex items-center justify-center gap-2"
+                                    >
+                                        <i data-lucide="play-circle" className="w-4 h-4"></i>
+                                        Practice {passageCount} Passages
+                                    </button>
                                 </div>
-                                <div className="flex-1 pr-12">
-                                    <h3 className="text-xl font-bold text-slate-800 mb-2">{strat.title}</h3>
-                                    <p className="text-slate-700 font-medium mb-3">{strat.description}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             );
         };
 
-        const PracticeView = ({ setCurrentView }) => {
+        const StrategiesView = ({ navigateToPractice, groupedPassages }) => {
+            const { speak, stop, isSpeaking } = useSpeech();
+
+            const strategies = [
+                {
+                    cat: "1. True / False / Not Given",
+                    title: "Identifying Information (True/False/Not Given)",
+                    icon: "help-circle",
+                    color: "text-orange-500",
+                    bg: "bg-orange-100",
+                    description: "You must decide if a statement agrees with the factual information presented in the text, contradicts it, or if the information is not mentioned at all. (Analogy: Figuring out if a rumor about a new school policy is factually true, completely false, or just something nobody actually mentioned.)",
+                    textToSpeak: "Identifying Information, True, False, Not Given. You must decide if a statement agrees with the factual information presented in the text, contradicts it, or if the information is not mentioned at all."
+                },
+                {
+                    cat: "5. Multiple Choice & Specific Details",
+                    title: "Identifying Writer's Views or Claims (Yes/No/Not Given)",
+                    icon: "message-circle",
+                    color: "text-blue-500",
+                    bg: "bg-blue-100",
+                    description: "Similar to True/False, but focuses on the writer's opinions and arguments rather than strict facts. (Analogy: Reading an editorial in the school paper and identifying if the student author actually supports the new cafeteria food, hates it, or never gave a clear opinion.)",
+                    textToSpeak: "Identifying Writer's Views or Claims, Yes, No, Not Given. Similar to the above, but focuses on the writer's opinions and arguments rather than strict facts."
+                },
+                {
+                    cat: "2. Matching Headings",
+                    title: "Matching Headings",
+                    icon: "layout-list",
+                    color: "text-green-500",
+                    bg: "bg-green-100",
+                    description: "Choosing the correct heading for each paragraph from a provided list. (Analogy: Skimming a science textbook chapter and deciding what title best summarizes each section before a big exam.)",
+                    textToSpeak: "Matching Headings. Choosing the correct heading for each paragraph from a provided list."
+                },
+                {
+                    cat: "4. Matching Features",
+                    title: "Matching Tasks / Features",
+                    icon: "link",
+                    color: "text-purple-500",
+                    bg: "bg-purple-100",
+                    description: "These include matching pieces of information to specific paragraphs, matching features (like matching a theory to the scientist who proposed it), and matching sentence endings. (Analogy: Connecting a list of famous quotes to the correct historical figures you studied in AP History.)",
+                    textToSpeak: "Matching Tasks. These include matching pieces of information to specific paragraphs, matching features, and matching sentence endings."
+                },
+                {
+                    cat: "3. Summary Completion",
+                    title: "Completion Tasks (Summaries)",
+                    icon: "align-left",
+                    color: "text-pink-500",
+                    bg: "bg-pink-100",
+                    description: "Filling in the blanks for sentences, summaries, notes, tables, flow-charts, or diagram labels using words from the passage. (Analogy: Completing a guided notes worksheet while your teacher gives a lecture.)",
+                    textToSpeak: "Completion Tasks. Filling in the blanks for sentences, summaries, notes, tables, flow-charts, or diagram labels using words from the passage."
+                },
+                {
+                    cat: "6. Sentence / Note Completion",
+                    title: "Sentence / Note Completion (Strict Word Limits)",
+                    icon: "edit-3",
+                    color: "text-amber-500",
+                    bg: "bg-amber-100",
+                    description: "Extracting specific phrases exactly as they appear in the text, ensuring you do not exceed the stated word limit. (Analogy: Following strict formatting rules for citations in an English essay.)",
+                    textToSpeak: "Sentence and Note Completion. Extracting specific phrases exactly as they appear in the text, ensuring you do not exceed the stated word limit."
+                }
+            ];
+
+            return (
+                // Right panel expanded to fill all available space by removing width restrictions
+                <div className="p-8 w-full mx-auto animate-in fade-in duration-500 max-w-7xl">
+                    <header className="mb-10">
+                        <h2 className="text-3xl font-bold text-slate-800 mb-4">Skills & Strategies Explained</h2>
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl">
+                            <p className="text-lg text-slate-800 leading-relaxed font-medium">
+                                While the Academic and General Training reading tests use different texts, they use the exact same variety of question types to test your reading comprehension.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-col gap-6">
+                        {strategies.map((strat, index) => {
+                            const group = groupedPassages[strat.cat] || [];
+                            const firstIndex = group.length > 0 ? group[0].globalIndex : 0;
+
+                            return (
+                                <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-start w-full">
+                                    <div 
+                                        onClick={() => isSpeaking ? stop() : speak(strat.textToSpeak)}
+                                        className={`w-16 h-16 shrink-0 rounded-2xl ${strat.bg} ${strat.color} flex items-center justify-center cursor-pointer hover:opacity-80 transition`}
+                                        title={isSpeaking ? "Stop Audio" : "Listen (85% Speed)"}
+                                    >
+                                        <i data-lucide={isSpeaking ? "square" : "play"} className="w-8 h-8"></i>
+                                    </div>
+                                    <div className="flex-1 w-full">
+                                        <h3 className="text-xl font-bold text-slate-800 mb-2">{strat.title}</h3>
+                                        <p className="text-slate-700 text-lg leading-relaxed mb-4">{strat.description}</p>
+                                        
+                                        <button 
+                                            onClick={() => navigateToPractice(firstIndex)}
+                                            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition shadow-sm flex items-center gap-2 w-fit"
+                                        >
+                                            <i data-lucide="arrow-right-circle" className="w-4 h-4"></i>
+                                            Practice this Skill
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        const PracticeView = ({ navigateToView, currentIndex, setCurrentIndex, groupedPassages }) => {
             const { speak, stop, isSpeaking } = useSpeech();
             
-            const [currentIndex, setCurrentIndex] = useState(0);
             const [answer, setAnswer] = useState("");
             const [feedback, setFeedback] = useState(null);
             const [showHighlights, setShowHighlights] = useState(false);
@@ -391,31 +384,39 @@
             return (
                 <div className="h-screen w-full flex flex-col overflow-hidden animate-in fade-in duration-500">
                     {/* Top Navigation Bar for Full Screen Mode */}
-                    <div className="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
-                        <button onClick={() => setCurrentView('dashboard')} className="flex items-center gap-2 hover:text-blue-300 transition">
+                    <div className="bg-slate-900 text-white p-4 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+                        <button onClick={() => navigateToView('dashboard')} className="flex items-center gap-2 hover:text-blue-300 transition w-full sm:w-auto">
                             <i data-lucide="arrow-left" className="w-5 h-5"></i> Back to Dashboard
                         </button>
-                        <div className="flex items-center gap-4">
+                        
+                        <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                             <button 
                                 onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
                                 disabled={currentIndex === 0}
-                                className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50"
+                                className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50 hover:bg-slate-700 transition"
                             >
                                 Prev
                             </button>
+                            
+                            {/* Grouped Select Dropdown */}
                             <select 
-                                className="bg-slate-800 text-white border-none rounded p-1 text-sm outline-none font-bold"
+                                className="bg-slate-800 text-white border border-slate-700 rounded p-1.5 text-sm outline-none font-bold max-w-[200px] sm:max-w-xs"
                                 value={currentIndex}
                                 onChange={(e) => setCurrentIndex(parseInt(e.target.value))}
                             >
-                                {practiceBank.map((p, idx) => (
-                                    <option key={p.id} value={idx}>Passage {idx + 1} of {practiceBank.length}</option>
+                                {Object.keys(groupedPassages).sort().map(cat => (
+                                    <optgroup key={cat} label={cat}>
+                                        {groupedPassages[cat].map(p => (
+                                            <option key={p.id} value={p.globalIndex}>{p.title}</option>
+                                        ))}
+                                    </optgroup>
                                 ))}
                             </select>
+
                             <button 
                                 onClick={() => setCurrentIndex(Math.min(practiceBank.length - 1, currentIndex + 1))}
                                 disabled={currentIndex === practiceBank.length - 1}
-                                className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50"
+                                className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50 hover:bg-slate-700 transition"
                             >
                                 Next
                             </button>
@@ -424,8 +425,8 @@
 
                     <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50">
                         
-                        {/* Left Side: Passage (40% width) */}
-                        <div className="w-full md:w-2/5 bg-white border-r border-slate-200 flex flex-col h-full overflow-hidden">
+                        {/* Left Side: Passage (Expanded to 70% width) */}
+                        <div className="w-full md:w-[70%] bg-white border-r border-slate-200 flex flex-col h-full overflow-hidden">
                             <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
                                 <button 
                                     onClick={() => setShowHighlights(!showHighlights)}
@@ -435,7 +436,7 @@
                                 </button>
                                 <button 
                                     onClick={() => isSpeaking ? stop() : speak(passage.text)}
-                                    className="flex items-center justify-center w-10 h-10 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-full transition"
+                                    className={`flex items-center justify-center w-10 h-10 rounded-full transition ${isSpeaking ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                                     title={isSpeaking ? "Stop" : "Read Aloud"}
                                 >
                                     <i data-lucide={isSpeaking ? "square" : "volume-2"} className="w-5 h-5"></i>
@@ -450,8 +451,8 @@
                                 </div>
                             )}
 
-                            <div className="p-6 overflow-y-auto hide-scrollbar flex-1">
-                                <h1 className="text-xl font-bold text-slate-900 mb-6">{passage.title}</h1>
+                            <div className="p-8 overflow-y-auto hide-scrollbar flex-1">
+                                <h1 className="text-3xl font-bold text-slate-900 mb-6">{passage.title}</h1>
                                 
                                 <div className={`space-y-6 text-slate-700 reading-text ${showHighlights ? 'show-highlights' : ''}`}>
                                     <div dangerouslySetInnerHTML={{ __html: passage.text }}></div>
@@ -459,21 +460,21 @@
                             </div>
                         </div>
 
-                        {/* Right Side: Questions (60% width) */}
-                        <div className="w-full md:w-3/5 bg-slate-50 flex flex-col h-full overflow-hidden">
+                        {/* Right Side: Questions (Decreased to 30% width) */}
+                        <div className="w-full md:w-[30%] bg-slate-50 flex flex-col h-full overflow-hidden">
                             <div className="p-6 overflow-y-auto flex-1 space-y-6">
                                 
-                                <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                                     <div className="mb-4">
-                                        <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">{passage.skill}</span>
+                                        <span className="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider">{passage.skill}</span>
                                     </div>
-                                    <p className="font-medium text-slate-800 mb-4 text-lg">
+                                    <p className="font-medium text-slate-800 mb-6 text-lg">
                                         {passage.question}
                                     </p>
                                     
-                                    <div className="space-y-2">
+                                    <div className="space-y-3">
                                         {passage.options.map(opt => (
-                                            <label key={opt} className={`block p-4 border rounded-lg cursor-pointer transition ${answer === opt ? 'bg-blue-50 border-blue-400' : 'border-slate-200 hover:bg-slate-50'}`}>
+                                            <label key={opt} className={`block p-4 border-2 rounded-xl cursor-pointer transition ${answer === opt ? 'bg-blue-50 border-blue-500 shadow-sm' : 'border-slate-200 hover:bg-slate-50'}`}>
                                                 <div className="flex items-start gap-3">
                                                     <input 
                                                         type="radio" 
@@ -481,9 +482,9 @@
                                                         value={opt} 
                                                         checked={answer === opt}
                                                         onChange={(e) => setAnswer(e.target.value)}
-                                                        className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                                                        className="mt-1 w-5 h-5 text-blue-600 focus:ring-blue-500" 
                                                     />
-                                                    <span className="text-md text-slate-700">{opt}</span>
+                                                    <span className="text-md font-medium text-slate-700">{opt}</span>
                                                 </div>
                                             </label>
                                         ))}
@@ -507,7 +508,7 @@
                                                 {feedback.message}
                                             </h3>
                                             
-                                            <div className="bg-white p-4 rounded-lg border border-slate-100 mb-4">
+                                            <div className="bg-white p-4 rounded-lg border border-slate-100 mb-4 shadow-sm">
                                                 <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Why is this correct/incorrect?</h4>
                                                 <p className="text-slate-800">
                                                     The <span className="font-semibold text-green-600">green highlighted text</span> shows the exact evidence pointing to the answer: <strong>"{passage.answer}"</strong>. 
@@ -515,7 +516,7 @@
                                                 </p>
                                             </div>
 
-                                            <div className="bg-white p-4 rounded-lg border border-slate-100">
+                                            <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
                                                 <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Strategy Used</h4>
                                                 <p className="text-slate-800 italic">"{passage.strategy}"</p>
                                             </div>
@@ -533,11 +534,21 @@
         // --- MAIN APP COMPONENT ---
         const App = () => {
             const [currentView, setCurrentView] = useState('dashboard');
+            const [currentIndex, setCurrentIndex] = useState(0);
 
             // Re-initialize Lucide icons when view changes
             useEffect(() => {
                 lucide.createIcons();
-            }, [currentView]);
+            }, [currentView, currentIndex]);
+
+            const navigateToPractice = (index) => {
+                setCurrentIndex(index);
+                setCurrentView('practice');
+            };
+
+            const navigateToView = (viewId) => {
+                setCurrentView(viewId);
+            };
 
             return (
                 <div className="flex flex-col md:flex-row min-h-screen font-sans">
@@ -548,25 +559,25 @@
                             <select 
                                 className="bg-slate-800 text-white border-none rounded p-1 text-sm outline-none"
                                 value={currentView}
-                                onChange={(e) => setCurrentView(e.target.value)}
+                                onChange={(e) => navigateToView(e.target.value)}
                             >
-                                <option value="dashboard">Dashboard</option>
-                                <option value="strategies">Strategies</option>
-                                <option value="practice">Practice</option>
+                                <option value="dashboard">Skills Overview</option>
+                                <option value="strategies">Skills & Strategies</option>
+                                <option value="practice">Practice Databank</option>
                             </select>
                         </div>
                     )}
 
                     {/* Sidebar for Desktop - Hidden in Practice View */}
                     <div className={`hidden ${currentView !== 'practice' ? 'md:block' : ''}`}>
-                        <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+                        <Sidebar currentView={currentView} navigateToView={navigateToView} />
                     </div>
                     
                     {/* Main Content Area */}
                     <div className="flex-1 overflow-x-hidden">
-                        {currentView === 'dashboard' && <DashboardView setCurrentView={setCurrentView} />}
-                        {currentView === 'strategies' && <StrategiesView />}
-                        {currentView === 'practice' && <PracticeView setCurrentView={setCurrentView} />}
+                        {currentView === 'dashboard' && <DashboardView navigateToPractice={navigateToPractice} groupedPassages={groupedPassages} />}
+                        {currentView === 'strategies' && <StrategiesView navigateToPractice={navigateToPractice} groupedPassages={groupedPassages} />}
+                        {currentView === 'practice' && <PracticeView navigateToView={navigateToView} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} groupedPassages={groupedPassages} />}
                     </div>
                 </div>
             );
