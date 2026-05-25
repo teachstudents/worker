@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Reading Assistant</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .reading-text { line-height: 1.8; font-size: 1.05rem; }
+        /* Color Coding Highlight Styles */
+        .evidence-highlight { padding: 0.125rem 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s; }
+        .trap-highlight { padding: 0.125rem 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s; }
+        .show-highlights .evidence-highlight { background-color: #bbf7d0; }
+        .show-highlights .trap-highlight { background-color: #fecaca; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Custom Hook for 85% Speed Text-to-Speech
+        const useSpeech = () => {
+            const [isSpeaking, setIsSpeaking] = useState(false);
+            const [voices, setVoices] = useState([]);
+
+            useEffect(() => {
+                const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
+                loadVoices();
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }, []);
+
+            const speak = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    // Strip HTML tags for reading
+                    const plainText = text.replace(/<[^>]*>?/gm, ''); 
+                    const utterance = new SpeechSynthesisUtterance(plainText);
+                    utterance.rate = 0.85; 
+                    utterance.pitch = 1;
+                    
+                    // Microsoft Multilingual Online English TTS voices
+                    const targetNames = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Andrew", "William"];
+                    const preferredVoice = voices.find(v => targetNames.some(name => v.name.includes(name)));
+                    if (preferredVoice) {
+                        utterance.voice = preferredVoice;
+                    }
+
+                    utterance.onstart = () => setIsSpeaking(true);
+                    utterance.onend = () => setIsSpeaking(false);
+                    utterance.onerror = () => setIsSpeaking(false);
+                    
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            const stop = () => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    setIsSpeaking(false);
+                }
+            };
+
+            return { speak, stop, isSpeaking };
+        };
+
+        // --- DATA BANK (31 Passages) ---
+        const practiceBank = [
+            {
+                id: 1,
+                title: "1. The Extracurricular Balancing Act",
+                text: `In recent years, the pressure on secondary school students to build impressive applications has skyrocketed. <span class="trap-highlight">A recent survey revealed that students involved in three or more clubs sleep only five hours per night</span>. However, to combat exhaustion, <span class="evidence-highlight">counselors are advising students to focus on one or two activities they are genuinely passionate about</span>, as colleges look for depth rather than a superficial list of memberships.`,
+                skill: "Identifying Main Ideas / Multiple Choice",
+                strategy: "Always read to the end of the paragraph. The first statistic is a distractor describing the problem, but the actual recommendation comes at the end.",
+                type: "mcq",
+                question: "According to the passage, what do school counselors recommend students do?",
+                options: ["Quit all extracurriculars to focus on grades.", "Commit deeply to a small number of activities.", "Join as many clubs as possible.", "Take frequent naps during the day."],
+                answer: "Commit deeply to a small number of activities."
+            },
+            {
+                id: 2,
+                title: "2. The Homework Debate",
+                text: `Many teachers believe homework reinforces learning. However, students argue it causes burnout. While <span class="trap-highlight">math teachers assign an average of two hours</span>, <span class="evidence-highlight">the overall daily average across all subjects combined is actually three hours</span>.`,
+                skill: "Scanning for Specific Information",
+                strategy: "Don't stop at the first number you see. Match the noun in the question ('total daily average') with the exact noun phrase in the text.",
+                type: "mcq",
+                question: "What is the overall daily average of homework time across all subjects?",
+                options: ["One hour", "Two hours", "Three hours", "Not Given"],
+                answer: "Three hours"
+            },
+            {
+                id: 3,
+                title: "3. School Sports Funding",
+                text: `The school board recently discussed the athletics budget. While the football team receives the most funding, <span class="trap-highlight">the debate team requested an additional $500 for travel</span>. Ultimately, <span class="evidence-highlight">the board decided to freeze all extracurricular budgets for the upcoming semester</span> due to statewide cuts.`,
+                skill: "True / False / Not Given",
+                strategy: "Look out for 'requests' vs 'decisions'. Just because a group asked for money doesn't mean they received it.",
+                type: "tfng",
+                question: "The debate team successfully secured an additional $500 for travel.",
+                options: ["True", "False", "Not Given"],
+                answer: "False"
+            },
+            {
+                id: 4,
+                title: "4. Cafeteria Nutrition Standards",
+                text: `New state laws mandate healthier school lunches. <span class="trap-highlight">Vending machines will no longer stock sugary sodas</span>. Furthermore, <span class="evidence-highlight">all meals must contain at least one serving of fresh vegetables, replacing the previous requirement of canned fruit</span>.`,
+                skill: "Identifying Distractors",
+                strategy: "Focus on the specific question constraint. The question asks about *meals*, not vending machines.",
+                type: "mcq",
+                question: "What must all new cafeteria meals include?",
+                options: ["Sugary sodas", "Canned fruit", "Fresh vegetables", "Vending machine snacks"],
+                answer: "Fresh vegetables"
+            },
+            {
+                id: 5,
+                title: "5. Sleep Deprivation in Teens",
+                text: `Doctors recommend that teenagers get 8-10 hours of sleep per night. <span class="evidence-highlight">Early school start times have been linked to chronic sleep deprivation</span>, which impairs memory retention. <span class="trap-highlight">Some parents believe social media is the sole cause of tiredness</span>, but studies show school schedules play a larger role.`,
+                skill: "Matching Claims",
+                strategy: "Distinguish between what 'some parents believe' (an opinion) and what 'studies show' (evidence).",
+                type: "tfng",
+                question: "Studies confirm that social media is the only reason teenagers are tired.",
+                options: ["True", "False", "Not Given"],
+                answer: "False"
+            },
+            {
+                id: 6,
+                title: "6. Part-Time Jobs",
+                text: `Many juniors take on part-time jobs. While <span class="evidence-highlight">working helps students learn financial responsibility</span>, <span class="trap-highlight">working more than 20 hours a week often leads to a drop in academic performance</span>.`,
+                skill: "Summarizing Information",
+                strategy: "Identify the positive outcome versus the negative condition.",
+                type: "mcq",
+                question: "What is a positive benefit of having a part-time job mentioned in the text?",
+                options: ["A drop in academic performance", "Working over 20 hours", "Learning financial responsibility", "Improving grades"],
+                answer: "Learning financial responsibility"
+            },
+            {
+                id: 7,
+                title: "7. College Admissions Exams",
+                text: `Historically, the SAT and ACT were mandatory for university entry. Recently, <span class="trap-highlight">some top-tier universities announced they would remain test-optional indefinitely</span>. However, <span class="evidence-highlight">several state university systems have reinstated the standardized testing requirement</span> for the incoming fall class.`,
+                skill: "True / False / Not Given",
+                strategy: "Pay attention to qualifiers like 'some', 'all', or 'several'. They completely change the truth value of a statement.",
+                type: "tfng",
+                question: "All universities have permanently removed standardized testing requirements.",
+                options: ["True", "False", "Not Given"],
+                answer: "False"
+            },
+            {
+                id: 8,
+                title: "8. Bullying Prevention Programs",
+                text: `<span class="trap-highlight">Old methods of discipline relied heavily on suspension</span>. Modern bullying prevention programs focus on restorative justice. <span class="evidence-highlight">These new initiatives require students to engage in mediated dialogue to resolve conflicts</span> rather than simply being sent home.`,
+                skill: "Identifying Process Differences",
+                strategy: "Compare past methods ('old methods') with current requirements ('new initiatives').",
+                type: "mcq",
+                question: "How do modern prevention programs primarily handle student conflicts?",
+                options: ["Through immediate suspension", "By sending students home", "Through mediated dialogue", "By ignoring the conflict"],
+                answer: "Through mediated dialogue"
+            },
+            {
+                id: 9,
+                title: "9. Standardized Dress Codes",
+                text: `Proponents of school uniforms argue they reduce distractions. <span class="trap-highlight">A survey showed 60% of parents support the idea</span>, but <span class="evidence-highlight">the student council voted overwhelmingly against uniform implementation</span>, stating it stifles personal expression.`,
+                skill: "Recognizing Opposing Views",
+                strategy: "Track who holds which opinion. The question asks for the *student council's* view, not the parents'.",
+                type: "tfng",
+                question: "The student council supports the implementation of school uniforms.",
+                options: ["True", "False", "Not Given"],
+                answer: "False"
+            },
+            {
+                id: 10,
+                title: "10. Driver's Education",
+                text: `Getting a driver's license is a major milestone. <span class="trap-highlight">In the past, high schools provided free in-class driving instruction</span>. Today, due to budget constraints, <span class="evidence-highlight">students must complete their driving hours through private, paid academies</span>.`,
+                skill: "Chronological Scanning",
+                strategy: "Watch out for past vs. present tense. 'In the past' is the distractor for a question about current policy.",
+                type: "mcq",
+                question: "How do students currently complete their driving hours?",
+                options: ["Through free high school classes", "By driving with parents only", "Through paid private academies", "Not Given"],
+                answer: "Through paid private academies"
+            },
+            { id: 11, title: "11. Technology in the Classroom", text: `Schools are adopting tablets rapidly. <span class="trap-highlight">While teachers find them useful for grading</span>, <span class="evidence-highlight">the primary reason administrators purchased them was to reduce textbook costs</span> over five years.`, skill: "Identifying Primary Reasons", strategy: "Distinguish between a 'side benefit' and the 'primary reason'.", type: "mcq", question: "What was the administrators' main reason for buying tablets?", options: ["To help teachers grade", "To reduce textbook costs", "To play games", "Not Given"], answer: "To reduce textbook costs" },
+            { id: 12, title: "12. Block Scheduling", text: `Under the new block schedule, <span class="trap-highlight">students attend four 90-minute classes per day</span> instead of eight 45-minute ones. <span class="evidence-highlight">This allows for deeper laboratory experiments in science courses</span>.`, skill: "Cause and Effect", strategy: "Identify the direct result of the schedule change mentioned in the text.", type: "mcq", question: "What is an advantage of the new block schedule mentioned in the text?", options: ["Shorter school days", "More classes per day", "Deeper laboratory experiments", "Less homework"], answer: "Deeper laboratory experiments" },
+            { id: 13, title: "13. Arts Education Funding", text: `<span class="evidence-highlight">Despite evidence that arts education improves cognitive skills, funding for music and theater programs continues to be slashed</span>. <span class="trap-highlight">The math department, however, received a large grant</span>.`, skill: "True / False / Not Given", strategy: "Ensure the statement perfectly aligns with the text. A reduction in funding means it is not increasing.", type: "tfng", question: "Funding for music and theater programs is currently increasing.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 14, title: "14. Volunteering Requirements", text: `To graduate, <span class="trap-highlight">seniors must complete 40 hours of community service</span>. However, <span class="evidence-highlight">students in the IB program must complete 150 hours of CAS (Creativity, Activity, Service)</span>.`, skill: "Detail Matching", strategy: "Pay close attention to specific groups (seniors vs. IB students).", type: "mcq", question: "How many hours of service must an IB student complete?", options: ["40 hours", "100 hours", "150 hours", "No hours required"], answer: "150 hours" },
+            { id: 15, title: "15. The Senior Prom", text: `The prom committee announced that <span class="trap-highlight">the dance would be held in the school gym</span> to save money. After a student protest, <span class="evidence-highlight">they relocated the event to the downtown hotel ballroom</span>.`, skill: "Tracking Changes", strategy: "Follow the narrative timeline. The final outcome is the correct answer.", type: "mcq", question: "Where will the prom ultimately be held?", options: ["The school gym", "The downtown hotel ballroom", "The football field", "Not Given"], answer: "The downtown hotel ballroom" },
+            { id: 16, title: "16. Mental Health Days", text: `Some districts now allow students to take excused 'mental health days'. <span class="evidence-highlight">Students can take up to three days per semester without a doctor's note</span>. <span class="trap-highlight">Taking more than five requires a formal medical evaluation</span>.`, skill: "Number Checking", strategy: "Read the specific conditions tied to the numbers.", type: "tfng", question: "Students need a doctor's note to take two mental health days.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 17, title: "17. Study Groups", text: `While studying alone allows for intense focus, <span class="evidence-highlight">peer study groups are proven to enhance long-term memory retention</span>. <span class="trap-highlight">They can, however, easily turn into social hangouts</span> if not properly moderated.`, skill: "Weighing Pros and Cons", strategy: "Identify the proven academic benefit versus the potential risk.", type: "mcq", question: "What is a proven academic benefit of peer study groups?", options: ["They turn into social hangouts", "They allow for intense focus alone", "They enhance long-term memory retention", "Not Given"], answer: "They enhance long-term memory retention" },
+            { id: 18, title: "18. Student Council Elections", text: `The race for class president was tight. <span class="trap-highlight">Candidate A promised longer lunch breaks</span>, but <span class="evidence-highlight">Candidate B won by focusing on improving campus Wi-Fi</span>.`, skill: "Identifying Outcomes", strategy: "Focus on the winning condition, not the initial promises.", type: "mcq", question: "Why did Candidate B win the election?", options: ["Promising longer lunches", "Focusing on campus Wi-Fi", "Having more posters", "Not Given"], answer: "Focusing on campus Wi-Fi" },
+            { id: 19, title: "19. Locker Searches", text: `Due to safety concerns, <span class="evidence-highlight">administration retains the right to search student lockers at any time</span>. <span class="trap-highlight">Students must provide their own padlocks</span>, but they must give the combination to the main office.`, skill: "True / False / Not Given", strategy: "Check the rules of ownership vs. rights of access.", type: "tfng", question: "The school is not allowed to search lockers without student permission.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 20, title: "20. Class Size Reductions", text: `To improve teacher-student ratios, <span class="trap-highlight">the district hired ten new administrators</span>. More importantly, <span class="evidence-highlight">they capped all freshman English classes at 20 students</span>.`, skill: "Distinguishing Actions", strategy: "Distinguish between administrative changes and classroom changes.", type: "mcq", question: "How did the district change freshman English classes?", options: ["Hired ten administrators", "Capped them at 20 students", "Moved them to block scheduling", "Not Given"], answer: "Capped them at 20 students" },
+            { id: 21, title: "21. AP Class Enrollment", text: `Open enrollment policies have allowed more students to take Advanced Placement (AP) classes. <span class="evidence-highlight">This has increased overall college readiness</span>, though <span class="trap-highlight">average AP exam scores have slightly dipped</span>.`, skill: "True / False / Not Given", strategy: "Notice the contrasting outcomes (increased readiness vs. dipped scores).", type: "tfng", question: "Open enrollment has caused a massive increase in average AP exam scores.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 22, title: "22. Summer Reading Lists", text: `The English department revised the summer reading list. <span class="trap-highlight">Classic literature is still required</span>, but <span class="evidence-highlight">students must now also choose one contemporary non-fiction book</span>.`, skill: "Identifying Additions", strategy: "Look for words like 'also' or 'in addition' to spot new requirements.", type: "mcq", question: "What new requirement was added to the summer reading list?", options: ["Classic literature", "A contemporary non-fiction book", "Writing an essay", "Not Given"], answer: "A contemporary non-fiction book" },
+            { id: 23, title: "23. Peer Tutoring", text: `<span class="evidence-highlight">The National Honor Society offers free peer tutoring in the library after school</span>. <span class="trap-highlight">Private tutors charge upwards of $50 an hour</span>.`, skill: "Comparing Options", strategy: "Differentiate between the school-provided service and the external service.", type: "tfng", question: "The National Honor Society charges $50 an hour for peer tutoring.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 24, title: "24. Cellphone Policies", text: `The new policy bans cellphones in classrooms. <span class="trap-highlight">Students caught texting will receive a warning for the first offense</span>. <span class="evidence-highlight">A second offense results in the phone being confiscated until a parent retrieves it</span>.`, skill: "Tracking Consequences", strategy: "Read carefully to separate the consequence of the first offense from the second.", type: "mcq", question: "What happens on a student's second cellphone offense?", options: ["A warning", "Suspension", "Phone confiscated until a parent retrieves it", "Not Given"], answer: "Phone confiscated until a parent retrieves it" },
+            { id: 25, title: "25. Foreign Exchange Programs", text: `Studying abroad offers incredible cultural immersion. <span class="trap-highlight">While trips to Europe remain the most popular</span>, <span class="evidence-highlight">applications for language programs in South America have doubled this year</span>.`, skill: "True / False / Not Given", strategy: "Check the statistics mentioned (most popular vs. highest growth).", type: "tfng", question: "Applications for programs in South America have increased.", options: ["True", "False", "Not Given"], answer: "True" },
+            { id: 26, title: "26. Yearbook Committee", text: `The yearbook deadline is approaching. <span class="evidence-highlight">The photography team has finalized all senior portraits</span>, but <span class="trap-highlight">the sports section is missing captions for the basketball games</span>.`, skill: "Identifying Completion Status", strategy: "Scan for completed tasks versus pending tasks.", type: "mcq", question: "Which section of the yearbook has been completely finalized?", options: ["The sports section", "Senior portraits", "The club section", "Not Given"], answer: "Senior portraits" },
+            { id: 27, title: "27. School Play Auditions", text: `Auditions for the spring musical, 'Grease', start next week. <span class="trap-highlight">Students must prepare a monologue</span> and <span class="evidence-highlight">sing a 16-bar vocal solo of their choosing</span>.`, skill: "Listing Requirements", strategy: "Ensure you capture all parts of a compound requirement.", type: "mcq", question: "What must students sing at the audition?", options: ["A monologue", "A duet", "A 16-bar vocal solo", "Not Given"], answer: "A 16-bar vocal solo" },
+            { id: 28, title: "28. Graduation Requirements", text: `State law recently changed diploma requirements. <span class="trap-highlight">Physical education is still mandatory for two years</span>. However, <span class="evidence-highlight">students must now pass a personal finance course to graduate</span>.`, skill: "True / False / Not Given", strategy: "Focus on the newly added condition to the law.", type: "tfng", question: "Students do not need to pass a personal finance course to graduate.", options: ["True", "False", "Not Given"], answer: "False" },
+            { id: 29, title: "29. College Fairs", text: `The regional college fair will host over 100 universities. <span class="trap-highlight">State colleges will be in the main gymnasium</span>. <span class="evidence-highlight">Ivy League recruiters will be located in the library to accommodate larger crowds</span>.`, skill: "Locating Information", strategy: "Match the specific noun (Ivy League) to the location.", type: "mcq", question: "Where will Ivy League recruiters be located?", options: ["Main gymnasium", "Cafeteria", "The library", "Not Given"], answer: "The library" },
+            { id: 30, title: "30. Late Arrival Policies", text: `<span class="trap-highlight">Tardy students used to sign in at the front desk</span>. Now, <span class="evidence-highlight">they must scan their digital ID cards at the kiosk before entering class</span> to automate attendance tracking.`, skill: "Identifying New Procedures", strategy: "Contrast the old habit with the new required action.", type: "mcq", question: "What must tardy students do now?", options: ["Sign in at the front desk", "Scan digital ID cards at the kiosk", "Go straight to class", "Not Given"], answer: "Scan digital ID cards at the kiosk" },
+            { id: 31, title: "31. The Science Fair", text: `The annual science fair is mandatory for honors students. <span class="trap-highlight">Biology projects are the most common submission</span>, but <span class="evidence-highlight">engineering projects have won the top prize for the last three years consecutively</span>.`, skill: "True / False / Not Given", strategy: "Pay attention to the difference between 'most common' and 'most successful'.", type: "tfng", question: "Biology projects win the top prize every year.", options: ["True", "False", "Not Given"], answer: "False" }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Sidebar = ({ currentView, setCurrentView }) => {
+            const menuItems = [
+                { id: 'dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
+                { id: 'strategies', icon: 'lightbulb', label: 'Skills & Strategies' },
+                { id: 'practice', icon: 'book-open', label: 'Practice Databank' }
+            ];
+
+            return (
+                <div className="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col min-h-screen">
+                    <div className="p-6">
+                        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="graduation-cap" className="text-blue-400"></i>
+                            IELTS Reading
+                        </h1>
+                    </div>
+                    <nav className="flex-1 mt-6">
+                        {menuItems.map(item => (
+                            <button
+                                key={item.id}
+                                onClick={() => setCurrentView(item.id)}
+                                className={`w-full flex items-center gap-3 px-6 py-4 transition-colors ${
+                                    currentView === item.id 
+                                    ? 'bg-blue-600 text-white border-r-4 border-blue-400' 
+                                    : 'hover:bg-slate-800 hover:text-white'
+                                }`}
+                            >
+                                <i data-lucide={item.icon} className="w-5 h-5"></i>
+                                {item.label}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+            );
+        };
+
+        const DashboardView = ({ setCurrentView }) => (
+            <div className="p-8 w-full md:w-1/2 mx-auto animate-in fade-in duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-4">
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
+                        <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="target" className="w-8 h-8"></i>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-800">Target Band</h3>
+                        <p className="text-3xl font-bold text-blue-600 mt-2">7.0</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
+                        <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="check-circle" className="w-8 h-8"></i>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-800">Passages Completed</h3>
+                        <p className="text-3xl font-bold text-green-600 mt-2">12</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
+                        <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="clock" className="w-8 h-8"></i>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-800">Avg. Time / Passage</h3>
+                        <p className="text-3xl font-bold text-purple-600 mt-2">18m</p>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <h3 className="text-xl font-bold text-slate-800">Recommended for You</h3>
+                    </div>
+                    <div className="p-6">
+                        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100 mb-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center">
+                                    <i data-lucide="book-open"></i>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-slate-800">New Practice Databank</h4>
+                                    <p className="text-sm text-slate-600">Master identifying main ideas across 31 new passages.</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setCurrentView('practice')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm">
+                                Start Practice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const StrategiesView = () => {
+            const { speak, stop, isSpeaking } = useSpeech();
+
+            const strategies = [
+                {
+                    title: "Skimming (Reading for the Gist)",
+                    icon: "wind",
+                    color: "text-sky-500",
+                    bg: "bg-sky-100",
+                    description: "Reading quickly to understand the general idea of the passage.",
+                    textToSpeak: "Skimming. Reading quickly to understand the general idea."
+                },
+                {
+                    title: "Scanning (Looking for Specifics)",
+                    icon: "search",
+                    color: "text-purple-500",
+                    bg: "bg-purple-100",
+                    description: "Moving your eyes quickly down the page seeking specific words or phrases.",
+                    textToSpeak: "Scanning. Moving your eyes quickly down the page seeking specific words."
+                },
+                {
+                    title: "True / False / Not Given",
+                    icon: "help-circle",
+                    color: "text-orange-500",
+                    bg: "bg-orange-100",
+                    description: "Deciding if statements agree with the text, contradict it, or aren't there at all.",
+                    textToSpeak: "True, False, Not Given. True means the fact matches the text. False means the text contradicts the statement. Not given means the text never mentioned that specific detail."
+                }
+            ];
+
+            return (
+                <div className="p-8 w-full md:w-1/2 mx-auto animate-in fade-in duration-500">
+                    <header className="mb-8">
+                        <h2 className="text-3xl font-bold text-slate-800">Skills & Strategies</h2>
+                    </header>
+
+                    <div className="grid gap-6">
+                        {strategies.map((strat, index) => (
+                            <div 
+                                key={index} 
+                                onClick={() => isSpeaking ? stop() : speak(strat.textToSpeak)}
+                                className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-start cursor-pointer hover:bg-slate-50 transition"
+                            >
+                                <div className={`w-16 h-16 shrink-0 rounded-2xl ${strat.bg} ${strat.color} flex items-center justify-center`}>
+                                    <i data-lucide={isSpeaking ? "square" : "play"} className="w-8 h-8"></i>
+                                </div>
+                                <div className="flex-1 pr-12">
+                                    <h3 className="text-xl font-bold text-slate-800 mb-2">{strat.title}</h3>
+                                    <p className="text-slate-700 font-medium mb-3">{strat.description}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const PracticeView = ({ setCurrentView }) => {
+            const { speak, stop, isSpeaking } = useSpeech();
+            
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [answer, setAnswer] = useState("");
+            const [feedback, setFeedback] = useState(null);
+            const [showHighlights, setShowHighlights] = useState(false);
+
+            const passage = practiceBank[currentIndex];
+
+            // Reset state when passage changes
+            useEffect(() => {
+                setAnswer("");
+                setFeedback(null);
+                setShowHighlights(false);
+                stop();
+            }, [currentIndex]);
+
+            const handleAttemptSubmit = () => {
+                let isCorrect = answer === passage.answer;
+                setFeedback({
+                    correct: isCorrect,
+                    message: isCorrect ? "Correct!" : "Incorrect."
+                });
+            };
+
+            return (
+                <div className="h-screen w-full flex flex-col overflow-hidden animate-in fade-in duration-500">
+                    {/* Top Navigation Bar for Full Screen Mode */}
+                    <div className="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
+                        <button onClick={() => setCurrentView('dashboard')} className="flex items-center gap-2 hover:text-blue-300 transition">
+                            <i data-lucide="arrow-left" className="w-5 h-5"></i> Back to Dashboard
+                        </button>
+                        <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+                                disabled={currentIndex === 0}
+                                className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50"
+                            >
+                                Prev
+                            </button>
+                            <select 
+                                className="bg-slate-800 text-white border-none rounded p-1 text-sm outline-none font-bold"
+                                value={currentIndex}
+                                onChange={(e) => setCurrentIndex(parseInt(e.target.value))}
+                            >
+                                {practiceBank.map((p, idx) => (
+                                    <option key={p.id} value={idx}>Passage {idx + 1} of {practiceBank.length}</option>
+                                ))}
+                            </select>
+                            <button 
+                                onClick={() => setCurrentIndex(Math.min(practiceBank.length - 1, currentIndex + 1))}
+                                disabled={currentIndex === practiceBank.length - 1}
+                                className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50">
+                        
+                        {/* Left Side: Passage (40% width) */}
+                        <div className="w-full md:w-2/5 bg-white border-r border-slate-200 flex flex-col h-full overflow-hidden">
+                            <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
+                                <button 
+                                    onClick={() => setShowHighlights(!showHighlights)}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition ${showHighlights ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                                >
+                                    {showHighlights ? "Hide Highlights" : "Activate Colors"}
+                                </button>
+                                <button 
+                                    onClick={() => isSpeaking ? stop() : speak(passage.text)}
+                                    className="flex items-center justify-center w-10 h-10 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-full transition"
+                                    title={isSpeaking ? "Stop" : "Read Aloud"}
+                                >
+                                    <i data-lucide={isSpeaking ? "square" : "volume-2"} className="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            
+                            {/* Color Legend */}
+                            {showHighlights && (
+                                <div className="bg-slate-100 p-3 flex gap-4 text-xs font-semibold text-slate-700 border-b border-slate-200 shrink-0">
+                                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#bbf7d0] inline-block"></span> Answer Evidence</span>
+                                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#fecaca] inline-block"></span> Trap / Distractor</span>
+                                </div>
+                            )}
+
+                            <div className="p-6 overflow-y-auto hide-scrollbar flex-1">
+                                <h1 className="text-xl font-bold text-slate-900 mb-6">{passage.title}</h1>
+                                
+                                <div className={`space-y-6 text-slate-700 reading-text ${showHighlights ? 'show-highlights' : ''}`}>
+                                    <div dangerouslySetInnerHTML={{ __html: passage.text }}></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Side: Questions (60% width) */}
+                        <div className="w-full md:w-3/5 bg-slate-50 flex flex-col h-full overflow-hidden">
+                            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                                
+                                <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                                    <div className="mb-4">
+                                        <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">{passage.skill}</span>
+                                    </div>
+                                    <p className="font-medium text-slate-800 mb-4 text-lg">
+                                        {passage.question}
+                                    </p>
+                                    
+                                    <div className="space-y-2">
+                                        {passage.options.map(opt => (
+                                            <label key={opt} className={`block p-4 border rounded-lg cursor-pointer transition ${answer === opt ? 'bg-blue-50 border-blue-400' : 'border-slate-200 hover:bg-slate-50'}`}>
+                                                <div className="flex items-start gap-3">
+                                                    <input 
+                                                        type="radio" 
+                                                        name={`q-${passage.id}`} 
+                                                        value={opt} 
+                                                        checked={answer === opt}
+                                                        onChange={(e) => setAnswer(e.target.value)}
+                                                        className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                                                    />
+                                                    <span className="text-md text-slate-700">{opt}</span>
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Submit Section */}
+                                <div className="pb-10">
+                                    <button 
+                                        onClick={handleAttemptSubmit}
+                                        disabled={!answer}
+                                        className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                                    >
+                                        Submit Answer
+                                    </button>
+
+                                    {feedback && (
+                                        <div className={`mt-6 p-6 rounded-xl border ${feedback.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                            <h3 className={`font-bold text-xl mb-4 flex items-center gap-2 ${feedback.correct ? 'text-green-700' : 'text-red-700'}`}>
+                                                <i data-lucide={feedback.correct ? "check-circle" : "x-circle"}></i>
+                                                {feedback.message}
+                                            </h3>
+                                            
+                                            <div className="bg-white p-4 rounded-lg border border-slate-100 mb-4">
+                                                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Why is this correct/incorrect?</h4>
+                                                <p className="text-slate-800">
+                                                    The <span className="font-semibold text-green-600">green highlighted text</span> shows the exact evidence pointing to the answer: <strong>"{passage.answer}"</strong>. 
+                                                    The <span className="font-semibold text-red-500">red highlighted text</span> is the trap meant to distract you.
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-white p-4 rounded-lg border border-slate-100">
+                                                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Strategy Used</h4>
+                                                <p className="text-slate-800 italic">"{passage.strategy}"</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- MAIN APP COMPONENT ---
+        const App = () => {
+            const [currentView, setCurrentView] = useState('dashboard');
+
+            // Re-initialize Lucide icons when view changes
+            useEffect(() => {
+                lucide.createIcons();
+            }, [currentView]);
+
+            return (
+                <div className="flex flex-col md:flex-row min-h-screen font-sans">
+                    {/* Mobile Header */}
+                    {currentView !== 'practice' && (
+                        <div className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center">
+                            <h1 className="font-bold flex items-center gap-2"><i data-lucide="graduation-cap"></i></h1>
+                            <select 
+                                className="bg-slate-800 text-white border-none rounded p-1 text-sm outline-none"
+                                value={currentView}
+                                onChange={(e) => setCurrentView(e.target.value)}
+                            >
+                                <option value="dashboard">Dashboard</option>
+                                <option value="strategies">Strategies</option>
+                                <option value="practice">Practice</option>
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Sidebar for Desktop - Hidden in Practice View */}
+                    <div className={`hidden ${currentView !== 'practice' ? 'md:block' : ''}`}>
+                        <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+                    </div>
+                    
+                    {/* Main Content Area */}
+                    <div className="flex-1 overflow-x-hidden">
+                        {currentView === 'dashboard' && <DashboardView setCurrentView={setCurrentView} />}
+                        {currentView === 'strategies' && <StrategiesView />}
+                        {currentView === 'practice' && <PracticeView setCurrentView={setCurrentView} />}
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
