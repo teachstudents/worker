@@ -35,14 +35,7 @@
             border-radius: 12px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
         }
-        .app-title {
-            font-size: 36px;
-            color: var(--primary);
-            margin-bottom: 30px;
-            font-weight: 800;
-        }
         .student-input-group { margin-bottom: 40px; }
-        .student-input-group label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 18px; color: var(--primary); }
         .student-input-group input { padding: 12px; font-size: 18px; width: 350px; border: 2px solid #bdc3c7; border-radius: 8px; transition: 0.3s; text-align: center;}
         .student-input-group input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); }
         
@@ -126,41 +119,20 @@
             margin-top: 0;
         }
 
-        .question-block { 
-            display: flex; 
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px; 
-            padding-bottom: 15px; 
-            border-bottom: 1px dashed #e0e0e0; 
-            gap: 20px;
-        }
+        .question-block { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0; }
         .question-block:last-child { border-bottom: none; }
-        .question-content { flex: 1; }
-        .question-label { font-weight: 600; display: block; margin-bottom: 5px; color: var(--primary); font-size: 17px; }
+        .question-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 10px; }
+        .question-label { font-weight: 600; color: var(--primary); font-size: 17px; margin: 0; flex: 1; }
         
-        .mcq-options { display: block; margin: 10px 0 5px 15px; font-size: 15px; color: #555; background: #f9f9f9; padding: 15px; border-radius: 6px; border-left: 4px solid var(--accent); }
+        .mcq-options { display: block; margin: 10px 0 15px 15px; font-size: 15px; color: #555; background: #f9f9f9; padding: 15px; border-radius: 6px; border-left: 4px solid var(--accent); }
         .mcq-options div { margin-bottom: 8px; }
-        .mcq-options div:last-child { margin-bottom: 0; }
+        .matching-legend { display: block; margin: 10px 0 15px 15px; font-size: 15px; font-weight: bold; color: var(--primary); background: #e8f4f8; padding: 15px; border-radius: 6px; border: 1px solid #bce0ee; }
         
-        .matching-legend { display: block; margin: 10px 0 5px 15px; font-size: 15px; font-weight: bold; color: var(--primary); background: #e8f4f8; padding: 15px; border-radius: 6px; border: 1px solid #bce0ee; }
-        
-        .answer-input-wrapper { display: flex; align-items: center; }
-        .answer-input { padding: 10px 12px; border: 2px solid #ccc; border-radius: 6px; width: 220px; font-size: 16px; transition: 0.2s; }
+        .answer-input { padding: 6px 12px; border: 2px solid #ccc; border-radius: 6px; width: 220px; font-size: 16px; transition: 0.2s; flex-shrink: 0; }
         .answer-input:focus { border-color: var(--accent); outline: none; }
         .answer-input.correct { border-color: var(--success); background-color: #eafaf1; color: #1e8449; font-weight: bold; }
         .answer-input.incorrect { border-color: var(--error); background-color: #fadbd8; color: #c0392b; font-weight: bold; }
         
-        /* Mobile adjustment for inline questions */
-        @media (max-width: 650px) {
-            .question-block {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .answer-input { width: 100%; box-sizing: border-box; }
-        }
-
         .hidden-section { 
             display: none; 
             margin-top: 25px; 
@@ -187,20 +159,21 @@
         .speaker-name { font-weight: bold; color: var(--accent); }
         
         .answer-key-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media (max-width: 600px) { .answer-key-grid { grid-template-columns: 1fr; } }
-        
         .answer-key-item { font-size: 16px; background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee; }
         .answer-key-item span { font-weight: bold; color: var(--success); float: right; }
         #feedback-area { margin-top: 25px; font-weight: bold; font-size: 22px; text-align: center; }
+
+        @media (max-width: 600px) {
+            .question-row { flex-direction: column; align-items: flex-start; }
+            .answer-input { width: 100%; box-sizing: border-box; }
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div id="main-menu">
-        <h1 class="app-title">Listening Practice</h1>
         <div class="student-input-group">
-            <label for="student-name">Enter Student Name:</label>
-            <input type="text" id="student-name" placeholder="e.g. John Doe">
+            <input type="text" id="student-name" placeholder="Enter Student Name (e.g. John Doe)">
         </div>
         <div class="test-grid" id="test-grid"></div>
     </div>
@@ -210,7 +183,7 @@
             <div class="header-info">
                 <div id="display-student">Student: <span>-</span></div>
                 <div id="display-test">Test: <span>-</span></div>
-                <div id="display-score">Score: <span id="score-val">-</span></div>
+                <div id="display-score">Score: <span id="score-val">0/10</span></div>
             </div>
             
             <div class="header-controls">
@@ -275,7 +248,7 @@ const testsData = [
     },
     {
         id: 3, title: "3. Riverside Community Centre",
-        transcript: `MANAGER: Good afternoon, Riverside Community Centre. This is David speaking. How can I help you? \nCUSTOMER: Oh, hello David. I'm ringing to enquire about hiring a room for an upcoming event. We are hosting a birthday party for my daughter. \nMANAGER: Fantastic. We host a lot of parties here. Let me just open a booking form. Can I take your full name first, please? \nCUSTOMER: Yes, it's Michael Bennett. \nMANAGER: Is that spelt B-E-N-E-T? \nCUSTOMER: Actually, it's B-E, double N, E, double T. \nMANAGER: Thank you, I've got that. And a contact telephone number? \nCUSTOMER: Sure. It's 076 544... wait a minute, I've just been given a new mobile by my company and I haven't memorized it yet. Sorry, it's 076 544 890. \nMANAGER: 076 544 890. Excellent. Now, what date were you looking to hold the party? \nCUSTOMER: Well, her actual birthday is on the 7th of November, and I originally wanted to have it then, but unfortunately my wife is travelling for work that week, so we will have to move it to the 14th. \nMANAGER: The 14th of November. Let me just check the diary... Yes, we have availability. Now, we have two spaces. There's our Main Hall, which seats 200 people, or we have the Charlton Room, which is a bit smaller. \nCUSTOMER: The Main Hall will be far too big for us, so the Charlton Room sounds perfect. \nMANAGER: Excellent. Do you need any special facilities in the room? We can set up a digital projector if you want to show photos. \nCUSTOMER: I probably won't need that. But we are planning to prepare some of the snacks ourselves, so what I really need is a kitchen. \nMANAGER: No problem, that room has one attached. Let's discuss the cost. Normally, the evening rate for that room is £50 an hour. However, because you are a local resident, the final quote comes down to £45. \nCUSTOMER: £45 an hour is great. Now, you mentioned snacks. Do you also provide catering? \nMANAGER: We do. We can provide a sit-down hot meal, or a cold buffet. \nCUSTOMER: Right. Well, if you've got a cold buffet, that's best. We've found that hot meals are a bit too formal for children's parties. \nMANAGER: I completely agree. We will supply the tables, chairs, and all the plates for that. Are you bringing anything yourselves? \nCUSTOMER: We will bring the birthday cake, of course, and I'll be bringing my own decorations to put up on the walls. \nMANAGER: That's absolutely fine, just please use sticky tape and not pins. Oh, one other thing. Will you be playing music? \nCUSTOMER: Yes, we have a playlist ready. \nMANAGER: In that case, according to local council rules, you'll need to purchase a music license. It's a small standard fee. \nCUSTOMER: Oh, I didn't realize that, but I'll add it to the budget. \nMANAGER: Brilliant. Finally, just for our records, how did you find out about the centre? Normally people see our flyer in the local library... \nCUSTOMER: Yes, normally you'd expect people to find local things that way, but actually, it was a neighbour who recommended you. They had a party there last year.`,
+        transcript: `MANAGER: Good afternoon, Riverside Community Centre. This is Diana speaking. How can I help you? \nCUSTOMER: Oh, hello Diana. I'm ringing to enquire about hiring a room for an upcoming event. We are hosting a birthday party for my daughter. \nMANAGER: Fantastic. We host a lot of parties here. Let me just open a booking form. Can I take your full name first, please? \nCUSTOMER: Yes, it's Michael Bennett. \nMANAGER: Is that spelt B-E-N-E-T? \nCUSTOMER: Actually, it's B-E, double N, E, double T. \nMANAGER: Thank you, I've got that. And a contact telephone number? \nCUSTOMER: Sure. It's 076 544... wait a minute, I've just been given a new mobile by my company and I haven't memorized it yet. Sorry, it's 076 544 890. \nMANAGER: 076 544 890. Excellent. Now, what date were you looking to hold the party? \nCUSTOMER: Well, her actual birthday is on the 7th of November, and I originally wanted to have it then, but unfortunately my wife is travelling for work that week, so we will have to move it to the 14th. \nMANAGER: The 14th of November. Let me just check the diary... Yes, we have availability. Now, we have two spaces. There's our Main Hall, which seats 200 people, or we have the Charlton Room, which is a bit smaller. \nCUSTOMER: The Main Hall will be far too big for us, so the Charlton Room sounds perfect. \nMANAGER: Excellent. Do you need any special facilities in the room? We can set up a digital projector if you want to show photos. \nCUSTOMER: I probably won't need that. But we are planning to prepare some of the snacks ourselves, so what I really need is a kitchen. \nMANAGER: No problem, that room has one attached. Let's discuss the cost. Normally, the evening rate for that room is £50 an hour. However, because you are a local resident, the final quote comes down to £45. \nCUSTOMER: £45 an hour is great. Now, you mentioned snacks. Do you also provide catering? \nMANAGER: We do. We can provide a sit-down hot meal, or a cold buffet. \nCUSTOMER: Right. Well, if you've got a cold buffet, that's best. We've found that hot meals are a bit too formal for children's parties. \nMANAGER: I completely agree. We will supply the tables, chairs, and all the plates for that. Are you bringing anything yourselves? \nCUSTOMER: We will bring the birthday cake, of course, and I'll be bringing my own decorations to put up on the walls. \nMANAGER: That's absolutely fine, just please use sticky tape and not pins. Oh, one other thing. Will you be playing music? \nCUSTOMER: Yes, we have a playlist ready. \nMANAGER: In that case, according to local council rules, you'll need to purchase a music license. It's a small standard fee. \nCUSTOMER: Oh, I didn't realize that, but I'll add it to the budget. \nMANAGER: Brilliant. Finally, just for our records, how did you find out about the centre? Normally people see our flyer in the local library... \nCUSTOMER: Yes, normally you'd expect people to find local things that way, but actually, it was a neighbour who recommended you. They had a party there last year.`,
         answers: {1:"Bennett", 2:"076 544 890", 3:"14th", 4:"Charlton", 5:"kitchen", 6:"45", 7:"cold buffet", 8:"decorations", 9:"license", 10:"neighbour"},
         questions: [
             {id:1, label:"1. Full Name: Michael ______"}, {id:2, label:"2. Contact Number: ______"}, {id:3, label:"3. Confirmed Date: ______"},
@@ -329,7 +302,7 @@ const testsData = [
     },
     {
         id: 7, title: "7. Summer Arts Festival",
-        transcript: `COORDINATOR: Good morning, everyone, and welcome to the Summer Arts Festival volunteer orientation. My name is Greg, and I am the volunteer coordinator. Before we assign you to your stations, I need to go over a few important details. \nFirst, let's talk about the format of the event. In the past, we've always held the festival over a single weekend. We initially planned to expand it to a full week this year. However, due to funding cuts, we've actually decided to keep it to three days, but move it entirely indoors to the civic centre, so we don't have to worry about the rain. \nRegarding your uniform. Normally, at festivals like this, you'd expect to be given a souvenir festival t-shirt to wear, but our supplier let us down at the last minute. You don't need to wear formal suits, of course, but it is strictly required that you wear a high-visibility yellow vest at all times while on duty, which we will provide at the desk. \nYou'll also want to know your shifts. We used to just pin a master list on the noticeboard in the staff room. We thought about emailing the times to you every morning, but we found that emails often get missed or sent to the spam folder. So instead, you'll need to pick up a printed card from my desk when you arrive each day, which will have your exact hours on it. \nNow, health and safety. If there is a medical emergency with a visitor, please don't call an ambulance yourself, as having multiple people call can cause confusion for the hospital. And while your first instinct might be to find a police officer, you must actually contact the site manager on your two-way radio first, and they will coordinate the official medical team. \nFinally, I want to thank you all for giving up your time. Many people volunteer just to get free concert tickets. While that's a nice perk, the primary advantage of doing this work is that it helps you build your confidence when communicating with the public, which is something that looks fantastic on any CV. \nAlright, now let's look at where you will all be stationed today. \nSusan, your group is up first. Normally you look after the Children's Area, but unfortunately, that's closed for repairs this year. So instead, we've moved you to the Food Court to help clear tables and assist the vendors. \nNext is Mark's group. I know you requested to be at the Main Stage. Unfortunately, that's fully staffed by professionals. However, we really need your help directing vehicles, so please head over to the Car Park. \nFor the local scout troop, we usually put them in the Car Park, but they are so great at answering public questions that this year they will be stationed at the Information Tent. \nNow, the university students. Because they are studying medicine, it would make sense to put them in the First Aid Tent, right? Well, actually, the festival director specifically requested them to handle the guest lists and cater to the artists in the VIP Lounge. \nFinally, the drama club members. They originally wanted to perform, but they'll be helping out at the Main Stage setting up the microphones and helping the bands.`,
+        transcript: `COORDINATOR: Good morning, everyone, and welcome to the Summer Arts Festival volunteer orientation. My name is Seraphina, and I am the volunteer coordinator. Before we assign you to your stations, I need to go over a few important details. \nFirst, let's talk about the format of the event. In the past, we've always held the festival over a single weekend. We initially planned to expand it to a full week this year. However, due to funding cuts, we've actually decided to keep it to three days, but move it entirely indoors to the civic centre, so we don't have to worry about the rain. \nRegarding your uniform. Normally, at festivals like this, you'd expect to be given a souvenir festival t-shirt to wear, but our supplier let us down at the last minute. You don't need to wear formal suits, of course, but it is strictly required that you wear a high-visibility yellow vest at all times while on duty, which we will provide at the desk. \nYou'll also want to know your shifts. We used to just pin a master list on the noticeboard in the staff room. We thought about emailing the times to you every morning, but we found that emails often get missed or sent to the spam folder. So instead, you'll need to pick up a printed card from my desk when you arrive each day, which will have your exact hours on it. \nNow, health and safety. If there is a medical emergency with a visitor, please don't call an ambulance yourself, as having multiple people call can cause confusion for the hospital. And while your first instinct might be to find a police officer, you must actually contact the site manager on your two-way radio first, and they will coordinate the official medical team. \nFinally, I want to thank you all for giving up your time. Many people volunteer just to get free concert tickets. While that's a nice perk, the primary advantage of doing this work is that it helps you build your confidence when communicating with the public, which is something that looks fantastic on any CV. \nAlright, now let's look at where you will all be stationed today. \nSusan, your group is up first. Normally you look after the Children's Area, but unfortunately, that's closed for repairs this year. So instead, we've moved you to the Food Court to help clear tables and assist the vendors. \nNext is Mark's group. I know you requested to be at the Main Stage. Unfortunately, that's fully staffed by professionals. However, we really need your help directing vehicles, so please head over to the Car Park. \nFor the local scout troop, we usually put them in the Car Park, but they are so great at answering public questions that this year they will be stationed at the Information Tent. \nNow, the university students. Because they are studying medicine, it would make sense to put them in the First Aid Tent, right? Well, actually, the festival director specifically requested them to handle the guest lists and cater to the artists in the VIP Lounge. \nFinally, the drama club members. They originally wanted to perform, but they'll be helping out at the Main Stage setting up the microphones and helping the bands.`,
         answers: {11:"B", 12:"C", 13:"B", 14:"C", 15:"B", 16:"B", 17:"D", 18:"A", 19:"G", 20:"C"},
         questions: [
             {id:11, label:"11. What is the main change to the festival this year?", options: ["A. It will be expanded to a full week", "B. It has been moved entirely indoors", "C. It will only last a single weekend"]},
@@ -438,7 +411,7 @@ const testsData = [
     },
     {
         id: 14, title: "14. Library Registration",
-        transcript: `LIBRARIAN: Good morning, City Library. Are you looking to register? \nAPPLICANT: Yes, I am. I just moved here. \nLIBRARIAN: Great. What is your surname? \nAPPLICANT: It's Rossi. \nLIBRARIAN: Is that spelt R-O-S-S-I? \nAPPLICANT: Yes, that's right. \nLIBRARIAN: And your first name? \nAPPLICANT: Giulia. \nLIBRARIAN: Can you spell that for me, please? \nAPPLICANT: Sure, it's G-I-U-L-I-A. \nLIBRARIAN: Thank you. What's your address? \nAPPLICANT: 12 Elm Street. \nLIBRARIAN: Elm... is that E-L-M? \nAPPLICANT: Yes, exactly. \nLIBRARIAN: Okay. And a phone number? \nAPPLICANT: It's 079 554 321. \nLIBRARIAN: Let me just repeat that. 079 554 321. \nAPPLICANT: That's it. \nLIBRARIAN: Now, are you a student? \nAPPLICANT: Yes, at the local college. \nLIBRARIAN: Excellent, that means you get a free pass for the computers. \nAPPLICANT: Perfect. Do I need to pay a deposit for the books? \nLIBRARIAN: Yes, it's £15. \nAPPLICANT: I can pay that in cash. \nLIBRARIAN: Great. And one rule, you must return books within 14 days, or you will be charged a late fee. \nAPPLICANT: Understood.`,
+        transcript: `LIBRARIAN: Good morning, City Library. Are you looking to register? \nAPPLICANT: Yes, I am. I just moved here. \nLIBRARIAN: Great. Could you spell your surname for me? \nAPPLICANT: It's Rossi. R-O-S-S-I. \nLIBRARIAN: Thank you. And your first name? \nAPPLICANT: Giulia. \nLIBRARIAN: Can you spell that for me, please? \nAPPLICANT: Sure, it's G-I-U-L-I-A. \nLIBRARIAN: Thank you, Giulia. What's your address? \nAPPLICANT: 12 Elm Street. \nLIBRARIAN: Elm... is that E-L-M? \nAPPLICANT: Yes, exactly. \nLIBRARIAN: Okay. And a phone number? \nAPPLICANT: It's 079 554 321. \nLIBRARIAN: Let me just repeat that back to make sure I have it. 079 554 321. \nAPPLICANT: That's it. \nLIBRARIAN: Now, are you a student? \nAPPLICANT: Yes, at the local college. \nLIBRARIAN: Excellent, that means you get a free pass for the computers. \nAPPLICANT: Perfect. Do I need to pay a deposit for the books? \nLIBRARIAN: Yes, it's £15. \nAPPLICANT: I can pay that in cash. \nLIBRARIAN: Great. And one rule, you must return books within 14 days, or you will be charged a late fee. \nAPPLICANT: Understood.`,
         answers: {1:"Rossi", 2:"Giulia", 3:"Elm", 4:"079 554 321", 5:"college", 6:"computers", 7:"15", 8:"cash", 9:"14", 10:"late fee"},
         questions: [
             {id:1, label:"1. Surname: ______"}, {id:2, label:"2. First Name: ______"}, {id:3, label:"3. Address: 12 ______ Street"},
@@ -520,36 +493,35 @@ const testsData = [
     }
 ];
 
-const VOICE_MAP = {
-    "MANAGER": ["Remy", "Giuseppe", "Male"], 
-    "CUSTOMER": ["Giuseppe", "Male"], 
-    "WOMAN": ["Florian", "Male"],
-    "COORDINATOR": ["Seraphina", "Female"],
-    "SHELLY": ["Vivienne", "Female"],
-    "JUDY": ["Vivienne", "Female"],
-    "APPLICANT": ["Vivienne", "Female"],
-    
-    "AGENT": ["Emma", "Female"], 
-    "RECEPTIONIST": ["Remy", "Male"], 
-    "MALE": ["Giuseppe", "Male"], 
-    "FEMALE": ["Vivienne", "Female"], 
-    "ALAN": ["Remy", "Male"], 
-    "LECTURER": ["Giuseppe", "Male"],
-    "LIBRARIAN": ["Remy", "Male"],
-    "GUIDE": ["Florian", "Male"],
-    "INTERVIEWER": ["Giuseppe", "Male"],
-    "CANDIDATE": ["Vivienne", "Female"],
-    "STAFF": ["Giuseppe", "Male"],
-    "PASSENGER": ["Florian", "Male"],
-    "LANDLORD": ["Remy", "Male"],
-    "TENANT": ["Florian", "Male"]
+// Ensures every dialogue is distinctly Male vs Female using requested names
+const TEST_VOICE_CONFIG = {
+    1: { "AGENT": "Emma", "CUSTOMER": "Brian" },
+    2: { "AGENT": "Ava", "CUSTOMER": "Andrew" },
+    3: { "MANAGER": "Seraphina", "CUSTOMER": "Giuseppe" }, 
+    4: { "AGENT": "Vivienne", "CUSTOMER": "Florian" },
+    5: { "RECEPTIONIST": "Emma", "CUSTOMER": "Remy" },
+    6: { "MANAGER": "Brian", "WOMAN": "Ava" },
+    7: { "COORDINATOR": "Seraphina" }, // Monologue
+    8: { "MANAGER": "William" },       // Monologue
+    9: { "AGENT": "Andrew", "SHELLY": "Vivienne" },
+    10: { "MALE": "Giuseppe", "FEMALE": "Emma" },
+    11: { "MALE": "Florian", "FEMALE": "Ava" },
+    12: { "JUDY": "Vivienne", "ALAN": "Remy" },
+    13: { "LECTURER": "Brian" },       // Monologue
+    14: { "LIBRARIAN": "Andrew", "APPLICANT": "Seraphina" },
+    15: { "GUIDE": "Emma", "PASSENGER": "William" },
+    16: { "INTERVIEWER": "Giuseppe", "CANDIDATE": "Vivienne" },
+    17: { "STAFF": "Ava", "PASSENGER": "Florian" },
+    18: { "MANAGER": "Seraphina", "CUSTOMER": "Brian" },
+    19: { "RECEPTIONIST": "Remy", "APPLICANT": "Emma" },
+    20: { "LANDLORD": "Ava", "TENANT": "Andrew" }
 };
 
 let currentTest = null;
 let voices = [];
 let speechQueue = [];
 let isPlaying = false;
-let currentUtterance = null;
+window.currentUtterance = null; // Bound to window to prevent garbage collection bugs
 
 const menuDiv = document.getElementById('test-grid');
 const testView = document.getElementById('test-view');
@@ -573,6 +545,7 @@ function init() {
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = populateVoices;
     }
+    setTimeout(populateVoices, 500);
 }
 
 function showMenu() {
@@ -587,7 +560,7 @@ function loadTest(index) {
     
     document.getElementById('display-student').innerHTML = `Student: <span>${studentName}</span>`;
     document.getElementById('display-test').innerHTML = `Test: <span>${currentTest.title}</span>`;
-    document.getElementById('display-score').innerHTML = `Score: <span id="score-val">-</span>`;
+    document.getElementById('display-score').innerHTML = `Score: <span id="score-val">0/10</span>`;
 
     menuView.style.display = 'none';
     testView.style.display = 'block';
@@ -602,14 +575,14 @@ function loadTest(index) {
 
     const qContainer = document.getElementById('questions-container');
     qContainer.innerHTML = '';
-    
     currentTest.questions.forEach(q => {
         const div = document.createElement('div');
         div.className = 'question-block';
         
-        // Split content and input wrapper for flexbox inline layout
-        let html = `<div class="question-content">
-                        <label class="question-label">${q.label}</label>`;
+        let html = `<div class="question-row">
+            <label class="question-label">${q.label}</label>
+            <input type="text" class="answer-input" data-id="${q.id}" placeholder="Type answer here">
+        </div>`;
         
         if (q.options) {
             const listClass = q.isMatching ? "matching-legend" : "mcq-options";
@@ -617,14 +590,7 @@ function loadTest(index) {
             q.options.forEach(opt => html += `<div>${opt}</div>`);
             html += `</span>`;
         }
-        
-        html += `</div>`; // Close question-content
-        
-        // Input goes into its own wrapper
-        html += `<div class="answer-input-wrapper">
-                    <input type="text" class="answer-input" data-id="${q.id}" placeholder="Type answer here">
-                 </div>`;
-                 
+
         div.innerHTML = html;
         qContainer.appendChild(div);
     });
@@ -680,7 +646,18 @@ function prepareTTS() {
         lineDiv.innerHTML = `<span class="speaker-name">${speaker}:</span> ${text}`;
         container.appendChild(lineDiv);
 
-        let modifiedText = text.replace(/(0\d{2}\s\d{3}\s\d{3})/g, match => match.split('').join(' '));
+        // Parse currency to explicitly say 'pounds' so multilingual voices speak it in English
+        let modifiedText = text.replace(/£([0-9.,]+)/g, "$1 pounds");
+
+        // Parse phone numbers to speak individual digits with distinct pauses (e.g., 0, 7, 8,)
+        modifiedText = modifiedText.replace(/\b(0\d{2}\s\d{3}\s\d{3})\b/g, match => {
+            return match.split('').map(char => /\d/.test(char) ? char + ',' : char).join(' ');
+        });
+
+        // Parse hyphenated spelled words to add pauses (e.g., B-R-A-M-B-L-E -> B, R, A, M, B, L, E)
+        modifiedText = modifiedText.replace(/\b([A-Z](-[A-Z])+)\b/g, match => {
+            return match.split('-').join(', ');
+        });
 
         speechQueue.push({
             speaker: speaker,
@@ -690,33 +667,65 @@ function prepareTTS() {
     });
 }
 
-function getVoiceForSpeaker(speakerName) {
-    const preferences = VOICE_MAP[speakerName] || ["Female"]; 
-    
-    for (let pref of preferences) {
-        let exactMatch = voices.find(v => v.name.includes(pref));
-        if (exactMatch) return exactMatch;
+function getVoiceForSpeaker(speakerName, testId) {
+    const config = TEST_VOICE_CONFIG[testId];
+    let requestedVoiceName = config ? config[speakerName] : null;
+
+    if (!requestedVoiceName) {
+        // Ultimate fallback to guarantee M/F pairs
+        if (speakerName === 'MALE' || speakerName === 'MANAGER' || speakerName === 'ALAN') requestedVoiceName = 'Brian';
+        else requestedVoiceName = 'Emma';
     }
 
-    const genderHint = preferences[preferences.length - 1];
-    if (genderHint === "Male") {
-        return voices.find(v => v.name.includes("Male") || v.name.includes("David") || v.name.includes("Brian") || v.name.includes("Guy")) || voices[0];
-    } else {
-        return voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Emma") || v.name.includes("Girl")) || voices[0];
+    if (!voices || voices.length === 0) return null;
+
+    // 1. Try to find Microsoft Multilingual / Online voice with the specific name
+    let exactMatch = voices.find(v => v.name.includes(requestedVoiceName) && (v.name.includes("Online") || v.name.includes("Multilingual")));
+    
+    // 2. Try the name without Multilingual/Online restriction
+    if (!exactMatch) exactMatch = voices.find(v => v.name.includes(requestedVoiceName));
+
+    // 3. Strict Fallback: ONLY use the 10 allowed voices if the requested one isn't found
+    if (!exactMatch) {
+        const allowedMales = ["Brian", "Andrew", "William", "Remy", "Florian", "Giuseppe"];
+        const allowedFemales = ["Ava", "Emma", "Vivienne", "Seraphina"];
+        const isMale = allowedMales.includes(requestedVoiceName);
+        
+        const listToSearch = isMale ? allowedMales : allowedFemales;
+        
+        // Prioritize Multilingual matching within the allowed list
+        for (let name of listToSearch) {
+             exactMatch = voices.find(v => v.name.includes(name) && (v.name.includes("Online") || v.name.includes("Multilingual")));
+             if(exactMatch) break;
+        }
+        
+        // Standard matching within the allowed list
+        if (!exactMatch) {
+            for (let name of listToSearch) {
+                 exactMatch = voices.find(v => v.name.includes(name));
+                 if(exactMatch) break;
+            }
+        }
     }
+    
+    return exactMatch || voices[0];
 }
 
 function toggleTTS() {
     if (isPlaying) {
         stopTTS();
     } else {
-        playTTSQueue(0);
+        isPlaying = false;
+        window.speechSynthesis.cancel();
+        setTimeout(() => {
+            playTTSQueue(0);
+        }, 100);
     }
 }
 
 function stopTTS() {
+    isPlaying = false; 
     window.speechSynthesis.cancel();
-    isPlaying = false;
     playBtn.innerText = '▶ Play Audio';
     playBtn.classList.remove('playing');
     document.querySelectorAll('.transcript-line').forEach(el => el.classList.remove('active'));
@@ -741,22 +750,30 @@ function playTTSQueue(index) {
         activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    currentUtterance = new SpeechSynthesisUtterance(item.text);
-    currentUtterance.voice = getVoiceForSpeaker(item.speaker);
-    currentUtterance.rate = 0.95; 
+    window.currentUtterance = new SpeechSynthesisUtterance(item.text);
+    window.currentUtterance.lang = 'en-GB'; // Enforce English for numbers, prices, and letters
+    
+    const selectedVoice = getVoiceForSpeaker(item.speaker, currentTest.id);
+    if (selectedVoice) {
+        window.currentUtterance.voice = selectedVoice;
+    }
+    
+    window.currentUtterance.rate = 0.85; 
 
-    currentUtterance.onend = () => {
+    window.currentUtterance.onend = () => {
         if (isPlaying) {
             playTTSQueue(index + 1);
         }
     };
 
-    currentUtterance.onerror = (e) => {
-        console.error("Speech Synthesis Error:", e);
-        if (isPlaying) playTTSQueue(index + 1);
+    window.currentUtterance.onerror = (e) => {
+        console.warn("Speech Synthesis skipped a line or errored:", e);
+        if (isPlaying) {
+            setTimeout(() => playTTSQueue(index + 1), 100);
+        }
     };
 
-    window.speechSynthesis.speak(currentUtterance);
+    window.speechSynthesis.speak(window.currentUtterance);
 }
 
 function checkAnswers() {
@@ -766,8 +783,8 @@ function checkAnswers() {
 
     inputs.forEach(input => {
         const qId = input.getAttribute('data-id');
-        const userAnswer = input.value.trim().toLowerCase();
-        const correctAnswer = currentTest.answers[qId] ? currentTest.answers[qId].toLowerCase() : "";
+        const userAnswer = input.value.trim().toLowerCase().replace(/\.$/, '');
+        const correctAnswer = currentTest.answers[qId] ? currentTest.answers[qId].toLowerCase().replace(/\.$/, '') : "";
 
         if (userAnswer === correctAnswer) {
             input.classList.remove('incorrect');
