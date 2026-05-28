@@ -22,13 +22,18 @@
         body { font-family: 'Inter', -apple-system, sans-serif; background-color: #f8fafc; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* Font size increased by 30% (1.05rem * 1.3 = 1.365rem) */
-        .reading-text { line-height: 1.8; font-size: 1.365rem; }
+        /* Font size increased by another 25% to roughly 1.7rem */
+        .reading-text { line-height: 1.8; font-size: 1.7rem; }
         /* Color Coding Highlight Styles */
         .evidence-highlight { padding: 0.125rem 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s; }
         .trap-highlight { padding: 0.125rem 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s; }
         .show-highlights .evidence-highlight { background-color: #bbf7d0; }
         .show-highlights .trap-highlight { background-color: #fecaca; }
+        
+        /* Custom Table Styles for Dashboard */
+        .ielts-table th { background-color: #f1f5f9; color: #1e293b; font-weight: 700; text-align: left; padding: 12px; border: 1px solid #e2e8f0; }
+        .ielts-table td { padding: 12px; border: 1px solid #e2e8f0; color: #334155; }
+        .ielts-table tr:nth-child(even) { background-color: #f8fafc; }
     </style>
 </head>
 <body>
@@ -82,8 +87,7 @@
             return { speak, stop, isSpeaking };
         };
 
-        // --- DATA BANK (58 Passages) ---
-        // Numbers removed from titles
+        // --- DATA BANK (63 Passages) ---
         const rawPracticeBank = [
             { id: 1, title: "The Extracurricular Balancing Act", text: `In recent years, the pressure on secondary school students to build impressive applications has skyrocketed. <span class="trap-highlight">A recent survey revealed that students involved in three or more clubs sleep only five hours per night</span>. However, to combat exhaustion, <span class="evidence-highlight">counselors are advising students to focus on one or two activities they are genuinely passionate about</span>, as colleges look for depth rather than a superficial list of memberships.`, skill: "Identifying Main Ideas / Multiple Choice", strategy: "Always read to the end of the paragraph. The first statistic is a distractor describing the problem, but the actual recommendation comes at the end.", type: "mcq", question: "According to the passage, what do school counselors recommend students do?", options: ["Quit all extracurriculars to focus on grades.", "Commit deeply to a small number of activities.", "Join as many clubs as possible.", "Take frequent naps during the day."], answer: "Commit deeply to a small number of activities." },
             { id: 2, title: "The Homework Debate", text: `Many teachers believe homework reinforces learning. However, students argue it causes burnout. While <span class="trap-highlight">math teachers assign an average of two hours</span>, <span class="evidence-highlight">the overall daily average across all subjects combined is actually three hours</span>.`, skill: "Scanning for Specific Information", strategy: "Don't stop at the first number you see. Match the noun in the question ('total daily average') with the exact noun phrase in the text.", type: "mcq", question: "What is the overall daily average of homework time across all subjects?", options: ["One hour", "Two hours", "Three hours", "Not Given"], answer: "Three hours" },
@@ -142,7 +146,12 @@
             { id: 55, title: "AP History Perspectives (Matching Features)", text: `In AP US History, students analyzed different historical interpretations of the Revolutionary War. <span class="trap-highlight">Historian Smith viewed the revolution primarily as an economic struggle over taxation</span>. However, <span class="evidence-highlight">Historian Clark argued it was a purely ideological conflict driven by Enlightenment philosophies of liberty</span>. A third scholar, Historian Miller, believed it was ultimately decided by foreign interference and naval support.`, skill: "4. Matching Features", strategy: "High School Strategy: Match the thesis to the author. The question asks about 'ideas/ideologies'. Scan for that concept.", type: "mcq", question: "Match the thesis 'The war was fundamentally a conflict over ideas and philosophy' to the correct historian.", options: ["A. Historian Smith", "B. Historian Clark", "C. Historian Miller", "D. Not Given"], answer: "B. Historian Clark" },
             { id: 56, title: "Track Team Requirements (Sentence Completion)", text: `The athletic director posted the new rules for the varsity track team. All varsity members are expected to attend mandatory practice every weekday afternoon. Furthermore, to participate in the upcoming regional meet, <span class="evidence-highlight">athletes must purchase a custom uniform jacket</span> by Friday. <span class="trap-highlight">Optional sweatpants are also available for order</span>.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: Strict word limits mean you must copy exactly from the text. The prompt allows up to THREE words.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: To participate in the regional meet, athletes must buy a ________ before the end of the week.", options: ["custom uniform jacket", "optional sweatpants", "varsity member", "mandatory practice"], answer: "custom uniform jacket" },
             { id: 57, title: "Library Study Room Rules (Sentence Completion)", text: `During final exam week, the school library strictly enforced study room policies. Rooms can only be reserved for a maximum of two hours to allow fair access for everyone. When a group's time is up, <span class="evidence-highlight">students must clean the whiteboards</span> and <span class="trap-highlight">push in all their chairs before leaving the space</span>.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: Find the exact action that pairs with 'clean the whiteboards' in the text.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: Before exiting the study room, students must ________ and push in their chairs.", options: ["clean the whiteboards", "reserve for maximum", "allow fair access", "Not Given"], answer: "clean the whiteboards" },
-            { id: 58, title: "Science Lab Safety (Sentence Completion)", text: `Mr. Henderson reviewed the safety protocol for the AP Chemistry lab. Safety is paramount, especially during the upcoming titration experiments. <span class="trap-highlight">While wearing a lab coat is recommended for all activities</span>, <span class="evidence-highlight">students handling acidic solutions must wear protective safety goggles at all times</span> to prevent severe eye damage.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: The prompt asks what MUST be worn for acids. Find the exact noun phrase in the text matching that condition.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: When dealing with acids, students must wear ________.", options: ["a lab coat", "protective safety goggles", "titration experiments", "Not Given"], answer: "protective safety goggles" }
+            { id: 58, title: "Science Lab Safety (Sentence Completion)", text: `Mr. Henderson reviewed the safety protocol for the AP Chemistry lab. Safety is paramount, especially during the upcoming titration experiments. <span class="trap-highlight">While wearing a lab coat is recommended for all activities</span>, <span class="evidence-highlight">students handling acidic solutions must wear protective safety goggles at all times</span> to prevent severe eye damage.`, skill: "6. Sentence/Note Completion (Strict Word Limits)", strategy: "High School Strategy: The prompt asks what MUST be worn for acids. Find the exact noun phrase in the text matching that condition.", type: "mcq", question: "Choose NO MORE THAN THREE WORDS: When dealing with acids, students must wear ________.", options: ["a lab coat", "protective safety goggles", "titration experiments", "Not Given"], answer: "protective safety goggles" },
+            { id: 59, title: "The Evolution of the School Library (Matching Headings)", text: `Over the past decade, the high school library has undergone a massive transformation. <span class="trap-highlight">Initially, it was just a quiet room for studying and checking out physical books</span>. However, <span class="evidence-highlight">the primary shift occurred when the space was redesigned into a collaborative multimedia hub, replacing dusty shelves with interactive digital workstations and group pods</span>.`, skill: "2. Matching Headings", strategy: "High School Strategy: Look for the overarching theme of the paragraph, not just the starting point. The paragraph is about the transformation into a digital hub.", type: "mcq", question: "Which heading best summarizes the main idea of the paragraph?", options: ["i. The strict rules of quiet study", "ii. The transition to a collaborative digital hub", "iii. Checking out physical books", "iv. The cost of new computers"], answer: "ii. The transition to a collaborative digital hub" },
+            { id: 60, title: "The Annual Science Fair (Summary Completion)", text: `Preparing for the science fair requires careful planning. <span class="trap-highlight">While students often rush to buy display boards first</span>, teachers advise against this. <span class="evidence-highlight">The most successful projects begin with a rigorous literature review to ensure the hypothesis is completely original</span> before any physical materials are purchased.`, skill: "3. Summary Completion", strategy: "High School Strategy: Match the context of the blank with the exact wording in the text.", type: "mcq", question: "Complete the summary: 'Teachers recommend that students start their science fair preparations by conducting a ________ to guarantee their idea is new.'", options: ["display board", "rigorous literature review", "physical materials", "Not Given"], answer: "rigorous literature review" },
+            { id: 61, title: "School Extracurricular Philosophies (Matching Features)", text: `During the parent-teacher association meeting, various opinions were shared regarding after-school clubs. <span class="trap-highlight">Mr. Davis argued that sports are the only way to teach discipline</span>. However, <span class="evidence-highlight">Ms. Albright firmly stated that participation in the debate team is the most effective method for developing critical thinking skills</span>. Finally, Principal Evans suggested a balanced mix of both.`, skill: "4. Matching Features", strategy: "High School Strategy: Scan for the specific feature/opinion and match it to the exact speaker.", type: "mcq", question: "Match the statement 'Debate is the best tool for building critical thinking' to the correct speaker.", options: ["A. Mr. Davis", "B. Ms. Albright", "C. Principal Evans", "D. The PTA President"], answer: "B. Ms. Albright" },
+            { id: 62, title: "The Impact of Peer Tutoring (Matching Headings)", text: `The implementation of the peer tutoring program has yielded surprising results. <span class="trap-highlight">At first, administrators worried that student tutors would miss out on their own study time</span>. In reality, <span class="evidence-highlight">the program demonstrated that teaching concepts to others significantly deepened the tutors' own understanding and mastery of the subjects</span>, creating a dual benefit.`, skill: "2. Matching Headings", strategy: "High School Strategy: Choose the heading that captures the final outcome, not the initial fear.", type: "mcq", question: "Which heading best summarizes the main idea of the paragraph?", options: ["i. The loss of personal study time", "ii. The unexpected academic benefits for tutors", "iii. How to apply for the tutoring program", "iv. Administrator concerns"], answer: "ii. The unexpected academic benefits for tutors" },
+            { id: 63, title: "Planning the Senior Trip (Summary Completion)", text: `Organizing the senior class trip is a complex logistical task. <span class="trap-highlight">The student committee usually focuses entirely on choosing a fun destination</span>, but the faculty advisors have a different priority. <span class="evidence-highlight">The principal stressed that securing comprehensive travel insurance is the mandatory first step</span> before any flights or hotels can be booked.`, skill: "3. Summary Completion", strategy: "High School Strategy: Find the exact requirement mentioned by the authority figure in the text.", type: "mcq", question: "Complete the summary: 'Before finalizing any bookings, the principal stated that the committee must first obtain ________.'", options: ["a fun destination", "faculty advisors", "comprehensive travel insurance", "Not Given"], answer: "comprehensive travel insurance" }
         ];
 
         // --- DYNAMICALLY CATEGORIZE DATA ---
@@ -165,86 +174,282 @@
 
         // --- COMPONENTS ---
 
-        const Sidebar = ({ currentView, navigateToView }) => {
-            const menuItems = [
-                { id: 'dashboard', icon: 'layout-dashboard', label: 'Skills Overview' },
-                { id: 'strategies', icon: 'lightbulb', label: 'Skills & Strategies' },
-                { id: 'practice', icon: 'book-open', label: 'Practice Databank' }
+        const TutorialView = () => {
+            const { speak, stop, isSpeaking } = useSpeech();
+
+            const tutorialData = [
+                {
+                    title: "1. The Test Format",
+                    text: "The Reading test lasts exactly 60 minutes and consists of three reading passages with a total of 40 questions. Crucially, unlike the Listening test, no extra time is given to transfer your answers to the answer sheet, so you must write them directly on the sheet as you work.\n\nDepending on which module you take, the texts differ:\n\nAcademic Reading: You will face three long texts taken from books, journals, magazines, and newspapers. They are appropriate for an undergraduate level and can be written in a narrative, descriptive, discursive, or argumentative style.\n\nGeneral Training Reading: The texts are taken from everyday sources. Section 1 focuses on basic linguistic survival using factual texts like notices and advertisements. Section 2 focuses on work and training contexts (e.g., workplace manuals). Section 3 features a longer, more complex descriptive or instructive text.",
+                    textToSpeak: "The Test Format. The Reading test lasts exactly 60 minutes and consists of three reading passages with a total of 40 questions. Crucially, unlike the Listening test, no extra time is given to transfer your answers to the answer sheet, so you must write them directly on the sheet as you work."
+                },
+                {
+                    title: "2. Essential Reading Skills",
+                    text: "You cannot read the IELTS passages slowly the way you would read a book at home; you must use specific reading skills.\n\nSkimming (Reading for the Main Idea): This is reading quickly to grasp the overall organization and main message of the text. You should read the title, subheadings, the introduction, and specifically the first and last sentences of each paragraph.\n\nScanning (Reading for Detail): This involves moving your eyes quickly over the text to locate specific information, such as names, numbers, or dates, much like looking for a name in a phone book.\n\nRecognizing Paraphrasing and Synonyms: The test heavily relies on testing your vocabulary. The words used in the question will rarely match the exact words in the text; you must actively look for synonyms and parallel phrases.\n\nDistinguishing Main Ideas from Details: You must be able to separate the central topic of a paragraph from the supporting factual details or examples.",
+                    textToSpeak: "Essential Reading Skills. You cannot read the IELTS passages slowly the way you would read a book at home; you must use specific reading skills. These include skimming for the main idea, scanning for details, recognizing paraphrasing and synonyms, and distinguishing main ideas from details."
+                },
+                {
+                    title: "3. Tackling Key Question Types",
+                    text: "Here are the strategies for the most common and challenging question types:\n\nA. True / False / Not Given (or Yes / No / Not Given)\nThis task tests if you can identify whether a statement agrees with the text, contradicts it, or isn't mentioned at all.\nStrategy: The answers will appear in the text in the same order as the questions. Focus only on what is explicitly stated in the text and do not use your own outside knowledge. If you cannot find the information after searching, the answer is likely 'Not Given'.\n\nB. Matching Headings\nYou will be given a numbered list of headings and must choose the one that best summarises the main idea of each paragraph.\nStrategy: Because there are more headings than paragraphs, always read the paragraphs first, not the headings. Skim the beginning and end of the paragraph to find the topic sentence, underline key words, and then check the list of headings to find a match.\n\nC. Completion Tasks (Summaries, Notes, Diagrams)\nYou must fill in blanks using words taken directly from the passage.\nStrategy: Always follow the word limit instructions carefully (e.g., \"NO MORE THAN THREE WORDS\"). Use your knowledge of grammar to predict what type of word is missing (noun, verb, adjective) before you scan the text. Remember that numbers can be written as figures or words, and hyphenated words count as a single word.\n\nD. Multiple Choice\nStrategy: Read the question stem and underline the keywords before looking at the options. Do not be misled by distractors—options that use the exact same words found in the text but actually state incorrect information.",
+                    textToSpeak: "Tackling Key Question Types. True False Not Given tests if you can identify whether a statement agrees with the text, contradicts it, or isn't mentioned at all. Matching Headings requires choosing the heading that best summarises the main idea of each paragraph. Completion Tasks require filling in blanks using words taken directly from the passage. Multiple Choice tests understanding details while avoiding distractor options."
+                },
+                {
+                    title: "4. Strict Exam Rules for Maximum Marks",
+                    text: "To ensure you don't lose easy points, keep these rules in mind:\n\nSpelling: Every answer must be spelled correctly. Incorrect spelling results in zero marks.\n\nGrammatical Fit: When pulling words from the text for a gap-fill, the answer must fit grammatically into the sentence. If it doesn't, you have likely chosen the wrong word.\n\nStrict Word Limits: If the instructions say \"NO MORE THAN TWO WORDS\" and you write three, the answer will be marked wrong, even if the information is correct.",
+                    textToSpeak: "Strict Exam Rules for Maximum Marks. Every answer must be spelled correctly. When pulling words from the text for a gap-fill, the answer must fit grammatically. And always obey strict word limits. If the instructions say NO MORE THAN TWO WORDS and you write three, the answer will be marked wrong."
+                }
             ];
 
             return (
-                // Sidebar width shrunk by ~30% (from w-64 to w-[11.2rem])
-                <div className="w-full md:w-[11.2rem] bg-slate-900 text-slate-300 flex flex-col min-h-screen shrink-0">
-                    <div className="p-4 border-b border-slate-800">
-                        <h1 className="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="graduation-cap" className="text-blue-400 w-5 h-5"></i>
-                            IELTS
-                        </h1>
-                    </div>
-                    <nav className="flex-1 mt-4">
-                        {menuItems.map(item => (
-                            <button
-                                key={item.id}
-                                onClick={() => navigateToView(item.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-sm font-medium ${
-                                    currentView === item.id 
-                                    ? 'bg-blue-600 text-white border-r-4 border-blue-400' 
-                                    : 'hover:bg-slate-800 hover:text-white'
-                                }`}
+                <div className="p-8 w-full mx-auto animate-in fade-in duration-500 max-w-7xl">
+                    <header className="mb-10">
+                        <h2 className="text-3xl font-bold text-slate-800 mb-4">Masterclass Tutorial</h2>
+                        <div 
+                            className="bg-blue-50 border-l-4 border-blue-500 p-8 rounded-r-xl cursor-pointer hover:bg-blue-100 transition"
+                            onClick={() => isSpeaking ? stop() : speak("Welcome to your IELTS Reading masterclass. Whether you are taking the Academic or General Training module, mastering this section requires a mix of speed, strategy, and precision. Here is a comprehensive lesson on how to approach the IELTS Reading test.")}
+                        >
+                            <p className="text-lg text-slate-800 leading-relaxed font-medium">
+                                Welcome to your IELTS Reading masterclass. Whether you are taking the Academic or General Training module, mastering this section requires a mix of speed, strategy, and precision. Here is a comprehensive lesson on how to approach the IELTS Reading test.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-col gap-6">
+                        {tutorialData.map((section, index) => (
+                            <div 
+                                key={index} 
+                                onClick={() => isSpeaking ? stop() : speak(section.textToSpeak)}
+                                className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-start cursor-pointer hover:bg-slate-50 transition w-full"
                             >
-                                <i data-lucide={item.icon} className="w-4 h-4"></i>
-                                {item.label}
-                            </button>
+                                <div className="flex-1 w-full">
+                                    <h3 className="text-xl font-bold text-slate-800 mb-3">{section.title}</h3>
+                                    <p className="text-slate-700 text-lg leading-relaxed whitespace-pre-wrap">{section.text}</p>
+                                </div>
+                            </div>
                         ))}
-                    </nav>
+                    </div>
                 </div>
             );
         };
 
         const DashboardView = ({ navigateToPractice, groupedPassages }) => {
-            
-            // Skill descriptions for the dashboard cards
-            const skillCards = [
-                { cat: "1. True / False / Not Given", icon: "help-circle", color: "text-orange-500", bg: "bg-orange-100", desc: "Decide if statements agree with facts, contradict them, or aren't mentioned at all." },
-                { cat: "2. Matching Headings", icon: "layout-list", color: "text-green-500", bg: "bg-green-100", desc: "Choose the correct title/heading that perfectly summarizes an entire paragraph." },
-                { cat: "3. Summary Completion", icon: "align-left", color: "text-pink-500", bg: "bg-pink-100", desc: "Fill in the blanks of a summary text using specific vocabulary from the reading." },
-                { cat: "4. Matching Features", icon: "link", color: "text-purple-500", bg: "bg-purple-100", desc: "Match specific arguments, quotes, or features to the correct person or category." },
-                { cat: "5. Multiple Choice & Specific Details", icon: "check-square", color: "text-blue-500", bg: "bg-blue-100", desc: "Standard format testing your ability to locate exact details or understand the main purpose." },
-                { cat: "6. Sentence / Note Completion", icon: "edit-3", color: "text-amber-500", bg: "bg-amber-100", desc: "Complete sentences using strict word limits exactly as they appear in the text." }
-            ];
-
             return (
-                // Right panel expanded to fill all available space by removing width restrictions
                 <div className="p-8 w-full mx-auto animate-in fade-in duration-500 max-w-7xl">
                     <header className="mb-8 mt-4">
-                        <h2 className="text-3xl font-bold text-slate-800">IELTS Reading Skills Overview</h2>
-                        <p className="text-slate-600 mt-2 text-lg">Master the 6 core question types to hit your target band score.</p>
+                        <h2 className="text-4xl font-bold text-slate-800 tracking-tight">IELTS Reading Mastery: Complete Skills Guide</h2>
+                        <p className="text-slate-600 mt-2 text-xl font-medium">Evidence-Based Strategies for Bands 5-9</p>
                     </header>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                        {skillCards.map((skill, idx) => {
-                            const group = groupedPassages[skill.cat] || [];
-                            const passageCount = group.length;
-                            const firstIndex = passageCount > 0 ? group[0].globalIndex : 0;
+                    {/* Format Comparison Table */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mb-10 overflow-x-auto">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <i data-lucide="bar-chart-2" className="text-blue-500"></i> IELTS Reading Test Overview
+                        </h3>
+                        <table className="ielts-table w-full mb-6">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Academic Reading</th>
+                                    <th>General Training Reading</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td className="font-bold">Text Sources</td>
+                                    <td>Academic journals, books, magazines</td>
+                                    <td>Advertisements, notices, workplace documents, newspapers</td>
+                                </tr>
+                                <tr>
+                                    <td className="font-bold">Text Complexity</td>
+                                    <td>Complex vocabulary, abstract ideas, argumentative structures</td>
+                                    <td>Everyday language, practical information, narrative texts</td>
+                                </tr>
+                                <tr>
+                                    <td className="font-bold">Number of Texts</td>
+                                    <td>3 long texts (700-900 words each)</td>
+                                    <td>Section 1: 2-3 short texts; Section 2: 2 work-related texts; Section 3: 1 long text</td>
+                                </tr>
+                                <tr>
+                                    <td className="font-bold">Question Count</td>
+                                    <td>40 questions total</td>
+                                    <td>40 questions total</td>
+                                </tr>
+                                <tr>
+                                    <td className="font-bold">Time Allotted</td>
+                                    <td className="font-bold text-red-600">60 minutes (NO extra transfer time)</td>
+                                    <td className="font-bold text-red-600">60 minutes (NO extra transfer time)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div className="bg-red-50 text-red-800 p-4 rounded-lg border border-red-200 font-medium flex items-start gap-3">
+                            <i data-lucide="alert-triangle" className="shrink-0 mt-0.5"></i>
+                            <p><strong>Critical Rule:</strong> You must write answers directly on the answer sheet during the test. Unlike the listening exam, NO extra transfer time is given.</p>
+                        </div>
+                    </div>
 
-                            return (
-                                <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-start hover:shadow-md transition">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${skill.bg} ${skill.color}`}>
-                                        <i data-lucide={skill.icon} className="w-6 h-6"></i>
-                                    </div>
-                                    <h3 className="text-lg font-bold text-slate-800 mb-2">{skill.cat.substring(3)}</h3>
-                                    <p className="text-sm text-slate-600 mb-6 flex-1">{skill.desc}</p>
-                                    
-                                    <button 
-                                        onClick={() => navigateToPractice(firstIndex)}
-                                        className="w-full py-2 bg-slate-50 text-blue-600 font-semibold rounded-lg border border-blue-100 hover:bg-blue-50 hover:border-blue-300 transition text-sm flex items-center justify-center gap-2"
-                                    >
-                                        <i data-lucide="play-circle" className="w-4 h-4"></i>
-                                        Practice {passageCount} Passages
-                                    </button>
+                    {/* Band Score Conversion */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mb-10 overflow-x-auto">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-6">Band Score Conversion (Approximate)</h3>
+                        <table className="ielts-table w-full text-center">
+                            <thead>
+                                <tr>
+                                    <th className="text-center">Correct Answers (out of 40)</th>
+                                    <th className="text-center">Academic Band</th>
+                                    <th className="text-center">General Training Band</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td className="font-bold">39-40</td><td className="text-green-600 font-bold">9.0</td><td className="text-green-600 font-bold">9.0</td></tr>
+                                <tr><td className="font-bold">37-38</td><td className="text-green-600 font-bold">8.5</td><td className="text-green-600 font-bold">8.5</td></tr>
+                                <tr><td className="font-bold">35-36</td><td className="text-blue-600 font-bold">8.0</td><td className="text-blue-600 font-bold">8.0</td></tr>
+                                <tr><td className="font-bold">33-34</td><td className="text-blue-600 font-bold">7.5</td><td className="text-blue-600 font-bold">7.5</td></tr>
+                                <tr><td className="font-bold">30-32</td><td className="text-blue-600 font-bold">7.0</td><td className="text-purple-600 font-bold">7.0</td></tr>
+                                <tr><td className="font-bold">27-29</td><td className="text-purple-600 font-bold">6.5</td><td>6.5</td></tr>
+                                <tr><td className="font-bold">23-26</td><td className="text-purple-600 font-bold">6.0</td><td>6.0</td></tr>
+                                <tr><td className="font-bold">19-22</td><td>5.5</td><td>5.5</td></tr>
+                                <tr><td className="font-bold">15-18</td><td>5.0</td><td>5.0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* 14 Question Types */}
+                    <div className="mb-10">
+                        <h3 className="text-3xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <i data-lucide="search" className="text-indigo-500 w-8 h-8"></i> The 14 IELTS Reading Question Types
+                        </h3>
+                        
+                        <div className="space-y-6">
+                            {/* Type 1 & 2 */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="text-xl font-bold text-slate-800 mb-3">1 & 2. Multiple Choice (Single & Multiple Answers)</h4>
+                                <p className="text-slate-700 mb-4"><strong>Format:</strong> Choose one or more correct answers from a list.</p>
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                    <p className="font-bold mb-2">Strategies:</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
+                                        <li>Read the question stem FIRST (not the options).</li>
+                                        <li>Underline keywords in the stem and scan the text for synonyms.</li>
+                                        <li>Eliminate obviously wrong options.</li>
+                                        <li><strong>Trap Warning:</strong> Beware of "distractors" that contain exact words from the text but have the wrong meaning.</li>
+                                        <li>For multiple answers, treat each option as a True/False statement.</li>
+                                    </ul>
                                 </div>
-                            );
-                        })}
+                            </div>
+
+                            {/* Type 3 & 4 */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="text-xl font-bold text-slate-800 mb-3">3 & 4. True/False/Not Given & Yes/No/Not Given</h4>
+                                <p className="text-slate-700 mb-4"><strong>Format:</strong> Decide if a statement agrees with facts (T/F/NG) or the writer's opinions (Y/N/NG).</p>
+                                <table className="ielts-table w-full mb-4 text-sm">
+                                    <thead><tr><th>Response</th><th>Meaning</th><th>How to Identify</th></tr></thead>
+                                    <tbody>
+                                        <tr><td className="font-bold text-green-600">TRUE / YES</td><td>Statement matches info</td><td>Find exact match or clear paraphrase</td></tr>
+                                        <tr><td className="font-bold text-red-600">FALSE / NO</td><td>Statement contradicts info</td><td>Find direct contradiction or opposite meaning</td></tr>
+                                        <tr><td className="font-bold text-slate-500">NOT GIVEN</td><td>Information is not in text</td><td>Cannot find evidence for OR against</td></tr>
+                                    </tbody>
+                                </table>
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                    <p className="font-bold text-red-600 mb-2">Common Traps:</p>
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
+                                        <li>Assuming "not mentioned" means FALSE (it is NOT GIVEN).</li>
+                                        <li>Using outside knowledge (only use text information).</li>
+                                        <li>Confusing quantifiers: "some" does not mean "all".</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* Type 5 */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="text-xl font-bold text-slate-800 mb-3">5. Matching Headings</h4>
+                                <p className="text-slate-700 mb-4"><strong>Format:</strong> Match a list of headings to paragraphs/sections.</p>
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
+                                        <li>Read ALL headings first to note themes.</li>
+                                        <li>Skim each paragraph for the main idea (focus heavily on the first and last sentences).</li>
+                                        <li>Eliminate headings that are too specific (just a detail) or too general.</li>
+                                        <li>Headings are used ONCE only.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            {/* Type 6 */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="text-xl font-bold text-slate-800 mb-3">6. Matching Features</h4>
+                                <p className="text-slate-700 mb-4"><strong>Format:</strong> Match items (e.g., people, dates, theories) to statements.</p>
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
+                                        <li>Scan the text for the specific items to be matched (names, dates, etc.).</li>
+                                        <li>Read the statement carefully and underline keywords.</li>
+                                        <li>Find where the item appears in the text and read the surrounding sentences for context.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* Type 7-12 Completion Tasks */}
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="text-xl font-bold text-slate-800 mb-3">7-12. The Completion Tasks (Sentences, Summaries, Notes, Diagrams)</h4>
+                                <p className="text-slate-700 mb-4"><strong>Format:</strong> Fill in blanks using words taken exactly from the text.</p>
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
+                                        <li><strong>CRITICAL:</strong> Always obey the word limit (e.g., "NO MORE THAN TWO WORDS").</li>
+                                        <li>Predict what type of word is missing (noun, verb, number) based on grammar.</li>
+                                        <li>Copy words EXACTLY from text. Spelling matters!</li>
+                                        <li>Hyphenated words (e.g., "state-of-the-art") count as one word. Numbers count as one word.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                             {/* Type 13 & 14 */}
+                             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 className="text-xl font-bold text-slate-800 mb-3">13 & 14. Choosing a Title / Classification Questions</h4>
+                                <p className="text-slate-700 mb-4"><strong>Format:</strong> Choose the best title for the text, or categorize info into given groups.</p>
+                                <div className="bg-slate-50 p-4 rounded-lg">
+                                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
+                                        <li>For titles: Eliminate titles that are too narrow (focusing on one detail) or too broad.</li>
+                                        <li>For classification: Understand the category system first, then scan for items to fit into those buckets.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Core Skills & Time Management */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <i data-lucide="brain" className="text-pink-500"></i> Core Skills to Develop
+                            </h3>
+                            <ul className="space-y-4">
+                                <li className="border-b border-slate-100 pb-4">
+                                    <strong className="text-lg text-slate-800 block mb-1">1. Skimming (Getting the Gist)</strong>
+                                    <span className="text-slate-600">Read first and last sentences of paragraphs quickly. Ignore details on the first pass. Used for Matching Headings.</span>
+                                </li>
+                                <li className="border-b border-slate-100 pb-4">
+                                    <strong className="text-lg text-slate-800 block mb-1">2. Scanning (Finding Info)</strong>
+                                    <span className="text-slate-600">Move eyes rapidly looking for target keywords, names, numbers, or dates without reading every word.</span>
+                                </li>
+                                <li>
+                                    <strong className="text-lg text-slate-800 block mb-1">3. Vocabulary in Context</strong>
+                                    <span className="text-slate-600">Use surrounding words to guess unknown vocabulary. IELTS heavily uses paraphrasing (e.g., 'important' = 'crucial').</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <i data-lucide="clock" className="text-orange-500"></i> Time Management (60 Min)
+                            </h3>
+                            <table className="ielts-table w-full text-sm">
+                                <thead><tr><th>Stage</th><th>Time</th><th>Action</th></tr></thead>
+                                <tbody>
+                                    <tr><td className="font-bold">Preview</td><td>2-3 min</td><td>Skim all 3 texts (titles, 1st sentences)</td></tr>
+                                    <tr><td className="font-bold">Text 1</td><td>15-17 min</td><td>Easiest text—build momentum</td></tr>
+                                    <tr><td className="font-bold">Text 2</td><td>18-20 min</td><td>Medium difficulty</td></tr>
+                                    <tr><td className="font-bold">Text 3</td><td>20-22 min</td><td>Hardest—save energy for complex questions</td></tr>
+                                    <tr><td className="font-bold text-red-600">Review</td><td className="text-red-600">2-3 min</td><td className="text-red-600">Check answers, no blanks left</td></tr>
+                                </tbody>
+                            </table>
+                            <p className="mt-4 text-sm font-bold text-slate-700">Rule: Never spend >2 minutes on one question. Guess and move on.</p>
+                        </div>
                     </div>
                 </div>
             );
@@ -311,7 +516,6 @@
             ];
 
             return (
-                // Right panel expanded to fill all available space by removing width restrictions
                 <div className="p-8 w-full mx-auto animate-in fade-in duration-500 max-w-7xl">
                     <header className="mb-10">
                         <h2 className="text-3xl font-bold text-slate-800 mb-4">Skills & Strategies Explained</h2>
@@ -328,26 +532,23 @@
                             const firstIndex = group.length > 0 ? group[0].globalIndex : 0;
 
                             return (
-                                <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-start w-full">
+                                <div key={index} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-start w-full">
                                     <div 
                                         onClick={() => isSpeaking ? stop() : speak(strat.textToSpeak)}
-                                        className={`w-16 h-16 shrink-0 rounded-2xl ${strat.bg} ${strat.color} flex items-center justify-center cursor-pointer hover:opacity-80 transition`}
-                                        title={isSpeaking ? "Stop Audio" : "Listen (85% Speed)"}
+                                        className="w-full flex flex-col md:flex-row gap-6 items-start cursor-pointer hover:opacity-80 transition"
                                     >
-                                        <i data-lucide={isSpeaking ? "square" : "play"} className="w-8 h-8"></i>
+                                        <div className="flex-1 w-full">
+                                            <h3 className="text-xl font-bold text-slate-800 mb-2">{strat.title}</h3>
+                                            <p className="text-slate-700 text-lg leading-relaxed mb-4">{strat.description}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 w-full">
-                                        <h3 className="text-xl font-bold text-slate-800 mb-2">{strat.title}</h3>
-                                        <p className="text-slate-700 text-lg leading-relaxed mb-4">{strat.description}</p>
-                                        
-                                        <button 
-                                            onClick={() => navigateToPractice(firstIndex)}
-                                            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition shadow-sm flex items-center gap-2 w-fit"
-                                        >
-                                            <i data-lucide="arrow-right-circle" className="w-4 h-4"></i>
-                                            Practice this Skill
-                                        </button>
-                                    </div>
+                                    <button 
+                                        onClick={() => navigateToPractice(firstIndex)}
+                                        className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition shadow-sm flex items-center gap-2 w-fit mt-4"
+                                    >
+                                        <i data-lucide="arrow-right-circle" className="w-4 h-4"></i>
+                                        Practice this Skill
+                                    </button>
                                 </div>
                             );
                         })}
@@ -363,7 +564,7 @@
             const [feedback, setFeedback] = useState(null);
             const [showHighlights, setShowHighlights] = useState(false);
 
-            const passage = practiceBank[currentIndex];
+            const passage = rawPracticeBank[currentIndex];
 
             // Reset state when passage changes
             useEffect(() => {
@@ -414,8 +615,8 @@
                             </select>
 
                             <button 
-                                onClick={() => setCurrentIndex(Math.min(practiceBank.length - 1, currentIndex + 1))}
-                                disabled={currentIndex === practiceBank.length - 1}
+                                onClick={() => setCurrentIndex(Math.min(rawPracticeBank.length - 1, currentIndex + 1))}
+                                disabled={currentIndex === rawPracticeBank.length - 1}
                                 className="px-3 py-1 bg-slate-800 rounded disabled:opacity-50 hover:bg-slate-700 transition"
                             >
                                 Next
@@ -427,29 +628,32 @@
                         
                         {/* Left Side: Passage (Expanded to 70% width) */}
                         <div className="w-full md:w-[70%] bg-white border-r border-slate-200 flex flex-col h-full overflow-hidden">
-                            <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
-                                <button 
-                                    onClick={() => setShowHighlights(!showHighlights)}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition ${showHighlights ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
-                                >
-                                    {showHighlights ? "Hide Highlights" : "Activate Colors"}
-                                </button>
+                            <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0 min-h-[72px]">
+                                <div className="flex items-center gap-4">
+                                    <button 
+                                        onClick={() => setShowHighlights(!showHighlights)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition whitespace-nowrap ${showHighlights ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                                    >
+                                        {showHighlights ? "Hide Highlights" : "Activate Colors"}
+                                    </button>
+                                    
+                                    {/* Color Legend inline with the button to prevent text shifting */}
+                                    {showHighlights && (
+                                        <div className="flex gap-4 text-xs font-semibold text-slate-700 animate-in fade-in">
+                                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#bbf7d0] inline-block"></span> Answer Evidence</span>
+                                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#fecaca] inline-block"></span> Trap / Distractor</span>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <button 
                                     onClick={() => isSpeaking ? stop() : speak(passage.text)}
-                                    className={`flex items-center justify-center w-10 h-10 rounded-full transition ${isSpeaking ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+                                    className={`flex items-center justify-center w-10 h-10 rounded-full transition shrink-0 ${isSpeaking ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                                     title={isSpeaking ? "Stop" : "Read Aloud"}
                                 >
                                     <i data-lucide={isSpeaking ? "square" : "volume-2"} className="w-5 h-5"></i>
                                 </button>
                             </div>
-                            
-                            {/* Color Legend */}
-                            {showHighlights && (
-                                <div className="bg-slate-100 p-3 flex gap-4 text-xs font-semibold text-slate-700 border-b border-slate-200 shrink-0">
-                                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#bbf7d0] inline-block"></span> Answer Evidence</span>
-                                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#fecaca] inline-block"></span> Trap / Distractor</span>
-                                </div>
-                            )}
 
                             <div className="p-8 overflow-y-auto hide-scrollbar flex-1">
                                 <h1 className="text-3xl font-bold text-slate-900 mb-6">{passage.title}</h1>
@@ -550,40 +754,70 @@
                 setCurrentView(viewId);
             };
 
+            // HIDE SIDEBAR LOGIC: Only show sidebar if we are NOT in one of the main content views
+            const showSidebar = !['practice', 'dashboard', 'strategies', 'tutorial'].includes(currentView);
+
             return (
                 <div className="flex flex-col md:flex-row min-h-screen font-sans">
-                    {/* Mobile Header */}
-                    {currentView !== 'practice' && (
-                        <div className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center">
-                            <h1 className="font-bold flex items-center gap-2"><i data-lucide="graduation-cap"></i></h1>
-                            <select 
-                                className="bg-slate-800 text-white border-none rounded p-1 text-sm outline-none"
-                                value={currentView}
-                                onChange={(e) => navigateToView(e.target.value)}
-                            >
-                                <option value="dashboard">Skills Overview</option>
-                                <option value="strategies">Skills & Strategies</option>
-                                <option value="practice">Practice Databank</option>
-                            </select>
+                    
+                    {/* Top Navigation Bar - Now visible across all main views to allow returning to Menu */}
+                    {!showSidebar && (
+                        <div className="w-full bg-slate-900 text-white p-4 flex justify-between items-center fixed top-0 z-50 shadow-md">
+                             <button onClick={() => navigateToView('menu')} className="flex items-center gap-2 hover:text-blue-300 transition font-bold">
+                                <i data-lucide="menu" className="w-5 h-5"></i> Main Menu
+                            </button>
+                            <h1 className="font-bold flex items-center gap-2">IELTS Prep</h1>
                         </div>
                     )}
 
-                    {/* Sidebar for Desktop - Hidden in Practice View */}
-                    <div className={`hidden ${currentView !== 'practice' ? 'md:block' : ''}`}>
-                        <Sidebar currentView={currentView} navigateToView={navigateToView} />
-                    </div>
+                    {/* Left Sidebar Menu (Visible only when 'menu' is active) */}
+                    {showSidebar && (
+                        <div className="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col min-h-screen shrink-0 fixed z-40">
+                            <div className="p-6 border-b border-slate-800">
+                                <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <i data-lucide="graduation-cap" className="text-blue-400 w-6 h-6"></i>
+                                    IELTS Prep
+                                </h1>
+                            </div>
+                            <nav className="flex-1 mt-4">
+                                <button onClick={() => navigateToView('tutorial')} className="w-full flex items-center gap-3 px-6 py-4 transition-colors text-sm font-medium hover:bg-slate-800 hover:text-white">
+                                    <i data-lucide="book" className="w-5 h-5"></i> Masterclass Tutorial
+                                </button>
+                                <button onClick={() => navigateToView('dashboard')} className="w-full flex items-center gap-3 px-6 py-4 transition-colors text-sm font-medium hover:bg-slate-800 hover:text-white">
+                                    <i data-lucide="layout-dashboard" className="w-5 h-5"></i> Skills Overview
+                                </button>
+                                <button onClick={() => navigateToView('strategies')} className="w-full flex items-center gap-3 px-6 py-4 transition-colors text-sm font-medium hover:bg-slate-800 hover:text-white">
+                                    <i data-lucide="lightbulb" className="w-5 h-5"></i> Skills & Strategies
+                                </button>
+                                <button onClick={() => navigateToView('practice')} className="w-full flex items-center gap-3 px-6 py-4 transition-colors text-sm font-medium hover:bg-slate-800 hover:text-white text-blue-400">
+                                    <i data-lucide="play-circle" className="w-5 h-5"></i> Start Practice Mode
+                                </button>
+                            </nav>
+                        </div>
+                    )}
                     
-                    {/* Main Content Area */}
-                    <div className="flex-1 overflow-x-hidden">
+                    {/* Main Content Area - Padded top to account for fixed navbar */}
+                    <div className={`flex-1 overflow-x-hidden ${!showSidebar ? 'pt-[60px]' : 'md:ml-64'}`}>
+                        {currentView === 'tutorial' && <TutorialView />}
                         {currentView === 'dashboard' && <DashboardView navigateToPractice={navigateToPractice} groupedPassages={groupedPassages} />}
                         {currentView === 'strategies' && <StrategiesView navigateToPractice={navigateToPractice} groupedPassages={groupedPassages} />}
                         {currentView === 'practice' && <PracticeView navigateToView={navigateToView} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} groupedPassages={groupedPassages} />}
+                        
+                        {/* Default landing view if menu is open but nothing selected (optional visual polish) */}
+                        {currentView === 'menu' && (
+                             <div className="h-screen flex items-center justify-center bg-slate-50">
+                                 <div className="text-center animate-in fade-in">
+                                     <i data-lucide="graduation-cap" className="w-20 h-20 text-blue-300 mx-auto mb-4"></i>
+                                     <h2 className="text-2xl font-bold text-slate-400">Select a module from the menu</h2>
+                                 </div>
+                             </div>
+                        )}
                     </div>
                 </div>
             );
         };
 
-        // Render the App
+        // Initialize to menu by default
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
