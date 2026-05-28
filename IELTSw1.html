@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Academic Task 1 - Student Mastery</title>
+    <!-- Chart.js for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --panel: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%); 
+            color: var(--light); 
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #38bdf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-grow: 1;
+        }
+        
+        .control-group label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        select, button {
+            padding: 12px 15px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #0f172a;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        select:hover, button:hover {
+            border-color: var(--primary);
+            background: #334155;
+        }
+        
+        button.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+        
+        button.primary:hover {
+            background: #2563eb;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        @media (min-width: 992px) {
+            .main-layout {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .panel {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        /* Template Builder Styles */
+        .template-box {
+            background: #0f172a;
+            border: 1px dashed #475569;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px solid var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            padding: 0 8px;
+            border-radius: 4px 4px 0 0;
+            cursor: text;
+        }
+
+        .blank:empty::before {
+            content: 'type here';
+            color: #64748b;
+        }
+
+        .blueprint-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            background: var(--secondary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #94a3b8;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .tab-btn:hover {
+            color: var(--light);
+            background: rgba(51, 65, 85, 0.5);
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .blueprint-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bp-step {
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .bp-step h4 {
+            margin: 0 0 10px 0;
+            color: #38bdf8;
+            font-size: 1.1rem;
+        }
+
+        .bp-rule {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .vocab-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; background: #0f172a; }
+        .data-table th, .data-table td { border: 1px solid #334155; padding: 12px; text-align: left; }
+        .data-table th { background: #1e293b; color: var(--primary); }
+        .data-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        
+        .map-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .map-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 15px; text-align: center;}
+        .map-box h4 { color: var(--primary); margin-top: 0;}
+        .map-graphic { height: 200px; display: flex; align-items: center; justify-content: center; background: #1e293b; border-radius: 6px; margin-top: 10px; border: 1px dashed #475569;}
+        
+        .process-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .process-node { background: #0f172a; border: 1px solid var(--primary); border-radius: 8px; padding: 15px; position: relative; }
+        .process-node::after { content: '↓'; position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); font-size: 20px; color: var(--primary); }
+        .process-node:last-child::after { display: none; }
+        .process-num { position: absolute; top: -10px; left: -10px; background: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;}
+
+        .candidate-quote { background: rgba(255, 255, 255, 0.03); border-left: 4px solid #94a3b8; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; color: #cbd5e1; line-height: 1.6;}
+        .examiner-comment { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 30px; }
+        .examiner-comment h4 { color: var(--success); margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+        .band-compare-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;}
+        .band-box { padding: 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a;}
+        .band-6 { border-top: 4px solid var(--warning); }
+        .band-7 { border-top: 4px solid var(--primary); }
+        .band-8 { border-top: 4px solid var(--success); }
+
+        .score-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 15px 0; background: #0f172a;}
+        .score-table th, .score-table td { border: 1px solid #334155; padding: 10px; text-align: left; }
+        .score-table th { background: #1e293b; color: #f8fafc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap mr-2"></i> IELTS Task 1: High School Edition</h1>
+            <p class="text-slate-400">Master the 3-Paragraph Blueprint with relatable datasets and guided templates.</p>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="visualType"><i class="fas fa-filter"></i> 1. Choose Visual Type:</label>
+                <select id="visualType" onchange="filterDatasets()">
+                    <option value="all">All Types</option>
+                    <option value="line">Line Graph (Trends)</option>
+                    <option value="bar">Bar Chart (Comparisons)</option>
+                    <option value="pie">Pie Chart (Proportions)</option>
+                    <option value="table">Table (Data Grid)</option>
+                    <option value="map">Maps (Changes over time)</option>
+                    <option value="process">Process Diagram (How it works)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="dataset"><i class="fas fa-database"></i> 2. Choose Topic:</label>
+                <select id="dataset" onchange="loadDataset()">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            
+            <button class="primary" onclick="generateTemplate()" style="margin-top: 22px;">
+                <i class="fas fa-magic mr-2"></i>Generate Practice Template
+            </button>
+        </div>
+
+        <div class="main-layout">
+            <!-- Left Column: Visual & Prompt -->
+            <div class="panel">
+                <h3><i class="fas fa-eye"></i> The Visual Data</h3>
+                
+                <!-- Chart/Visual Display -->
+                <div class="chart-container" id="chart-wrapper">
+                    <canvas id="ieltsChart"></canvas>
+                </div>
+                
+                <div id="table-display" style="display: none; overflow-x: auto;">
+                    <table class="data-table" id="data-table"></table>
+                </div>
+                
+                <div id="map-display" style="display: none;">
+                    <div class="map-container">
+                        <div class="map-box">
+                            <h4>Past</h4>
+                            <div id="map-past-text" class="text-sm text-slate-400"></div>
+                            <div class="map-graphic"><i class="fas fa-map-marked-alt text-4xl text-slate-600"></i></div>
+                        </div>
+                        <div class="map-box">
+                            <h4>Present</h4>
+                            <div id="map-present-text" class="text-sm text-slate-400"></div>
+                            <div class="map-graphic"><i class="fas fa-city text-4xl text-slate-600"></i></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="process-display" style="display: none;">
+                    <div class="process-grid" id="process-grid"></div>
+                </div>
+
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #334155;">
+                    <h4 style="color: #94a3b8; margin-top:0; font-size: 0.9rem; text-transform: uppercase;">Official Exam Prompt</h4>
+                    <p id="prompt-text" style="font-size: 1.05rem; line-height: 1.5;"></p>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Template Builder -->
+            <div class="panel" id="template-panel">
+                <h3><i class="fas fa-pen-nib"></i> Template Builder</h3>
+                <p class="text-sm text-slate-400" style="margin-bottom: 15px;">Use the Master Blueprint to fill in the blanks. Click on any blank line to type.</p>
+                
+                <div id="dynamic-template">
+                    <!-- Injected by JS -->
+                    <div class="template-box text-center text-slate-400" style="border-color: #334155;">
+                        <i class="fas fa-arrow-left fa-2x mb-2" style="display:block; margin-bottom:10px;"></i>
+                        Select a dataset and click "Generate Practice Template" to start writing!
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Section: Teaching Material Tabs -->
+        <div class="panel" style="margin-top: 10px;">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('blueprint')"><i class="fas fa-sitemap"></i> The Master Blueprint</button>
+                <button class="tab-btn" onclick="showTab('grammar')"><i class="fas fa-spell-check"></i> Grammar & Vocab</button>
+                <button class="tab-btn" onclick="showTab('scoring')"><i class="fas fa-times-circle"></i> Scoring & Mistakes</button>
+                <button class="tab-btn" onclick="showTab('comparison')"><i class="fas fa-chart-bar"></i> Band 6 vs 7 vs 8</button>
+                <button class="tab-btn" onclick="showTab('insights')"><i class="fas fa-user-graduate"></i> Real Examiner Insights</button>
+                <button class="tab-btn" onclick="showTab('model')"><i class="fas fa-check-double"></i> Teacher Model Answer</button>
+            </div>
+            
+            <!-- Tab 1: Blueprint -->
+            <div id="blueprint" class="tab-content active">
+                <div class="blueprint-steps">
+                    <p>For Academic Writing Task 1, you must write a minimum of <strong>150 words</strong> in about <strong>20 minutes</strong>. Examiners look for a highly structured, analytical report. Apply this blueprint to every task.</p>
+                    
+                    <div class="bp-step">
+                        <h4>1. The Introduction (1 sentence)</h4>
+                        <p><strong>Your Goal:</strong> Identify the Who, What, Where, and When of the task, and use synonyms to rewrite the prompt in your own words.</p>
+                        <p>Example: If the prompt says "The graph shows teenager social media use in the USA from 2020-2023", you write: "The line graph illustrates the percentage of American secondary students using various social platforms between 2020 and 2023."</p>
+                        <span class="bp-rule">Rule: NEVER copy the exact words from the question.</span>
+                    </div>
+
+                    <div class="bp-step">
+                        <h4>2. The Overview (1-2 sentences)</h4>
+                        <p><strong>Your Goal:</strong> Summarize the big picture. Imagine your friend asks what the chart is about, but you only have 5 seconds to answer. You would not list numbers; you would state the main trend.</p>
+                        <p>Example: "Overall, team sports were far more popular than individual sports, with soccer seeing the highest participation."</p>
+                        <span class="bp-rule">Rule: Do NOT use specific numbers or data here. Just patterns.</span>
+                    </div>
+
+                    <div class="bp-step">
+                        <h4>3. The Body Paragraphs (Data Discussion 1 & 2)</h4>
+                        <p><strong>Your Goal:</strong> Prove the claims you made in your Overview by highlighting key information and making comparisons.</p>
+                        <p><strong>Strategy:</strong> Do not describe every dot on a line. Logically group the data. Use the Point of Intersection technique (where two lines cross) to split your paragraphs, or divide by time periods.</p>
+                        <span class="bp-rule">Rule: You MUST quote specific numbers, percentages, and dates accurately here.</span>
+                    </div>
+                </div>
+
+                <div class="alert-box" style="background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: #fff; margin-top: 20px;">
+                    <h4 style="color: var(--success); margin-top: 0;"><i class="fas fa-check-double"></i> Quick Self-Check Before Submitting</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            ✓ Did I write more than 150 words?<br>
+                            ✓ Did I paraphrase the intro instead of copying?<br>
+                            ✓ Do I have a clear overview paragraph?<br>
+                            ✓ Are there NO numbers or data in my overview?<br>
+                            ✓ Did I group the data logically into paragraphs?
+                        </div>
+                        <div>
+                            ✓ Did I support body paragraphs with accurate numbers?<br>
+                            ✓ Did I avoid giving my personal opinion and reasons?<br>
+                            ✓ Are my verb tenses correct past versus present?<br>
+                            ✓ Did I use the passive voice for process diagrams?<br>
+                            ✓ Did I make comparisons like higher than or whereas?
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Grammar & Vocab -->
+            <div id="grammar" class="tab-content">
+                <p>To accurately describe data, processes, and maps, you must rely on specific vocabulary and grammatical structures that clearly convey trends, proportions, action, and transformation. Here is the key vocabulary for each of the 6 visual types.</p>
+                
+                <div class="vocab-grid">
+                    <!-- Line Graph Vocab -->
+                    <div class="bp-step" style="border-left-color: #3b82f6;">
+                        <h4 style="color: #38bdf8;"><i class="fas fa-chart-line"></i> 1. Line Graphs (Trends Over Time)</h4>
+                        <ul style="padding-left: 20px; line-height: 1.6; font-size: 0.95rem;">
+                            <li><strong>Trend Verbs (Up):</strong> increase, rise, grow, climb, surge, skyrocket.</li>
+                            <li><strong>Trend Verbs (Down):</strong> decrease, fall, drop, decline, plummet, plunge.</li>
+                            <li><strong>Trend Verbs (Stable/Mixed):</strong> fluctuate, remain stable, plateau, level off.</li>
+                            <li><strong>Adverbs for Speed/Size:</strong> sharply, significantly, dramatically, gradually, steadily, slightly.</li>
+                            <li><strong>Prepositions:</strong> increased from X to Y, peaked at, remained stable at.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Bar Chart Vocab -->
+                    <div class="bp-step" style="border-left-color: #ec4899;">
+                        <h4 style="color: #ec4899;"><i class="fas fa-chart-bar"></i> 2. Bar Charts (Comparisons)</h4>
+                        <ul style="padding-left: 20px; line-height: 1.6; font-size: 0.95rem;">
+                            <li><strong>Comparison Language:</strong> higher than, lower than, similar to, equal to.</li>
+                            <li><strong>Multipliers:</strong> twice as much as, three times more than, half the amount of.</li>
+                            <li><strong>Superlatives:</strong> the highest, the lowest, the most popular, the least common.</li>
+                            <li><strong>Grouping Devices:</strong> compared to, in contrast, whereas, while, conversely.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pie Chart Vocab -->
+                    <div class="bp-step" style="border-left-color: #f59e0b;">
+                        <h4 style="color: #f59e0b;"><i class="fas fa-chart-pie"></i> 3. Pie Charts (Proportions)</h4>
+                        <ul style="padding-left: 20px; line-height: 1.6; font-size: 0.95rem;">
+                            <li><strong>Proportion Language:</strong> accounts for, constitutes, represents, comprises, makes up.</li>
+                            <li><strong>Fractions & Sizes:</strong> nearly half, exactly a quarter, just over a third, a tiny minority, the vast majority.</li>
+                            <li><strong>Comparisons:</strong> the largest proportion, the smallest segment, a significant chunk.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Table Vocab -->
+                    <div class="bp-step" style="border-left-color: #10b981;">
+                        <h4 style="color: #10b981;"><i class="fas fa-table"></i> 4. Tables (Data Grid)</h4>
+                        <ul style="padding-left: 20px; line-height: 1.6; font-size: 0.95rem;">
+                            <li><strong>Data Description:</strong> the highest figure, the lowest amount, a significant difference between.</li>
+                            <li><strong>Grouping Language:</strong> similarly, in contrast, on the other hand, notably.</li>
+                            <li><strong>Pattern Spotting:</strong> showed an upward trend, remained consistent across all categories, experienced identical growth.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Map Vocab -->
+                    <div class="bp-step" style="border-left-color: #8b5cf6;">
+                        <h4 style="color: #a78bfa;"><i class="fas fa-map-marked-alt"></i> 5. Maps (Changes Over Time)</h4>
+                        <ul style="padding-left: 20px; line-height: 1.6; font-size: 0.95rem;">
+                            <li><strong>Construction Verbs:</strong> was constructed, was built, was developed, was established.</li>
+                            <li><strong>Demolition Verbs:</strong> was demolished, was knocked down, was removed, was replaced by.</li>
+                            <li><strong>Modification Verbs:</strong> was transformed, completely altered, refurbished, modernised, expanded.</li>
+                            <li><strong>Location Phrases:</strong> to the north of, adjacent to, situated in the center, located on the outskirts.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Process Vocab -->
+                    <div class="bp-step" style="border-left-color: #ef4444;">
+                        <h4 style="color: #ef4444;"><i class="fas fa-cogs"></i> 6. Processes (Step-by-Step)</h4>
+                        <ul style="padding-left: 20px; line-height: 1.6; font-size: 0.95rem;">
+                            <li><strong>Sequencing Devices:</strong> initially, the first stage involves, subsequently, following this, the next step is, finally.</li>
+                            <li><strong>The Passive Voice (Mandatory):</strong> is produced, is converted, is transported, is packaged, is stored.</li>
+                            <li><strong>Time Markers:</strong> before being processed, after it is completed, once finished.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Scoring & Mistakes -->
+            <div id="scoring" class="tab-content">
+                <div class="alert-box" style="margin-bottom: 25px;">
+                    <h4 style="color: var(--danger); margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> Common Mistakes That Lower Your Score</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <strong>Task Achievement Errors:</strong>
+                            <ul style="margin-top: 5px; padding-left: 20px;">
+                                <li>Writing under 150 words leads to an automatic penalty.</li>
+                                <li>Including personal opinions or guessing why a trend happened.</li>
+                                <li>Describing every single data point like a robot instead of selecting key features.</li>
+                                <li>Missing the overview paragraph entirely.</li>
+                                <li>Putting specific numbers or data inside the overview paragraph.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Coherence & Vocabulary Errors:</strong>
+                            <ul style="margin-top: 5px; padding-left: 20px;">
+                                <li>Writing a bulleted list instead of proper paragraphs.</li>
+                                <li>Copying words directly from the prompt instead of paraphrasing.</li>
+                                <li>Repeating the exact same vocabulary constantly.</li>
+                                <li>Using informal language such as kids, huge, or gonna.</li>
+                                <li>Subject and verb agreement errors.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary);">Band Descriptor Quick Reference</h3>
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Band</th>
+                            <th>Task Achievement</th>
+                            <th>Coherence & Cohesion</th>
+                            <th>Vocabulary</th>
+                            <th>Grammar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:bold; color:var(--warning);">Band 6</td>
+                            <td>Addresses task; overview is present but basic.</td>
+                            <td>Clear progression; basic linking words used.</td>
+                            <td>Adequate range; some spelling errors.</td>
+                            <td>Mix of simple and complex structures; some errors.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold; color:var(--primary);">Band 7</td>
+                            <td>Clear overview; key features carefully selected.</td>
+                            <td>Logical organization; varied linking words used correctly.</td>
+                            <td>Sufficient range; uses less common vocabulary; rare errors.</td>
+                            <td>Variety of complex structures; frequent error-free sentences.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold; color:var(--success);">Band 8</td>
+                            <td>Fully satisfies task; sophisticated overview highlighting patterns.</td>
+                            <td>Effortless sequencing; sophisticated paragraph referencing.</td>
+                            <td>Wide range; precise academic collocations used naturally.</td>
+                            <td>Wide range; full control of grammar; rare minor slips.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab 4: Comparison -->
+            <div id="comparison" class="tab-content">
+                <p>To understand the difference between a passing score and a high score, let us look at how the same Line Graph prompt is answered at Band 6, 7, and 8 levels.</p>
+                
+                <div style="background: #1e293b; padding: 15px; border-radius: 8px; border-left: 4px solid #94a3b8; margin-bottom: 20px;">
+                    <strong>The Prompt:</strong> The graph below shows the proportion of the population aged 65 and over in three countries (USA, UK, Japan) from 1940 to 2040 (with projections). Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                </div>
+
+                <div class="band-compare-grid">
+                    <div class="band-box band-6">
+                        <h4 style="color: var(--warning); margin-top:0;">Band 6: The Basic Report</h4>
+                        <p style="font-size: 0.95rem; color:#cbd5e1;">The line graph shows the percentage of people aged 65 and above in the USA, UK, and Japan from 1940 to 2040.<br><br>Overall, the proportion of elderly people increased in all three countries over the period. Japan started with the lowest percentage but is expected to have the highest by 2040.<br><br>In 1940, the USA had about 9% of people aged 65 or older, while the UK had around 7% and Japan had only 5%. The USA and UK showed steady increases until 2000, reaching about 14% and 15% respectively. Japan's percentage remained low until 1980, then rose sharply.<br><br>By 2040, Japan is projected to have around 27% elderly population, the highest of the three. The USA and UK are expected to reach about 23% and 22%.</p>
+                        <div style="font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+                            <strong>Why it scores a 6:</strong> It states facts mechanically. Basic comparisons are made. Vocabulary is repetitive and simple.
+                        </div>
+                    </div>
+
+                    <div class="band-box band-7">
+                        <h4 style="color: var(--primary); margin-top:0;">Band 7: The Analytical Answer</h4>
+                        <p style="font-size: 0.95rem; color:#cbd5e1;">The line graph illustrates changes in the percentage of the population aged 65 and over in three nations over a 100-year period from 1940 to 2040, including future projections.<br><br>Overall, all three countries are expected to experience significant growth in their elderly populations, with Japan showing the most dramatic increase despite starting from the lowest base.<br><br>In 1940, the USA had the highest proportion of elderly citizens at approximately 9%, followed by the UK at 7% and Japan at just 5%. Both Western nations saw gradual increases until around 2000, when figures plateaued at roughly 14%. In contrast, Japan's percentage remained relatively stable until 1980 before beginning a steep upward trajectory.<br><br>Projections indicate that by 2040, Japan will have the largest elderly population at around 27%, surpassing both the USA and the UK. This represents a massive increase for Japan compared to the growth of the other two nations.</p>
+                        <div style="font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+                            <strong>Why it scores a 7:</strong> Selects key features effectively. Groups data logically by combining Western nations. Uses strong vocabulary like plateaued and upward trajectory.
+                        </div>
+                    </div>
+
+                    <div class="band-box band-8">
+                        <h4 style="color: var(--success); margin-top:0;">Band 8: The Masterful Response</h4>
+                        <p style="font-size: 0.95rem; color:#cbd5e1;">The provided line graph delineates trends in the proportion of citizens aged 65 and above across three developed nations spanning a century from 1940 to 2040, with data beyond 2020 representing demographic projections.<br><br>Overall, while all three countries exhibit an upward trajectory in their elderly populations, Japan is anticipated to undergo the most pronounced demographic shift, transforming from the nation with the smallest proportion of senior citizens in 1940 to the highest by 2040.<br><br>In 1940, the United States led with approximately 9% of its population aged 65 or older, compared to 7% in the UK and merely 5% in Japan. Both Western nations experienced steady, parallel growth until the turn of the millennium, plateauing at approximately 15%. Japan, however, maintained a relatively flat profile until 1980, after which its elderly population began to surge exponentially.<br><br>By 2040, demographic forecasts suggest Japan will reach a remarkable 27% elderly population, substantially exceeding the projected figures for the USA and the UK. This highlights divergent aging patterns among developed economies.</p>
+                        <div style="font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
+                            <strong>Why it scores an 8:</strong> Effortless sequencing and sophisticated paragraph referencing. Wide range of precise, academic collocations such as demographic shift and surge exponentially.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Real Examiner Insights -->
+            <div id="insights" class="tab-content">
+                <p>To understand exactly what examiners require for a high score in Academic Task 1, it is highly effective to look at actual past candidate responses and the official examiner comments that accompanied their scores.</p>
+
+                <div class="bp-step" style="border-left-color: var(--success);">
+                    <h4 style="color: var(--success);">Example 1: Describing Multiple Charts (Band 8.0)</h4>
+                    <p style="font-size: 0.85rem; color: #94a3b8;"><strong>Prompt:</strong> The charts below show the main reasons for study among students of different age groups and the amount of support they received from employers.</p>
+                    
+                    <div class="candidate-quote">
+                        The first graph shows that there is a gradual decrease in study for career reasons with age. Nearly 80% of students under 26 years, study for their career. This percentage gradually declines by 10-20% every decade. Only 40% of 40-49 year olds and 18% of over 49 year olds are studying for career reasons in late adulthood.<br><br>
+                        Conversely, the first graph also shows that study stemming from interest increases with age. There are only 10% of under 26 year olds studying out of interest. The percentage increases slowly till the beginning of the fourth decade, and increases dramatically in late adulthood, reaching nearly 60% for the oldest demographic.<br><br>
+                        The second graph shows that employer support is maximum at approximately 60% for the under 26 year students. It drops rapidly to 32% up to the third decade of life, and then increases in late adulthood up to about 44%, showing renewed employer interest in training older staff.
+                    </div>
+
+                    <div class="examiner-comment">
+                        <h4><i class="fas fa-clipboard-check"></i> Why this earned a Band 8.0</h4>
+                        <ul>
+                            <li><strong>Integration and Selection:</strong> The candidate successfully summarises the key features of both charts and integrates them well.</li>
+                            <li><strong>Clear Trends:</strong> They do not just list numbers; they identify clear trends and support those trends with highly appropriate, selected data points from the chart.</li>
+                            <li><strong>Vocabulary & Grammar:</strong> They use a very good range of vocabulary concisely and precisely with a wide range of accurate, complex sentence structures.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bp-step" style="border-left-color: var(--primary);">
+                    <h4 style="color: var(--primary);">Example 2: Describing Maps (Band 7.0)</h4>
+                    <p style="font-size: 0.85rem; color: #94a3b8;"><strong>Prompt:</strong> The two maps below show an island, before and after the construction of some tourist facilities.</p>
+                    
+                    <div class="candidate-quote">
+                        The two maps show the same island while first one is before and the second one is after the construction for tourism. Looking first at the one before construction, we can see a huge island with a beach in the west. The total length of the island is approximately 250 metres.<br><br>
+                        Moving on to the second map, we can see that there are lots of buildings on the island. There are two areas of accommodation. One is in the west near the beach while the other one is in the centre of the island. Between them, there is a restaurant in the north and a central reception block, which is surrounded by a vehicle track allowing access to all facilities.<br><br>
+                        Overall, comparing the two maps, there are significant changes after this development. Not only lots of facilities are built on the island, but also the sea is used for activities.
+                    </div>
+
+                    <div class="examiner-comment">
+                        <h4><i class="fas fa-clipboard-check"></i> Why this earned a Band 7.0</h4>
+                        <ul>
+                            <li><strong>Logical Organization:</strong> The response is incredibly easy to follow because the candidate logically organizes the data geographically and chronologically. They use strong cohesive devices to transition between areas.</li>
+                            <li><strong>Effective Overview:</strong> The final paragraph acts as a strong overview summarizing the main point without getting lost in details.</li>
+                            <li><strong>Accurate Lexicon:</strong> The candidate brings in appropriate collocations and vocabulary to describe geography, such as central reception block and western accommodation units.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bp-step" style="border-left-color: var(--warning);">
+                    <h4 style="color: var(--warning);">Example 3: Describing a Table (Band 7.0)</h4>
+                    <p style="font-size: 0.85rem; color: #94a3b8;"><strong>Prompt:</strong> A table providing details regarding the underground railway systems in six cities.</p>
+                    
+                    <div class="candidate-quote">
+                        The table shows the details regarding the underground railway systems in six cities. London has the oldest underground railway systems among the six cities. It was opened in the year 1863, and it is already 140 years old. Paris is the second oldest, having opened in 1900. Los Angeles has the newest underground railway system, and was only opened in the year 2001. In terms of the size of the railway systems, London, for certain, has the largest network.<br><br>
+                        Interestingly, Tokyo, which only has 155 kilometres of route, serves the greatest number of passengers per year, at 1927 millions passengers. This is remarkably high compared to the other locations.<br><br>
+                        In conclusion, the underground railway systems in different cities vary a lot in the size of the system, the number of passengers served per year and in the age of the system.
+                    </div>
+
+                    <div class="examiner-comment">
+                        <h4><i class="fas fa-clipboard-check"></i> Why this earned a Band 7.0</h4>
+                        <ul>
+                            <li><strong>Highlighting the Unexpected:</strong> A key requirement of Task 1 is making comparisons. This candidate beautifully contrasts data by highlighting unexpected differences, such as pointing out that Tokyo has a short route but serves the greatest number of passengers.</li>
+                            <li><strong>Clear Paragraphing:</strong> The candidate groups similar data. Paragraph two deals with age and size, while paragraph three specifically tackles passenger numbers.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Model Answer -->
+            <div id="model" class="tab-content">
+                <div id="model-content">
+                    <p class="text-slate-400">Select a dataset to view the teacher Band 8 Model Answer here.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATASETS: High School Focused Examples
+        // ============================================
+        const secondaryDatasets = [
+            {
+                id: 'teen-social',
+                type: 'line',
+                title: 'Daily Social Media Usage by High School Students (2015-2023)',
+                labels: ['2015', '2017', '2019', '2021', '2023'],
+                datasets: [
+                    { label: 'Instagram', data: [60, 75, 80, 70, 65], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3 },
+                    { label: 'TikTok', data: [0, 5, 45, 85, 95], borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.3 },
+                    { label: 'Facebook', data: [85, 60, 40, 25, 15], borderColor: '#3b82f6', backgroundColor: 'transparent', tension: 0.3 }
+                ],
+                prompt: "The line graph below shows the percentage of high school students in a specific district using three different social media platforms daily between 2015 and 2023.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The line graph illustrates the proportion of secondary school students using three distinct social media networks on a daily basis over an eight-year period, from 2015 to 2023.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, there was a dramatic shift in platform preferences. While Facebook experienced a severe and continuous decline, TikTok saw exponential growth to become the dominant platform. Meanwhile, Instagram remained relatively stable throughout the period.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (The Big Changes):</span></strong> Looking at the most significant changes, Facebook began as the most popular platform in 2015, used by 85% of students. However, this figure plummeted steadily, finishing at a low of just 15% in 2023. Conversely, TikTok did not exist in 2015 and had only a 5% usage rate in 2017. Following this, its popularity surged exponentially, overtaking Facebook in 2019 and peaking at 95% by the end of the period.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (The Stable Data):</span></strong> In contrast to the extreme trends of the other two platforms, Instagram usage remained relatively constant. It began at 60% in 2015, rose slightly to peak at 80% in 2019, and then experienced a minor decline, finishing the period at 65%. Notably, 2019 represented a point of intersection where Instagram was briefly the most popular platform before being overtaken by TikTok.</p>`,
+                templateParams: {
+                    introStart: "The line graph illustrates",
+                    introTopic: "the percentage of high school students using three social media platforms",
+                    introTime: "between 2015 and 2023.",
+                    overviewMain: "there was a dramatic shift in preferences.",
+                    overviewDetails: "Facebook declined sharply, TikTok grew exponentially, and Instagram remained mostly stable.",
+                    body1Focus: "Facebook and TikTok, which showed opposite trends,",
+                    body1Data: "Facebook started high at 85% but fell to 15%, whereas TikTok started at 0% and skyrocketed to 95%.",
+                    body2Focus: "Instagram,",
+                    body2Data: "it fluctuated slightly, peaking at 80% in 2019 before settling at 65%."
+                }
+            },
+            {
+                id: 'teen-fastfood',
+                type: 'line',
+                title: 'Monthly Fast Food Consumption by Teenagers (2018-2022)',
+                labels: ['2018', '2019', '2020', '2021', '2022'],
+                datasets: [
+                    { label: 'Burgers', data: [40, 45, 50, 60, 70], borderColor: '#f59e0b', backgroundColor: 'transparent', tension: 0.3 },
+                    { label: 'Pizza', data: [55, 50, 45, 40, 30], borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.3 },
+                    { label: 'Fried Chicken', data: [20, 25, 30, 35, 40], borderColor: '#3b82f6', backgroundColor: 'transparent', tension: 0.3 }
+                ],
+                prompt: "The line graph below shows the average number of times teenagers consumed three types of fast food per month between 2018 and 2022.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The line graph provides data regarding the frequency at which adolescents ate three specific types of fast food each month over a five-year period from 2018 to 2022.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, the consumption of burgers and fried chicken showed a clear upward trend, whereas the popularity of pizza declined steadily over the given timeframe. Furthermore, burgers eventually replaced pizza as the most frequently consumed item.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (Rising Trends):</span></strong> Looking at the items that increased in popularity, burgers began the period with 40 monthly consumptions. This figure grew steadily each year, accelerating after 2020 to reach a peak of 70 times per month by 2022. Similarly, fried chicken experienced consistent, incremental growth, exactly doubling from 20 instances in 2018 to 40 instances by the end of the period.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (Declining Trend):</span></strong> Turning to pizza, the trend was entirely the opposite. In 2018, it was the most popular fast food choice, being eaten 55 times per month. However, this number decreased continuously every year. By 2020, consumption had fallen to 45 times, at which point it was overtaken by burgers. The downward trajectory continued until it finished the period at just 30 times per month, making it the least popular of the three options in 2022.</p>`,
+                templateParams: {
+                    introStart: "The line graph provides data regarding",
+                    introTopic: "how often teenagers consumed three types of fast food monthly",
+                    introTime: "over a five-year period from 2018 to 2022.",
+                    overviewMain: "the consumption of burgers and fried chicken increased steadily.",
+                    overviewDetails: "the popularity of pizza declined, losing its position as the top choice.",
+                    body1Focus: "the foods that increased in popularity,",
+                    body1Data: "burgers rose from 40 to a high of 70 times per month, and fried chicken doubled from 20 to 40 times.",
+                    body2Focus: "the trend for pizza consumption,",
+                    body2Data: "it decreased continuously from 55 times in 2018 down to a low of 30 times by 2022."
+                }
+            },
+            {
+                id: 'favorite-subjects',
+                type: 'bar',
+                title: 'Favorite School Subjects by Gender (Year 10)',
+                labels: ['Mathematics', 'Science', 'English Literature', 'Art & Design', 'Physical Education (PE)'],
+                datasets: [
+                    { label: 'Boys (%)', data: [35, 40, 10, 15, 60], backgroundColor: '#3b82f6' },
+                    { label: 'Girls (%)', data: [30, 35, 55, 45, 20], backgroundColor: '#ec4899' }
+                ],
+                prompt: "The bar chart below illustrates the preferred subjects of Year 10 male and female students at a local secondary school.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The bar chart compares the percentage of male and female Year 10 students who chose various academic and practical subjects as their favorites.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, it is clear that boys showed a strong preference for Physical Education, while girls favored English Literature and Art. Interestingly, both genders showed relatively similar levels of interest in the core STEM subjects.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (Major Differences):</span></strong> The most striking differences between the genders were seen in PE, English, and Art. Physical Education was the most popular subject among boys, chosen by a significant 60%, which was three times higher than the proportion of girls. Conversely, English Literature was the top choice for females at 55%, compared to a mere 10% for males. Similarly, Art and Design was highly favored by girls at 45%, while only 15% of boys selected it.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (Similarities):</span></strong> Turning to Mathematics and Science, the preferences were much more closely aligned. Science was chosen by 40% of boys and 35% of girls. Mathematics followed a nearly identical pattern, being favored by 35% of male students and slightly fewer female students at 30%.</p>`,
+                templateParams: {
+                    introStart: "The bar chart compares",
+                    introTopic: "the preferred subjects of male and female Year 10 students",
+                    introTime: "at a secondary school.",
+                    overviewMain: "boys and girls had distinct preferences in humanities and sports.",
+                    overviewDetails: "they shared similar levels of interest in the core STEM subjects.",
+                    body1Focus: "the subjects with the largest gender gaps,",
+                    body1Data: "PE was chosen by 60% of boys versus 20% of girls, while English was favored by 55% of girls and only 10% of boys.",
+                    body2Focus: "Mathematics and Science,",
+                    body2Data: "they showed similar popularity, with Science at 40% for boys and 35% for girls."
+                }
+            },
+            {
+                id: 'uni-factors',
+                type: 'bar',
+                title: 'Primary Factors for Choosing a University (2010 vs 2020)',
+                labels: ['Course Quality', 'Distance from Home', 'Tuition Cost', 'Sports Facilities', 'Social Life'],
+                datasets: [
+                    { label: '2010 (%)', data: [75, 60, 40, 20, 35], backgroundColor: '#8b5cf6' },
+                    { label: '2020 (%)', data: [80, 30, 70, 25, 40], backgroundColor: '#10b981' }
+                ],
+                prompt: "The bar chart shows the percentage of high school graduates citing different primary factors when choosing a university in the years 2010 and 2020.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The bar chart illustrates the main reasons given by high school graduates for selecting a particular university, comparing data from the years 2010 and 2020.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, course quality remained the most important factor in both years. However, the importance of tuition cost increased significantly over the decade, while the desire to stay close to home saw a dramatic decline.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (Increasing Factors):</span></strong> Looking at the factors that became more important, course quality was the highest priority, rising slightly from 75% in 2010 to 80% in 2020. The most substantial change was seen in tuition cost, which surged from being a concern for only 40% of students in 2010 to a major factor for 70% in 2020. Additionally, minor increases were observed in the importance of social life, going from 35% to 40%, and sports facilities, rising from 20% to 25%.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (Decreasing Factor):</span></strong> Turning to the only factor that lost significance, distance from home experienced a steep downward trend. In 2010, the majority of students at 60% considered proximity to home a primary factor. By 2020, this figure had exactly halved, falling to just 30%.</p>`,
+                templateParams: {
+                    introStart: "The bar chart illustrates",
+                    introTopic: "the primary factors influencing students' university choices",
+                    introTime: "in the years 2010 and 2020.",
+                    overviewMain: "course quality remained the most crucial priority across both years.",
+                    overviewDetails: "the concern for tuition cost rose significantly, while the importance of location dropped.",
+                    body1Focus: "the factors that grew in importance,",
+                    body1Data: "tuition cost jumped from 40% to 70%, and course quality peaked at 80% in 2020.",
+                    body2Focus: "the role of distance from home,",
+                    body2Data: "it experienced a sharp decline, dropping by exactly half from 60% down to 30%."
+                }
+            },
+            {
+                id: 'weekend-activities',
+                type: 'pie',
+                title: 'How Secondary Students Spend Weekend Free Time',
+                labels: ['Video Games and Screens', 'Hanging out with friends', 'Part-time jobs', 'Studying and Homework', 'Sports and Hobbies'],
+                datasets: [
+                    { 
+                        label: 'Time spent (%)', 
+                        data: [45, 25, 15, 10, 5], 
+                        backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'] 
+                    }
+                ],
+                prompt: "The pie chart displays the proportion of weekend free time spent on different activities by high school seniors.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The pie chart illustrates how senior high school students distribute their free time across five different activities during the weekend.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, it is evident that screen-based entertainment dominates students weekend schedules, taking up nearly half of their time. In contrast, academic pursuits and active hobbies make up the smallest proportions.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (Largest Categories):</span></strong> Looking at the most popular activities, video games and screen time account for the vast majority, representing almost half at 45% of all weekend free time. The second most common activity is socializing with friends, which constitutes exactly a quarter or 25% of their schedule. Together, these two leisure activities make up 70% of the students weekends.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (Smaller Categories):</span></strong> Regarding the remaining activities, part-time employment accounts for 15% of their time. Interestingly, despite being seniors, students spend a relatively small fraction of their weekends on homework and studying, comprising just 10%. Finally, physical sports and hobbies represent the least popular way to spend free time, taking up a mere 5%.</p>`,
+                templateParams: {
+                    introStart: "The pie chart illustrates",
+                    introTopic: "how high school seniors divide their weekend free time",
+                    introTime: "across five different activity categories.",
+                    overviewMain: "leisure activities take up the vast majority of time.",
+                    overviewDetails: "Screen time is the most prominent, while studying and sports make up the smallest portions.",
+                    body1Focus: "the two most popular activities,",
+                    body1Data: "screen time accounts for 45%, followed by socializing with friends at exactly 25%.",
+                    body2Focus: "the remaining, less popular activities,",
+                    body2Data: "part-time jobs take up 15%, homework takes 10%, and sports constitute just 5%."
+                }
+            },
+            {
+                id: 'club-table',
+                type: 'table',
+                title: 'High School Extracurricular Club Memberships (2021-2023)',
+                headers: ['Club Name', '2021 Members', '2022 Members', '2023 Members', 'Overall Change'],
+                rows: [
+                    ['Coding & Robotics', '45', '65', '110', '+144%'],
+                    ['Drama Society', '80', '85', '90', '+12%'],
+                    ['Debate Team', '50', '55', '50', '0%'],
+                    ['Chess Club', '40', '30', '15', '-62%']
+                ],
+                prompt: "The table details the number of students participating in four different extracurricular clubs at a high school between 2021 and 2023.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The table compares the number of students registered in four distinct extracurricular programs at a high school over a three-year period from 2021 to 2023.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, there was a massive surge in interest for technology-based activities, specifically Coding and Robotics, which became the most popular club. Conversely, traditional games like Chess experienced a severe decline in membership.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (Increasing Trends):</span></strong> Examining the clubs that saw growth, Coding and Robotics experienced an explosive increase. Membership more than doubled from 45 students in 2021 to 110 in 2023, representing a 144% rise and making it the dominant extracurricular choice. The Drama Society also saw growth, though much more modest, starting with the highest initial turnout of 80 students and slowly increasing by 12% to reach 90 members.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (Decreasing and Stable Trends):</span></strong> In contrast, the Chess Club lost significant popularity over the three years. Membership figures fell drastically from 40 students down to just 15, resulting in a 62% decrease. Meanwhile, the Debate Team showed minor fluctuations but ultimately saw no overall change, starting and ending the period with exactly 50 participating students.</p>`,
+                templateParams: {
+                    introStart: "The table compares",
+                    introTopic: "the number of students participating in four extracurricular clubs",
+                    introTime: "between the years 2021 and 2023.",
+                    overviewMain: "technology-focused activities saw massive growth.",
+                    overviewDetails: "traditional games like chess experienced a severe decline in membership.",
+                    body1Focus: "the clubs that expanded in size,",
+                    body1Data: "Coding and Robotics surged by 144% to reach 110 members, while Drama grew modestly to 90.",
+                    body2Focus: "the declining and stable programs,",
+                    body2Data: "Chess Club plummeted by 62% down to 15 members, and the Debate Team remained stable at 50."
+                }
+            },
+            {
+                id: 'recycling-process',
+                type: 'process',
+                title: 'School Recycling Program Process',
+                steps: [
+                    "Students sort waste into separate colored bins in classrooms.",
+                    "Custodians collect bins and transport them to the central school depot.",
+                    "Materials are loaded onto a city recycling truck.",
+                    "At the facility, items are washed and crushed.",
+                    "Processed materials are shipped to manufacturers to make new school supplies."
+                ],
+                prompt: "The diagram illustrates the step-by-step process of a high school's new recycling program.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The diagram illustrates the various stages involved in a secondary school's recycling initiative, from initial disposal to the creation of new products.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, the process consists of five main steps. It begins with manual sorting by students on campus and concludes with industrial manufacturing off-site to create new school supplies.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (On-Campus Stages):</span></strong> The process commences inside the school building. First, waste is sorted by the students themselves into specifically colored bins located in the classrooms. Subsequently, these bins are collected by the custodial staff, who then transport the sorted materials to a central depot situated on the school grounds.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (Off-Campus Stages):</span></strong> Following collection, the waste leaves the campus. The materials are loaded onto a municipal recycling truck and driven to a specialized facility. Upon arrival at the plant, the items are thoroughly washed and then crushed into raw materials. In the final stage, these processed materials are shipped to various manufacturers, where they are repurposed into brand new school supplies.</p>`,
+                templateParams: {
+                    introStart: "The diagram illustrates",
+                    introTopic: "the step-by-step process of a school recycling program",
+                    introTime: "from collection to manufacturing.",
+                    overviewMain: "the process involves five distinct stages.",
+                    overviewDetails: "It starts with in-school sorting and ends with off-site industrial processing.",
+                    body1Focus: "the initial stages that happen at the school,",
+                    body1Data: "first, waste is sorted into colored bins, and then it is collected by custodians.",
+                    body2Focus: "what happens after the materials leave the school,",
+                    body2Data: "materials are loaded onto trucks, washed and crushed, and finally shipped to make new supplies."
+                }
+            },
+            {
+                id: 'campus-map',
+                type: 'map',
+                title: 'High School Campus (2010 vs 2025)',
+                mapPast: "2010: Main building in center, large grass field to the east, small parking lot to the west, trees to the north.",
+                mapPresent: "2025: Main building expanded north (trees removed), grass field replaced by a running track and stadium, parking lot doubled in size.",
+                prompt: "The maps below show a high school campus as it was in 2010 and how it looks currently in 2025.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                 modelAnswer: `<p><strong><span style="color:#38bdf8">Introduction:</span></strong> The two maps detail the layout of a high school campus in the year 2010 compared to its current modernized layout in 2025.</p>
+                              <p><strong><span style="color:#a78bfa">Overview:</span></strong> Overall, the campus underwent significant development over the 15-year period. The most notable changes include the expansion of the main academic building, the enhancement of athletic facilities, and the removal of natural green spaces to accommodate growth.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 1 (The Original Campus):</span></strong> Looking at the school as it stood in 2010, the layout was relatively simple. The main academic building was situated in the center of the campus. To the east of this building lay a large, empty grass field used for recreation. A small car park was positioned on the western side, while the northern boundary was completely lined with trees.</p>
+                              <p><strong><span style="color:#10b981">Body Paragraph 2 (The 2025 Changes):</span></strong> By 2025, several major renovations had occurred. The trees to the north were completely removed to allow the central building to be expanded northward. In terms of sports, the simple grass field on the east side was replaced by a formal running track and a stadium. Finally, to accommodate more vehicles, the parking lot on the west side was doubled in size.</p>`,
+                templateParams: {
+                    introStart: "The maps compare",
+                    introTopic: "the geographical layout of a high school campus",
+                    introTime: "between the years 2010 and 2025.",
+                    overviewMain: "the campus was heavily developed and modernized.",
+                    overviewDetails: "Green spaces were removed to make way for building expansions and athletic facilities.",
+                    body1Focus: "how the campus looked originally in 2010,",
+                    body1Data: "there was a central building, a simple grass field to the east, and a line of trees to the north.",
+                    body2Focus: "the extensive renovations made by 2025,",
+                    body2Data: "the trees were removed to expand the building, and the grass field was replaced by a sports stadium."
+                }
+            }
+        ];
+
+        let currentDatasetObj = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            populateDropdown('all');
+            loadDataset();
+        });
+
+        function populateDropdown(filterType) {
+            const select = document.getElementById('dataset');
+            select.innerHTML = '';
+            
+            secondaryDatasets.forEach(data => {
+                if (filterType === 'all' || data.type === filterType) {
+                    const option = document.createElement('option');
+                    option.value = data.id;
+                    option.textContent = data.title;
+                    select.appendChild(option);
+                }
+            });
+            
+            if(select.options.length === 0) {
+                 select.innerHTML = '<option value="">No datasets for this type</option>';
+            }
+        }
+
+        function filterDatasets() {
+            const type = document.getElementById('visualType').value;
+            populateDropdown(type);
+            loadDataset();
+        }
+
+        // ============================================
+        // CORE RENDER FUNCTIONS
+        // ============================================
+        let chartInstance = null;
+
+        function loadDataset() {
+            const selectedId = document.getElementById('dataset').value;
+            if(!selectedId) return;
+
+            currentDatasetObj = secondaryDatasets.find(d => d.id === selectedId);
+            const data = currentDatasetObj;
+
+            document.getElementById('prompt-text').textContent = data.prompt;
+            document.getElementById('model-content').innerHTML = data.modelAnswer;
+
+            document.getElementById('dynamic-template').innerHTML = `
+                <div class="template-box text-center text-slate-400" style="border-color: #334155;">
+                    <i class="fas fa-arrow-up fa-2x mb-2" style="display:block; margin-bottom:10px;"></i>
+                    Click "Generate Practice Template" to practice this specific chart!
+                </div>`;
+
+            document.getElementById('chart-wrapper').style.display = 'none';
+            document.getElementById('table-display').style.display = 'none';
+            document.getElementById('map-display').style.display = 'none';
+            document.getElementById('process-display').style.display = 'none';
+
+            if (data.type === 'line' || data.type === 'bar' || data.type === 'pie') {
+                document.getElementById('chart-wrapper').style.display = 'block';
+                renderChartJS(data);
+            } else if (data.type === 'table') {
+                document.getElementById('table-display').style.display = 'block';
+                renderHTMLTable(data);
+            } else if (data.type === 'map') {
+                document.getElementById('map-display').style.display = 'block';
+                document.getElementById('map-past-text').textContent = data.mapPast;
+                document.getElementById('map-present-text').textContent = data.mapPresent;
+            } else if (data.type === 'process') {
+                document.getElementById('process-display').style.display = 'block';
+                renderProcessDiagram(data);
+            }
+        }
+
+        function renderChartJS(data) {
+            const ctx = document.getElementById('ieltsChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#f1f5f9' } }
+                },
+                scales: data.type !== 'pie' ? {
+                    x: { grid: { color: '#334155' } },
+                    y: { beginAtZero: true, grid: { color: '#334155' } }
+                } : {}
+            };
+
+            chartInstance = new Chart(ctx, {
+                type: data.type,
+                data: { labels: data.labels, datasets: data.datasets },
+                options: options
+            });
+        }
+
+        function renderHTMLTable(data) {
+            const table = document.getElementById('data-table');
+            table.innerHTML = '';
+            
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            data.headers.forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            const tbody = document.createElement('tbody');
+            data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                row.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+        }
+
+        function renderProcessDiagram(data) {
+            const container = document.getElementById('process-grid');
+            container.innerHTML = '';
+            data.steps.forEach((step, idx) => {
+                const div = document.createElement('div');
+                div.className = 'process-node';
+                div.innerHTML = `
+                    <div class="process-num">${idx + 1}</div>
+                    <p style="margin:0; font-size: 0.9rem;">${step}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function generateTemplate() {
+            if(!currentDatasetObj) return;
+            const p = currentDatasetObj.templateParams;
+            
+            const templateHTML = `
+                <div class="template-box">
+                    <p>
+                        <span class="blueprint-tag">1. Intro</span>
+                        <span class="blank" contenteditable="true" title="Start of intro">${p.introStart}</span> 
+                        <span class="blank" contenteditable="true" title="The Topic (What and Who)">${p.introTopic}</span> 
+                        <span class="blank" contenteditable="true" title="The Time and Place">${p.introTime}</span>
+                    </p>
+                    <p style="margin-top: 20px;">
+                        <span class="blueprint-tag">2. Overview</span>
+                        Overall, it is clear that <span class="blank" contenteditable="true" title="Main overarching trend">${p.overviewMain}</span> 
+                        Specifically, <span class="blank" contenteditable="true" title="Secondary trend without numbers">${p.overviewDetails}</span>
+                    </p>
+                    <p style="margin-top: 20px;">
+                        <span class="blueprint-tag">3. Body 1</span>
+                        Looking at <span class="blank" contenteditable="true" title="What are you grouping here?">${p.body1Focus}</span> 
+                        the data shows that <span class="blank" contenteditable="true" title="Specific numbers and dates">${p.body1Data}</span>
+                    </p>
+                    <p style="margin-top: 20px;">
+                        <span class="blueprint-tag">4. Body 2</span>
+                        Turning to <span class="blank" contenteditable="true" title="What is left to describe?">${p.body2Focus}</span> 
+                        it is evident that <span class="blank" contenteditable="true" title="Specific numbers and dates">${p.body2Data}</span>
+                    </p>
+                </div>
+                <p class="text-sm text-slate-400 mt-2 text-center"><i class="fas fa-lightbulb text-warning"></i> Tip: Delete the text in the blanks and try writing it yourself based on the chart!</p>
+            `;
+            
+            document.getElementById('dynamic-template').innerHTML = templateHTML;
+            
+            document.querySelectorAll('.blank').forEach(blank => {
+                blank.addEventListener('focus', function() {
+                    this.style.backgroundColor = 'rgba(245, 158, 11, 0.3)';
+                });
+                blank.addEventListener('blur', function() {
+                    this.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
+                });
+            });
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
