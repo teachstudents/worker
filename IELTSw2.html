@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secondary Student IELTS Writing Platform</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        /* =========================================
+           GLOBAL & MENU STYLES
+           ========================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            color: #1a1a2e;
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+            font-size: 18px; /* Increased base font size */
+        }
+
+        .theme-menu { background: #f4f7f6; }
+        .theme-app1 { 
+            background: linear-gradient(135deg, #0052d4 0%, #4364f7 50%, #6fb1fc 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+        }
+        .theme-app2 { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+        }
+        .theme-app3 { background: #f4f7f6; }
+        .theme-app4 { background: #e0f7fa; }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .app-view { display: none; }
+        .app-view.active-view { display: block; animation: fadeIn 0.4s ease forwards; }
+
+        /* Persistent Top Navigation Bar */
+        .top-nav {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-weight: 900;
+            font-size: 1.5em;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo span { color: #4364f7; }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid transparent;
+            color: #6c757d;
+            font-weight: 700;
+            font-size: 1em;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover { background: #f8f9fa; color: #1a1a2e; }
+        
+        .nav-btn.active-nav {
+            background: #eef2ff;
+            color: #4364f7;
+            border-color: #4364f7;
+        }
+
+        #main-menu {
+            min-height: calc(100vh - 70px); /* Adjust for nav bar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: #f4f7f6;
+        }
+        
+        .menu-container {
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .menu-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease;
+        }
+        .menu-header h1 {
+            color: #1a1a2e;
+            font-size: 3em;
+            font-weight: 900;
+        }
+        .menu-header p {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-top: 15px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            border-color: #4364f7;
+            box-shadow: 0 20px 45px rgba(67, 100, 247, 0.15);
+        }
+
+        .menu-icon { font-size: 4em; margin-bottom: 20px; }
+        .menu-card h3 { color: #1a1a2e; font-size: 1.5em; margin-bottom: 15px; }
+        .menu-card p { color: #6c757d; font-size: 1em; line-height: 1.6; flex-grow: 1; margin: 0; }
+
+        /* =========================================
+           PAGE STYLES (Shared across apps)
+           ========================================= */
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            border: 1px solid #e9ecef; 
+            margin-bottom: 30px;
+        }
+        
+        h1, h2, h3, h4 { color: #1a1a2e; margin-bottom: 15px; }
+        p { line-height: 1.7; margin-bottom: 15px; color: #495057;}
+
+        /* =========================================
+           APP 1: WRITING MASTER PRO STYLES
+           ========================================= */
+        .master-layout { display: flex; gap: 30px; }
+        .master-left { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .master-right { width: 400px; display: flex; flex-direction: column; gap: 20px; }
+
+        .prompt-gen-box { background: linear-gradient(135deg, #f8faff, #eef2ff); border: 2px solid #4364f7; }
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;}
+        .cat-btn { background: white; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; cursor: pointer; font-weight: 600; text-align: left; transition: all 0.2s; font-size: 0.95em; color: #495057; }
+        .cat-btn:hover { border-color: #4364f7; background: #f8faff; transform: translateY(-1px); }
+        .cat-btn.selected { border-color: #4364f7; background: #4364f7; color: white; }
+        
+        .btn-primary { margin-top: auto; padding: 15px 25px; border-radius: 8px; border: none; background: linear-gradient(135deg, #0052d4, #4364f7); color: white; font-weight: 800; font-size: 1.1em; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(67, 100, 247, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67, 100, 247, 0.5); }
+
+        .free-write-area { flex: 1; min-height: 400px; resize: none; border: 2px solid #e9ecef; border-radius: 12px; padding: 25px; font-family: 'Inter', sans-serif; font-size: 1.15em; line-height: 1.8; outline: none; transition: border-color 0.3s; }
+        .free-write-area:focus { border-color: #4364f7; }
+
+        .timer-widget { background: #1a1a2e; color: white; text-align: center; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 2.5em; font-weight: bold; }
+        
+        .toolkit-panel details { border-bottom: 1px solid #e9ecef; }
+        .toolkit-panel summary { padding: 15px; font-weight: 700; font-size: 1em; color: #495057; cursor: pointer; user-select: none; }
+        .tk-content { padding: 15px; display: flex; flex-wrap: wrap; gap: 8px; background: #f8f9fa; border-radius: 8px; margin: 0 15px 15px 15px;}
+        .tool-chip { background: white; border: 1px solid #dee2e6; padding: 8px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .tool-chip:hover { background: #4364f7; color: white; border-color: #4364f7; }
+
+        /* =========================================
+           APP 2: BLUEPRINT & HEDGING STYLES
+           ========================================= */
+        .bp-nav { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; }
+        .bp-nav-btn { background: white; border: 2px solid #e9ecef; padding: 15px 25px; border-radius: 8px; font-weight: 800; font-size: 1.05em; cursor: pointer; transition: 0.3s; white-space: nowrap; color: #6c757d;}
+        .bp-nav-btn.active { background: #11998e; color: white; border-color: #11998e; }
+        
+        .bp-page { display: none; animation: fadeIn 0.4s ease forwards; }
+        .bp-page.active { display: block; }
+        
+        .rule-box { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #22c55e; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+        .rule-box h4 { color: #166534; font-size: 1.2em; margin-bottom: 15px;}
+        .rule-box ul, .rule-box ol { margin-left: 20px; color: #166534; font-size: 1.05em; line-height: 1.6;}
+        
+        .reference-chart { width: 100%; border-collapse: collapse; margin-bottom: 25px; background: white; font-size: 1.05em; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .reference-chart th { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 15px; text-align: left; }
+        .reference-chart td { padding: 15px; border-bottom: 1px solid #e9ecef; }
+        
+        .modal-will-would { background-color: #ffe4e6; color: #be123c; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .modal-can-could { background-color: #f3e8ff; color: #7e22ce; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .modal-may-might { background-color: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        
+        .mcq-item { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .mcq-btn { display: block; width: 100%; text-align: left; padding: 15px; margin-top: 10px; border: 2px solid #dee2e6; border-radius: 8px; background: white; font-size: 1em; cursor: pointer; transition: 0.2s; font-family: inherit;}
+        .mcq-btn:hover { border-color: #11998e; background: #f0fdf4; }
+        .mcq-feedback { margin-top: 15px; padding: 15px; border-radius: 8px; font-weight: bold; display: none; }
+        .mcq-feedback.correct { display: block; background: #d4edda; color: #155724; border: 2px solid #28a745; }
+        .mcq-feedback.incorrect { display: block; background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+
+        .expert-tip { background: #fff3cd; border-left: 6px solid #ffc107; padding: 25px; border-radius: 0 12px 12px 0; margin: 25px 0; }
+        .expert-tip h4 { color: #856404; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+        .bp-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden;}
+        .bp-table th { background: #4a5568; color: white; padding: 15px; text-align: left; }
+        .bp-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+        .bp-table tr:nth-child(even) { background: #f8f9fa; }
+
+        /* Blueprint Scaffolds */
+        .scaffold-box { border: 2px solid #4364f7; border-radius: 12px; padding: 25px; margin-bottom: 25px; background: #fff; }
+        .scaffold-box h3 { color: #4364f7; border-bottom: 2px solid #eef2ff; padding-bottom: 10px; margin-bottom: 20px;}
+        .scaffold-step { margin-bottom: 15px; padding-left: 15px; border-left: 3px solid #cbd5e0; }
+        .scaffold-step h5 { margin-bottom: 5px; color: #2d3748; }
+
+        /* =========================================
+           APP 3: MODEL ESSAYS STYLES
+           ========================================= */
+        .essay-controls { display: flex; gap: 20px; margin-bottom: 30px; align-items: center; }
+        .essay-select { flex: 1; padding: 15px 20px; font-size: 1.1em; border-radius: 8px; border: 2px solid #4364f7; font-weight: 700; outline: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-audio { background: #e2e8f0; border: none; padding: 15px 25px; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
+        .btn-audio:hover { background: #cbd5e0; }
+
+        .essay-layout { display: flex; gap: 30px; }
+        .essay-sidebar { width: 300px; display: flex; flex-direction: column; gap: 20px; }
+        .essay-main { flex: 1; }
+
+        .stats-box { background: #1a1a2e; color: white; border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);}
+        .stats-box .stat-number { font-size: 3em; font-weight: 900; color: #38ef7d; margin: 10px 0; }
+        .stats-box .target-band { font-size: 1.5em; font-weight: 700; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+        
+        .legend-box { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; position: sticky; top: 100px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);}
+        .legend-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; border: 2px solid transparent;}
+        .legend-item:hover { background: #e9ecef; }
+        .legend-item.active { background: white; border-color: #4364f7; transform: translateX(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
+        .legend-color { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); }
+        
+        .tr { background: #fff59d; } .cc { background: #b3e5fc; } .lr { background: #c8e6c9; } .gra { background: #e1bee7; }
+        
+        .essay-display { background: white; border: 3px solid #4364f7; border-radius: 16px; padding: 40px; font-size: 1.15em; line-height: 2.2; transition: color 0.3s; box-shadow: 0 10px 30px rgba(67, 100, 247, 0.1);}
+        .prompt-box { background: #f8faff; border-left: 6px solid #4364f7; padding: 25px; margin-bottom: 30px; font-weight: 700; color: #1a1a2e; font-size: 1.15em; border-radius: 0 12px 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
+        
+        .essay-dimmed { color: #cbd5e0; }
+        .hl { padding: 2px 6px; border-radius: 4px; font-weight: 600; transition: 0.3s; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone;}
+        .essay-dimmed .hl:not(.active-hl) { background: transparent !important; color: #cbd5e0 !important; }
+        .hl.active-hl { transform: scale(1.05); display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; position: relative; color: #1a1a2e !important; }
+
+        /* =========================================
+           APP 4: ESSAY BUILDER STYLES
+           ========================================= */
+        .builder-layout { display: flex; gap: 30px; min-height: 600px;}
+        .builder-workspace { flex: 1; display: flex; flex-direction: column; }
+        .builder-model { flex: 1; display: flex; flex-direction: column; background: #fcfcfc; border: 2px solid #e9ecef; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05);}
+        
+        .builder-header { background: #f8f9fa; padding: 20px 25px; border-bottom: 2px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
+        .builder-content { padding: 30px; overflow-y: auto; flex: 1; font-size: 1.15em; line-height: 2; }
+        .builder-content p { display: none; opacity: 0; transform: translateY(15px); transition: 0.5s ease; margin-bottom: 20px; }
+
+        /* =========================================
+           APP 5: PROMPT DATABASE STYLES
+           ========================================= */
+        .db-nav { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; }
+        .db-nav-btn { flex: 1; background: white; border: 2px solid #e9ecef; padding: 15px; border-radius: 8px; font-weight: 800; font-size: 1.1em; cursor: pointer; transition: 0.3s; text-align: center; color: #6c757d;}
+        .db-nav-btn.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+        
+        .db-page { display: none; animation: fadeIn 0.4s ease forwards; }
+        .db-page.active { display: block; }
+        
+        .db-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .db-table th { background: #f8f9fa; padding: 15px; text-align: left; font-weight: 800; color: #1a1a2e; border-bottom: 2px solid #dee2e6;}
+        .db-table td { padding: 15px; border-bottom: 1px solid #e9ecef; vertical-align: top;}
+        .db-table tr:hover { background: #f8faff; cursor: pointer; }
+        .db-tag { display: inline-block; padding: 6px 12px; background: #eef2ff; color: #4364f7; border-radius: 6px; font-weight: 700; font-size: 0.85em; }
+
+        @media (max-width: 900px) {
+            .master-layout, .essay-layout, .builder-layout { flex-direction: column; height: auto; }
+            .master-right, .essay-sidebar { width: 100%; }
+            .builder-workspace { min-height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVIGATION -->
+    <nav class="top-nav">
+        <div class="nav-logo" onclick="switchPage('page-home', this)" style="cursor:pointer;">IELTS<span>Platform</span></div>
+        <div class="nav-links">
+            <button class="nav-btn" onclick="switchPage('page-master', this)">1. Task 2 Master</button>
+            <button class="nav-btn" onclick="switchPage('page-blueprint', this)">2. Blueprint & Brainstorm</button>
+            <button class="nav-btn" onclick="switchPage('page-essays', this)">3. Model Essays</button>
+            <button class="nav-btn" onclick="switchPage('page-builder', this)">4. Essay Builder</button>
+            <button class="nav-btn" onclick="switchPage('page-database', this)">5. Prompt DB</button>
+        </div>
+    </nav>
+
+    <!-- =========================================
+         PAGE 0: HOME
+         ========================================= -->
+    <div id="page-home" class="app-view active-view" style="background:#f4f7f6; min-height:calc(100vh - 70px); display:flex; align-items:center;">
+        <div class="menu-container" style="margin: 0 auto;">
+            <div class="menu-header">
+                <h1>IELTS Writing Platform</h1>
+                <p>Tailored for Secondary & High School Students aiming for Band 7.0+</p>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="switchPage('page-master', document.querySelectorAll('.nav-btn')[0])">
+                    <div class="menu-icon">✍️</div>
+                    <h3>Task 2 Master Pro</h3>
+                    <p>Practice writing IELTS essays with guided scaffolds, checklists, and instant vocabulary upgrades.</p>
+                </div>
+                <div class="menu-card" onclick="switchPage('page-blueprint', document.querySelectorAll('.nav-btn')[1])">
+                    <div class="menu-icon">🧠</div>
+                    <h3>Blueprint & Brainstorm</h3>
+                    <p>Master academic tone, visual brainstorming techniques, and rigid paragraph structures.</p>
+                </div>
+                <div class="menu-card" onclick="switchPage('page-essays', document.querySelectorAll('.nav-btn')[2])">
+                    <div class="menu-icon">📚</div>
+                    <h3>Model Essays (Bands 6-8)</h3>
+                    <p>Explore a curated library of high-scoring essays. Use interactive color-coding to analyze IELTS criteria.</p>
+                </div>
+                <div class="menu-card" onclick="switchPage('page-builder', document.querySelectorAll('.nav-btn')[3])">
+                    <div class="menu-icon">🏗️</div>
+                    <h3>Essay Builder</h3>
+                    <p>Write your own essay while revealing color-coded model essays section by section for guidance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         PAGE 1: WRITING MASTER PRO
+         ========================================= -->
+    <div id="page-master" class="app-view page-container">
+        <h1 style="margin-bottom: 30px; font-size: 2.5em; text-align: center;">Task 2 Master Pro</h1>
+        <div class="master-layout">
+            <div class="master-left">
+                <div class="card prompt-gen-box">
+                    <h2>🎯 Generate IELTS Task 2 Prompt</h2>
+                    <div class="category-grid">
+                        <button class="cat-btn selected" onclick="selectFilter('category', 'education', this)">🏫 Education</button>
+                        <button class="cat-btn" onclick="selectFilter('category', 'technology', this)">💻 Technology</button>
+                        <button class="cat-btn" onclick="selectFilter('category', 'environment', this)">🌍 Environment</button>
+                        <button class="cat-btn" onclick="selectFilter('category', 'youth', this)">👥 Youth & Society</button>
+                    </div>
+                    <button class="btn-primary" onclick="generatePrompt()">Generate Prompt 🎲</button>
+                    
+                    <div style="margin-top: 20px; padding: 20px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; font-size: 1.1em;" id="masterPromptDisplay">
+                        Some people believe that unpaid community service should be a compulsory part of high school programmes. To what extent do you agree or disagree?
+                    </div>
+                </div>
+
+                <div class="card" style="flex:1; display:flex; flex-direction:column; padding:0; overflow:hidden;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 20px 30px; background:#f8f9fa; border-bottom:1px solid #e9ecef;">
+                        <h3 style="margin:0;">📝 Your Essay Draft</h3>
+                        <span style="font-weight:700; color:#4364f7; font-size:1.1em;">Words: <span id="masterWordCount">0</span></span>
+                    </div>
+                    <textarea class="free-write-area" id="masterTextarea" style="border:none; border-radius:0;" placeholder="Start typing your IELTS essay here...&#10;&#10;Remember to spend 3-5 minutes brainstorming and outlining before you begin writing!" oninput="updateMasterWordCount()"></textarea>
+                </div>
+            </div>
+
+            <div class="master-right">
+                <div class="timer-widget" id="masterTimer">40:00</div>
+                
+                <div class="card toolkit-panel" style="padding:0; overflow:hidden;">
+                    <details open>
+                        <summary style="background: #fff3cd; color: #856404;">✅ Band 7.0 Checklist</summary>
+                        <div style="padding: 15px; display:flex; flex-direction:column; gap:12px; background: #fffdf5; font-size: 1.05em;">
+                            <label style="cursor:pointer; display:flex; align-items:center; gap:8px;"><input type="checkbox" style="width:18px;height:18px;"> Over 250 words</label>
+                            <label style="cursor:pointer; display:flex; align-items:center; gap:8px;"><input type="checkbox" style="width:18px;height:18px;"> Clear position throughout (TR)</label>
+                            <label style="cursor:pointer; display:flex; align-items:center; gap:8px;"><input type="checkbox" style="width:18px;height:18px;"> Logical paragraphing (CC)</label>
+                            <label style="cursor:pointer; display:flex; align-items:center; gap:8px;"><input type="checkbox" style="width:18px;height:18px;"> Hedged arguments (GRA)</label>
+                        </div>
+                    </details>
+                    <details open>
+                        <summary>🔗 Cohesion (CC)</summary>
+                        <div class="tk-content">
+                            <div class="tool-chip">Furthermore,</div>
+                            <div class="tool-chip">Nevertheless,</div>
+                            <div class="tool-chip">As a result,</div>
+                            <div class="tool-chip">Admittedly,</div>
+                        </div>
+                    </details>
+                    <details open>
+                        <summary>📚 Academic Vocab (LR)</summary>
+                        <div class="tk-content">
+                            <div class="tool-chip">indispensable</div>
+                            <div class="tool-chip">detrimental</div>
+                            <div class="tool-chip">foster</div>
+                            <div class="tool-chip">mitigate</div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         PAGE 2: BLUEPRINT & BRAINSTORM
+         ========================================= -->
+    <div id="page-blueprint" class="app-view page-container">
+        <h1 style="margin-bottom: 30px; font-size: 2.5em; text-align: center;">Blueprint & Brainstorming Guide</h1>
+        <div class="bp-nav">
+            <button class="bp-nav-btn active" onclick="switchBpTab('bp-plan', this)">1. Why Brainstorm?</button>
+            <button class="bp-nav-btn" onclick="switchBpTab('bp-visual', this)">2. Visual Scaffolds</button>
+            <button class="bp-nav-btn" onclick="switchBpTab('bp-struct', this)">3. Essay Blueprints</button>
+            <button class="bp-nav-btn" onclick="switchBpTab('bp-hedge', this)">4. Hedging Theory</button>
+            <button class="bp-nav-btn" onclick="switchBpTab('bp-quiz', this)">5. Grammar Quiz</button>
+        </div>
+
+        <div class="card">
+            <!-- TAB 1: Why Brainstorm -->
+            <div id="bp-plan" class="bp-page active">
+                <h2>🧠 Brainstorming and Outlining MUST come before writing the first paragraph.</h2>
+                <p>Starting to write your introduction immediately is one of the most common reasons students get stuck at <strong>Band 5 or 6</strong>. Here is the evidence-based breakdown of why planning first is critical for a <strong>Band 7+</strong>.</p>
+                
+                <table class="bp-table">
+                    <thead><tr><th>Order</th><th>Action</th><th>Time Allocation</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>1️⃣</strong></td><td><strong>Analyze & Brainstorm</strong></td><td>3-5 minutes</td><td>Ensures you address <strong>Task Response</strong> (all parts of the question).</td></tr>
+                        <tr><td><strong>2️⃣</strong></td><td><strong>Outline Structure</strong></td><td>2-3 minutes</td><td>Ensures <strong>Coherence & Cohesion</strong> (logical flow of ideas).</td></tr>
+                        <tr><td><strong>3️⃣</strong></td><td><strong>Write Introduction</strong></td><td>5 minutes</td><td>Now you know exactly what you are introducing.</td></tr>
+                        <tr><td><strong>4️⃣</strong></td><td><strong>Write Body Paragraphs</strong></td><td>25-30 minutes</td><td>You already have the ideas ready; no writer's block.</td></tr>
+                        <tr><td><strong>5️⃣</strong></td><td><strong>Write Conclusion</strong></td><td>5 minutes</td><td>Summarize what you actually wrote.</td></tr>
+                        <tr><td><strong>6️⃣</strong></td><td><strong>Review & Edit</strong></td><td>5 minutes</td><td>Check for grammar/spelling errors.</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>🏆 Why Brainstorming/Outlining Wins</h3>
+                <div class="rule-box" style="background: white; border-color:#e2e8f0;">
+                    <h4>1. Protects Your Task Response (TR) Score</h4>
+                    <ul style="color:#4a5568; margin-bottom:0;">
+                        <li><strong>Risk of Writing First:</strong> You might start writing and realize halfway through Body Paragraph 2 that you haven't addressed one part of the prompt.</li>
+                        <li><strong>Benefit of Planning:</strong> You check the question requirements <em>before</em> you commit to sentences. (e.g., If asked for causes AND solutions, your outline guarantees both are included).</li>
+                    </ul>
+                </div>
+                <div class="rule-box" style="background: white; border-color:#e2e8f0;">
+                    <h4>2. Secures Your Coherence & Cohesion (CC) Score</h4>
+                    <ul style="color:#4a5568; margin-bottom:0;">
+                        <li><strong>Risk of Writing First:</strong> Ideas often become repetitive or disorganized. You might put a conclusion idea in Body 1.</li>
+                        <li><strong>Benefit of Planning:</strong> You arrange ideas logically (Strongest argument → Weakest argument). Examiners look for a "clear overall progression."</li>
+                    </ul>
+                </div>
+
+                <h3>⚠️ What Happens If You Write the First Paragraph First?</h3>
+                <table class="bp-table">
+                    <thead><tr><th>Symptom</th><th>Cause</th><th>Band Impact</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Incomplete Essay</strong></td><td>Spent 10 mins perfecting intro, ran out of time for Body 2.</td><td><strong>Task Response ↓</strong> (Penalty for underlength)</td></tr>
+                        <tr><td><strong>Off-Topic Ideas</strong></td><td>Started writing before fully understanding the prompt.</td><td><strong>Task Response ↓</strong> (Irrelevant content)</td></tr>
+                        <tr><td><strong>Repetitive Arguments</strong></td><td>Didn't plan distinct ideas for each paragraph.</td><td><strong>Coherence ↓</strong> (Lack of progression)</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="expert-tip">
+                    <h4>Pro Tip: The "Introduction Last" Strategy</h4>
+                    <p>Some Band 8+ writers actually write the <strong>Introduction AFTER the Body Paragraphs</strong>. Why? Sometimes your argument evolves slightly as you write. Writing the intro last ensures it perfectly matches what you actually argued in the body. <em>Note: If you are below Band 7, stick to the standard order, but plan it all first!</em></p>
+                </div>
+            </div>
+
+            <!-- TAB 2: Visual Scaffolds -->
+            <div id="bp-visual" class="bp-page">
+                <h2>🎨 Visual Brainstorming Scaffolds</h2>
+                <p>Before writing any sentences, dump your ideas onto paper using one of these visual formats (taking no more than 3-5 minutes).</p>
+
+                <div class="rule-box" style="background: #f8faff; border-color: #4364f7;">
+                    <h4>1. The "T-Chart" (Best for Adv/Disadv or Discuss Both Views)</h4>
+                    <p>Draw a simple table with two columns. This forces you to balance your argument before you start writing.</p>
+                    <table class="bp-table" style="margin-top: 15px;">
+                        <thead>
+                            <tr><th colspan="2" style="text-align:center; background:#4364f7;">Topic: Tourism in local areas</th></tr>
+                            <tr><th style="width:50%; background:#718096;">Left Column (Benefits / View 1)</th><th style="width:50%; background:#718096;">Right Column (Drawbacks / View 2)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>- Brings in money<br>- Improves local economy<br>- Creates jobs for youth</td>
+                                <td>- Increases house prices<br>- Damages local environment<br>- Makes area overdeveloped</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rule-box" style="background: #f0fdf4; border-color: #22c55e;">
+                    <h4>2. The "Mind Map" (Best for Causes & Effects or Problem & Solution)</h4>
+                    <p>Draw a circle in the center with the main topic. Draw two main branches coming off it.</p>
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <strong>[ Topic: Childhood Obesity ]</strong><br><br>
+                        ↙️ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↘️<br>
+                        <strong>Branch 1: Causes</strong> &nbsp; &nbsp; &nbsp; &nbsp; <strong>Branch 2: Solutions</strong><br>
+                        ↓ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ↓<br>
+                        - Fast food access &nbsp; &nbsp; &nbsp; &nbsp; - School sports programs<br>
+                        - Lack of exercise &nbsp; &nbsp; &nbsp; &nbsp; - Healthy eating education
+                    </div>
+                </div>
+                
+                <h3>Practice Challenge:</h3>
+                <p>Take 4 minutes right now. Pick one of the prompts from the "Prompt DB" page and draw a T-Chart or Mind Map on a piece of paper.</p>
+            </div>
+
+            <!-- TAB 3: Essay Blueprints -->
+            <div id="bp-struct" class="bp-page">
+                <h2>🏗️ The IELTS Essay Blueprints</h2>
+                <p>Once ideas are brainstormed, they must be slotted into a rigid outline. Choose the outline that matches the prompt type. A Task 2 essay should be at least 250 words and take 40 minutes.</p>
+                
+                <div class="scaffold-box">
+                    <h3>Blueprint A: The Opinion Scaffold (Agree / Disagree)</h3>
+                    <div class="scaffold-step">
+                        <h5>1. Introduction (~50 words)</h5>
+                        <p>Introduce topic. State clear opinion (e.g., "I completely agree because...").</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>2. Body Paragraph 1: Reason 1 (~80 words)</h5>
+                        <p>State first reason. Provide supporting evidence and a real-world example.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>3. Body Paragraph 2: Reason 2 (~80 words)</h5>
+                        <p>State second reason. Provide supporting evidence and a real-world example.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>4. Conclusion (~40 words)</h5>
+                        <p>Summarize reasons and restate final opinion.</p>
+                    </div>
+                </div>
+
+                <div class="scaffold-box">
+                    <h3>Blueprint B: Contrasting Viewpoints (Discuss Both Sides)</h3>
+                    <div class="scaffold-step">
+                        <h5>1. Introduction (~50 words)</h5>
+                        <p>Introduce topic. Acknowledge valid arguments on both sides.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>2. Body Paragraph 1: The Other Side (~80 words)</h5>
+                        <p>Discuss the viewpoint you do <em>not</em> strongly agree with. List its benefits.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>3. Body Paragraph 2: Your Side (~80 words)</h5>
+                        <p>Discuss the viewpoint you <em>do</em> agree with. Show why this side is stronger.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>4. Conclusion (~40 words)</h5>
+                        <p>State final, definitive opinion based on the contrast.</p>
+                    </div>
+                </div>
+
+                <div class="scaffold-box">
+                    <h3>Blueprint C: Problem & Solution Scaffold</h3>
+                    <div class="scaffold-step">
+                        <h5>1. Introduction (~50 words)</h5>
+                        <p>General statement introducing the problem. Thesis: issue can be solved via specific actions.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>2. Body Paragraph 1: Causes/Problems (~80 words)</h5>
+                        <p>Outline the main causes or detail the specific problems occurring.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>3. Body Paragraph 2: Solutions/Effects (~80 words)</h5>
+                        <p>Introduce proposed solutions and explain how they would work.</p>
+                    </div>
+                    <div class="scaffold-step">
+                        <h5>4. Conclusion (~40 words)</h5>
+                        <p>Brief summary of the proposed solutions.</p>
+                    </div>
+                </div>
+
+                <div class="scaffold-box" style="border-color: #20c997; background:#f0fdf4;">
+                    <h3 style="color: #20c997; border-color:#dcfce7;">📊 Academic Task 1: The 3-Paragraph Report</h3>
+                    <p>Approach it like a "data reporter", not a creative writer (150 words, 20 mins).</p>
+                    <div class="scaffold-step" style="border-color: #86efac;">
+                        <h5>Paragraph 1: The Anchor (Paraphrase)</h5>
+                        <p>Answer Who, What, Where, When by replacing prompt words with synonyms.</p>
+                    </div>
+                    <div class="scaffold-step" style="border-color: #86efac;">
+                        <h5>Paragraph 2: The Overview</h5>
+                        <p>State the general "big picture" trend <em>without</em> quoting any specific numbers.</p>
+                    </div>
+                    <div class="scaffold-step" style="border-color: #86efac;">
+                        <h5>Paragraph 3: Detailed Analysis</h5>
+                        <p>Break down specific figures, comparisons, and trends to prove your overview.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Hedging -->
+            <div id="bp-hedge" class="bp-page">
+                <h2>🛡️ IELTS Academic Hedging</h2>
+                <div class="rule-box" style="background: #eef2ff; border-color: #4364f7;">
+                    <h4 style="color: #1a1a2e;">Why use Hedging in IELTS?</h4>
+                    <p style="color: #4a5568;">In IELTS Academic Writing (Band 7+), you should avoid making absolute claims (e.g., "Smartphones ruin teenagers' lives"). Instead, you must use "hedging" language to soften your claims, making them more objective and academic (e.g., "Smartphones <i>can potentially</i> have a negative impact on teenagers").</p>
+                    <ul style="color: #4a5568;">
+                        <li>Demonstrates control of complex grammar (GRA).</li>
+                        <li>Shows a sophisticated academic tone.</li>
+                        <li>Prevents making over-generalizations in Task 2.</li>
+                    </ul>
+                </div>
+                
+                <h3>Examples in Task 2:</h3>
+                <div class="rule-box" style="background: white; border-color: #e2e8f0;">
+                    <ul style="color: #1a1a2e; list-style: none; margin:0;">
+                        <li style="margin-bottom: 10px;">🔴 <b>Absolute (Band 5):</b> Computers cause social isolation.</li>
+                        <li style="margin-bottom: 10px;">🟢 <b>Hedged (Band 7):</b> Excessive use of computers <span class="modal-can-could">can lead</span> to social isolation.</li>
+                        <li>🌟 <b>Hedged (Band 8):</b> It <span class="modal-may-might">might be argued</span> that computers <span class="modal-will-would">would inevitably</span> reduce face-to-face interaction.</li>
+                    </ul>
+                </div>
+
+                <h3>Hedging Reference Chart</h3>
+                <table class="reference-chart">
+                    <thead><tr><th>Strategy</th><th>Words to use</th><th>Example</th></tr></thead>
+                    <tbody>
+                        <tr><td>Modal Verbs</td><td><span class="modal-can-could">can, could</span>, <span class="modal-may-might">may, might</span></td><td>This policy <span class="modal-may-might">might</span> encourage students to study harder.</td></tr>
+                        <tr><td>Adverbs of frequency</td><td>often, usually, rarely</td><td>Teenagers <span class="modal-will-would">often</span> struggle with time management.</td></tr>
+                        <tr><td>Adverbs of probability</td><td>possibly, likely</td><td>It is <span class="modal-can-could">highly likely</span> that the trend will continue.</td></tr>
+                        <tr><td>Verbs of assumption</td><td>tend to, appear to</td><td>Students <span class="modal-can-could">tend to</span> prefer interactive learning.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TAB 5: Quiz -->
+            <div id="bp-quiz" class="bp-page">
+                <h2>✅ Academic Tone Quiz</h2>
+                <p>Choose the sentence that demonstrates better academic hedging for IELTS Task 2.</p>
+                
+                <div class="mcq-item">
+                    <h4>1. Fast Food and Health</h4>
+                    <button class="mcq-btn" onclick="showFeedback('q1', false)">A. Fast food causes obesity in all teenagers.</button>
+                    <button class="mcq-btn" onclick="showFeedback('q1', true)">B. Regular consumption of fast food can contribute to obesity in teenagers.</button>
+                    <div id="fb-q1" class="mcq-feedback"></div>
+                </div>
+
+                <div class="mcq-item">
+                    <h4>2. School Uniforms</h4>
+                    <button class="mcq-btn" onclick="showFeedback('q2', true)">A. It is often argued that uniforms may reduce bullying.</button>
+                    <button class="mcq-btn" onclick="showFeedback('q2', false)">B. Uniforms definitely stop bullying in schools.</button>
+                    <div id="fb-q2" class="mcq-feedback"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         PAGE 3: MODEL ESSAYS LIBRARY
+         ========================================= -->
+    <div id="page-essays" class="app-view page-container">
+        <h1 style="margin-bottom: 30px; font-size: 2.5em; text-align: center;">Model Essays Library</h1>
+        <div class="essay-controls">
+            <select class="essay-select" id="essaySelector" onchange="renderEssay(this.value)"></select>
+            <button class="btn-audio" id="audioToggleBtn" onclick="toggleAudio()">▶️ Read Aloud (0.85x)</button>
+        </div>
+
+        <div class="essay-layout">
+            <div class="essay-sidebar">
+                <div class="stats-box">
+                    <div>Word Count</div>
+                    <div class="stat-number" id="ui-words">260</div>
+                    <div class="target-band">Target: <span id="ui-band" style="color: #38ef7d;">7.5+</span></div>
+                </div>
+                
+                <div class="legend-box">
+                    <h3 style="font-size: 1.2em; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">📖 IELTS Criteria<br><span style="font-size: 0.75em; color: #6c757d; font-weight: normal;">Click text in essay to highlight</span></h3>
+                    <div class="legend-item" data-class="tr" onclick="toggleHighlight('tr', this)"><div class="legend-color tr"></div> Task Response</div>
+                    <div class="legend-item" data-class="cc" onclick="toggleHighlight('cc', this)"><div class="legend-color cc"></div> Cohesion</div>
+                    <div class="legend-item" data-class="lr" onclick="toggleHighlight('lr', this)"><div class="legend-color lr"></div> Lexical Resource</div>
+                    <div class="legend-item" data-class="gra" onclick="toggleHighlight('gra', this)"><div class="legend-color gra"></div> Grammar</div>
+                </div>
+            </div>
+
+            <div class="essay-main">
+                <div class="prompt-box" id="ui-prompt">Loading prompt...</div>
+                <div class="essay-display" id="ui-essay">Loading essay...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         PAGE 4: ESSAY BUILDER
+         ========================================= -->
+    <div id="page-builder" class="app-view page-container">
+        <h1 style="margin-bottom: 30px; font-size: 2.5em; text-align: center;">Step-by-Step Essay Builder</h1>
+        <div class="essay-controls">
+            <select class="essay-select" id="builderEssaySelector" onchange="loadBuilderEssay(this.value)"></select>
+            <button class="btn-audio audio-btn-builder" onclick="toggleAudioBuilder()">▶️ Read Aloud (0.85x)</button>
+        </div>
+        
+        <div class="prompt-box" id="builderPrompt" style="margin-bottom: 20px;">Loading Prompt...</div>
+
+        <div class="builder-layout">
+            <div class="builder-workspace card" style="padding:0; display:flex; flex-direction:column; margin-bottom:0;">
+                <div class="builder-header">
+                    <h3 style="margin:0;">📝 Your Draft</h3>
+                    <span style="font-weight: 700; color: #4364f7;">Words: <span id="builderWordCount">0</span></span>
+                </div>
+                <textarea id="builderTextArea" class="free-write-area" style="border:none; border-radius:0 0 16px 16px;" placeholder="Type your IELTS paragraph here... Click 'Reveal Next Paragraph' to see how the model structures its argument!" oninput="updateBuilderWordCount()"></textarea>
+            </div>
+
+            <div class="builder-model card" style="padding:0; display:flex; flex-direction:column; background: #fcfcfc; margin-bottom:0;">
+                <div class="builder-header">
+                    <h3 style="margin:0;">🔍 Model Reveal</h3>
+                    <button id="builderRevealBtn" class="btn-primary" style="padding: 10px 20px; width:auto; font-size: 0.9em; margin-top:0;" onclick="revealNextBuilderPart()">Reveal Next Paragraph ⬇️</button>
+                </div>
+                <div class="builder-content essay-display" id="builderModelContent" style="border:none; box-shadow:none; padding: 25px; background: transparent;">
+                    <!-- Revealed parts go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         PAGE 5: PROMPT DATABASE
+         ========================================= -->
+    <div id="page-database" class="app-view page-container">
+        <h1 style="margin-bottom: 30px; font-size: 2.5em; text-align: center;">IELTS Prompt Database (80 Topics)</h1>
+        <div class="db-nav">
+            <button class="db-nav-btn active" onclick="switchDbTab('db-gt1', this)">📧 GT Task 1 (Letters)</button>
+            <button class="db-nav-btn" onclick="switchDbTab('db-gt2', this)">📝 GT Task 2 (Essays)</button>
+            <button class="db-nav-btn" onclick="switchDbTab('db-ac1', this)">📊 AC Task 1 (Graphs)</button>
+            <button class="db-nav-btn" onclick="switchDbTab('db-ac2', this)">✍️ AC Task 2 (Essays)</button>
+        </div>
+
+        <div id="db-gt1" class="db-page active">
+            <div class="card" style="padding:0; overflow:hidden;">
+                <table class="db-table">
+                    <thead><tr><th width="50">#</th><th width="200">Category</th><th>Sample Task (150 words)</th></tr></thead>
+                    <tbody id="tb-gt1"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="db-gt2" class="db-page">
+            <div class="card" style="padding:0; overflow:hidden;">
+                <table class="db-table">
+                    <thead><tr><th width="50">#</th><th width="200">Theme</th><th>Sample Question (250 words)</th></tr></thead>
+                    <tbody id="tb-gt2"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="db-ac1" class="db-page">
+            <div class="card" style="padding:0; overflow:hidden;">
+                <table class="db-table">
+                    <thead><tr><th width="50">#</th><th width="200">Visual Type</th><th>Sample Task Description (150 words)</th></tr></thead>
+                    <tbody id="tb-ac1"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="db-ac2" class="db-page">
+            <div class="card" style="padding:0; overflow:hidden;">
+                <table class="db-table">
+                    <thead><tr><th width="50">#</th><th width="200">Theme</th><th>Sample Question (250 words)</th></tr></thead>
+                    <tbody id="tb-ac2"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         COMBINED JAVASCRIPT
+         ========================================= -->
+    <script>
+        // --- TOP NAVIGATION LOGIC ---
+        function switchPage(pageId, btn) {
+            // Stop audio
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            isPlaying = false;
+            const btn1 = document.getElementById('audioToggleBtn');
+            if (btn1) btn1.textContent = '▶️ Read Aloud (0.85x)';
+            const btn2 = document.querySelector('.audio-btn-builder');
+            if (btn2) btn2.textContent = '▶️ Read Aloud (0.85x)';
+
+            // Hide all pages, show target
+            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active-view'));
+            document.getElementById(pageId).classList.add('active-view');
+            
+            // Update Nav Buttons (ignore logo click which doesn't have nav-btn class)
+            if(btn && btn.classList.contains('nav-btn')) {
+                document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-nav'));
+                btn.classList.add('active-nav');
+            } else {
+                document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-nav'));
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        // --- SUB-NAVIGATION (BLUEPRINT) ---
+        function switchBpTab(tabId, btn) {
+            document.querySelectorAll('.bp-page').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.bp-nav-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- SUB-NAVIGATION (DATABASE) ---
+        function switchDbTab(tabId, btn) {
+            document.querySelectorAll('.db-page').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.db-nav-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- MCQ LOGIC ---
+        function showFeedback(qId, isCorrect) {
+            const fb = document.getElementById(`fb-${qId}`);
+            if(isCorrect) {
+                fb.textContent = "✅ Correct! This phrasing uses hedging appropriately for an academic tone.";
+                fb.className = "mcq-feedback correct";
+            } else {
+                fb.textContent = "❌ Incorrect. This statement is too absolute (Band 5 level).";
+                fb.className = "mcq-feedback incorrect";
+            }
+        }
+
+        // --- WRITING MASTER PRO LOGIC ---
+        function selectFilter(type, val, btn) {
+            btn.parentElement.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+        function generatePrompt() {
+            const prompts = [
+                "Many young people take a 'gap year' between high school and university. Discuss the advantages and disadvantages.",
+                "Some people believe that secondary school students should be strictly restricted from using smartphones. To what extent do you agree or disagree?",
+                "Some people argue that secondary school students should be required to wear school uniforms. Discuss both views and give your opinion."
+            ];
+            document.getElementById('masterPromptDisplay').textContent = prompts[Math.floor(Math.random() * prompts.length)];
+        }
+        function updateMasterWordCount() {
+            const text = document.getElementById('masterTextarea').value.trim();
+            document.getElementById('masterWordCount').textContent = text ? text.split(/\s+/).length : 0;
+        }
+
+        // =========================================
+        // IELTS MODEL ESSAYS DATABASE (14 Essays)
+        // =========================================
+        const essaysData = [
+            // --- BAND 7.5+ ---
+            {
+                id: 0, title: "1. Taking a Gap Year | Task 2 | Band 7.5+", words: 268, band: "7.5+",
+                prompt: "Many young people nowadays take a 'gap year' between finishing high school and starting university to travel or work. Discuss the advantages and disadvantages of this and give your own opinion.",
+                html: `
+                    <p><span class="hl cc">In recent years,</span> it has become increasingly common for secondary school graduates to take a gap year before entering university. <span class="hl tr">While this trend presents certain drawbacks, such as losing academic momentum, I believe the advantages of gaining real-world experience and maturity far outweigh the disadvantages.</span></p>
+                    <p><span class="hl cc">On the one hand,</span> there are <span class="hl lr">valid concerns</span> regarding taking a year off from formal education. <span class="hl cc">Firstly,</span> young people <span class="hl gra">may find it challenging</span> to readjust to a structured academic environment after a long break. <span class="hl gra">Having spent a year traveling or working,</span> they might lose their study habits and struggle to cope with rigorous university coursework. <span class="hl cc">Furthermore,</span> traveling internationally or participating in volunteer programs abroad <span class="hl gra">can be financially burdensome</span> for families, <span class="hl lr">potentially creating</span> debt before tertiary education even begins.</p>
+                    <p><span class="hl cc">On the other hand,</span> <span class="hl tr">the benefits of a gap year are substantial.</span> <span class="hl cc">Chief among these</span> is the opportunity for personal growth. High school students <span class="hl gra">tend to lead sheltered lives;</span> therefore, stepping into the workforce or navigating foreign countries <span class="hl lr">fosters independence</span> and resilience. <span class="hl cc">In addition,</span> the practical skills acquired during this period—such as financial management and cross-cultural communication—are <span class="hl lr">highly sought after</span> by employers. <span class="hl gra">It is highly likely that</span> a student who has broadened their horizons during a gap year will approach their university studies with greater focus and a clearer career trajectory.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">although a gap year requires careful financial planning and discipline to return to studies,</span> <span class="hl tr">I firmly believe it is a highly beneficial endeavor.</span> It equips youth with <span class="hl lr">invaluable life skills</span> and maturity that traditional classrooms cannot provide.</p>
+                `
+            },
+            {
+                id: 1, title: "2. Teenagers and Smartphones | Task 2 | Band 7.5+", words: 275, band: "7.5+",
+                prompt: "Some people believe that secondary school students should be strictly restricted from using smartphones. To what extent do you agree or disagree?",
+                html: `
+                    <p><span class="hl cc">The ubiquity of</span> smartphones among teenagers has sparked a debate regarding whether their usage should be heavily restricted. <span class="hl tr">While I acknowledge that excessive screen time can be detrimental, I completely disagree with a strict ban, as smartphones are indispensable educational tools in the modern era.</span></p>
+                    <p><span class="hl cc">Admittedly,</span> those who advocate for strict restrictions have <span class="hl lr">justifiable concerns.</span> <span class="hl cc">Primarily,</span> unrestricted access to smartphones <span class="hl gra">can severely distract</span> students from their academic responsibilities. Notifications from social media and gaming applications <span class="hl gra">frequently interrupt</span> their concentration, leading to poor academic performance. <span class="hl cc">Moreover,</span> prolonged exposure to screens <span class="hl gra">is linked to</span> various health issues, including sleep deprivation and <span class="hl lr">sedentary lifestyles</span>, which negatively impact the physical well-being of developing adolescents.</p>
+                    <p><span class="hl cc">However,</span> <span class="hl tr">outright restriction is a counterproductive approach.</span> <span class="hl cc">Firstly,</span> smartphones provide <span class="hl lr">unprecedented access</span> to educational resources. Secondary students can utilize applications to learn foreign languages, access digital libraries, and collaborate with peers on group projects globally. <span class="hl gra">Depriving them of</span> these tools would put them at a severe academic disadvantage. <span class="hl cc">Secondly,</span> learning digital literacy is crucial for their future careers. <span class="hl gra">Instead of banning technology,</span> schools and parents should teach young people how to <span class="hl lr">self-regulate</span> and use devices responsibly. <span class="hl gra">If teenagers are guided effectively,</span> they can harness the power of technology without falling victim to its distractions.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">while the potential hazards of smartphone addiction among youth cannot be ignored,</span> <span class="hl tr">I believe that strict bans are an outdated solution.</span> <span class="hl lr">Fostering digital responsibility</span> and utilizing smartphones as educational aids is a far more pragmatic and beneficial approach for secondary school students.</p>
+                `
+            },
+            {
+                id: 2, title: "3. Transport to School | Task 1 | Band 7.5+", words: 185, band: "7.5+",
+                prompt: "The bar chart below shows the percentage of secondary school students using different methods of transport to travel to school in 2010 and 2020.",
+                html: `
+                    <p><span class="hl tr">The bar chart illustrates the changes in the proportion of secondary students utilizing four distinct modes of transportation</span> (car, bus, walking, and cycling) to commute to school over a ten-year period, specifically in 2010 and 2020.</p>
+                    <p><span class="hl cc">Overall,</span> <span class="hl tr">it is evident that</span> riding the bus remained the most popular method of transport in both years. <span class="hl cc">Conversely,</span> walking experienced the most significant decline, <span class="hl cc">while</span> the use of cars saw a <span class="hl lr">noticeable upward trend.</span></p>
+                    <p><span class="hl cc">In 2010,</span> travelling by bus accounted for exactly 50% of the students, which slightly decreased to 45% by 2020. <span class="hl cc">Meanwhile,</span> commuting by car <span class="hl gra">witnessed a substantial rise</span>, climbing from approximately 20% in 2010 to just under 35% a decade later. <span class="hl gra">This made it the second most preferred method</span> by the end of the period.</p>
+                    <p><span class="hl cc">Turning to</span> active modes of transport, walking saw a <span class="hl lr">dramatic plunge.</span> It dropped from roughly 25% in 2010 to a mere 10% in 2020. <span class="hl cc">Similarly,</span> cycling, <span class="hl gra">which was already the least popular option,</span> experienced a marginal decrease from around 10% to approximately 8% over the same timeframe.</p>
+                `
+            },
+            {
+                id: 3, title: "4. School Uniforms | Task 2 | Band 7.5+", words: 260, band: "7.5+",
+                prompt: "Some people argue that secondary school students should be required to wear school uniforms. Others believe they should be allowed to choose their own clothes. Discuss both views and give your opinion.",
+                html: `
+                    <p><span class="hl cc">The debate over</span> whether secondary school students should wear uniforms or casual clothing has been ongoing for decades. <span class="hl tr">While allowing free dress encourages self-expression, I am of the opinion that mandatory school uniforms foster a sense of equality and discipline that is crucial for a productive learning environment.</span></p>
+                    <p><span class="hl cc">On the one hand,</span> opponents of school uniforms argue that adolescence is a critical time for <span class="hl lr">personal identity development.</span> <span class="hl gra">By allowing students to choose their own attire,</span> schools enable them to express their individuality and creativity. <span class="hl cc">Furthermore,</span> purchasing casual clothes <span class="hl gra">can sometimes be more economical</span> than buying specialized uniform items, especially since everyday clothes can be worn outside of school hours. <span class="hl gra">It is argued that</span> forcing students to wear identical outfits suppresses their uniqueness.</p>
+                    <p><span class="hl cc">On the other hand,</span> <span class="hl tr">the advantages of wearing uniforms are highly persuasive.</span> <span class="hl cc">The primary benefit</span> is the elimination of socioeconomic discrimination. When everyone is dressed identically, <span class="hl gra">visible markers of wealth are removed,</span> <span class="hl lr">mitigating peer pressure</span> and bullying related to fashion brands. <span class="hl cc">Additionally,</span> uniforms promote a sense of belonging and institutional pride. <span class="hl gra">From a practical standpoint,</span> they save significant time in the morning, allowing teenagers to focus their energy on academic pursuits rather than worrying about their appearance.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">although individual expression is important for teenagers,</span> <span class="hl tr">I believe that the implementation of school uniforms is ultimately more beneficial.</span> The <span class="hl lr">egalitarian atmosphere</span> and reduction in social anxieties provided by uniforms create an optimal environment for secondary students to thrive academically and socially.</p>
+                `
+            },
+            // --- BAND 6.0 ---
+            {
+                id: 4, title: "5. Part-time Jobs | Task 2 | Band 6.0", words: 254, band: "6.0",
+                prompt: "Many teenagers have part-time jobs while they are still in school. Do you think this is a good or a bad thing?",
+                html: `
+                    <p>Nowadays, a lot of high school students choose to do part-time jobs after school or on weekends. <span class="hl tr">In my opinion, this is a good thing because it helps them learn about money and responsibility, even though it might make them tired.</span></p>
+                    <p><span class="hl cc">First of all,</span> having a job teaches teenagers how to manage their money. When young people earn their own salary, they <span class="hl lr">understand the value</span> of hard work. They can save money for things they want, like a new phone or college tuition. <span class="hl cc">For example,</span> my brother worked at a restaurant and learned to <span class="hl lr">budget his money</span> carefully instead of asking our parents for cash. <span class="hl cc">Secondly,</span> working gives them <span class="hl gra">useful skills for the future.</span> They learn how to talk to customers and work in a team.</p>
+                    <p><span class="hl cc">On the other hand,</span> working while studying <span class="hl gra">can have some negative effects.</span> <span class="hl cc">The main problem</span> is that students might not have enough time for their homework. If a teenager works too many hours, they will be very tired in class the next day. <span class="hl gra">This can lead to bad grades.</span> <span class="hl cc">Also,</span> they <span class="hl gra">might miss out</span> on fun activities with their friends or sports clubs because they are always working.</p>
+                    <p><span class="hl cc">In conclusion,</span> getting a part-time job <span class="hl gra">can be hard</span> because it takes away study time. <span class="hl cc">However,</span> <span class="hl tr">I think the benefits are much bigger.</span> If students only work a few hours a week, they can learn important life skills and how to handle money without failing their school exams.</p>
+                `
+            },
+            {
+                id: 5, title: "6. Fast Food Popularity | Task 2 | Band 6.0", words: 261, band: "6.0",
+                prompt: "Fast food is becoming increasingly popular among young people. What are the causes of this? What solutions can you suggest?",
+                html: `
+                    <p>In many countries, young people are eating more fast food than ever before. <span class="hl tr">There are several reasons for this trend, but parents and schools can take steps to solve this growing problem.</span></p>
+                    <p><span class="hl cc">The main cause</span> of this issue is convenience. Students are very busy with school, homework, and after-school activities. <span class="hl gra">They do not have time to cook,</span> so buying a burger or pizza is fast and easy. <span class="hl cc">Another reason</span> is advertising. Fast food companies show commercials on TV and social media that make the food look delicious and fun. <span class="hl cc">Furthermore,</span> fast food is usually <span class="hl lr">cheap compared to</span> healthy meals in restaurants, so teenagers can easily afford it with their pocket money.</p>
+                    <p><span class="hl cc">To solve this problem,</span> we need action from both schools and parents. <span class="hl cc">Firstly,</span> schools should stop selling junk food in their cafeterias. <span class="hl gra">If schools provide healthy lunches like salads and fresh fruit,</span> students will eat better during the day. <span class="hl cc">Secondly,</span> parents need to teach their children how to cook simple, healthy meals at home. <span class="hl gra">If parents cook with their kids,</span> the children will understand more about nutrition. <span class="hl cc">Finally,</span> the government could put higher taxes on unhealthy food so it becomes more expensive for young people to buy every day.</p>
+                    <p><span class="hl cc">In conclusion,</span> fast food is popular because it is cheap, fast, and advertised a lot. <span class="hl cc">However,</span> <span class="hl tr">by providing healthier options in schools and teaching cooking at home, we can help young people eat a healthier diet and avoid health problems in the future.</span></p>
+                `
+            },
+            {
+                id: 6, title: "7. Amount of Homework | Task 2 | Band 6.0", words: 258, band: "6.0",
+                prompt: "Some people think that secondary school students are given too much homework. Others think homework is necessary to improve learning. Discuss both views and give your opinion.",
+                html: `
+                    <p>Homework has always been a normal part of school life. <span class="hl tr">Some people argue that students have too much homework today, while others believe it is very important for their education. I agree that homework is necessary, but the amount should be controlled.</span></p>
+                    <p><span class="hl cc">On the one hand,</span> people who think there is too much homework have good reasons. <span class="hl cc">First,</span> students already spend about seven or eight hours at school. <span class="hl gra">If they go home and do three more hours of homework,</span> they will be exhausted. They need time to relax, play sports, and spend time with their families. <span class="hl cc">In addition,</span> too much pressure from homework can cause stress and mental health problems for teenagers. They might hate studying if they never have free time.</p>
+                    <p><span class="hl cc">On the other hand,</span> many teachers and parents believe homework is essential. <span class="hl cc">The main reason</span> is that it helps students remember what they learned in class. <span class="hl gra">When students practice math or grammar at home independently,</span> they understand the subject much better. <span class="hl cc">Also,</span> doing homework teaches young people discipline and time management. They learn how to organize their schedule and finish their tasks on time, <span class="hl lr">which is a useful skill</span> for university and their future careers.</p>
+                    <p><span class="hl cc">In conclusion,</span> both sides have strong arguments. <span class="hl gra">While doing assignments at home improves memory and discipline,</span> giving too much of it makes students tired and stressed. <span class="hl tr">In my opinion, teachers should give a moderate amount of homework so students can learn well but still have a happy childhood.</span></p>
+                `
+            },
+            {
+                id: 7, title: "8. Video Games and Youth | Task 2 | Band 6.0", words: 251, band: "6.0",
+                prompt: "Playing video games is a very popular leisure activity among teenagers. Does this have a positive or negative effect on their development?",
+                html: `
+                    <p>Playing video games is one of the most common hobbies for teenagers around the world today. <span class="hl tr">While playing games can have some small benefits, I believe that it mostly has a negative effect on young people’s physical and mental development.</span></p>
+                    <p><span class="hl cc">Firstly,</span> video games can be very bad for a teenager's physical health. <span class="hl gra">Because they sit in front of a computer or TV for many hours,</span> they do not get enough exercise. <span class="hl lr">This lack of physical activity</span> can lead to weight gain and back pain. <span class="hl cc">Furthermore,</span> staring at a screen for a long time can damage their eyesight and make it hard for them to sleep at night.</p>
+                    <p><span class="hl cc">Secondly,</span> playing too many video games affects students' schoolwork and social lives. Many teenagers become addicted to games and <span class="hl gra">forget to do their homework.</span> As a result, they might get low scores on their exams. <span class="hl cc">In addition,</span> if they spend all their free time playing games alone in their bedrooms, they will not talk to their family or go out with their friends. <span class="hl gra">This can make them feel isolated</span> and lonely in real life.</p>
+                    <p><span class="hl cc">Admittedly,</span> some people say that video games can be good because they improve reaction times and teach problem-solving skills. <span class="hl cc">However,</span> these skills can also be learned through sports or reading.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">even though video games are fun and entertaining,</span> <span class="hl tr">the negative effects are much stronger.</span> They harm teenagers' health, grades, and social skills if they play them too much.</p>
+                `
+            },
+            {
+                id: 8, title: "9. Languages in Primary School | Task 2 | Band 6.0", words: 253, band: "6.0",
+                prompt: "Some experts believe that it is better for children to begin learning a foreign language at primary school rather than secondary school. Do the advantages of this outweigh the disadvantages?",
+                html: `
+                    <p>In many educational systems, children start learning a second language, like English, when they are very young in primary school. <span class="hl tr">In my opinion, the advantages of learning a language early completely outweigh the disadvantages.</span></p>
+                    <p><span class="hl cc">There are a few minor disadvantages</span> to starting language classes in primary school. <span class="hl cc">Firstly,</span> young children already have to learn many new things, like reading, writing, and basic math. <span class="hl gra">If we add a foreign language to their schedule,</span> they might feel confused or stressed. <span class="hl cc">Secondly,</span> some parents worry that children might mix up the grammar of their native language with the new language. <span class="hl gra">This could temporarily affect</span> their speaking and writing skills in their mother tongue.</p>
+                    <p><span class="hl cc">However, the benefits are much greater.</span> <span class="hl cc">The main advantage</span> is that young children's brains are very flexible. <span class="hl gra">Because they learn naturally through songs and games,</span> they can pick up new words and perfect pronunciation much faster than teenagers. Older students often struggle with accents and grammar rules, but young kids absorb it easily. <span class="hl cc">Furthermore,</span> learning a language early gives them more years to practice. By the time they reach high school, they will be fluent. <span class="hl lr">This is a great advantage</span> for traveling and understanding different cultures around the world.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">while it might add a little pressure to young students,</span> starting a foreign language in primary school is a great idea. <span class="hl tr">The ability to learn quickly and achieve fluency shows that the advantages definitely outweigh the negative points.</span></p>
+                `
+            },
+            {
+                id: 9, title: "10. Sports vs. Academic Subjects | Task 2 | Band 6.0", words: 257, band: "6.0",
+                prompt: "Some people think that sports and physical education should be an optional subject in secondary schools so students can focus on academic classes. Do you agree or disagree?",
+                html: `
+                    <p>In high schools today, students have a lot of academic pressure to pass exams. <span class="hl cc">Because of this,</span> some people suggest that physical education (PE) should not be mandatory. <span class="hl tr">I strongly disagree with this idea because sports are very important for a student's health and mind.</span></p>
+                    <p><span class="hl cc">First and foremost,</span> teenagers need physical exercise to stay healthy. <span class="hl gra">Secondary students spend most of their day sitting at desks</span> reading books and looking at computers. If PE becomes optional, many students will choose to just study and will not do any exercise. <span class="hl lr">This lack of movement</span> can cause obesity and weak muscles. Having mandatory sports classes ensures that every young person gets at least a few hours of exercise every week.</p>
+                    <p><span class="hl cc">Secondly,</span> sports actually help students do better in their academic subjects. <span class="hl gra">When students play football or run around,</span> they release stress and clear their minds. After a PE lesson, they usually feel more awake and can concentrate better in math or science class. <span class="hl cc">In addition,</span> team sports teach important life skills like teamwork and leadership. <span class="hl gra">These are skills that you cannot easily learn from a textbook.</span></p>
+                    <p><span class="hl cc">Some people might argue that</span> taking away PE gives students more time to study for university entrance exams. <span class="hl cc">However,</span> studying all the time without a break is not an effective way to learn.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl tr">I believe that physical education must remain a required subject in secondary schools.</span> <span class="hl gra">It keeps teenagers physically fit and reduces their mental stress,</span> which helps them become well-rounded people.</p>
+                `
+            },
+            {
+                id: 10, title: "11. Studying Abroad | Task 2 | Band 6.0", words: 260, band: "6.0",
+                prompt: "Many students choose to travel to other countries to complete their university education. What are the advantages and disadvantages of studying abroad?",
+                html: `
+                    <p>These days, a large number of high school graduates decide to go to foreign countries for their university studies. <span class="hl tr">This experience has many great advantages, but there are also some clear disadvantages that students need to think about.</span></p>
+                    <p><span class="hl cc">On the positive side,</span> the biggest advantage of studying abroad is getting a high-quality education. Many famous universities are in countries like the UK or the USA. <span class="hl gra">If students go there, they can use better equipment and learn from top professors.</span> <span class="hl cc">Another great benefit</span> is learning a new language and experiencing a different culture. <span class="hl gra">By living in a foreign country,</span> young people become more independent. They learn how to cook, manage their money, and solve their own problems without their parents' help.</p>
+                    <p><span class="hl cc">On the negative side,</span> studying in a different country can be very difficult. <span class="hl cc">The first disadvantage</span> is the high cost. International students have to pay very expensive tuition fees, plus money for flights, rent, and food. <span class="hl lr">This can be a big financial burden</span> on their families. <span class="hl cc">Furthermore,</span> teenagers often suffer from homesickness. <span class="hl gra">Because they are far away from their friends and family,</span> they might feel lonely and sad. <span class="hl cc">Also,</span> the language barrier might make it hard for them to understand their classes at the beginning.</p>
+                    <p><span class="hl cc">In conclusion,</span> studying abroad is a big decision. <span class="hl gra">While it offers better academic opportunities and teaches independence,</span> it is also very expensive and can cause emotional stress. <span class="hl tr">Therefore, students should carefully prepare before deciding to leave their home country for education.</span></p>
+                `
+            },
+            {
+                id: 11, title: "12. Peer Pressure | Task 2 | Band 6.0", words: 254, band: "6.0",
+                prompt: "Many teenagers feel pressured to behave in a certain way or buy certain things because of their friends. What are the causes of this? What are the effects?",
+                html: `
+                    <p>In secondary schools, peer pressure is a very common issue. Many teenagers change their behavior or buy expensive clothes just to fit in with their classmates. <span class="hl tr">There are a few main causes for this trend, and it has several negative effects on young people.</span></p>
+                    <p><span class="hl cc">The primary cause</span> of peer pressure is the desire to belong to a group. Teenagers are at an age where friends are very important to them. <span class="hl gra">They are afraid that if they look different or act differently,</span> they will be bullied or ignored. <span class="hl cc">Therefore,</span> they copy what popular students do. <span class="hl cc">Another big cause</span> is social media. Young people see photos of their friends wearing brand-name shoes or having the newest phones, and <span class="hl lr">they feel jealous.</span> They think they need these things to be cool and accepted.</p>
+                    <p><span class="hl cc">The effects of this pressure</span> can be quite harmful. <span class="hl cc">Firstly,</span> it causes financial problems for parents. <span class="hl gra">Because teenagers always ask for expensive items,</span> parents have to spend a lot of money they might not have. <span class="hl cc">Secondly,</span> peer pressure can lead to bad behavior. For example, a good student might start smoking or skipping classes just because their friends are doing it. <span class="hl gra">This completely ruins their academic performance</span> and their future.</p>
+                    <p><span class="hl cc">In conclusion,</span> teenagers copy their friends because they want to be popular and are influenced by social media. <span class="hl tr">The results are often negative, leading to wasted money and poor choices in school. Parents should help their children build confidence to resist this pressure.</span></p>
+                `
+            },
+            {
+                id: 12, title: "13. Public Transport vs Cars | Task 2 | Band 6.0", words: 255, band: "6.0",
+                prompt: "To reduce traffic problems and pollution, the government should ban private cars in city centers and force everyone to use public transport. To what extent do you agree or disagree?",
+                html: `
+                    <p>Traffic jams and air pollution are huge problems in modern cities. To solve this, some people suggest that the government should ban private cars in city centers. <span class="hl tr">While public transport is good, I disagree with banning cars completely because it is not practical for everyone.</span></p>
+                    <p><span class="hl cc">On the one hand,</span> making people use buses and trains has some good points. <span class="hl cc">If there are fewer cars on the road,</span> the traffic will move much faster. People won't waste hours stuck in traffic jams every morning. <span class="hl cc">Also,</span> reducing the number of cars is great for the environment. <span class="hl gra">Because buses carry many people at once,</span> there will be less exhaust gas in the air, and the city will be cleaner and healthier to live in.</p>
+                    <p><span class="hl cc">On the other hand,</span> <span class="hl tr">banning cars completely is a bad idea.</span> <span class="hl cc">Firstly,</span> public transport is not always reliable or comfortable. Trains and buses can be very crowded and often arrive late. <span class="hl gra">If a person has an emergency or is carrying heavy shopping bags,</span> taking a bus is very difficult. <span class="hl cc">Secondly,</span> many families rely on their cars to take their children to school before going to work. A total ban would make their daily lives very stressful and complicated.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">even though less traffic and cleaner air are wonderful goals,</span> <span class="hl tr">I do not agree with banning private cars completely.</span> Instead of forcing people, the government should make public transport cheaper and better so that people choose to use it themselves.</p>
+                `
+            },
+            {
+                id: 13, title: "14. Digital vs. Paper Textbooks | Task 2 | Band 6.0", words: 252, band: "6.0",
+                prompt: "Many secondary schools are replacing paper textbooks with digital tablets. Do the advantages of this outweigh the disadvantages?",
+                html: `
+                    <p>In recent years, a lot of high schools have stopped using traditional paper books and started using tablets and laptops for studying. <span class="hl tr">I believe that the advantages of using digital textbooks are much greater than the disadvantages.</span></p>
+                    <p><span class="hl cc">Admittedly, there are a couple of negative points</span> about using screens in the classroom. <span class="hl cc">The main disadvantage</span> is that looking at a bright tablet all day can hurt students' eyes. <span class="hl gra">Because teenagers already look at their phones at home,</span> more screen time at school might cause headaches. <span class="hl cc">Additionally,</span> tablets can be distracting. If the teacher is not looking, <span class="hl gra">students might play games</span> or chat on the internet instead of reading their lessons.</p>
+                    <p><span class="hl cc">However, the benefits of digital textbooks are huge.</span> <span class="hl cc">First of all,</span> it is much better for students' physical health in terms of weight. Paper textbooks are very heavy, and carrying a heavy backpack every day can damage a teenager's back. With a tablet, they have all their books in one light device. <span class="hl cc">Furthermore,</span> digital books are better for the environment because we do not need to cut down trees to make paper. <span class="hl cc">Finally,</span> tablets make learning more interesting. <span class="hl gra">They can show videos, play audio, and use interactive maps,</span> <span class="hl lr">which helps students understand</span> difficult topics better than boring paper pages.</p>
+                    <p><span class="hl cc">In conclusion,</span> <span class="hl gra">while tablets can cause eye strain and distractions,</span> <span class="hl tr">the advantages definitely outweigh the disadvantages.</span> Digital textbooks are lighter, more eco-friendly, and make education much more fun and modern for secondary students.</p>
+                `
+            }
+        ];
+
+        // =========================================
+        // IELTS PROMPT DATABASE (80 Topics)
+        // =========================================
+        const gtTask1Data = [
+            { id: 1, category: "Complaint", task: "Write a letter to a store manager about a defective product you purchased" },
+            { id: 2, category: "Request", task: "Write a letter to your employer requesting time off for personal reasons" },
+            { id: 3, category: "Apology", task: "Write a letter to a friend apologizing for missing an important event" },
+            { id: 4, category: "Invitation", task: "Write a letter inviting a friend to a special celebration or party" },
+            { id: 5, category: "Recommendation", task: "Write a letter recommending a restaurant or service to a friend" },
+            { id: 6, category: "Explanation", task: "Write a letter to your landlord explaining damage to the rental property" },
+            { id: 7, category: "Application", task: "Write a letter applying for a job position advertised locally" },
+            { id: 8, category: "Inquiry", task: "Write a letter to a college inquiring about course enrollment requirements" },
+            { id: 9, category: "Thanks/Gratitude", task: "Write a letter thanking a neighbor for their help during an emergency" },
+            { id: 10, category: "Advice", task: "Write a letter giving advice to a friend about choosing a university course" },
+            { id: 11, category: "Arrangement", task: "Write a letter to a friend arranging to meet during their visit to your city" },
+            { id: 12, category: "Complaint (Service)", task: "Write a letter to a hotel manager about poor service during your stay" },
+            { id: 13, category: "Request (Info)", task: "Write a letter to a local council requesting information about community facilities" },
+            { id: 14, category: "Explanation", task: "Write a letter to your teacher explaining why you missed an important class" },
+            { id: 15, category: "Suggestion", task: "Write a letter to your company suggesting improvements to the workplace" },
+            { id: 16, category: "Apology (Pro)", task: "Write a letter to a client apologizing for a delay in project completion" },
+            { id: 17, category: "Invitation (Formal)", task: "Write a letter inviting a colleague to a business event or conference" },
+            { id: 18, category: "Request (Ref)", task: "Write a letter to a former professor requesting a reference letter" },
+            { id: 19, category: "Complaint", task: "Write a letter to your neighbor about noise disturbances" },
+            { id: 20, category: "Update", task: "Write a letter to a friend updating them on your recent life changes" }
+        ];
+
+        const gtTask2Data = [
+            { id: 1, theme: "Education", question: "Some people believe that homework should be abolished. To what extent do you agree or disagree?" },
+            { id: 2, theme: "Work-Life Balance", question: "Many people work long hours and have little time for personal life. What are the causes and solutions?" },
+            { id: 3, theme: "Technology", question: "Social media has changed how people communicate. Do the advantages outweigh the disadvantages?" },
+            { id: 4, theme: "Environment", question: "Individuals cannot solve environmental problems alone. Governments must take action. Discuss both views." },
+            { id: 5, theme: "Health", question: "Some people think that preventing illness is better than treating it. To what extent do you agree?" },
+            { id: 6, theme: "Crime", question: "Some believe that prison is the best punishment for criminals. Others think there are better alternatives. Discuss." },
+            { id: 7, theme: "Family", question: "Children are spending more time on electronic devices. What effects does this have on families?" },
+            { id: 8, theme: "Transport", question: "Many cities have traffic congestion problems. What measures can governments take to solve this?" },
+            { id: 9, theme: "Shopping", question: "Online shopping is replacing traditional stores. Is this a positive or negative development?" },
+            { id: 10, theme: "Culture", question: "Some traditional customs are disappearing. Why is this happening? Should we preserve them?" },
+            { id: 11, theme: "Employment", question: "Some people change careers frequently. Others stay in one job for life. Discuss both views." },
+            { id: 12, theme: "Housing", question: "Many people cannot afford to buy homes. What problems does this cause? What solutions exist?" },
+            { id: 13, theme: "Tourism", question: "International tourism has increased significantly. What are the benefits and drawbacks?" },
+            { id: 14, theme: "Food", question: "Fast food is becoming more popular worldwide. What are the effects on health and society?" },
+            { id: 15, theme: "Media", question: "News media has too much influence on people's opinions. To what extent do you agree?" },
+            { id: 16, theme: "Sports", question: "Professional athletes earn very high salaries. Do you think this is justified?" },
+            { id: 17, theme: "Aging Population", question: "Many countries have aging populations. What problems does this create? How can they be solved?" },
+            { id: 18, theme: "Language", question: "Some people think everyone should learn English. Others think local languages are more important. Discuss." },
+            { id: 19, theme: "Youth", question: "Young people today face more pressure than previous generations. To what extent do you agree?" },
+            { id: 20, theme: "Success", question: "Some measure success by money and status. Others use different criteria. Discuss both views." }
+        ];
+
+        const acTask1Data = [
+            { id: 1, type: "Line Graph", task: "The graph shows changes in unemployment rates in three countries from 2000-2020" },
+            { id: 2, type: "Bar Chart", task: "The chart compares average monthly spending on entertainment in five cities" },
+            { id: 3, type: "Pie Chart", task: "The diagrams show the proportion of energy sources used in 1990 and 2020" },
+            { id: 4, type: "Table", task: "The table presents data on student enrollment in different university faculties" },
+            { id: 5, type: "Mixed Charts", task: "A pie chart and bar chart showing household expenditure patterns" },
+            { id: 6, type: "Process Diagram", task: "The diagram illustrates how cement is manufactured for construction" },
+            { id: 7, type: "Process Diagram", task: "The diagram shows the life cycle of a salmon from egg to adult" },
+            { id: 8, type: "Process Diagram", task: "The diagram illustrates the water cycle and how rainwater is collected" },
+            { id: 9, type: "Process Diagram", task: "The diagram shows how a bill becomes law in the parliamentary system" },
+            { id: 10, type: "Map (Changes)", task: "The maps show changes in a town center from 1980 to present day" },
+            { id: 11, type: "Map (Changes)", task: "The maps illustrate the development of a university campus over 20 years" },
+            { id: 12, type: "Map (Location)", task: "The map shows a proposed location for a new shopping mall" },
+            { id: 13, type: "Line Graph", task: "The graph shows temperature changes in four seasons across different decades" },
+            { id: 14, type: "Bar Chart", task: "The chart compares internet usage by age group in five countries" },
+            { id: 15, type: "Pie Chart", task: "The diagrams show changes in household size from 1970 to 2020" },
+            { id: 16, type: "Table", task: "The table presents crime statistics in three cities over a 10-year period" },
+            { id: 17, type: "Flow Chart", task: "The diagram shows the decision-making process for university admissions" },
+            { id: 18, type: "Mixed Charts", task: "A line graph and table showing population growth and birth rates" },
+            { id: 19, type: "Process Diagram", task: "The diagram illustrates how recycled paper is produced from waste paper" },
+            { id: 20, type: "Map (Comparison)", task: "The maps compare two possible sites for a new airport" }
+        ];
+
+        const acTask2Data = [
+            { id: 1, theme: "Education", question: "Universities should accept equal numbers of male and female students. To what extent do you agree?" },
+            { id: 2, theme: "Technology", question: "Artificial intelligence will replace many human jobs. Is this a positive or negative development?" },
+            { id: 3, theme: "Environment", question: "Climate change is the biggest threat to humanity. What actions should governments take?" },
+            { id: 4, theme: "Globalization", question: "Globalization has made cultures more similar. Is this a positive or negative trend?" },
+            { id: 5, theme: "Science", question: "Some think space exploration is a waste of money. Others believe it benefits humanity. Discuss." },
+            { id: 6, theme: "Health", question: "Governments should fund preventive healthcare rather than treatment. To what extent do you agree?" },
+            { id: 7, theme: "Crime", question: "Rehabilitation is more effective than punishment for reducing crime. To what extent do you agree?" },
+            { id: 8, theme: "Media", question: "Censorship of media is necessary to protect society. To what extent do you agree or disagree?" },
+            { id: 9, theme: "Education", question: "Online learning will replace traditional classrooms. To what extent do you agree?" },
+            { id: 10, theme: "Work", question: "Remote working is becoming more common. What are the advantages and disadvantages?" },
+            { id: 11, theme: "Society", question: "Wealth inequality is increasing worldwide. What problems does this cause? How can it be solved?" },
+            { id: 12, theme: "Culture", question: "Museums and art galleries should be free to the public. To what extent do you agree?" },
+            { id: 13, theme: "Technology", question: "Children should not use smartphones before age 12. To what extent do you agree?" },
+            { id: 14, theme: "Environment", question: "Individuals are responsible for environmental protection, not corporations. Discuss both views." },
+            { id: 15, theme: "Education", question: "University education should be free for all students. To what extent do you agree?" },
+            { id: 16, theme: "Health", question: "Mental health is as important as physical health. Why is it often neglected? How can this be improved?" },
+            { id: 17, theme: "Urban Development", question: "More people are moving to cities. What problems does this cause? What solutions exist?" },
+            { id: 18, theme: "Language", question: "When languages die out, we lose cultural knowledge. Should governments fund language preservation?" },
+            { id: 19, theme: "Ethics", question: "Genetic engineering can eliminate diseases. Should there be limits on this technology?" },
+            { id: 20, theme: "Success", question: "Success is measured by career achievement rather than personal happiness. Is this a positive trend?" }
+        ];
+
+        // --- APP 3 & 4 LOGIC (Essays & Builder) ---
+        let builderRevealElements = [];
+        let builderCurrentIndex = 0;
+        let activeClass = null;
+        let synth = window.speechSynthesis; 
+        let voices = []; 
+        let isPlaying = false;
+        
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => { voices = synth.getVoices(); };
+        }
+
+        function initApp3() {
+            const selector = document.getElementById('essaySelector');
+            essaysData.forEach((essay, index) => {
+                const option = document.createElement('option'); option.value = index; option.textContent = essay.title; selector.appendChild(option);
+            });
+            renderEssay(0);
+        }
+
+        function initApp4() {
+            const selector = document.getElementById('builderEssaySelector');
+            essaysData.forEach((essay, index) => {
+                const option = document.createElement('option'); option.value = index; option.textContent = essay.title; selector.appendChild(option);
+            });
+            loadBuilderEssay(0);
+        }
+
+        function renderEssay(index) {
+            if ('speechSynthesis' in window) synth.cancel(); isPlaying = false;
+            const audioBtn = document.getElementById('audioToggleBtn');
+            if (audioBtn) audioBtn.textContent = '▶️ Read Aloud (0.85x)';
+            
+            const essay = essaysData[index];
+            document.getElementById('ui-prompt').textContent = essay.prompt;
+            document.getElementById('ui-essay').innerHTML = essay.html;
+            document.getElementById('ui-words').textContent = essay.words;
+            
+            document.getElementById('ui-band').textContent = essay.band;
+            document.getElementById('ui-band').style.color = essay.band === '7.5+' ? '#38ef7d' : '#f39c12';
+
+            activeClass = null;
+            document.querySelectorAll('.legend-item').forEach(li => li.classList.remove('active'));
+            document.getElementById('ui-essay').classList.remove('essay-dimmed');
+        }
+
+        function toggleHighlight(classId, element) {
+            const content = document.getElementById('ui-essay'); 
+            const hls = content.querySelectorAll('.hl');
+            
+            if (activeClass === classId) {
+                activeClass = null; 
+                element.classList.remove('active'); 
+                content.classList.remove('essay-dimmed');
+                hls.forEach(hl => hl.classList.remove('active-hl'));
+            } else {
+                activeClass = classId;
+                document.querySelectorAll('.legend-item').forEach(li => li.classList.remove('active'));
+                element.classList.add('active'); 
+                content.classList.add('essay-dimmed');
+                hls.forEach(hl => { 
+                    if (hl.classList.contains(classId)) hl.classList.add('active-hl'); 
+                    else hl.classList.remove('active-hl'); 
+                });
+            }
+        }
+
+        function toggleAudio() {
+            const btn = document.getElementById('audioToggleBtn');
+            if (!('speechSynthesis' in window)) return alert("Text-to-Speech not supported.");
+            if (isPlaying || synth.speaking) { 
+                synth.cancel(); isPlaying = false; btn.textContent = '▶️ Read Aloud (0.85x)'; 
+            } else {
+                const currentIndex = parseInt(document.getElementById('essaySelector').value);
+                const tempDiv = document.createElement("div"); tempDiv.innerHTML = essaysData[currentIndex].html;
+                const utterThis = new SpeechSynthesisUtterance(tempDiv.innerText || tempDiv.textContent);
+                
+                utterThis.rate = 0.85; 
+                const selectedVoice = voices.find(v => v.lang.startsWith('en-US')) || voices[0];
+                if (selectedVoice) utterThis.voice = selectedVoice;
+                
+                utterThis.onend = () => { isPlaying = false; btn.textContent = '▶️ Read Aloud (0.85x)'; };
+                synth.speak(utterThis); isPlaying = true; btn.textContent = '⏹️ Stop Reading';
+            }
+        }
+
+        // Builder Logic
+        function loadBuilderEssay(index) {
+            const essay = essaysData[index];
+            document.getElementById('builderPrompt').textContent = essay.prompt;
+            const contentDisplay = document.getElementById('builderModelContent');
+            contentDisplay.innerHTML = essay.html;
+            
+            builderRevealElements = Array.from(contentDisplay.querySelectorAll('p'));
+            builderRevealElements.forEach(p => { p.style.display = 'none'; p.style.opacity = '0'; p.style.transform = 'translateY(15px)'; });
+            
+            builderCurrentIndex = 0;
+            const btn = document.getElementById('builderRevealBtn');
+            btn.disabled = false; btn.textContent = 'Reveal Next Paragraph ⬇️';
+            document.getElementById('builderTextArea').value = ''; updateBuilderWordCount();
+            revealNextBuilderPart();
+        }
+
+        function revealNextBuilderPart() {
+            if (builderCurrentIndex < builderRevealElements.length) {
+                const el = builderRevealElements[builderCurrentIndex];
+                el.style.display = 'block';
+                setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }, 20);
+                builderCurrentIndex++;
+            }
+            const btn = document.getElementById('builderRevealBtn');
+            if (builderCurrentIndex >= builderRevealElements.length) {
+                btn.disabled = true; btn.textContent = 'Fully Revealed ✅';
+            }
+        }
+
+        function updateBuilderWordCount() {
+            const text = document.getElementById('builderTextArea').value.trim();
+            document.getElementById('builderWordCount').textContent = text ? text.split(/\s+/).length : 0;
+        }
+
+        function toggleAudioBuilder() {
+            const btn = document.querySelector('.audio-btn-builder');
+            if (!('speechSynthesis' in window)) return;
+            if (isPlaying || synth.speaking) { 
+                synth.cancel(); isPlaying = false; btn.textContent = '▶️ Read Aloud (0.85x)'; 
+            } else {
+                let textToSpeak = "";
+                for(let i=0; i<builderCurrentIndex; i++) textToSpeak += builderRevealElements[i].innerText + " ";
+                if (!textToSpeak.trim()) textToSpeak = document.getElementById('builderPrompt').textContent;
+
+                const utterThis = new SpeechSynthesisUtterance(textToSpeak);
+                utterThis.rate = 0.85; 
+                const selectedVoice = voices.find(v => v.lang.startsWith('en-US')) || voices[0];
+                if (selectedVoice) utterThis.voice = selectedVoice;
+                
+                utterThis.onend = () => { isPlaying = false; btn.textContent = '▶️ Read Aloud (0.85x)'; };
+                synth.speak(utterThis); isPlaying = true; btn.textContent = '⏹️ Stop Reading';
+            }
+        }
+
+        // --- APP 5: DATABASE LOGIC ---
+        function renderTable(tbodyId, data, rowTemplate) {
+            document.getElementById(tbodyId).innerHTML = data.map(rowTemplate).join('');
+        }
+
+        function initDatabase() {
+            renderTable('tb-gt1', gtTask1Data, item => `
+                <tr onclick="copyToClipboard('${item.task}')">
+                    <td>${item.id}</td><td><span class="db-tag">${item.category}</span></td><td>${item.task}</td>
+                </tr>`);
+            renderTable('tb-gt2', gtTask2Data, item => `
+                <tr onclick="copyToClipboard('${item.question}')">
+                    <td>${item.id}</td><td><span class="db-tag">${item.theme}</span></td><td>${item.question}</td>
+                </tr>`);
+            renderTable('tb-ac1', acTask1Data, item => `
+                <tr onclick="copyToClipboard('${item.task}')">
+                    <td>${item.id}</td><td><span class="db-tag">${item.type}</span></td><td>${item.task}</td>
+                </tr>`);
+            renderTable('tb-ac2', acTask2Data, item => `
+                <tr onclick="copyToClipboard('${item.question}')">
+                    <td>${item.id}</td><td><span class="db-tag">${item.theme}</span></td><td>${item.question}</td>
+                </tr>`);
+        }
+
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text; document.body.appendChild(textArea); textArea.select();
+            try { document.execCommand('copy'); alert('Prompt copied to clipboard!'); } catch (err) {} 
+            finally { textArea.remove(); }
+        }
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp3(); initApp4(); initDatabase();
+            
+            // Essay highlight click delegate
+            document.getElementById('ui-essay').addEventListener('click', function(e) {
+                const span = e.target.closest('.hl');
+                if (span) {
+                    const targetClass = Array.from(span.classList).find(c => ['tr','cc','lr','gra'].includes(c));
+                    if (targetClass) {
+                        const legendItem = document.querySelector(`.legend-item[data-class="${targetClass}"]`);
+                        if (legendItem) toggleHighlight(targetClass, legendItem);
+                    }
+                } else if (activeClass) {
+                    const activeLegend = document.querySelector('.legend-item.active');
+                    if (activeLegend) toggleHighlight(activeClass, activeLegend);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
