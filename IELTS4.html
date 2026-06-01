@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Grade 7 Learning Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .animate-pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const unitData = [
+          {
+            id: 13,
+            title: "Technology and Gadgets",
+            icon: "fa-solid fa-laptop",
+            skills: ["Recognizing synonyms", "Scanning for details", "Labelling flowcharts"],
+            content: "Focuses on everyday devices, smartphones, and computers. Essential for describing objects and following simple instructions.",
+            secondaryExample: "Grade 7 Context: Setting up a new laptop and understanding the software for your junior high online classes.",
+            outcomes: {
+              listening: "Listen to a tutorial and successfully label a diagram or flowchart of how a machine works.",
+              reading: "Recognize synonyms and scan for specific technical details in a short manual.",
+              writing: "Use sequence markers to write a simple Task 1 process description.",
+              speaking: "Talk about a gadget you own, its dimensions, and how you use it daily.",
+              grammarVocab: "Master signposting words (Firstly, Next) and vocabulary for dimensions and basic technical processes."
+            },
+            practiceActivity: { type: "speaking", task: "Describe a piece of technology you use often. What is it, how often do you use it, and why is it important to you?" },
+            keyVocabSummary: "Words to describe dimensions (width, length) and basic processes (adjust, secure, launch).",
+            vocabulary: [
+              { word: "Device", chinese: "设备", definition: "A piece of mechanical or electronic equipment." },
+              { word: "Dimension", chinese: "尺寸", definition: "A measurable extent, such as length, width, or depth." },
+              { word: "Adjust", chinese: "调整", definition: "Alter or move something slightly in order to achieve the desired fit." },
+              { word: "Secure", chinese: "固定", definition: "Fix or attach something firmly so that it cannot be moved." },
+              { word: "Launch", chinese: "启动", definition: "Start or set in motion an application or machine." },
+              { word: "Application", chinese: "应用程序", definition: "A computer program designed for a specific purpose." },
+              { word: "Screen", chinese: "屏幕", definition: "The flat panel on a device where images and data are displayed." },
+              { word: "Upgrade", chinese: "升级", definition: "Raise something to a higher standard, especially software." },
+              { word: "Wireless", chinese: "无线的", definition: "Using radio, microwaves, etc. to transmit signals." },
+              { word: "Recharge", chinese: "充电", definition: "Restore electrical energy in a battery." }
+            ],
+            mcqs: [
+              { q: "[Grammar] ___, you need to plug in the computer.", options: ["Firstly", "But", "Because", "Or"], answer: 0 },
+              { q: "[Grammar] Then, log in. ___, open the internet browser.", options: ["Next", "While", "However", "Since"], answer: 0 },
+              { q: "[Grammar] The tablet is fast. ___, it is lightweight.", options: ["In addition", "But", "So", "Because"], answer: 0 },
+              { q: "[Vocab] What is the ___ of this phone? Is it 15cm?", options: ["length", "weight", "color", "software"], answer: 0 },
+              { q: "[Vocab] Please ___ the screen brightness if it's too dark.", options: ["adjust", "secure", "launch", "break"], answer: 0 },
+              { q: "[Grammar] Finally, ___ the application to start.", options: ["launch", "launching", "launched", "launches"], answer: 0 },
+              { q: "[Vocab] The physical ___ of the phone are 15cm by 7cm.", options: ["dimensions", "applications", "screens", "keyboards"], answer: 0 },
+              { q: "[Grammar] First you plug it in. ___, you wait for it to charge.", options: ["Secondly", "Because", "Although", "Yet"], answer: 0 },
+              { q: "[Vocab] I need to ___ my software to the newest version.", options: ["upgrade", "launch", "secure", "dimension"], answer: 0 },
+              { q: "[Vocab] My ___ has a cracked glass panel.", options: ["smartphone", "dimension", "wireless", "upgrade"], answer: 0 },
+              { q: "[Grammar] The computer is expensive. ___, it comes with free software.", options: ["However", "Because", "Next", "Firstly"], answer: 0 },
+              { q: "[Vocab] We use a ___ connection to access the internet.", options: ["wireless", "secure", "dimension", "screen"], answer: 0 },
+              { q: "[Vocab] I downloaded a new ___ to help me study math.", options: ["application", "dimension", "upgrade", "secure"], answer: 0 },
+              { q: "[Grammar] Press the button to ___ the program.", options: ["start", "starting", "started", "starts"], answer: 0 },
+              { q: "[Vocab] Don't forget to ___ your phone before the trip.", options: ["recharge", "adjust", "dimension", "launch"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you use a computer or tablet for your schoolwork?",
+                  "How often do you use the internet?",
+                  "Do you have your own smartphone?",
+                  "What is your favourite application on your phone?"
+                ],
+                stems: [
+                  "For my Grade 7 assignments, I mostly use...",
+                  "I access the internet every day, usually to...",
+                  "My absolute favourite application is..."
+                ],
+                example: "Yes, I use a tablet for my Grade 7 schoolwork, especially for researching history projects. I use the internet every single day. I do have my own smartphone, and my favourite application is a language learning app that helps me practice English."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a piece of technology you use often. You should say: what it is, how often you use it, what you use it for, and explain why it is important to you."
+                ],
+                stems: [
+                  "The device I rely on the most is...",
+                  "Firstly, I use it to... Next, I use it for...",
+                  "It is incredibly important to me because..."
+                ],
+                example: "The device I rely on most is my laptop. I use it every day for my middle school homework. Firstly, I use it to type essays. Next, I use it to watch educational videos. In addition, I use it to chat with my friends on weekends. It is important to me because it is my main tool for both learning and relaxing."
+              }
+            ],
+            reading: {
+              text: "Modern smartphones have changed how middle school students study. They are lightweight devices with small dimensions, yet they contain powerful applications. To keep the device safe, users should always secure it in a protective case. When a student needs to find information, they simply launch a web browser. Regularly upgrading the software ensures the device runs smoothly and safely.",
+              questions: [
+                "1. What should users do to keep their device safe?",
+                "2. What do students launch when they need to find information?",
+                "3. Why is it important to upgrade the software?"
+              ]
+            },
+            listening: {
+              text: "Teacher: Let's look at how to set up the science lab microscope. Firstly, place the device on a flat surface. Next, adjust the lenses to match the dimensions of the slide. After that, carefully secure the glass slide under the clips so it doesn't move. Finally, turn on the light to launch your observation.",
+              questions: [
+                "1. Where should you place the device firstly?",
+                "2. What do you need to adjust to match the slide's dimensions?",
+                "3. Why do you secure the glass slide under the clips?"
+              ]
+            },
+            grammar: {
+              topic: "Signposting Words for Processes",
+              focus: "Use sequencing words (Firstly, Secondly, Next, After that, Finally) to order steps in a process. Use 'In addition' to add more information.",
+              examples: [
+                "Firstly, turn on the computer.",
+                "Next, connect to the wireless network.",
+                "Finally, launch the application. In addition, make sure it is upgraded."
+              ],
+              model: "When writing Task 1 describing a process: 'Firstly, the parts are collected. Next, they are assembled. Finally, the device is packaged.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Listening Prompt",
+                focus: "Target Skill: Following a process | Grammar Focus: Signposting",
+                text: "Listen to these instructions: 'First, open the app. Then, adjust the volume. Finally, secure the screen.'",
+                questions: [
+                  "Skill Question: What is the second step in the process? (Answer: Adjust the volume).",
+                  "Grammar Question: What signposting word means the same as 'Then'? (e.g., Next, After that)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Reading Test (Short Answer)",
+                text: "Read the text: 'Smartphones have an average length of 14cm. Users must recharge them daily using a wireless pad.'",
+                questions: [
+                  "Answer using NO MORE THAN TWO WORDS:",
+                  "1. What is the average length of a smartphone?",
+                  "2. What must users do daily?"
+                ]
+              },
+              {
+                type: "Writing Test (Task 1)",
+                text: "Write about the following topic.",
+                questions: [
+                  "The diagram shows how a basic water filter works. Summarise the information by selecting and reporting the main features using sequencing words. Write at least 150 words."
+                ],
+                modelAnswer: "The diagram illustrates the process of filtering dirty water into clean drinking water. Overall, it is a simple process involving three main filtering layers.\n\nFirstly, the dirty water is poured into the top of the container. It then passes through the first layer, which consists of small stones. Next, the water travels down into a thicker layer of coarse sand. This stage removes smaller particles of dirt. \n\nAfter that, the water slowly drips through a final, dense layer of fine sand and charcoal. This material acts to remove any remaining microscopic impurities. Finally, the purified water drips through a small pipe at the bottom and is collected in a clean glass, ready to be consumed. In addition, the filter must be cleaned regularly to remain effective."
+              }
+            ]
+          },
+          {
+            id: 14,
+            title: "Food and Nutrition",
+            icon: "fa-solid fa-apple-whole",
+            skills: ["Completing a table", "Form completion"],
+            content: "Focuses on healthy eating, balanced diets, and keeping fit in school.",
+            secondaryExample: "Grade 7 Context: Learning about the human digestive system and nutrition in Middle School Biology class.",
+            outcomes: {
+              listening: "Listen to a patient at a medical clinic and accurately complete a health form.",
+              reading: "Read a text about diets and successfully match health problems to dietary causes in a table.",
+              writing: "Describe food production processes using active and passive voices.",
+              speaking: "Discuss your favourite foods and describe a traditional meal from your country.",
+              grammarVocab: "Differentiate between Active and Passive voices (e.g., The food is digested) and master nutrition vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe a traditional meal from your country. What ingredients are used and how is it prepared?" },
+            keyVocabSummary: "Nouns for diet and symptoms (metabolism, carbohydrates, vitamins, calories, malnourished).",
+            vocabulary: [
+              { word: "Metabolism", chinese: "新陈代谢", definition: "The chemical processes that occur within a living organism to maintain life." },
+              { word: "Carbohydrates", chinese: "碳水化合物", definition: "Foods consisting of or containing a lot of sugars or starch, giving energy." },
+              { word: "Vitamin", chinese: "维生素", definition: "Organic compounds essential for normal growth and nutrition." },
+              { word: "Calorie", chinese: "卡路里", definition: "A unit of energy supplied by food." },
+              { word: "Malnourished", chinese: "营养不良的", definition: "Suffering from a lack of proper nutrition." },
+              { word: "Diet", chinese: "饮食", definition: "The kinds of food that a person, animal, or community habitually eats." },
+              { word: "Protein", chinese: "蛋白质", definition: "Essential nutrients for the human body, found in meat and beans." },
+              { word: "Nutritious", chinese: "有营养的", definition: "Efficient as food; nourishing." },
+              { word: "Obesity", chinese: "肥胖", definition: "The condition of being grossly fat or overweight." },
+              { word: "Allergy", chinese: "过敏", definition: "A damaging immune response to a certain food or substance." }
+            ],
+            mcqs: [
+              { q: "[Grammar] The food ___ by the stomach.", options: ["digests", "is digested", "digesting", "is digest"], answer: 1 },
+              { q: "[Grammar] Vitamins ___ in many fruits.", options: ["find", "are found", "founding", "is found"], answer: 1 },
+              { q: "[Grammar] The chef ___ a healthy meal.", options: ["prepares", "is prepared", "preparing", "prepared by"], answer: 0 },
+              { q: "[Vocab] Bread and pasta are full of ___.", options: ["vitamins", "carbohydrates", "allergies", "obesity"], answer: 1 },
+              { q: "[Vocab] A person who does not eat enough healthy food is ___.", options: ["nutritious", "malnourished", "protein", "diet"], answer: 1 },
+              { q: "[Grammar] Calories ___ energy to the body.", options: ["give", "are given", "giving", "is given"], answer: 0 },
+              { q: "[Vocab] Meat and eggs are excellent sources of ___.", options: ["carbohydrates", "protein", "obesity", "allergy"], answer: 1 },
+              { q: "[Grammar] The salad ___ with olive oil.", options: ["makes", "is making", "is made", "made"], answer: 2 },
+              { q: "[Vocab] Eating too much sugar can lead to ___.", options: ["vitamins", "obesity", "metabolism", "protein"], answer: 1 },
+              { q: "[Vocab] A healthy ___ includes fruits and vegetables.", options: ["allergy", "diet", "malnourished", "calorie"], answer: 1 },
+              { q: "[Grammar] The doctor ___ the patient to eat better.", options: ["advises", "is advised", "advising", "advised by"], answer: 0 },
+              { q: "[Vocab] If you get sick from eating peanuts, you have an ___.", options: ["obesity", "metabolism", "allergy", "diet"], answer: 2 },
+              { q: "[Vocab] Fast metabolism helps you burn ___ quickly.", options: ["calories", "vitamins", "allergies", "water"], answer: 0 },
+              { q: "[Grammar] The fruit ___ in the morning.", options: ["picks", "is picked", "picking", "pick"], answer: 1 },
+              { q: "[Vocab] Broccoli is very ___ for your health.", options: ["malnourished", "nutritious", "allergy", "metabolism"], answer: 1 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "What is your favourite food?", 
+                  "Do you think you have a healthy diet?", 
+                  "What do you usually eat for breakfast before school?",
+                  "Do you enjoy cooking?"
+                ],
+                stems: [
+                  "My absolute favourite food is...", 
+                  "I think my diet is fairly healthy because...", 
+                  "Before heading to my Grade 7 classes, I usually eat..."
+                ],
+                example: "My favourite food is grilled chicken because it is full of protein. I think my diet is fairly healthy because my parents cook nutritious meals. Before heading to my Grade 7 classes, I usually eat oatmeal with fruit, which gives me carbohydrates and vitamins for energy."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a traditional meal from your country. You should say: what it is, what ingredients are used, how it is prepared, and explain why you like it."
+                ],
+                stems: [
+                  "A famous traditional meal in my country is...", 
+                  "It is made with a variety of ingredients, such as...", 
+                  "The dish is prepared by..."
+                ],
+                example: "A famous traditional meal in my country is dumplings. They are made with a variety of ingredients, such as meat, cabbage, and flour. The filling is prepared by chopping the meat and vegetables, and then it is wrapped in dough. They are usually boiled or steamed. I love them because they are delicious and eating them brings my whole family together."
+              }
+            ],
+            reading: {
+              text: "A balanced diet is crucial for a young person's metabolism. Without enough protein, students can become malnourished. Conversely, eating too many empty calories and simple carbohydrates can lead to childhood obesity. Many children also suffer from a food allergy, such as a reaction to peanuts or dairy, which requires them to monitor their diet closely. Nutritious foods, rich in vitamins, are essential for brain development in middle school students.",
+              questions: [
+                "1. What can happen if a student does not get enough protein?",
+                "2. What causes childhood obesity according to the text?",
+                "3. Why must some children monitor their diet closely?"
+              ]
+            },
+            listening: {
+              text: "Nurse: Good morning. Welcome to the school health clinic. What seems to be the problem today? \nStudent: I feel very tired all the time during my classes. \nNurse: Let's check your diet. Are you getting enough vitamins and protein? \nStudent: I mostly just eat carbohydrates like pasta. \nNurse: A lack of protein can slow down your metabolism and make you feel malnourished. We will do a blood test for any allergy.",
+              questions: [
+                "1. How does the student feel during classes?",
+                "2. What type of food does the student mostly eat?",
+                "3. What does the nurse say a lack of protein can do?"
+              ]
+            },
+            grammar: {
+              topic: "Active vs. Passive Voice",
+              focus: "Use Active voice when the subject does the action (The chef cooks the food). Use Passive voice (to be + past participle) when the action happens to the subject (The food is cooked by the chef). Passive is great for scientific processes.",
+              examples: [
+                "The stomach digests the food. (Active)",
+                "The food is digested by the stomach. (Passive)",
+                "Vitamins are found in vegetables. (Passive)"
+              ],
+              model: "When writing about food production: 'First, the wheat is harvested. Then, it is transported to the factory where it is ground into flour.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Completing a table | Grammar Focus: Passive Voice",
+                text: "Read this: 'The vegetables are washed. Then they are cut into pieces.'",
+                questions: [
+                  "Grammar Question: Are these sentences active or passive? How do you know?",
+                  "Skill Question: If a table asks 'Step 1: Vegetables are [gap]', what word goes in the gap?"
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Listening Test (Form Completion)",
+                text: "Listen to the clinic receptionist and complete the form.",
+                questions: [
+                  "Complete the form using NO MORE THAN TWO WORDS:",
+                  "Patient Name: John Smith",
+                  "Main Symptom: Constant (1) ________",
+                  "Suspected Issue: Lack of (2) ________ in diet."
+                ]
+              },
+              {
+                type: "Writing Test (Task 1)",
+                text: "You should spend about 20 minutes on this task.",
+                questions: [
+                  "The diagram shows how chocolate is produced. Summarise the information by selecting and reporting the main features using the passive voice. Write at least 150 words."
+                ]
+              }
+            ]
+          },
+          {
+            id: 15,
+            title: "Cities and Urban Life",
+            icon: "fa-solid fa-city",
+            skills: ["Recognizing superordinate terms", "Form completion"],
+            content: "Focuses on city living, infrastructure, and neighbourhoods.",
+            secondaryExample: "Grade 7 Context: Describing your local neighborhood and its amenities for a geography presentation.",
+            outcomes: {
+              listening: "Complete forms for addresses, street names, and locations accurately.",
+              reading: "Recognize superordinate terms (grouping specific words under a general category) and identify positive/negative connotations.",
+              writing: "Describe maps and locations using accurate prepositions for Task 1.",
+              speaking: "Talk about your hometown, what you like about it, and what needs improvement.",
+              grammarVocab: "Master prepositions of place/direction and human geography vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe your neighbourhood. What amenities are nearby and how do people commute?" },
+            keyVocabSummary: "Nouns associated with human geography (infrastructure, amenity, resident, suburb) and adjectives to describe places (bustling, historic, rural).",
+            vocabulary: [
+              { word: "Infrastructure", chinese: "基础设施", definition: "The basic physical and organizational structures (e.g., buildings, roads)." },
+              { word: "Amenity", chinese: "便利设施", definition: "A desirable or useful feature of a building or place." },
+              { word: "Resident", chinese: "居民", definition: "A person who lives somewhere permanently or on a long-term basis." },
+              { word: "Suburb", chinese: "郊区", definition: "An outlying district of a city, especially a residential one." },
+              { word: "Bustling", chinese: "繁华的", definition: "Full of energetic and noisy activity." },
+              { word: "Historic", chinese: "历史悠久的", definition: "Famous or important in history." },
+              { word: "Rural", chinese: "乡村的", definition: "Relating to the countryside rather than the town." },
+              { word: "Commute", chinese: "通勤", definition: "Travel some distance between one's home and place of work on a regular basis." },
+              { word: "Pedestrian", chinese: "行人", definition: "A person walking along a road or in a developed area." },
+              { word: "Pavement", chinese: "人行道", definition: "A raised paved or asphalted path for pedestrians at the side of a road." }
+            ],
+            mcqs: [
+              { q: "[Grammar] The park is ___ the supermarket.", options: ["next to", "in", "on", "at"], answer: 0 },
+              { q: "[Grammar] The bus stop is ___ the street.", options: ["across from", "between", "under", "through"], answer: 0 },
+              { q: "[Grammar] Walk ___ the bridge to get to the school.", options: ["over", "in", "at", "between"], answer: 0 },
+              { q: "[Vocab] The roads and bridges are part of the city's ___.", options: ["amenity", "infrastructure", "resident", "pedestrian"], answer: 1 },
+              { q: "[Vocab] A quiet area outside the city center is a ___.", options: ["suburb", "bustling", "pavement", "commute"], answer: 0 },
+              { q: "[Grammar] The hospital is located ___ the bank and the post office.", options: ["between", "next", "opposite", "in"], answer: 0 },
+              { q: "[Vocab] A place with a lot of noise and activity is ___.", options: ["rural", "historic", "bustling", "tranquil"], answer: 2 },
+              { q: "[Grammar] The resident lives ___ 45 Main Street.", options: ["in", "on", "at", "across"], answer: 2 },
+              { q: "[Vocab] People walking on the street are called ___.", options: ["commuters", "residents", "pedestrians", "suburbs"], answer: 2 },
+              { q: "[Vocab] Gyms, parks, and libraries are local ___.", options: ["infrastructures", "amenities", "pavements", "rural"], answer: 1 },
+              { q: "[Grammar] Turn left ___ the traffic lights.", options: ["at", "in", "on", "over"], answer: 0 },
+              { q: "[Vocab] Travelling to work every day is your daily ___.", options: ["amenity", "commute", "resident", "historic"], answer: 1 },
+              { q: "[Vocab] An old building from the 1800s is very ___.", options: ["bustling", "historic", "rural", "pedestrian"], answer: 1 },
+              { q: "[Grammar] The museum is ___ the right side of the road.", options: ["in", "on", "at", "across"], answer: 1 },
+              { q: "[Vocab] Always walk on the ___, not on the road.", options: ["pavement", "infrastructure", "suburb", "commute"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you live in a city, a town, or the countryside?",
+                  "What is your favourite area of your hometown?",
+                  "Are there good amenities near your home?",
+                  "How do you usually travel to your middle school?"
+                ],
+                stems: [
+                  "I currently live in a...",
+                  "My absolute favourite part of my hometown is...",
+                  "To get to school, my daily commute involves..."
+                ],
+                example: "I currently live in a bustling suburb just outside a major city. My favourite part of my hometown is the historic center because it has beautiful old architecture. There are plenty of great amenities near my home, like a huge park and a library. To get to school, my daily commute involves taking a short bus ride."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a change that would improve your local neighbourhood. You should say: what the change is, how it could be done, who would benefit from it, and explain why it is necessary."
+                ],
+                stems: [
+                  "One major improvement my neighbourhood needs is...",
+                  "This could be achieved by improving the infrastructure, specifically...",
+                  "All the local residents and pedestrians would benefit because..."
+                ],
+                example: "One major improvement my neighbourhood needs is a safer pavement for pedestrians. The current infrastructure is old, and students have to walk on the road to get to school. This could be achieved by the city council building wider pavements next to the main road. All the local residents, especially middle school students, would benefit because it would make the morning commute much safer."
+              }
+            ],
+            reading: {
+              text: "When urban planners design a new suburb, they must categorize needs. Basic infrastructure, a superordinate term, includes specific things like roads, bridges, and water pipes. Planners also focus on amenities, which is another superordinate term that includes parks, swimming pools, and libraries. A bustling city attracts many young residents, while rural areas appeal to those seeking peace. Good pavements are essential to protect pedestrians from traffic.",
+              questions: [
+                "1. What is a 'superordinate term' according to the text?",
+                "2. Give two specific examples of infrastructure mentioned in the text.",
+                "3. Give two specific examples of amenities."
+              ]
+            },
+            listening: {
+              text: "Agent: Hello, City Housing Office. How can I help you? \nStudent: Hi, I'm doing a geography project. Can you tell me the address of the new community center? \nAgent: Yes, it is located at 45 King's Road. The postcode is BR4 9XQ. \nStudent: Where is that exactly? \nAgent: It is next to the historic library, directly opposite the main bus station.",
+              questions: [
+                "1. What is the street address of the community center?",
+                "2. What is the postcode?",
+                "3. Where is the community center located in relation to the library?"
+              ]
+            },
+            grammar: {
+              topic: "Prepositions of Place and Direction",
+              focus: "Use prepositions to accurately describe locations and directions. Key words: next to, opposite, across from, between, on the corner of.",
+              examples: [
+                "The community center is next to the library.",
+                "It is directly opposite the main bus station.",
+                "Walk over the bridge and it is on your left."
+              ],
+              model: "When describing a map for Task 1: 'The new school is located in the northern suburb, situated between the park and the bustling shopping center.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Recognizing superordinate terms | Grammar Focus: Vocabulary grouping",
+                text: "Read this: 'We need better vehicles, such as buses, cars, and trams.'",
+                questions: [
+                  "Vocab Question: In that sentence, what is the superordinate (general category) term? (Answer: vehicles).",
+                  "Grammar Question: Write a sentence using 'amenities' as a superordinate term, listing two specific examples."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Listening Test (Form Completion)",
+                text: "Listen to the phone call and complete the address details.",
+                questions: [
+                  "Write NO MORE THAN TWO WORDS AND/OR A NUMBER:",
+                  "Destination Name: City (1) ________",
+                  "Street Address: (2) ________ High Street",
+                  "Location: Opposite the (3) ________"
+                ]
+              },
+              {
+                type: "Speaking Test (Part 3)",
+                text: "Discuss the following topics with your tutor:",
+                questions: [
+                  "1. How has the infrastructure in your city changed over the past 10 years?",
+                  "2. Do you think it is better for children to grow up in a bustling city or a rural area? Why?"
+                ]
+              }
+            ]
+          },
+          {
+            id: 16,
+            title: "Communication and Languages",
+            icon: "fa-solid fa-comments",
+            skills: ["Identifying topic sentences", "Multiple-choice questions"],
+            content: "Focuses on staying in touch, learning English, and global communication.",
+            secondaryExample: "Grade 7 Context: Practicing English speaking skills to communicate with an international pen pal.",
+            outcomes: {
+              listening: "Listen to a conversation about language learning and answer single-answer multiple-choice questions.",
+              reading: "Identify topic sentences to quickly find the main idea of a paragraph.",
+              writing: "Write clear, structured body paragraphs with strong topic sentences.",
+              speaking: "Discuss the importance of learning foreign languages and how you communicate with friends.",
+              grammarVocab: "Understand prefixes (tele-, hydro-, multi-) to guess word meanings, and master language vocabulary."
+            },
+            practiceActivity: { type: "reading", task: "Read a paragraph about global English and highlight the topic sentence." },
+            keyVocabSummary: "Words related to language learning (mother tongue, multilingual, fluent, foreign language).",
+            vocabulary: [
+              { word: "Mother tongue", chinese: "母语", definition: "The first language that a person learns to speak." },
+              { word: "Multilingual", chinese: "多语种的", definition: "In or using several languages." },
+              { word: "Fluent", chinese: "流利的", definition: "Able to express oneself easily and articulately." },
+              { word: "Foreign", chinese: "外国的", definition: "Of, from, in, or characteristic of a country other than one's own." },
+              { word: "Translate", chinese: "翻译", definition: "Express the sense of words or text in another language." },
+              { word: "Dialect", chinese: "方言", definition: "A particular form of a language peculiar to a specific region." },
+              { word: "Accent", chinese: "口音", definition: "A distinctive mode of pronunciation of a language." },
+              { word: "Bilingual", chinese: "双语的", definition: "Speaking two languages fluently." },
+              { word: "Vocabulary", chinese: "词汇", definition: "The body of words used in a particular language." },
+              { word: "Grammar", chinese: "语法", definition: "The whole system and structure of a language." }
+            ],
+            mcqs: [
+              { q: "[Vocab] The first language you learn as a baby is your ___.", options: ["dialect", "mother tongue", "foreign language", "accent"], answer: 1 },
+              { q: "[Grammar] The prefix 'multi-' in multilingual means ___.", options: ["one", "none", "many", "under"], answer: 2 },
+              { q: "[Vocab] Someone who speaks English perfectly is ___ in English.", options: ["bilingual", "fluent", "foreign", "translated"], answer: 1 },
+              { q: "[Grammar] The prefix 'tele-' in telephone means ___.", options: ["sound", "distance", "water", "many"], answer: 1 },
+              { q: "[Vocab] A regional variation of a language is a ___.", options: ["grammar", "vocabulary", "dialect", "accent"], answer: 2 },
+              { q: "[Grammar] The prefix 'bi-' in bilingual means ___.", options: ["one", "two", "three", "many"], answer: 1 },
+              { q: "[Vocab] To change a text from Chinese to English is to ___ it.", options: ["translate", "fluent", "multilingual", "dialect"], answer: 0 },
+              { q: "[Grammar] The prefix 'sub-' in submarine means ___.", options: ["over", "under", "many", "fast"], answer: 1 },
+              { q: "[Vocab] Spanish is a ___ language in China.", options: ["mother tongue", "foreign", "fluent", "dialect"], answer: 1 },
+              { q: "[Vocab] The way you pronounce words is your ___.", options: ["grammar", "vocabulary", "accent", "translate"], answer: 2 },
+              { q: "[Grammar] What does the prefix 'hydro-' relate to?", options: ["fire", "air", "water", "earth"], answer: 2 },
+              { q: "[Vocab] Learning new words improves your ___.", options: ["grammar", "accent", "vocabulary", "dialect"], answer: 2 },
+              { q: "[Grammar] The prefix 'inter-' in international means ___.", options: ["between", "inside", "outside", "under"], answer: 0 },
+              { q: "[Vocab] A person who speaks French and English is ___.", options: ["bilingual", "multilingual", "foreign", "fluent"], answer: 0 },
+              { q: "[Vocab] The rules for structuring sentences are called ___.", options: ["vocabulary", "grammar", "accents", "dialects"], answer: 1 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "How many languages do you speak?",
+                  "Is English your mother tongue?",
+                  "How do you usually communicate with your friends?",
+                  "Do you find it difficult to learn a foreign language?"
+                ],
+                stems: [
+                  "Currently, I speak...",
+                  "No, my mother tongue is...",
+                  "I mostly communicate with my friends by..."
+                ],
+                example: "Currently, I speak two languages, so I am bilingual. My mother tongue is Chinese, and I am learning English at my junior high school. I mostly communicate with my friends using social media apps on my phone. I find learning a foreign language a bit difficult, especially memorizing the vocabulary and getting the right accent."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a time when you communicated with a foreigner. You should say: who they were, what language you used, what you talked about, and explain how you felt about the communication."
+                ],
+                stems: [
+                  "A memorable time I communicated with a foreigner was when...",
+                  "We primarily used English to speak because...",
+                  "Even though I am not perfectly fluent, I felt..."
+                ],
+                example: "A memorable time I communicated with a foreigner was last summer when I had an international pen pal from Australia. We video called each other. We primarily used English to speak because she didn't know any Chinese. We talked about our favorite video games and our middle school classes. Even though I am not perfectly fluent, I felt incredibly proud that I could translate my thoughts and make a new friend."
+              }
+            ],
+            reading: {
+              text: "Learning a foreign language provides significant cognitive benefits for young students. Research shows that bilingual children often perform better in problem-solving tasks. Furthermore, being multilingual opens up global career opportunities later in life. While perfecting an accent or mastering complex grammar can be challenging, consistent practice makes a student fluent. Today, the internet makes it easier than ever to practice your mother tongue or a new dialect with people worldwide.",
+              questions: [
+                "1. What is the topic sentence of the paragraph?",
+                "2. What is one cognitive benefit of being bilingual mentioned in the text?",
+                "3. How does the internet help language learners?"
+              ]
+            },
+            listening: {
+              text: "Teacher: Good morning class. Today we are looking at prefixes. If a person speaks two languages, they are bilingual, because 'bi-' means two. If they speak many, they are multilingual, as 'multi-' means many. \nStudent: What about 'tele-' like in telephone or television? \nTeacher: Great question. 'Tele-' means distance. A telephone lets you send sound over a long distance.",
+              questions: [
+                "1. What does the prefix 'bi-' mean?",
+                "2. What does the prefix 'multi-' mean?",
+                "3. According to the teacher, what does 'tele-' mean?"
+              ]
+            },
+            grammar: {
+              topic: "Understanding Prefixes",
+              focus: "Prefixes are added to the beginning of a word to change its meaning. Knowing them helps you guess unknown words in IELTS Reading. (e.g., bi- = two, multi- = many, tele- = distance, sub- = under).",
+              examples: [
+                "She is bilingual. (Speaks TWO languages).",
+                "He watched television. (Seeing from a DISTANCE).",
+                "The submarine goes underwater. (UNDER water)."
+              ],
+              model: "When encountering a new word in reading, break it down: 'Since I know 'multi-' means many, a multilingual society must be one that uses many languages.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Identifying Topic Sentences | Grammar Focus: Prefixes",
+                text: "Read this paragraph: 'Telecommunications have changed the world. People can now talk instantly across oceans. Video calls are free and accessible.'",
+                questions: [
+                  "Skill Question: Which sentence is the topic sentence (the main idea)? (Answer: The first sentence).",
+                  "Grammar Question: The word 'Telecommunications' starts with 'tele-'. What does that prefix mean? (Answer: Distance)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Reading Test (Multiple Choice)",
+                text: "Read the passage about global languages.",
+                questions: [
+                  "According to the text, why do bilingual children perform better at problem-solving?",
+                  "A) Because they have better accents.",
+                  "B) Because of significant cognitive benefits.",
+                  "C) Because they use the internet more."
+                ]
+              },
+              {
+                type: "Writing Test (Task 2)",
+                text: "Write about the following topic.",
+                questions: [
+                  "Some people believe that all students should be forced to learn a foreign language in middle school. To what extent do you agree or disagree? Write at least 250 words."
+                ],
+                modelAnswer: "It is often debated whether learning a foreign language should be a compulsory part of the middle school curriculum. I strongly agree that all students should learn a second language, as it provides cognitive benefits and prepares them for a globalized world.\n\nFirstly, learning a foreign language significantly improves a student's cognitive abilities. When a teenager studies new vocabulary and complex grammar rules, it exercises their brain. Studies have shown that bilingual students tend to perform better in other academic subjects, such as mathematics and logic puzzles, because their problem-solving skills are enhanced. Furthermore, understanding how a different language works gives students a deeper understanding of their own mother tongue.\n\nSecondly, the modern world is highly interconnected. Being fluent or even conversational in a foreign language like English or Spanish opens doors for international communication. When students grow up and enter the workforce, multinational corporations highly value multilingual employees. Even outside of work, knowing another language allows individuals to travel, understand different cultures, and communicate with foreigners without relying heavily on translations.\n\nIn conclusion, making foreign language study compulsory in middle schools is highly beneficial. It not only boosts brain development but also equips students with essential skills for international communication."
+              }
+            ]
+          },
+          {
+            id: 17,
+            title: "Transport and Commuting",
+            icon: "fa-solid fa-bus",
+            skills: ["Short-answer questions", "Labelling a map"],
+            content: "Focuses on public transport, cars, and solving traffic problems.",
+            secondaryExample: "Grade 7 Context: Figuring out the fastest public bus route to get to your junior high school.",
+            outcomes: {
+              listening: "Listen to directions and successfully label a map or plan of a bus station.",
+              reading: "Read a text about public transport and answer short-answer questions using NO MORE THAN THREE WORDS.",
+              writing: "Compare data using comparatives and superlatives in a Task 1 essay.",
+              speaking: "Talk about your daily commute and how transport could be improved.",
+              grammarVocab: "Master comparatives and superlatives (faster, the most crowded) and transport vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe your daily commute to school. What transport do you use and how long does it take?" },
+            keyVocabSummary: "Modes of transport and travel vocabulary (commuting, traffic, vehicle, expedition, fare).",
+            vocabulary: [
+              { word: "Commuting", chinese: "通勤", definition: "Traveling regularly between work/school and home." },
+              { word: "Traffic", chinese: "交通", definition: "Vehicles moving on a public highway." },
+              { word: "Vehicle", chinese: "车辆", definition: "A thing used for transporting people or goods, especially on land." },
+              { word: "Expedition", chinese: "探险", definition: "A journey undertaken by a group of people with a particular purpose." },
+              { word: "Passenger", chinese: "乘客", definition: "A traveler on a public or private conveyance." },
+              { word: "Route", chinese: "路线", definition: "A way or course taken in getting from a starting point to a destination." },
+              { word: "Fare", chinese: "车费", definition: "The money paid for a journey on public transport." },
+              { word: "Destination", chinese: "目的地", definition: "The place to which someone or something is going." },
+              { word: "Ferry", chinese: "渡轮", definition: "A boat or ship for conveying passengers and goods." },
+              { word: "Platform", chinese: "站台", definition: "A raised level surface on which people or things can stand, usually at a train station." }
+            ],
+            mcqs: [
+              { q: "[Grammar] Trains are ___ than buses.", options: ["fast", "faster", "fastest", "more fast"], answer: 1 },
+              { q: "[Grammar] The subway is the ___ crowded transport in the morning.", options: ["more", "most", "much", "many"], answer: 1 },
+              { q: "[Vocab] You must pay a ___ to ride the public bus.", options: ["route", "expedition", "fare", "platform"], answer: 2 },
+              { q: "[Vocab] A car is a type of motorized ___.", options: ["passenger", "vehicle", "traffic", "ferry"], answer: 1 },
+              { q: "[Grammar] Bicycles are ___ expensive than cars.", options: ["least", "less", "fewer", "little"], answer: 1 },
+              { q: "[Vocab] Traveling back and forth to school is called ___.", options: ["commuting", "destination", "platform", "expedition"], answer: 0 },
+              { q: "[Grammar] This is the ___ traffic jam I have ever seen.", options: ["worse", "worst", "bad", "badder"], answer: 1 },
+              { q: "[Vocab] A boat that carries people across a river is a ___.", options: ["vehicle", "platform", "ferry", "route"], answer: 2 },
+              { q: "[Grammar] Walking is ___ healthier than driving.", options: ["much", "many", "most", "more"], answer: 0 },
+              { q: "[Vocab] Wait for the train on the ___.", options: ["fare", "traffic", "destination", "platform"], answer: 3 },
+              { q: "[Vocab] The final place you are traveling to is your ___.", options: ["route", "commuting", "destination", "vehicle"], answer: 2 },
+              { q: "[Grammar] The new bus is ___ comfortable than the old one.", options: ["most", "more", "much", "many"], answer: 1 },
+              { q: "[Vocab] A person riding in a car, but not driving, is a ___.", options: ["passenger", "driver", "vehicle", "ferry"], answer: 0 },
+              { q: "[Grammar] Traveling by plane is ___ fastest way to go.", options: ["a", "an", "the", "some"], answer: 2 },
+              { q: "[Vocab] We took a new ___ to avoid the traffic.", options: ["route", "fare", "expedition", "passenger"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "How do you usually get to school?",
+                  "Is public transport good in your city?",
+                  "Do you prefer traveling by car or by train?",
+                  "Have you ever been on a ferry?"
+                ],
+                stems: [
+                  "For my daily commuting, I usually...",
+                  "The public transport here is...",
+                  "I definitely prefer the train because it is much..."
+                ],
+                example: "For my daily commuting to middle school, I usually take the public bus. The public transport in my city is quite good, but the traffic in the morning is terrible. I definitely prefer traveling by train because it is much faster and avoids the roads. I have been on a ferry once during a family trip to an island."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a long journey you went on. You should say: where you went, what vehicle you traveled in, who you went with, and explain how you felt about the journey."
+                ],
+                stems: [
+                  "A memorable expedition I went on was...",
+                  "We traveled by... which was the most...",
+                  "I felt incredibly excited because..."
+                ],
+                example: "A memorable expedition I went on was a trip to Beijing with my parents. Our destination was very far, so we traveled by high-speed bullet train. It was the most comfortable vehicle I have ever been in, and much faster than driving. I felt incredibly excited because I got to sit by the window and watch the scenery go by during the entire route."
+              }
+            ],
+            reading: {
+              text: "Commuting in bustling cities has become a major issue due to heavy traffic. Many residents prefer private vehicles, which causes severe congestion during rush hour. To solve this, city councils are upgrading public transport routes. Trains are much faster than buses, and they can carry more passengers. A single train fare is often cheaper than paying for petrol. Therefore, the subway is considered the most efficient way to travel in urban areas.",
+              questions: [
+                "1. Why is commuting a major issue in bustling cities?",
+                "2. What is considered the most efficient way to travel?",
+                "3. Are trains faster or slower than buses?"
+              ]
+            },
+            listening: {
+              text: "Station Announcer: Attention passengers. If you are looking for the central bus platform, walk straight past the ticket office. The ferry terminal is located much further away, next to the river. Please have your fare ready before boarding the vehicle. The express route is the fastest way to your destination.",
+              questions: [
+                "1. Where is the central bus platform located?",
+                "2. What must passengers have ready before boarding?",
+                "3. Which route is the fastest?"
+              ]
+            },
+            grammar: {
+              topic: "Comparatives and Superlatives",
+              focus: "Use comparatives (-er, more) to compare two things. Use superlatives (-est, the most) to compare three or more things. Essential for IELTS Task 1 data comparison.",
+              examples: [
+                "Trains are MUCH FASTER than buses. (Comparative)",
+                "Bicycles are LESS EXPENSIVE than cars. (Comparative)",
+                "The subway is THE MOST CROWDED transport. (Superlative)"
+              ],
+              model: "When comparing data in Task 1: 'The train was THE MOST popular vehicle in 2010. However, cars were MORE popular than buses.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Short-answer questions | Grammar Focus: Superlatives",
+                text: "Read this: 'Out of all the vehicles, the high-speed train is the quickest way to reach the destination.'",
+                questions: [
+                  "Skill Question: Answer with NO MORE THAN THREE WORDS: What is the quickest vehicle? (Answer: high-speed train).",
+                  "Grammar Question: What is the superlative adjective in that sentence? (Answer: the quickest)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Reading Test (Short Answer)",
+                text: "Read the passage about urban commuting.",
+                questions: [
+                  "Answer using NO MORE THAN THREE WORDS:",
+                  "1. What causes severe congestion during rush hour?",
+                  "2. What is often cheaper than paying for petrol?"
+                ]
+              },
+              {
+                type: "Writing Test (Task 1)",
+                text: "Write about the following topic.",
+                questions: [
+                  "The bar chart shows the preferred modes of transport for commuters in a city. Summarise the data by making comparisons using comparatives and superlatives. Write at least 150 words."
+                ],
+                modelAnswer: "The bar chart compares the percentage of commuters using four different modes of transport (Car, Bus, Train, and Bicycle) in a major city between 2000 and 2020.\n\nOverall, it is clear that the car was the most popular vehicle in both years, although its usage decreased over time. Conversely, the train became significantly more popular, replacing the bus as the second most used transport.\n\nLooking at the details, in the year 2000, exactly 60% of people commuted by car, making it by far the most dominant mode. The bus was the next most popular at 25%, while trains and bicycles were the least common, at 10% and 5% respectively. \n\nBy 2020, commuting habits had shifted. Car usage dropped to 45%, though it remained the highest overall. Train travel saw a massive increase, jumping to 30%, making it much faster-growing than the bus, which dropped to 15%. Bicycles also saw a slight increase to 10%, but remained the least preferred mode of transport."
+              }
+            ]
+          },
+          {
+            id: 18,
+            title: "Sport and Fitness",
+            icon: "fa-solid fa-basketball",
+            skills: ["Multiple-choice questions", "Skimming"],
+            content: "Focuses on physical activities, team sports, and exercise routines.",
+            secondaryExample: "Grade 7 Context: Joining the middle school track and field team and filling out a gym form.",
+            outcomes: {
+              listening: "Listen to a sports center induction and complete a membership form with numbers and categories.",
+              reading: "Skim a text about sports to identify the general style and answer multiple-choice questions.",
+              writing: "Write sentences describing regular habits and routines using frequency adverbs.",
+              speaking: "Talk about sports you play, sports you watch, and your exercise habits.",
+              grammarVocab: "Master adverbs of frequency (always, usually) and vocabulary for sports locations and categories."
+            },
+            practiceActivity: { type: "speaking", task: "Describe a sport you enjoy playing or watching. What is it, where do you do it, and who do you play with?" },
+            keyVocabSummary: "Categorizing sports (contact, extreme, water) and locations (pitch, court, track).",
+            vocabulary: [
+              { word: "Pitch", chinese: "球场 (草地)", definition: "An area of ground marked out or used for play in an outdoor team sport (e.g., football)." },
+              { word: "Court", chinese: "球场 (硬地)", definition: "A quadrangular area marked out for ball games (e.g., tennis, basketball)." },
+              { word: "Track", chinese: "跑道", definition: "A prepared course or circuit for athletes, horses, etc., to race on." },
+              { word: "Contact sport", chinese: "接触性运动", definition: "A sport in which the participants necessarily come into bodily contact with one another." },
+              { word: "Extreme sport", chinese: "极限运动", definition: "A sport or activity that is inherently dangerous." },
+              { word: "Referee", chinese: "裁判", definition: "An official who watches a game or match closely to ensure rules are adhered to." },
+              { word: "Athletics", chinese: "田径", definition: "Physical sports and games of any kind, specifically track and field events." },
+              { word: "Tournament", chinese: "锦标赛", definition: "A sporting competition in which contestants play a series of games." },
+              { word: "Amateur", chinese: "业余的", definition: "A person who engages in a pursuit on an unpaid basis." },
+              { word: "Professional", chinese: "专业的", definition: "Engaged in a specified activity as one's main paid occupation." }
+            ],
+            mcqs: [
+              { q: "[Grammar] I ___ go jogging on Sunday mornings.", options: ["always", "much", "many", "very"], answer: 0 },
+              { q: "[Vocab] Football is played on a grassy ___.", options: ["court", "pitch", "track", "referee"], answer: 1 },
+              { q: "[Vocab] Tennis and basketball are played on a ___.", options: ["pitch", "track", "court", "tournament"], answer: 2 },
+              { q: "[Grammar] She ___ plays tennis; she plays every single day.", options: ["never", "rarely", "always", "occasionally"], answer: 2 },
+              { q: "[Vocab] The ___ blew his whistle to stop the game.", options: ["amateur", "referee", "athletics", "contact sport"], answer: 1 },
+              { q: "[Grammar] We ___ play video games, maybe once a month.", options: ["usually", "always", "occasionally", "often"], answer: 2 },
+              { q: "[Vocab] Rugby and American football are examples of ___.", options: ["contact sports", "extreme sports", "water sports", "athletics"], answer: 0 },
+              { q: "[Vocab] Running and jumping events happen on a ___.", options: ["court", "pitch", "track", "amateur"], answer: 2 },
+              { q: "[Grammar] He doesn't like sports, so he ___ watches them.", options: ["always", "frequently", "never", "usually"], answer: 2 },
+              { q: "[Vocab] Someone who gets paid to play sports is a ___.", options: ["amateur", "referee", "professional", "tournament"], answer: 2 },
+              { q: "[Vocab] Surfing huge waves is considered an ___.", options: ["athletics", "extreme sport", "contact sport", "court"], answer: 1 },
+              { q: "[Grammar] I ___ go to the gym after school, about 4 times a week.", options: ["never", "rarely", "usually", "seldom"], answer: 2 },
+              { q: "[Vocab] A series of games to find one champion is a ___.", options: ["tournament", "referee", "pitch", "amateur"], answer: 0 },
+              { q: "[Grammar] Do you ___ play basketball on weekends?", options: ["often", "never", "seldom", "rarely"], answer: 0 },
+              { q: "[Vocab] He doesn't get paid; he is just an ___ player.", options: ["professional", "amateur", "referee", "athletics"], answer: 1 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you like playing sports?",
+                  "What is the most popular sport in your country?",
+                  "Do you prefer contact sports or athletics?",
+                  "How often do you exercise?"
+                ],
+                stems: [
+                  "I usually enjoy playing...",
+                  "Without a doubt, the most popular sport here is...",
+                  "I always exercise at least..."
+                ],
+                example: "I usually enjoy playing basketball with my classmates. Without a doubt, the most popular sport here in China is table tennis, but basketball is huge too. I prefer athletics over contact sports because I like running on the track. I always exercise at least three times a week for my middle school PE class."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a sporting event you attended or watched on TV. You should say: what the event was, who was playing, where you watched it, and explain why it was memorable."
+                ],
+                stems: [
+                  "A thrilling sporting event I watched was...",
+                  "It was a tournament between...",
+                  "It was extremely memorable because the referee..."
+                ],
+                example: "A thrilling sporting event I watched recently was the final match of the NBA basketball tournament. It was a game between the Lakers and the Warriors. I usually watch games at home, but for this, I went to a friend's house. It was extremely memorable because it was a very close game, and a professional player hit a buzzer-beater shot right at the end."
+              }
+            ],
+            reading: {
+              text: "Participation in athletics and team sports has numerous health benefits for middle school students. While some teenagers occasionally engage in extreme sports like skateboarding, most usually prefer traditional games played on a court or pitch. Playing a contact sport requires discipline and teaches students how to respect the referee. Professionals always train daily, but even amateurs benefit from regular exercise.",
+              questions: [
+                "1. What type of sports do teenagers occasionally engage in?",
+                "2. Where are traditional games usually played?",
+                "3. Who always trains daily according to the text?"
+              ]
+            },
+            listening: {
+              text: "Gym Staff: Welcome to the fitness center. To register for a membership, please tell me your age. \nStudent: I'm 13 years old. \nGym Staff: Great. And how often do you plan to use the track and the basketball court? \nStudent: I usually come twice a week. I'm an amateur, not a professional. \nGym Staff: Okay, your membership fee is $25 per month.",
+              questions: [
+                "1. How old is the student?",
+                "2. How often does the student plan to use the facilities?",
+                "3. What is the monthly membership fee?"
+              ]
+            },
+            grammar: {
+              topic: "Adverbs of Frequency",
+              focus: "Use adverbs of frequency (always, usually, often, sometimes, occasionally, rarely, never) with the Present Simple tense to discuss regular habits and routines.",
+              examples: [
+                "I ALWAYS go jogging on Sunday mornings.",
+                "He USUALLY plays basketball on the court.",
+                "Teenagers OCCASIONALLY engage in extreme sports."
+              ],
+              model: "When describing your habits in Part 1 Speaking: 'I ALWAYS play football after school, but I RARELY play contact sports because of the injury risk.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Listening Prompt",
+                focus: "Target Skill: Form Completion | Grammar Focus: Frequency",
+                text: "Listen to this: 'I go to the swimming pool three times a week.'",
+                questions: [
+                  "Grammar Question: What adverb of frequency could replace 'three times a week'? (e.g., often, usually).",
+                  "Skill Question: If a form asks 'Frequency of visits: [gap]', what should you write? (Answer: three times a week)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Listening Test (Form Completion)",
+                text: "Listen to the gym registration audio.",
+                questions: [
+                  "Complete the form. Write A NUMBER or NO MORE THAN TWO WORDS:",
+                  "Applicant Age: (1) ________",
+                  "Frequency of visits: (2) ________ a week",
+                  "Membership type: Junior (3) ________"
+                ]
+              },
+              {
+                type: "Reading Test (Multiple Choice)",
+                text: "Read the text about youth sports.",
+                questions: [
+                  "According to the text, why is playing a contact sport beneficial?",
+                  "A) It is an extreme sport.",
+                  "B) It teaches students to respect the referee.",
+                  "C) It makes them professionals."
+                ]
+              }
+            ]
+          },
+          {
+            id: 19,
+            title: "Environmental Issues",
+            icon: "fa-solid fa-recycle",
+            skills: ["Identifying cause and effect", "Summary completion"],
+            content: "Focuses on climate change, pollution, and recycling.",
+            secondaryExample: "Grade 7 Context: Starting a recycling club in your middle school to reduce plastic waste.",
+            outcomes: {
+              listening: "Listen to an environmental podcast and complete a summary by choosing words from a box.",
+              reading: "Identify cause and effect relationships in texts about climate change and pollution.",
+              writing: "Write a problem and solution essay about deforestation.",
+              speaking: "Discuss global warming and what individuals can do to help the environment.",
+              grammarVocab: "Master first conditionals for solutions and environmental vocabulary."
+            },
+            practiceActivity: { type: "writing", task: "Write a short paragraph explaining one cause of pollution and proposing one solution using an 'If' sentence." },
+            keyVocabSummary: "Verbs to describe natural processes, and environmental terms (fossil fuels, renewable energy).",
+            vocabulary: [
+              { word: "Fossil fuel", chinese: "化石燃料", definition: "A natural fuel such as coal or gas, formed in the geological past." },
+              { word: "Renewable", chinese: "可再生的", definition: "Energy from a source that is not depleted when used, such as wind or solar power." },
+              { word: "Biomass", chinese: "生物质", definition: "Organic matter used as a fuel, especially in a power station." },
+              { word: "Ozone layer", chinese: "臭氧层", definition: "A layer in the earth's stratosphere containing a high concentration of ozone." },
+              { word: "Pollution", chinese: "污染", definition: "The presence of a substance which has harmful or poisonous effects." },
+              { word: "Recycle", chinese: "回收", definition: "Convert waste into reusable material." },
+              { word: "Deforestation", chinese: "森林砍伐", definition: "The action of clearing a wide area of trees." },
+              { word: "Emission", chinese: "排放", definition: "The production and discharge of something, especially gas or radiation." },
+              { word: "Conservation", chinese: "保护", definition: "Prevention of wasteful use of a resource." },
+              { word: "Global warming", chinese: "全球变暖", definition: "A gradual increase in the overall temperature of the earth's atmosphere." }
+            ],
+            mcqs: [
+              { q: "[Grammar] If we recycle more, we ___ save trees.", options: ["will", "would", "are", "do"], answer: 0 },
+              { q: "[Vocab] Coal and oil are examples of ___.", options: ["renewable", "fossil fuels", "biomass", "ozone layer"], answer: 1 },
+              { q: "[Vocab] Solar and wind power are ___ energy sources.", options: ["pollution", "deforestation", "renewable", "fossil fuel"], answer: 2 },
+              { q: "[Grammar] If pollution ___ , the ice caps will melt.", options: ["increase", "increases", "will increase", "increasing"], answer: 1 },
+              { q: "[Vocab] The cutting down of forests is called ___.", options: ["conservation", "emission", "deforestation", "global warming"], answer: 2 },
+              { q: "[Grammar] If the government ___ fossil fuels, emissions will drop.", options: ["ban", "bans", "will ban", "banned"], answer: 1 },
+              { q: "[Vocab] Harmful gas ___ from cars cause global warming.", options: ["biomass", "emissions", "conservation", "recycle"], answer: 1 },
+              { q: "[Vocab] The ___ protects the earth from the sun's radiation.", options: ["fossil fuel", "emission", "ozone layer", "pollution"], answer: 2 },
+              { q: "[Grammar] We will stop global warming if we ___ renewable energy.", options: ["use", "uses", "will use", "used"], answer: 0 },
+              { q: "[Vocab] Turning plastic bottles into new products is called ___.", options: ["deforestation", "pollution", "recycling", "emission"], answer: 2 },
+              { q: "[Vocab] Protecting natural habitats is part of wildlife ___.", options: ["conservation", "pollution", "deforestation", "biomass"], answer: 0 },
+              { q: "[Grammar] If you ___ less water, you will help the environment.", options: ["wastes", "waste", "will waste", "wasting"], answer: 1 },
+              { q: "[Vocab] Plant materials used for fuel are known as ___.", options: ["fossil fuels", "emissions", "biomass", "ozone layer"], answer: 2 },
+              { q: "[Grammar] If everyone plants a tree, the air ___ cleaner.", options: ["is", "was", "will be", "be"], answer: 2 },
+              { q: "[Vocab] The gradual heating of the earth is known as ___.", options: ["conservation", "global warming", "recycling", "renewable"], answer: 1 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "What environmental problems are there in your city?",
+                  "Do you and your family recycle at home?",
+                  "Do you learn about the environment in middle school?",
+                  "What can you do to save energy?"
+                ],
+                stems: [
+                  "The main environmental problem here is...",
+                  "Yes, my family always tries to recycle...",
+                  "If I turn off the lights, I will..."
+                ],
+                example: "The main environmental problem in my city is air pollution from car emissions. Yes, my family always tries to recycle plastic and paper. We learn a lot about conservation in my middle school science class. To save energy, if I leave a room, I will always turn off the lights."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe an environmental problem you have heard about. You should say: what it is, what causes it, what effects it has, and explain how it can be solved."
+                ],
+                stems: [
+                  "An urgent environmental issue I recently researched is...",
+                  "This is primarily caused by the burning of...",
+                  "If we switch to renewable energy, we will..."
+                ],
+                example: "An urgent environmental issue I recently researched for a Grade 7 project is global warming. This is primarily caused by the burning of fossil fuels and massive deforestation. The effect is that the ozone layer is damaged and ice caps melt. If governments ban plastic and we switch to renewable energy, we will slow down this process."
+              }
+            ],
+            reading: {
+              text: "Global warming is heavily influenced by human activity. When factories burn fossil fuels, toxic emissions are released into the atmosphere. This pollution damages the ozone layer, which subsequently causes global temperatures to rise. To combat this, conservationists argue that society must invest in renewable energy sources like wind and biomass. If we do not stop deforestation, the earth will lose its ability to naturally filter the air.",
+              questions: [
+                "1. What causes toxic emissions to be released into the atmosphere?",
+                "2. What is the effect of damaging the ozone layer?",
+                "3. What will happen if we do not stop deforestation?"
+              ]
+            },
+            listening: {
+              text: "Podcast Host: Today we are talking about middle school recycling clubs. Our guest, Sarah, started one. \nSarah: Yes, we realized our school was throwing away too much paper. So, we set up recycling bins in every classroom. If students throw paper in the bin, we will collect it every Friday. By doing this, we reduce local pollution and promote conservation.",
+              questions: [
+                "1. What did Sarah realize her school was throwing away too much of?",
+                "2. Where did they set up the bins?",
+                "3. When do they collect the paper?"
+              ]
+            },
+            grammar: {
+              topic: "First Conditional for Solutions",
+              focus: "Use the First Conditional (If + present simple, will + verb) to talk about possible future situations and their results. This is crucial for proposing solutions in Task 2 essays.",
+              examples: [
+                "If we recycle more, we will save trees.",
+                "If the government bans fossil fuels, emissions will drop.",
+                "If you turn off the lights, you will save energy."
+              ],
+              model: "When writing a problem/solution essay: 'The primary solution is conservation. IF individuals use public transport instead of cars, urban air pollution WILL significantly decrease.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Cause and Effect | Grammar Focus: Conditionals",
+                text: "Read this: 'If we cut down all the forests, many animal species will die.'",
+                questions: [
+                  "Skill Question: What is the 'cause' in this sentence? (Answer: cutting down forests). What is the 'effect'? (Answer: animal species will die).",
+                  "Grammar Question: What conditional structure is being used here? (Answer: First conditional)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Writing Test (Task 2)",
+                text: "You should spend about 40 minutes on this task.",
+                questions: [
+                  "Pollution is causing major problems in modern cities. What are the causes of this pollution, and what solutions can you suggest using conditional sentences? Write at least 250 words."
+                ]
+              },
+              {
+                type: "Listening Test (Summary Completion)",
+                text: "Listen to the podcast about the environment.",
+                questions: [
+                  "Complete the summary using words from the box: [fossil fuels, recycling, emissions, conservation]",
+                  "Sarah started a (1) ________ club at her school to stop paper waste. By doing this, she hopes to promote (2) ________ and reduce the negative impact on the environment."
+                ]
+              }
+            ]
+          },
+          {
+            id: 20,
+            title: "Gadgets, Video Games, and Social Media",
+            icon: "fa-solid fa-gamepad",
+            skills: ["Summary completion", "Classifying information"],
+            content: "Focuses on the digital world, online socializing, and gaming habits.",
+            secondaryExample: "Grade 7 Context: Discussing video game habits and social networking safety with classmates.",
+            outcomes: {
+              listening: "Listen to teenagers discussing websites and accurately classify information (e.g., matching features to specific games).",
+              reading: "Complete a summary by filling in the blanks based on a short tech article.",
+              writing: "Discuss the pros and cons of social media using gerunds.",
+              speaking: "Talk about your favourite video games and how much time you spend online.",
+              grammarVocab: "Differentiate between -ing forms (gerunds) and present continuous, and master digital vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Talk about a video game you enjoy playing. Describe the multimedia features and why it is addictive." },
+            keyVocabSummary: "Technology habits and digital spaces (virtual, social networking, interactive, multimedia).",
+            vocabulary: [
+              { word: "Virtual", chinese: "虚拟的", definition: "Not physically existing as such but made by software to appear to do so." },
+              { word: "Social networking", chinese: "社交网络", definition: "The use of dedicated websites and applications to interact with other users." },
+              { word: "Interactive", chinese: "互动的", definition: "Allowing a two-way flow of information between a computer and a computer-user." },
+              { word: "Multimedia", chinese: "多媒体", definition: "Using more than one medium of expression or communication (e.g., text, audio, video)." },
+              { word: "Console", chinese: "控制台", definition: "A specialized computer system designed for interactive video gameplay." },
+              { word: "Avatar", chinese: "虚拟形象", definition: "An icon or figure representing a particular person in video games or internet forums." },
+              { word: "Addictive", chinese: "上瘾的", definition: "Causing or likely to cause a strong habit or dependence." },
+              { word: "Cyberbullying", chinese: "网络欺凌", definition: "The use of electronic communication to bully a person." },
+              { word: "Notification", chinese: "通知", definition: "A message or alert delivered to a user's device." },
+              { word: "Stream", chinese: "流媒体", definition: "Transmit or receive data (especially video and audio) over the internet as a continuous flow." }
+            ],
+            mcqs: [
+              { q: "[Grammar] ___ video games is fun.", options: ["Play", "Played", "Playing", "Is play"], answer: 2 },
+              { q: "[Grammar] I am ___ a movie on my tablet right now.", options: ["watch", "watched", "watching", "watches"], answer: 2 },
+              { q: "[Vocab] I play my new game on a television ___. ", options: ["stream", "avatar", "console", "virtual"], answer: 2 },
+              { q: "[Vocab] Creating an online ___ allows you to customize how you look in the game.", options: ["notification", "avatar", "cyberbullying", "multimedia"], answer: 1 },
+              { q: "[Grammar] ___ social media can be addictive.", options: ["Use", "Used", "Using", "Uses"], answer: 2 },
+              { q: "[Vocab] Websites like Facebook and Instagram are ___ platforms.", options: ["social networking", "console", "avatar", "virtual"], answer: 0 },
+              { q: "[Grammar] He enjoys ___ live streams on weekends.", options: ["watching", "watch", "watched", "watches"], answer: 0 },
+              { q: "[Vocab] Sending mean messages online is known as ___.", options: ["multimedia", "interactive", "cyberbullying", "notification"], answer: 2 },
+              { q: "[Grammar] ___ online is a good way to stay in touch.", options: ["Chat", "Chatting", "Chatted", "Chats"], answer: 1 },
+              { q: "[Vocab] VR headsets let you explore a ___ world.", options: ["interactive", "multimedia", "virtual", "console"], answer: 2 },
+              { q: "[Vocab] A game that responds to your choices is ___.", options: ["addictive", "interactive", "notification", "stream"], answer: 1 },
+              { q: "[Grammar] They are ___ a new multiplayer game.", options: ["play", "played", "playing", "plays"], answer: 2 },
+              { q: "[Vocab] I heard my phone buzz with a new ___.", options: ["avatar", "console", "notification", "cyberbullying"], answer: 2 },
+              { q: "[Grammar] ___ late at night ruins your sleep.", options: ["Scroll", "Scrolled", "Scrolling", "Scrolls"], answer: 2 },
+              { q: "[Vocab] Apps that use text, video, and audio are ___.", options: ["virtual", "multimedia", "addictive", "stream"], answer: 1 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "How much time do you spend online every day?",
+                  "Do you use social networking sites?",
+                  "What is your favourite video game?",
+                  "Have you ever experienced cyberbullying?"
+                ],
+                stems: [
+                  "Playing video games takes up about...",
+                  "I use social networking to...",
+                  "One negative aspect of the internet is..."
+                ],
+                example: "Playing video games takes up about an hour of my day after school. I use social networking sites like WeChat to talk to my classmates. My favourite video game is an interactive racing game I play on my console. Fortunately, I have never experienced cyberbullying, but my school teaches us how to stay safe online."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a website or app you use regularly. You should say: what it is, how often you use it, what you use it for, and explain why you find it addictive."
+                ],
+                stems: [
+                  "An app I stream from regularly is...",
+                  "I use it mainly for watching...",
+                  "It is highly addictive because..."
+                ],
+                example: "An app I stream from regularly is Bilibili. I use it every evening. I use it mainly for watching gaming streams and educational multimedia videos for my middle school homework. It is highly addictive because the algorithm sends me notifications for videos it knows I will like, so scrolling through it is very entertaining."
+              }
+            ],
+            reading: {
+              text: "Video games have evolved from simple pixels into complex, virtual worlds. Today, many teenagers play on a dedicated console, using a customized avatar to represent themselves. While these interactive environments improve problem-solving skills, parents worry they are highly addictive. Furthermore, the rise of social networking has introduced new dangers, such as cyberbullying, where students receive mean notifications.",
+              questions: [
+                "1. What do teenagers use to represent themselves in games?",
+                "2. What is a positive effect of interactive environments?",
+                "3. What danger has the rise of social networking introduced?"
+              ]
+            },
+            listening: {
+              text: "Student 1: I love this new multimedia app. You can stream videos and chat at the same time. \nStudent 2: Yeah, but the notifications are so annoying. They distract me from my homework. \nStudent 1: True. I prefer playing on my console anyway. Using a controller is much better than tapping a screen.",
+              questions: [
+                "1. What can you do at the same time on the new multimedia app?",
+                "2. Why does Student 2 find the notifications annoying?",
+                "3. Why does Student 1 prefer playing on a console?"
+              ]
+            },
+            grammar: {
+              topic: "Forms with -ing (Gerunds)",
+              focus: "Use the -ing form of a verb (a gerund) when it acts as the subject of a sentence (e.g., Playing is fun). Distinguish this from the present continuous (e.g., I am playing).",
+              examples: [
+                "Playing video games is fun. (Gerund as subject)",
+                "Using social media can be addictive. (Gerund as subject)",
+                "I am watching a stream right now. (Present continuous)"
+              ],
+              model: "When writing Task 2 advantages/disadvantages: 'SCROLLING through social networking sites can waste a student's time. However, PLAYING interactive games improves reflexes.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Summary completion | Grammar Focus: Gerunds",
+                text: "Read this: 'Spending too much time online is bad for your eyes.'",
+                questions: [
+                  "Grammar Question: In this sentence, is the word 'Spending' a present continuous verb or a gerund (noun)? (Answer: Gerund).",
+                  "Skill Question: If a summary asks '___ online hurts your vision', what word fills the gap? (Answer: Spending time)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Reading Test (Summary Completion)",
+                text: "Read the text about gaming and fill in the blanks.",
+                questions: [
+                  "Fill in the blanks using NO MORE THAN TWO WORDS from the text:",
+                  "Teenagers today often play games in complex, (1) ________ worlds using a dedicated (2) ________. While they improve problem-solving, games can also be highly (3) ________."
+                ]
+              },
+              {
+                type: "Speaking Test (Part 3)",
+                text: "Discuss the following with your tutor:",
+                questions: [
+                  "1. Do you think playing video games is a waste of time?",
+                  "2. How has social networking changed the way teenagers communicate?"
+                ]
+              }
+            ]
+          },
+          {
+            id: 21,
+            title: "Youth and Ageing",
+            icon: "fa-solid fa-users",
+            skills: ["Matching information", "Sentence completion"],
+            content: "Focuses on teenagers, family structures, and relationships with grandparents.",
+            secondaryExample: "Grade 7 Context: Interviewing your grandparents for a history assignment to understand how childhood has changed.",
+            outcomes: {
+              listening: "Listen to interviews with different generations and complete sentences with specific facts.",
+              reading: "Read sociological texts and match specific information to the correct paragraphs.",
+              writing: "Write an essay comparing life in the past to life today.",
+              speaking: "Talk about your grandparents, how they raised your parents, and the generation gap.",
+              grammarVocab: "Master past tenses, 'used to', and 'would' to discuss past habits, and relationship vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe a memory you have with your grandparents. What did you do together and what did they teach you?" },
+            keyVocabSummary: "Describing people and relationships (nuclear family, extended family, relatives, pensioner).",
+            vocabulary: [
+              { word: "Nuclear family", chinese: "核心家庭", definition: "A couple and their dependent children, regarded as a basic social unit." },
+              { word: "Extended family", chinese: "大家庭", definition: "A family that extends beyond the nuclear family, including grandparents, aunts, uncles." },
+              { word: "Relatives", chinese: "亲戚", definition: "People connected by blood or marriage." },
+              { word: "Generation", chinese: "一代", definition: "All of the people born and living at about the same time." },
+              { word: "Ancestor", chinese: "祖先", definition: "A person, typically one more remote than a grandparent, from whom one is descended." },
+              { word: "Toddler", chinese: "学步的儿童", definition: "A young child who is just beginning to walk." },
+              { word: "Pensioner", chinese: "领养老金者", definition: "A person who receives a pension, typically an older adult who has retired." },
+              { word: "Maturity", chinese: "成熟", definition: "The state, fact, or period of being mature." },
+              { word: "Upbringing", chinese: "教养", definition: "The treatment and instruction received by a child from its parents." },
+              { word: "Sibling", chinese: "兄弟姐妹", definition: "Each of two or more children or offspring having one or both parents in common." }
+            ],
+            mcqs: [
+              { q: "[Grammar] When my grandfather was young, he ___ walk 5 miles to school.", options: ["used to", "is used to", "using to", "use to"], answer: 0 },
+              { q: "[Grammar] I ___ live in the countryside, but now I live in the city.", options: ["used to", "use to", "am used to", "would"], answer: 0 },
+              { q: "[Vocab] A family with only parents and children is a ___ family.", options: ["extended", "nuclear", "relative", "generation"], answer: 1 },
+              { q: "[Vocab] My grandmother is retired; she is a ___.", options: ["toddler", "sibling", "pensioner", "ancestor"], answer: 2 },
+              { q: "[Grammar] In the past, families ___ eat dinner together every night.", options: ["would", "will", "are", "do"], answer: 0 },
+              { q: "[Vocab] Your brother or sister is your ___.", options: ["ancestor", "toddler", "sibling", "pensioner"], answer: 2 },
+              { q: "[Grammar] She ___ have a pet dog when she was a toddler.", options: ["used to", "would", "is", "use to"], answer: 0 },
+              { q: "[Vocab] A very young child who is learning to walk is a ___.", options: ["pensioner", "toddler", "ancestor", "generation"], answer: 1 },
+              { q: "[Vocab] Aunts, uncles, and cousins are all part of your ___ family.", options: ["nuclear", "extended", "toddler", "maturity"], answer: 1 },
+              { q: "[Grammar] They ___ play outside all day during the summer holidays.", options: ["would", "will", "are", "do"], answer: 0 },
+              { q: "[Vocab] The people you are descended from, from hundreds of years ago, are your ___.", options: ["siblings", "relatives", "ancestors", "toddlers"], answer: 2 },
+              { q: "[Vocab] The way your parents raise you is your ___.", options: ["upbringing", "maturity", "generation", "pensioner"], answer: 0 },
+              { q: "[Grammar] We ___ not have smartphones when I was in middle school.", options: ["did", "do", "used to", "would"], answer: 0 },
+              { q: "[Vocab] There is often a gap in understanding between my parents' ___ and mine.", options: ["generation", "sibling", "toddler", "nuclear family"], answer: 0 },
+              { q: "[Grammar] ___ your grandmother used to knit sweaters?", options: ["Did", "Do", "Would", "Is"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you spend much time with your grandparents?",
+                  "Did you have a happy childhood as a toddler?",
+                  "Do you look more like your mother or your father?",
+                  "Do you have any siblings?"
+                ],
+                stems: [
+                  "When I was a toddler, I used to...",
+                  "I spend a lot of time with my grandparents because...",
+                  "I don't have any siblings, so I am an only child."
+                ],
+                example: "When I was a toddler, I used to spend a lot of time with my grandparents because my parents were working. I have a very happy childhood memory of them teaching me to walk. I don't have any siblings, so I live in a small nuclear family. Most people say I look exactly like my father."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a conversation you had with an older person (like a pensioner or grandparent) that taught you something. You should say: who the person was, what they talked about, why they told you this, and explain what you learned from it."
+                ],
+                stems: [
+                  "For a middle school history assignment, I interviewed my...",
+                  "They told me about how they used to...",
+                  "I learned a lot about the differences in our upbringing."
+                ],
+                example: "For a middle school history assignment, I interviewed my grandfather, who is now a pensioner. He told me about how he used to walk to school in the rural countryside and how his extended family lived together. He told me this to show how much easier my life is today with modern infrastructure. I learned a lot about the differences in our upbringing and the maturity required in his generation."
+              }
+            ],
+            reading: {
+              text: "Societal structures have shifted globally. (A) In the 1950s, the extended family was the norm. Grandparents, parents, and siblings lived in close proximity, sharing resources. Toddlers were often raised collectively by several relatives. (B) However, the modern era has seen the rise of the nuclear family. As younger generations move to cities for education and work, pensioners are frequently left in rural areas, creating a physical and cultural generation gap.",
+              questions: [
+                "Match the information to paragraph A or B:",
+                "1. Mentions toddlers being raised collectively.",
+                "2. Mentions pensioners being left in rural areas.",
+                "3. Mentions the rise of the nuclear family."
+              ]
+            },
+            listening: {
+              text: "Interviewer: How was your upbringing different from your grandson's? \nGrandfather: Oh, it was vastly different. When I was his age, we didn't have internet. We used to play outside until the sun went down. My siblings and I would invent our own games. Now, my grandson just sits on his smartphone. But I suppose every generation says that about the next.",
+              questions: [
+                "1. What didn't the grandfather have when he was younger?",
+                "2. Until when did they use to play outside?",
+                "3. What did the grandfather and his siblings invent?"
+              ]
+            },
+            grammar: {
+              topic: "Past Habits (Used to & Would)",
+              focus: "Use 'used to + verb' or 'would + verb' to describe actions or habits that happened regularly in the past but do not happen now. This is perfect for comparing past and present.",
+              examples: [
+                "When my grandfather was young, he USED TO walk 5 miles to school.",
+                "In the past, families WOULD eat dinner together every night.",
+                "We DID NOT USE TO have smartphones."
+              ],
+              model: "When writing a Task 2 essay comparing generations: 'In the past, children USED TO spend more time outdoors. Extended families WOULD live in the same house, providing strong support networks.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading/Listening Prompt",
+                focus: "Target Skill: Sentence Completion | Grammar Focus: Used to",
+                text: "Read this: 'Fifty years ago, people used to write letters. Today, they send emails.'",
+                questions: [
+                  "Skill Question: Complete the sentence with ONE word: Fifty years ago, people wrote _______. (Answer: letters).",
+                  "Grammar Question: Why do we say 'used to write' instead of 'used to writing'? (Answer: 'Used to' is followed by the base infinitive verb)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Listening Test (Sentence Completion)",
+                text: "Listen to the grandmother speaking about her youth.",
+                questions: [
+                  "Complete the sentences using NO MORE THAN TWO WORDS:",
+                  "1. As a child, she ________ help her mother cook.",
+                  "2. She grew up in a large ________ family.",
+                  "3. Her favourite ________ was her older brother."
+                ]
+              },
+              {
+                type: "Writing Test (Task 2)",
+                text: "You should spend about 40 minutes on this task.",
+                questions: [
+                  "Some people think that the nuclear family is the best family structure for raising children, while others believe the extended family is better. Discuss both views and give your opinion. Write at least 250 words."
+                ]
+              }
+            ]
+          },
+          {
+            id: 22,
+            title: "Advertising and Consumerism",
+            icon: "fa-solid fa-bullhorn",
+            skills: ["True/False/Not Given", "Matching features"],
+            content: "Focuses on shopping, brands, and how things are sold.",
+            secondaryExample: "Grade 7 Context: Understanding how online commercials persuade young teens to buy expensive shoes.",
+            outcomes: {
+              listening: "Listen to a radio show about marketing and match advertising methods to products.",
+              reading: "Read a text about consumer habits and answer True/False/Not Given questions.",
+              writing: "Write strong opinion paragraphs using modifiers and intensifiers.",
+              speaking: "Talk about your shopping habits, favourite brands, and the effect of commercials.",
+              grammarVocab: "Use modifiers and intensifiers (extremely, relatively) and consumer vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe an advertisement that persuaded you to buy something. Where did you see it and what was the product?" },
+            keyVocabSummary: "Shopping habits and lifestyle (affluent, shopaholic, promotion, commercial).",
+            vocabulary: [
+              { word: "Affluent", chinese: "富裕的", definition: "Having a great deal of money; wealthy." },
+              { word: "Shopaholic", chinese: "购物狂", definition: "A person considered to be addicted to shopping." },
+              { word: "Promotion", chinese: "促销", definition: "The publicization of a product, organization, or venture to increase sales." },
+              { word: "Commercial", chinese: "商业广告", definition: "A television or radio advertisement." },
+              { word: "Brand", chinese: "品牌", definition: "A type of product manufactured by a particular company under a particular name." },
+              { word: "Persuade", chinese: "说服", definition: "Cause someone to do something through reasoning or argument." },
+              { word: "Consumer", chinese: "消费者", definition: "A person who purchases goods and services for personal use." },
+              { word: "Billboard", chinese: "广告牌", definition: "A large outdoor board for displaying advertisements." },
+              { word: "Slogan", chinese: "标语", definition: "A short and striking or memorable phrase used in advertising." },
+              { word: "Retail", chinese: "零售", definition: "The sale of goods to the public in relatively small quantities for use or consumption." }
+            ],
+            mcqs: [
+              { q: "[Grammar] The new smartphone is ___ expensive for a student.", options: ["extremely", "totally", "absolutely", "complete"], answer: 0 },
+              { q: "[Vocab] A person who cannot stop buying things is a ___.", options: ["consumer", "shopaholic", "brand", "retail"], answer: 1 },
+              { q: "[Vocab] Nike and Adidas are examples of a famous ___.", options: ["promotion", "commercial", "brand", "slogan"], answer: 2 },
+              { q: "[Grammar] I am ___ convinced that advertising targets children.", options: ["relative", "totally", "extreme", "very"], answer: 1 },
+              { q: "[Vocab] The company is running a 'buy one, get one free' ___.", options: ["billboard", "affluent", "promotion", "consumer"], answer: 2 },
+              { q: "[Grammar] The shoes are ___ cheap compared to other brands.", options: ["relatively", "totally", "absolutely", "extreme"], answer: 0 },
+              { q: "[Vocab] I saw a funny ___ for cereal on television.", options: ["retail", "commercial", "shopaholic", "affluent"], answer: 1 },
+              { q: "[Vocab] A large sign next to the highway is called a ___.", options: ["slogan", "promotion", "billboard", "brand"], answer: 2 },
+              { q: "[Grammar] That was an ___ brilliant commercial.", options: ["absolutely", "very", "relative", "extreme"], answer: 0 },
+              { q: "[Vocab] 'Just Do It' is a very famous ___.", options: ["slogan", "consumer", "retail", "affluent"], answer: 0 },
+              { q: "[Vocab] People who have a lot of money are ___.", options: ["shopaholics", "affluent", "retail", "consumers"], answer: 1 },
+              { q: "[Grammar] The new mall is ___ huge.", options: ["very", "totally", "absolutely", "relative"], answer: 2 },
+              { q: "[Vocab] A person who buys goods for personal use is a ___.", options: ["brand", "consumer", "promotion", "billboard"], answer: 1 },
+              { q: "[Grammar] The advert was ___ successful in boosting sales.", options: ["highly", "absolute", "total", "extreme"], answer: 0 },
+              { q: "[Vocab] Selling items directly to the public in a store is called ___.", options: ["retail", "promotion", "commercial", "persuade"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you enjoy shopping?",
+                  "What is your favourite brand of clothing?",
+                  "Do you think commercials influence what you buy?",
+                  "Have you ever bought something just because it was on promotion?"
+                ],
+                stems: [
+                  "I wouldn't call myself a shopaholic, but I...",
+                  "My absolute favourite brand is...",
+                  "Commercials definitely persuade me when..."
+                ],
+                example: "I wouldn't call myself a shopaholic, but I do enjoy shopping at retail stores on the weekends. My absolute favourite brand for sneakers is Nike. I think commercials definitely influence me, especially when they use my favourite athletes. Recently, I bought a jacket just because it had a huge promotion."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe an advertisement you remember well. You should say: where you saw it, what it was advertising, what the slogan was (if you remember), and explain why you remember it."
+                ],
+                stems: [
+                  "An extremely memorable commercial I saw was...",
+                  "It was advertising a new...",
+                  "I remember it so clearly because..."
+                ],
+                example: "An extremely memorable commercial I saw was a video ad on social media. It was advertising a new virtual reality console. I don't remember the exact slogan, but the visuals were absolutely stunning. I remember it so clearly because it was relatively short but highly effective in persuading me that I needed the product for my gaming."
+              }
+            ],
+            reading: {
+              text: "Advertising companies spend billions trying to persuade the affluent teenage demographic. They know that younger consumers are highly brand conscious. Consequently, retail stores place flashy billboards near middle schools and push aggressive promotions on social media apps. While some argue this creates a generation of shopaholics, others claim that teenagers are relatively smart and can ignore misleading commercials.",
+              questions: [
+                "1. True/False/Not Given: Advertising companies ignore the teenage demographic.",
+                "2. True/False/Not Given: Younger consumers care a lot about brands.",
+                "3. True/False/Not Given: Billboards near middle schools are illegal."
+              ]
+            },
+            listening: {
+              text: "Radio Host: So, how do companies target us? \nMarketing Expert: Well, it depends on the product. For expensive cars, they target affluent adults using television commercials during evening news broadcasts. But for fast food or sneakers, they use short, flashy slogans on social media to target the teenage consumer. They want to turn you into a shopaholic!",
+              questions: [
+                "1. What advertising method is used for expensive cars?",
+                "2. Who is targeted using short, flashy slogans on social media?",
+                "3. What does the expert say companies want to turn teenagers into?"
+              ]
+            },
+            grammar: {
+              topic: "Modifiers and Intensifiers",
+              focus: "Use adverbs like extremely, totally, relatively, absolutely, and highly to make your adjectives stronger and express stronger opinions in IELTS tasks.",
+              examples: [
+                "The commercials are EXTREMELY persuasive.",
+                "Teenagers are TOTALLY influenced by brands.",
+                "The shoes are RELATIVELY cheap compared to other brands."
+              ],
+              model: "When stating an opinion in Task 2: 'I am ABSOLUTELY convinced that aggressive advertising directed at children is HIGHLY unethical.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: True/False/Not Given | Grammar Focus: Modifiers",
+                text: "Read this: 'The new sports car is extremely expensive and totally unaffordable for average workers.'",
+                questions: [
+                  "Skill Question: True, False, or Not Given: The average worker can easily buy the new sports car. (Answer: False).",
+                  "Grammar Question: What two words are used to make 'expensive' and 'unaffordable' stronger? (Answer: extremely, totally)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Reading Test (True/False/Not Given)",
+                text: "Read the passage about consumerism.",
+                questions: [
+                  "Evaluate the statements: \n1. Teenagers are the most affluent demographic. (True/False/Not Given)\n2. Commercials are completely ineffective on adults. (True/False/Not Given)"
+                ]
+              },
+              {
+                type: "Writing Test (Task 2)",
+                text: "You should spend about 40 minutes on this task.",
+                questions: [
+                  "Some people think that advertising is extremely positive because it helps consumers choose products, while others think it only turns people into shopaholics. Discuss both views and give your opinion. Write at least 250 words."
+                ]
+              }
+            ]
+          },
+          {
+            id: 23,
+            title: "Adventure and Space Travel",
+            icon: "fa-solid fa-rocket",
+            skills: ["Distinguishing fact from opinion", "Note completion"],
+            content: "Focuses on exploring new places, astronauts, and the future.",
+            secondaryExample: "Grade 7 Context: Writing a creative story about space travel for English class.",
+            outcomes: {
+              listening: "Listen to a guide talk about a space museum and complete notes.",
+              reading: "Read an article about Mars exploration and distinguish between facts and the author's opinions.",
+              writing: "Write a Task 2 essay making future predictions using predictive passive voice.",
+              speaking: "Talk about an adventure you would like to go on and why.",
+              grammarVocab: "Master future forms and predictive passive (will be made) and adventure vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe an adventure you would like to go on in the future. Where would you go and what would you do?" },
+            keyVocabSummary: "Travel and experience adjectives (itinerary, encounter, profound, priceless).",
+            vocabulary: [
+              { word: "Itinerary", chinese: "行程", definition: "A planned route or journey." },
+              { word: "Encounter", chinese: "邂逅/遭遇", definition: "An unexpected or casual meeting with someone or something." },
+              { word: "Profound", chinese: "深刻的", definition: "Very great or intense; having or showing great knowledge." },
+              { word: "Priceless", chinese: "无价的", definition: "So precious that its value cannot be determined." },
+              { word: "Astronaut", chinese: "宇航员", definition: "A person who is trained to travel in a spacecraft." },
+              { word: "Gravity", chinese: "重力", definition: "The force that attracts a body toward the center of the earth." },
+              { word: "Satellite", chinese: "卫星", definition: "An artificial body placed in orbit around the earth or moon." },
+              { word: "Orbit", chinese: "轨道", definition: "The curved path of a celestial object or spacecraft around a star, planet, or moon." },
+              { word: "Universe", chinese: "宇宙", definition: "All existing matter and space considered as a whole; the cosmos." },
+              { word: "Launch", chinese: "发射", definition: "Set a boat, or send a rocket or missile, on its course." }
+            ],
+            mcqs: [
+              { q: "[Grammar] In the future, Mars ___ by humans.", options: ["will visit", "will be visited", "visited", "visiting"], answer: 1 },
+              { q: "[Vocab] The person who travels in a spacecraft is an ___.", options: ["itinerary", "encounter", "astronaut", "satellite"], answer: 2 },
+              { q: "[Vocab] Without ___, things float in space.", options: ["universe", "gravity", "orbit", "launch"], answer: 1 },
+              { q: "[Grammar] A new satellite ___ launched next year.", options: ["is", "was", "will be", "be"], answer: 2 },
+              { q: "[Vocab] Our planned ___ includes a trip to the space museum.", options: ["itinerary", "gravity", "profound", "encounter"], answer: 0 },
+              { q: "[Grammar] Commercial space travel ___ available to the public soon.", options: ["will be made", "will make", "makes", "made"], answer: 0 },
+              { q: "[Vocab] Seeing the earth from space is a ___ experience.", options: ["priceless", "gravity", "satellite", "orbit"], answer: 0 },
+              { q: "[Vocab] The moon is in ___ around the Earth.", options: ["universe", "orbit", "astronaut", "launch"], answer: 1 },
+              { q: "[Grammar] New planets ___ discovered by telescopes in the future.", options: ["will be", "will", "are", "were"], answer: 0 },
+              { q: "[Vocab] An unexpected meeting with a wild animal is an ___.", options: ["orbit", "itinerary", "encounter", "universe"], answer: 2 },
+              { q: "[Vocab] A machine sent into space to collect information is a ___.", options: ["satellite", "gravity", "profound", "astronaut"], answer: 0 },
+              { q: "[Grammar] The rocket ___ launched at 6 AM tomorrow.", options: ["is going to be", "going to be", "be", "was"], answer: 0 },
+              { q: "[Vocab] The rocket ___ was a success.", options: ["gravity", "launch", "itinerary", "priceless"], answer: 1 },
+              { q: "[Grammar] In 2050, holidays on the moon ___ a reality.", options: ["will become", "will be became", "becomes", "became"], answer: 0 },
+              { q: "[Vocab] Everything that exists in space is part of the ___.", options: ["orbit", "satellite", "universe", "encounter"], answer: 2 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you like reading books or watching movies about space?",
+                  "Would you like to travel to space in the future?",
+                  "Do you think exploring the universe is important?",
+                  "Have you ever been on an adventure?"
+                ],
+                stems: [
+                  "I find the universe absolutely fascinating, so I...",
+                  "If I had the chance, I would definitely...",
+                  "I think space exploration will be crucial because..."
+                ],
+                example: "I find the universe absolutely fascinating, so I read a lot of sci-fi books for my English class. If I had the chance, I would definitely like to travel to space. I think space exploration will be crucial for humanity's future. I haven't been on a real space adventure, but going hiking in the mountains felt like an expedition."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe an adventure you would like to go on in the future. You should say: where you would go, who you would go with, what your itinerary would be, and explain why it would be a profound experience."
+                ],
+                stems: [
+                  "An adventure I dream of taking is...",
+                  "My ideal itinerary would include...",
+                  "It would be a priceless experience because..."
+                ],
+                example: "An adventure I dream of taking is a trip to the International Space Station. I would love to go with a trained astronaut. My ideal itinerary would include experiencing zero gravity and looking down at the Earth from orbit. It would be a priceless and profound experience because very few people ever get to see the universe from that perspective."
+              }
+            ],
+            reading: {
+              text: "In the coming decades, a permanent base on Mars will be established by international space agencies. This is a factual plan outlined by scientists. However, some enthusiasts believe that by 2050, commercial space hotels will be built for tourists. While zero gravity encounters sound like a priceless experience, the cost of the itinerary will likely remain too expensive for average citizens for a long time.",
+              questions: [
+                "1. Fact or Opinion: A permanent base on Mars will be established.",
+                "2. Fact or Opinion: By 2050, commercial space hotels will be built for tourists.",
+                "3. What word describes the experience of zero gravity in the text?"
+              ]
+            },
+            listening: {
+              text: "Tour Guide: Welcome to the National Space Museum. Today we will look at how a satellite is put into orbit. First, the rocket is built in a specialized factory. Next year, a new telescope will be launched into the universe to search for profound discoveries. Space travel will be made safer through these new technologies.",
+              questions: [
+                "1. What will we look at today?",
+                "2. What will be launched into the universe next year?",
+                "3. How will space travel be made safer?"
+              ]
+            },
+            grammar: {
+              topic: "Future Forms & Predictive Passive",
+              focus: "Use the predictive passive (will be + past participle) to talk about what will happen in the future when the action is more important than who does it. Highly common in IELTS projections.",
+              examples: [
+                "Space travel WILL BE MADE available to the masses.",
+                "A permanent base on Mars WILL BE ESTABLISHED.",
+                "New planets WILL BE DISCOVERED."
+              ],
+              model: "When writing Task 2 predictions: 'In the future, many diseases WILL BE CURED, and new technologies WILL BE INVENTED to protect the environment.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Distinguishing Fact from Opinion | Grammar Focus: Predictive Passive",
+                text: "Read this: 'I believe that alien life will be discovered in the next 10 years.'",
+                questions: [
+                  "Skill Question: Is this a proven fact or the writer's opinion? How do you know? (Answer: Opinion, because of 'I believe').",
+                  "Grammar Question: Where is the predictive passive in that sentence? (Answer: will be discovered)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Listening Test (Note Completion)",
+                text: "Listen to the space documentary.",
+                questions: [
+                  "Complete the notes using NO MORE THAN TWO WORDS:",
+                  "Future Plans for NASA:",
+                  "1. A new satellite ________ in 2030.",
+                  "2. The goal is to study the ________."
+                ]
+              },
+              {
+                type: "Writing Test (Task 2)",
+                text: "You should spend about 40 minutes on this task.",
+                questions: [
+                  "Some people think that governments should spend less money on space exploration and more on solving problems on Earth. To what extent do agree or disagree? Write at least 250 words."
+                ]
+              }
+            ]
+          },
+          {
+            id: 24,
+            title: "Animals and Wildlife",
+            icon: "fa-solid fa-paw",
+            skills: ["Table completion", "Short-answer questions"],
+            content: "Focuses on pets, endangered species, and nature conservation.",
+            secondaryExample: "Grade 7 Context: Visiting the zoo for a Grade 7 science field trip and learning about endangered habitats.",
+            outcomes: {
+              listening: "Listen to an animal documentary and answer short-answer questions.",
+              reading: "Organize facts about different animal species by completing a table.",
+              writing: "Write complex sentences using relative clauses to describe wildlife.",
+              speaking: "Talk about animals in your country and the importance of zoos.",
+              grammarVocab: "Master relative clauses (which, who, that, where) and biological/conservation vocabulary."
+            },
+            practiceActivity: { type: "speaking", task: "Describe a wild animal from your country. Where does it live and what does it eat?" },
+            keyVocabSummary: "Biological and conservation terms (habitat, predators, extinction, biodiversity).",
+            vocabulary: [
+              { word: "Habitat", chinese: "栖息地", definition: "The natural home or environment of an animal, plant, or other organism." },
+              { word: "Predator", chinese: "捕食者", definition: "An animal that naturally preys on others." },
+              { word: "Extinction", chinese: "灭绝", definition: "The state or process of a species, family, or larger group being or becoming extinct." },
+              { word: "Biodiversity", chinese: "生物多样性", definition: "The variety of plant and animal life in the world or in a particular habitat." },
+              { word: "Mammal", chinese: "哺乳动物", definition: "A warm-blooded vertebrate animal that typically has hair or fur and secretes milk." },
+              { word: "Reptile", chinese: "爬行动物", definition: "A vertebrate animal of a class that includes snakes, lizards, crocodiles, turtles." },
+              { word: "Prey", chinese: "猎物", definition: "An animal that is hunted and killed by another for food." },
+              { word: "Breed", chinese: "繁殖", definition: "Mate and then produce offspring." },
+              { word: "Captivity", chinese: "圈养", definition: "The condition of being imprisoned or confined, such as animals in a zoo." },
+              { word: "Conservation", chinese: "保护", definition: "Preservation, protection, or restoration of the natural environment and wildlife." }
+            ],
+            mcqs: [
+              { q: "[Grammar] The tiger is an animal ___ hunts at night.", options: ["who", "which", "where", "when"], answer: 1 },
+              { q: "[Vocab] A lion is an apex ___; it has no natural enemies.", options: ["prey", "predator", "habitat", "mammal"], answer: 1 },
+              { q: "[Vocab] The place where a species naturally lives is its ___.", options: ["biodiversity", "captivity", "habitat", "extinction"], answer: 2 },
+              { q: "[Grammar] A zoo is a place ___ animals are kept in captivity.", options: ["who", "which", "where", "that"], answer: 2 },
+              { q: "[Vocab] Animals that are hunted and eaten are called ___.", options: ["predators", "reptiles", "prey", "mammals"], answer: 2 },
+              { q: "[Grammar] The scientist ___ studies mammals is very famous.", options: ["which", "who", "where", "what"], answer: 1 },
+              { q: "[Vocab] A snake is a type of ___.", options: ["mammal", "reptile", "prey", "habitat"], answer: 1 },
+              { q: "[Vocab] Dogs and whales are examples of a ___.", options: ["mammal", "reptile", "predator", "extinction"], answer: 0 },
+              { q: "[Grammar] The panda is a species ___ is endangered.", options: ["who", "where", "that", "whom"], answer: 2 },
+              { q: "[Vocab] Protecting forests helps preserve global ___.", options: ["captivity", "biodiversity", "extinction", "breed"], answer: 1 },
+              { q: "[Vocab] When a species completely dies out, it faces ___.", options: ["conservation", "extinction", "habitat", "prey"], answer: 1 },
+              { q: "[Grammar] The forest, ___ the monkeys live, is being cut down.", options: ["where", "who", "that", "which"], answer: 0 },
+              { q: "[Vocab] Many endangered species will only ___ in captivity.", options: ["extinction", "breed", "predator", "biodiversity"], answer: 1 },
+              { q: "[Grammar] I read a book ___ explained biodiversity.", options: ["who", "where", "which", "when"], answer: 2 },
+              { q: "[Vocab] Keeping animals in ___ can sometimes save them from extinction.", options: ["captivity", "predator", "reptile", "habitat"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Warm-up Questions (Part 1)",
+                questions: [
+                  "Do you have a pet?",
+                  "What is your favourite wild animal?",
+                  "Do you like visiting the zoo?",
+                  "Are there any dangerous animals in your country?"
+                ],
+                stems: [
+                  "I don't have a pet right now, but I would love to...",
+                  "My favourite wild animal is the...",
+                  "I went to the zoo for a middle school trip, and..."
+                ],
+                example: "I don't have a pet right now, but I would love to have a dog. My favourite wild animal is the giant panda, which is very famous in China. I went to the zoo for a middle school science trip recently, and I really enjoyed it because we learned about conservation. Yes, there are dangerous animals here, like some poisonous reptiles in the south."
+              },
+              {
+                type: "Long Turn (Describe) (Part 2)",
+                questions: [
+                  "Describe a wild animal from your country. You should say: what it looks like, where it lives, what it eats, and explain how you feel about this animal."
+                ],
+                stems: [
+                  "A wild mammal that is famous in my country is...",
+                  "Its natural habitat is the..., where it usually eats...",
+                  "I feel that protecting this species is vital because..."
+                ],
+                example: "A wild mammal that is very famous in China is the Giant Panda. It is a large, black and white bear. Its natural habitat is the bamboo forests in the mountains of Sichuan, where it primarily eats bamboo leaves. I feel that protecting this species from extinction is vital because it represents our country's incredible biodiversity."
+              }
+            ],
+            reading: {
+              text: "Biodiversity is essential for a healthy planet. Mammals, such as bears, are large predators which live in forest habitats. They hunt smaller prey to survive. Conversely, many reptiles, which are cold-blooded, live in desert regions. Unfortunately, due to human interference, many species are facing extinction. Zoos often breed endangered animals in captivity to help with global conservation efforts.",
+              questions: [
+                "1. What do large predators hunt to survive?",
+                "2. What type of animal lives in desert regions according to the text?",
+                "3. Why do zoos breed endangered animals in captivity?"
+              ]
+            },
+            listening: {
+              text: "Documentary Narrator: The Amazon rainforest is a habitat where millions of species thrive. The jaguar, which is a fearsome predator, dominates this region. Sadly, deforestation is destroying the areas where these mammals live. Without immediate conservation, we will lose this beautiful creature to extinction.",
+              questions: [
+                "1. What is the Amazon rainforest a habitat for?",
+                "2. What animal is described as a fearsome predator?",
+                "3. What is destroying the areas where these mammals live?"
+              ]
+            },
+            grammar: {
+              topic: "Relative Clauses",
+              focus: "Use relative pronouns (which, who, that, where) to connect sentences and add descriptive information. 'Who' is for people, 'which/that' for things and animals, 'where' for places.",
+              examples: [
+                "The tiger is an animal WHICH hunts at night.",
+                "The scientist WHO studies mammals is very famous.",
+                "The Amazon is a habitat WHERE millions of species thrive."
+              ],
+              model: "When writing complex sentences in Task 2: 'Zoos are places WHERE endangered animals can be protected. Animals WHICH live in the wild face many dangers.'"
+            },
+            tutorPrompts: [
+              {
+                type: "Reading Prompt",
+                focus: "Target Skill: Completing a table | Grammar Focus: Relative Clauses",
+                text: "Read this: 'The Great White Shark, which is an apex predator, lives in coastal waters.'",
+                questions: [
+                  "Grammar Question: What does the relative pronoun 'which' refer back to in that sentence? (Answer: The Great White Shark).",
+                  "Skill Question: If a table has a column 'Diet/Type', what word from the text should you put? (Answer: predator)."
+                ]
+              }
+            ],
+            practiceTests: [
+              {
+                type: "Listening Test (Short Answer)",
+                text: "Listen to the wildlife documentary.",
+                questions: [
+                  "Answer using NO MORE THAN THREE WORDS:",
+                  "1. What kind of habitat does the snow leopard need?",
+                  "2. What is the main threat to its survival?"
+                ]
+              },
+              {
+                type: "Writing Test (Task 2)",
+                text: "You should spend about 40 minutes on this task.",
+                questions: [
+                  "Some people think that zoos are cruel and should be closed down. Others think they are useful for protecting rare animals. Discuss both sides and give your opinion. Write at least 250 words."
+                ]
+              }
+            ]
+          }
+        ];
+
+        const UnitQuiz = ({ mcqs, handleSpeak }) => {
+          const [selectedAnswers, setSelectedAnswers] = useState({});
+          const [feedback, setFeedback] = useState({});
+          const [showExtended, setShowExtended] = useState(false);
+
+          const handleOptionClick = (questionIndex, optionIndex, correctAnswerIndex) => {
+            setSelectedAnswers({ ...selectedAnswers, [questionIndex]: optionIndex });
+            setFeedback({ ...feedback, [questionIndex]: optionIndex === correctAnswerIndex });
+          };
+
+          if (!mcqs || mcqs.length === 0) return null;
+
+          const displayedMcqs = showExtended ? mcqs : mcqs.slice(0, 5);
+
+          return (
+            <div className="bg-slate-900 p-6 md:p-8 rounded-2xl shadow-md border border-slate-800 mt-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-teal-500/20 p-2 rounded-lg border border-teal-500/30">
+                  <i className="fa-regular fa-circle-question text-teal-400 text-2xl"></i>
+                </div>
+                <h3 className="text-xl font-bold text-white">Unit Quiz: Vocabulary & Grammar</h3>
+              </div>
+              <p className="text-slate-400 text-sm mb-6">Test your knowledge of this unit's vocabulary and grammar rules.</p>
+              
+              <div className="space-y-8">
+                {displayedMcqs.map((mcq, qIdx) => (
+                  <div key={qIdx} className="bg-slate-800 p-5 md:p-6 rounded-xl border border-slate-700 animate-fade-in">
+                    <h4 className="text-base font-semibold text-slate-200 mb-5 leading-relaxed">{qIdx + 1}. {mcq.q}</h4>
+                    {/* 2x2 Grid for the choices */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {mcq.options.map((opt, optIdx) => {
+                        const isSelected = selectedAnswers[qIdx] === optIdx;
+                        const isCorrect = mcq.answer === optIdx;
+                        const hasAnswered = selectedAnswers[qIdx] !== undefined;
+                        
+                        let btnStyle = "bg-slate-700 text-slate-300 hover:bg-slate-600 border-transparent";
+                        if (hasAnswered) {
+                          if (isCorrect) btnStyle = "bg-green-900/40 text-green-400 border-green-500/50";
+                          else if (isSelected && !isCorrect) btnStyle = "bg-rose-900/40 text-rose-400 border-rose-500/50";
+                          else btnStyle = "bg-slate-800 text-slate-500 border-transparent opacity-50";
+                        }
+
+                        return (
+                          <button
+                            key={optIdx}
+                            disabled={hasAnswered}
+                            onClick={() => {
+                              handleSpeak(opt);
+                              handleOptionClick(qIdx, optIdx, mcq.answer);
+                            }}
+                            className={`w-full text-left px-5 py-4 rounded-xl border-2 transition-all text-sm font-medium ${btnStyle}`}
+                          >
+                            {String.fromCharCode(65 + optIdx)}. {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {feedback[qIdx] !== undefined && (
+                      <div className={`mt-4 p-3 rounded-lg text-sm font-bold flex items-center gap-2 ${feedback[qIdx] ? 'bg-green-900/20 text-green-400' : 'bg-rose-900/20 text-rose-400'}`}>
+                        {feedback[qIdx] ? <i className="fa-regular fa-circle-check text-xl"></i> : <i className="fa-solid fa-times text-xl"></i>}
+                        {feedback[qIdx] ? 'Correct!' : 'Incorrect'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {mcqs.length > 5 && (
+                <div className="mt-8 pt-6 border-t border-slate-800 text-center">
+                  <button 
+                    onClick={() => setShowExtended(!showExtended)}
+                    className="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-sm"
+                  >
+                    {showExtended ? "Show Fewer Questions" : "Load Extended MCQs (10 More)"}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        const PracticeGame = ({ vocabulary }) => {
+          const [selectedWord, setSelectedWord] = useState(null);
+          const [matchedPairs, setMatchedPairs] = useState([]);
+          const [definitions, setDefinitions] = useState([]);
+          
+          useEffect(() => {
+            setDefinitions([...vocabulary].sort(() => Math.random() - 0.5));
+            setMatchedPairs([]);
+            setSelectedWord(null);
+          }, [vocabulary]);
+
+          const handleWordClick = (word) => {
+            if (matchedPairs.includes(word)) return;
+            setSelectedWord(word);
+          };
+
+          const handleDefClick = (defObj) => {
+            if (!selectedWord) return;
+            if (defObj.word === selectedWord) {
+              setMatchedPairs([...matchedPairs, selectedWord]);
+            }
+            setSelectedWord(null);
+          };
+
+          return (
+            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <i className="fa-solid fa-gamepad text-teal-500 text-xl"></i>
+                  Vocabulary Match
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <h4 className="font-bold text-slate-400 uppercase text-[10px] md:text-xs tracking-wider mb-2">Terms</h4>
+                  {vocabulary.map((v) => (
+                    <button
+                      key={v.word}
+                      onClick={() => handleWordClick(v.word)}
+                      disabled={matchedPairs.includes(v.word)}
+                      className={`w-full text-left px-3 py-2 md:py-3 rounded-lg border-2 transition-all text-sm font-semibold ${
+                        matchedPairs.includes(v.word) 
+                          ? 'bg-green-50 border-green-200 text-green-400 cursor-not-allowed opacity-50'
+                          : selectedWord === v.word 
+                            ? 'bg-teal-50 border-teal-500 text-teal-700 shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-700 hover:border-teal-300'
+                      }`}
+                    >
+                      {v.word}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-bold text-slate-400 uppercase text-[10px] md:text-xs tracking-wider mb-2">Definitions</h4>
+                  {definitions.map((v, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleDefClick(v)}
+                      disabled={matchedPairs.includes(v.word)}
+                      className={`w-full text-left px-3 py-2 md:py-3 rounded-lg border-2 transition-all text-xs md:text-sm leading-tight md:leading-relaxed ${
+                        matchedPairs.includes(v.word)
+                          ? 'bg-green-50 border-green-200 text-green-600 cursor-not-allowed opacity-50'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-white'
+                      }`}
+                    >
+                      {v.definition}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {matchedPairs.length === vocabulary.length && (
+                <div className="mt-6 bg-green-100 text-green-800 p-4 rounded-xl text-center font-bold text-lg animate-bounce">
+                  Excellent job! All matched!
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        function App() {
+          const [activeUnit, setActiveUnit] = useState(unitData[0]);
+          const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+          const [activeTab, setActiveTab] = useState("overview");
+          const [showModelAnswer, setShowModelAnswer] = useState({});
+
+          useEffect(() => {
+            return () => {
+              if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+              }
+            };
+          }, []);
+
+          const handleSpeak = (text) => {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // PERSONALIZATION CONSTRAINT: Set speech to 85% rate
+            utterance.rate = 0.85; 
+            
+            const allowedVoices = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
+            const voices = window.speechSynthesis.getVoices();
+            
+            const preferredVoice = voices.find(v => 
+              allowedVoices.some(name => v.name.includes(name)) && v.name.includes("Microsoft")
+            ) || voices.find(v => 
+              allowedVoices.some(name => v.name.includes(name))
+            );
+
+            if (preferredVoice) {
+              utterance.voice = preferredVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+          };
+
+          const selectUnit = (unit) => {
+            setActiveUnit(unit);
+            setIsSidebarOpen(false);
+            setActiveTab("overview");
+            setShowModelAnswer({}); // Reset model answers map
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+          };
+
+          const toggleModelAnswer = (idx) => {
+            setShowModelAnswer(prev => ({ ...prev, [idx]: !prev[idx] }));
+          };
+
+          const tabs = [
+            { id: "overview", label: "Overview", icon: "fa-solid fa-book-open" },
+            { id: "vocab", label: "Vocabulary", icon: "fa-solid fa-book" },
+            { id: "speaking", label: "Speaking", icon: "fa-solid fa-microphone" },
+            { id: "reading", label: "Reading", icon: "fa-solid fa-book" },
+            { id: "listening", label: "Listening", icon: "fa-solid fa-headphones" },
+            { id: "grammar", label: "Writing & Grammar", icon: "fa-solid fa-pen-to-square" },
+            { id: "testing", label: "Tutor & Test", icon: "fa-solid fa-clipboard-list" },
+            { id: "game", label: "Game", icon: "fa-solid fa-gamepad" }
+          ];
+
+          return (
+            <div className="flex h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
+              
+              {isSidebarOpen && (
+                <div 
+                  className="fixed inset-0 bg-slate-900/50 z-20"
+                  onClick={() => setIsSidebarOpen(false)}
+                />
+              )}
+
+              {/* Sidebar */}
+              <div className={`
+                fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-in-out flex flex-col
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+              `}>
+                <div className="p-5 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
+                  <div>
+                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-book-open text-teal-400 text-xl"></i>
+                      IELTS Prep
+                    </h1>
+                    <p className="text-xs text-slate-400 mt-1">Bands 3.5 - 4.5</p>
+                  </div>
+                  <button className="text-slate-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
+                    <i className="fa-solid fa-times text-2xl"></i>
+                  </button>
+                </div>
+
+                <div className="p-3 overflow-y-auto flex-1">
+                  <ul className="space-y-1 pb-10">
+                    {unitData.map((unit) => (
+                      <li key={unit.id}>
+                        <button
+                          onClick={() => selectUnit(unit)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors ${
+                            activeUnit.id === unit.id 
+                              ? 'bg-teal-500/10 text-teal-400 font-medium border border-teal-500/20' 
+                              : 'hover:bg-slate-800 hover:text-white border border-transparent'
+                          }`}
+                        >
+                          <i className={`${unit.icon} ${activeUnit.id === unit.id ? 'text-teal-400' : 'text-slate-500'} text-lg`}></i>
+                          Unit {unit.id}: {unit.title}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col h-full relative w-full">
+                
+                {/* Header */}
+                <header className="bg-white border-b border-slate-200 px-4 md:px-6 py-4 flex items-center justify-between shadow-sm shrink-0">
+                  <div className="flex items-center gap-4">
+                    <button 
+                      className="text-slate-500 hover:text-indigo-600 bg-slate-100 p-2.5 rounded-xl transition-colors flex items-center gap-2"
+                      onClick={() => setIsSidebarOpen(true)}
+                    >
+                      <i className="fa-solid fa-list text-xl"></i>
+                      <span className="font-semibold text-sm hidden sm:inline">Units</span>
+                    </button>
+                    
+                    <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
+                    
+                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+                      <span className="bg-teal-100 text-teal-800 px-2 py-0.5 md:px-2.5 md:py-1 rounded-md text-[10px] md:text-xs uppercase tracking-wider w-fit">Unit {activeUnit.id}</span>
+                      <h2 className="text-lg md:text-xl font-extrabold text-slate-800">
+                        {activeUnit.title}
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-indigo-100 uppercase tracking-wide shadow-sm">
+                    <i className="fa-solid fa-graduation-cap text-base shrink-0"></i>
+                    <span className="hidden sm:inline">Grade 7 Mode</span>
+                  </div>
+                </header>
+
+                <main className="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 scroll-smooth">
+                  <div className="max-w-5xl mx-auto flex flex-col h-full">
+                    
+                    {/* Nav Tabs */}
+                    <div className="flex flex-wrap gap-2 pb-4 mb-6 border-b border-slate-200">
+                      {tabs.map(tab => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all border-2 ${
+                            activeTab === tab.id 
+                              ? 'border-indigo-600 text-indigo-700 bg-indigo-50 shadow-sm' 
+                              : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
+                        >
+                          <i className={`${tab.icon} text-base`}></i>
+                          <span className="whitespace-nowrap">{tab.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex-1 animate-fade-in pb-12">
+                      
+                      {/* TAB 1: OVERVIEW */}
+                      {activeTab === "overview" && (
+                        <div className="space-y-4 md:space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <button 
+                              onClick={() => handleSpeak(activeUnit.content)}
+                              className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 text-left hover:border-teal-300 transition-all group"
+                            >
+                              <h3 className="text-base md:text-lg font-bold text-slate-800 mb-2 md:mb-3 flex items-center gap-2 group-hover:text-teal-600 transition-colors">
+                                <i className="fa-solid fa-book-open text-indigo-500 text-xl"></i>
+                                Academic Focus
+                              </h3>
+                              <p className="text-slate-600 text-sm md:text-base leading-relaxed">{activeUnit.content}</p>
+                            </button>
+
+                            <button 
+                              onClick={() => handleSpeak(activeUnit.secondaryExample)}
+                              className="bg-indigo-50 p-5 md:p-6 rounded-2xl border border-indigo-200 shadow-sm text-left hover:border-indigo-400 transition-all group"
+                            >
+                              <h3 className="text-base md:text-lg font-bold text-indigo-900 mb-2 md:mb-3 flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
+                                <i className="fa-solid fa-graduation-cap text-indigo-600 text-xl"></i>
+                                Grade 7 Scenario
+                              </h3>
+                              <p className="text-indigo-800 text-sm md:text-base font-medium leading-relaxed">
+                                {activeUnit.secondaryExample}
+                              </p>
+                            </button>
+                          </div>
+
+                          <button 
+                            onClick={() => handleSpeak(`Learning Outcomes: Listening: ${activeUnit.outcomes.listening} Reading: ${activeUnit.outcomes.reading} Writing: ${activeUnit.outcomes.writing} Speaking: ${activeUnit.outcomes.speaking} Grammar and Vocabulary: ${activeUnit.outcomes.grammarVocab}`)}
+                            className="w-full bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 mt-4 text-left hover:border-teal-300 transition-all group"
+                          >
+                            <h3 className="text-base md:text-lg font-bold text-slate-800 mb-4 md:mb-6 flex items-center gap-2 group-hover:text-teal-600 transition-colors">
+                              <i className="fa-solid fa-bullseye text-rose-500 text-xl"></i>
+                              Learning Outcomes
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                              <div className="flex items-start gap-3 md:gap-4">
+                                 <i className="fa-solid fa-headphones text-slate-400 text-xl mt-0.5 shrink-0"></i>
+                                 <div>
+                                   <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Listening</span>
+                                   <p className="text-xs md:text-sm text-slate-700 leading-relaxed mt-1">{activeUnit.outcomes.listening}</p>
+                                 </div>
+                              </div>
+                              <div className="flex items-start gap-3 md:gap-4">
+                                 <i className="fa-solid fa-book text-slate-400 text-xl mt-0.5 shrink-0"></i>
+                                 <div>
+                                   <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Reading</span>
+                                   <p className="text-xs md:text-sm text-slate-700 leading-relaxed mt-1">{activeUnit.outcomes.reading}</p>
+                                 </div>
+                              </div>
+                              <div className="flex items-start gap-3 md:gap-4">
+                                 <i className="fa-solid fa-pen-to-square text-slate-400 text-xl mt-0.5 shrink-0"></i>
+                                 <div>
+                                   <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Writing</span>
+                                   <p className="text-xs md:text-sm text-slate-700 leading-relaxed mt-1">{activeUnit.outcomes.writing}</p>
+                                 </div>
+                              </div>
+                              <div className="flex items-start gap-3 md:gap-4">
+                                 <i className="fa-solid fa-microphone text-slate-400 text-xl mt-0.5 shrink-0"></i>
+                                 <div>
+                                   <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Speaking</span>
+                                   <p className="text-xs md:text-sm text-slate-700 leading-relaxed mt-1">{activeUnit.outcomes.speaking}</p>
+                                 </div>
+                              </div>
+                              <div className="flex items-start gap-3 md:gap-4 md:col-span-2 pt-2 border-t border-slate-100">
+                                 <i className="fa-regular fa-circle-check text-slate-400 text-xl mt-0.5 shrink-0"></i>
+                                 <div>
+                                   <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Grammar & Vocab</span>
+                                   <p className="text-xs md:text-sm text-slate-700 leading-relaxed mt-1">{activeUnit.outcomes.grammarVocab}</p>
+                                 </div>
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* TAB 2: VOCABULARY */}
+                      {activeTab === "vocab" && (
+                        <div className="space-y-6">
+                          <div className="bg-slate-900 p-5 md:p-6 rounded-2xl text-slate-300 border border-slate-800 shadow-md flex items-start gap-4">
+                            <i className="fa-solid fa-book text-teal-400 text-2xl shrink-0 mt-0.5"></i>
+                            <div>
+                              <h4 className="text-sm md:text-base font-bold text-white mb-2">Key Vocabulary Groups</h4>
+                              <p className="text-xs md:text-sm leading-relaxed">{activeUnit.keyVocabSummary}</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                            {activeUnit.vocabulary.map((v, i) => (
+                              <button 
+                                key={i}
+                                onClick={() => handleSpeak(v.word)}
+                                className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 text-left hover:border-teal-400 transition-all active:scale-95 group"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h4 className="text-lg md:text-xl font-bold text-slate-800 group-hover:text-teal-600 transition-colors">{v.word}</h4>
+                                  <i className="fa-solid fa-volume-up text-slate-300 group-hover:text-teal-400 transition-colors text-lg md:text-xl"></i>
+                                </div>
+                                <span className="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 md:px-3 md:py-1 rounded-md text-[10px] md:text-xs font-bold mb-2 md:mb-3 border border-slate-200">
+                                  {v.chinese}
+                                </span>
+                                <p className="text-slate-600 text-xs md:text-sm leading-snug">{v.definition}</p>
+                              </button>
+                            ))}
+                          </div>
+
+                          <UnitQuiz key={`quiz-${activeUnit.id}`} mcqs={activeUnit.mcqs} handleSpeak={handleSpeak} />
+                        </div>
+                      )}
+
+                      {/* TAB 3: SPEAKING */}
+                      {activeTab === "speaking" && (
+                        <div className="space-y-6">
+                          {activeUnit.speaking.map((section, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                              <div className="bg-indigo-50 border-b border-indigo-100 p-4 md:p-5 flex items-center justify-between">
+                                <h3 className="text-base md:text-lg font-bold text-indigo-900 flex items-center gap-2">
+                                  <i className="fa-solid fa-microphone text-indigo-600 text-lg md:text-xl"></i>
+                                  {section.type}
+                                </h3>
+                              </div>
+                              <div className="p-4 md:p-6">
+                                <button 
+                                  onClick={() => handleSpeak(section.questions.join(' '))}
+                                  className="w-full text-left bg-white border border-slate-200 hover:border-teal-300 hover:bg-slate-50 p-4 md:p-5 rounded-xl transition-all shadow-sm group mb-4 md:mb-6 relative overflow-hidden"
+                                >
+                                  <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                                  <h4 className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 md:mb-4">Examiner Prompts</h4>
+                                  <ul className="space-y-2 md:space-y-3 pl-2">
+                                    {section.questions.map((q, qIdx) => (
+                                      <li key={qIdx} className="text-sm md:text-base leading-relaxed text-slate-800 font-medium list-disc ml-4">
+                                        {q}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </button>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-5">
+                                    <h4 className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
+                                      <i className="fa-solid fa-pen-nib text-sm md:text-base"></i> Useful Sentence Stems
+                                    </h4>
+                                    <ul className="space-y-2 md:space-y-3">
+                                      {section.stems.map((stem, i) => (
+                                        <li key={i}>
+                                          <button 
+                                            onClick={() => handleSpeak(stem)}
+                                            className="text-left w-full bg-white border border-slate-200 p-2.5 md:p-3 rounded-lg text-xs md:text-sm text-slate-700 hover:border-teal-400 hover:text-teal-700 transition-colors shadow-sm"
+                                          >
+                                            {stem}
+                                          </button>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  <button 
+                                    onClick={() => handleSpeak(section.example)}
+                                    className="text-left bg-indigo-50 border border-indigo-100 hover:border-indigo-300 rounded-xl p-4 md:p-5 transition-all group"
+                                  >
+                                    <h4 className="text-[10px] md:text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
+                                      <i className="fa-regular fa-circle-check text-indigo-500 text-sm md:text-base"></i> Model High School Answer
+                                    </h4>
+                                    <p className="text-xs md:text-sm text-indigo-900 leading-relaxed font-medium italic">
+                                      "{section.example}"
+                                    </p>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* TAB 4: READING */}
+                      {activeTab === "reading" && (
+                        <div className="space-y-6">
+                          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="bg-slate-50 border-b border-slate-200 p-4 md:p-6">
+                              <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i className="fa-solid fa-book text-teal-600 text-lg md:text-xl"></i>
+                                Reading Passage
+                              </h3>
+                            </div>
+                            <div className="p-4 md:p-6">
+                              <button 
+                                onClick={() => handleSpeak(activeUnit.reading.text)}
+                                className="w-full text-left bg-slate-50 hover:bg-teal-50 border border-slate-200 hover:border-teal-200 p-4 md:p-6 rounded-xl transition-all shadow-sm group"
+                              >
+                                <p className="text-sm md:text-base leading-relaxed text-slate-700 font-medium">
+                                  {activeUnit.reading.text}
+                                </p>
+                              </button>
+                            </div>
+                            <div className="bg-slate-50 border-t border-slate-200 p-4 md:p-6">
+                              <h4 className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
+                                <i className="fa-regular fa-circle-question text-lg"></i> Comprehension Check
+                              </h4>
+                              <ul className="space-y-2 md:space-y-3">
+                                {activeUnit.reading.questions.map((q, i) => (
+                                   <li key={i}>
+                                     <button
+                                       onClick={() => handleSpeak(q)}
+                                       className="w-full text-left bg-white hover:bg-slate-100 border border-slate-200 p-3 md:p-4 rounded-lg text-xs md:text-sm font-medium text-slate-700 shadow-sm transition-colors"
+                                     >
+                                       {q}
+                                     </button>
+                                   </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 5: LISTENING */}
+                      {activeTab === "listening" && (
+                        <div className="space-y-6">
+                          <div className="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden text-slate-300">
+                            <div className="bg-slate-800 border-b border-slate-700 p-4 md:p-6">
+                              <h3 className="text-base md:text-lg font-bold text-white flex items-center gap-2">
+                                <i className="fa-solid fa-headphones text-teal-400 text-lg md:text-xl"></i>
+                                Listening Transcript
+                              </h3>
+                            </div>
+                            <div className="p-4 md:p-6">
+                              <button 
+                                onClick={() => handleSpeak(activeUnit.listening.text)}
+                                className="w-full text-left bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-teal-500 p-4 md:p-6 rounded-xl transition-all shadow-inner group"
+                              >
+                                <p className="text-sm md:text-lg leading-relaxed font-medium italic text-slate-200 group-hover:text-white">
+                                  "{activeUnit.listening.text}"
+                                </p>
+                              </button>
+                            </div>
+                            <div className="bg-slate-800 border-t border-slate-700 p-4 md:p-6">
+                              <h4 className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
+                                <i className="fa-regular fa-circle-question text-teal-400 text-lg"></i> Comprehension Check
+                              </h4>
+                              <ul className="space-y-2 md:space-y-3">
+                                {activeUnit.listening.questions.map((q, i) => (
+                                   <li key={i}>
+                                     <button
+                                       onClick={() => handleSpeak(q)}
+                                       className="w-full text-left bg-slate-900 hover:bg-slate-700 border border-slate-700 p-3 md:p-4 rounded-lg text-xs md:text-sm font-medium text-slate-300 shadow-sm transition-colors"
+                                     >
+                                       {q}
+                                     </button>
+                                   </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 6: WRITING / GRAMMAR */}
+                      {activeTab === "grammar" && (
+                        <div className="space-y-6">
+                          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 className="text-lg md:text-xl font-bold text-indigo-900 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                              <i className="fa-solid fa-pen-to-square text-indigo-500 text-xl md:text-2xl"></i>
+                              Grammar Focus: {activeUnit.grammar.topic}
+                            </h3>
+                            
+                            <div className="mb-6 md:mb-8">
+                              <button 
+                                onClick={() => handleSpeak(activeUnit.grammar.focus)}
+                                className="w-full text-left hover:bg-slate-50 transition-colors rounded-lg p-1 md:p-2"
+                              >
+                                <p className="text-sm md:text-base font-semibold text-slate-800 mb-3 md:mb-4 bg-slate-100 p-3 md:p-4 rounded-xl border border-slate-200">
+                                  {activeUnit.grammar.focus}
+                                </p>
+                              </button>
+                              <div className="space-y-2 md:space-y-3">
+                                <h4 className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Example Sentences</h4>
+                                {activeUnit.grammar.examples.map((ex, idx) => (
+                                   <button 
+                                    key={idx}
+                                    onClick={() => handleSpeak(ex)}
+                                    className="w-full text-left bg-white hover:bg-indigo-50 border-2 border-slate-100 hover:border-indigo-200 p-3 md:p-4 rounded-xl transition-all text-xs md:text-base font-medium text-slate-700 flex justify-between items-center group shadow-sm"
+                                  >
+                                    <span>"{ex}"</span>
+                                    <i className="fa-solid fa-volume-up text-slate-300 group-hover:text-indigo-500 text-lg shrink-0 ml-2"></i>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <button 
+                              onClick={() => handleSpeak(activeUnit.grammar.model)}
+                              className="w-full text-left bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 p-4 md:p-6 rounded-xl transition-all shadow-sm group relative overflow-hidden"
+                            >
+                              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                              <div className="text-[10px] md:text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 md:mb-3">Grammar Usage Model</div>
+                              <p className="text-sm md:text-base leading-relaxed text-indigo-900 font-medium">
+                                {activeUnit.grammar.model}
+                              </p>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 7: TUTOR & TEST */}
+                      {activeTab === "testing" && (
+                        <div className="space-y-6 md:space-y-8">
+                          {/* Tutor Prompts Section */}
+                          <div className="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                            <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                              <div className="bg-teal-100 p-1.5 md:p-2 rounded-lg">
+                                <i className="fa-solid fa-microphone text-teal-700 text-xl md:text-2xl"></i>
+                              </div>
+                              <h3 className="text-lg md:text-2xl font-bold text-slate-800">Tutor Prompts</h3>
+                            </div>
+                            <p className="text-slate-500 text-xs md:text-sm mb-4 md:mb-6">
+                              Interactive one-on-one coaching tasks. Click any block to hear it read aloud.
+                            </p>
+                            
+                            <div className="space-y-4 md:space-y-6">
+                              {activeUnit.tutorPrompts && activeUnit.tutorPrompts.map((prompt, idx) => (
+                                <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                                  <div className="bg-slate-100 px-4 py-2.5 md:px-5 md:py-3 border-b border-slate-200 flex justify-between items-center">
+                                    <span className="font-bold text-slate-700 text-sm md:text-base">{prompt.type}</span>
+                                  </div>
+                                  <div className="p-4 md:p-5">
+                                    <p className="text-[10px] md:text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2 md:mb-3 bg-indigo-50 inline-block px-2.5 py-1 rounded-full">
+                                      {prompt.focus}
+                                    </p>
+                                    <button 
+                                      onClick={() => handleSpeak(prompt.text)}
+                                      className="w-full text-left bg-white border border-slate-200 p-3 md:p-4 rounded-lg shadow-sm hover:border-teal-300 transition-colors mb-3 md:mb-4"
+                                    >
+                                      <p className="text-sm md:text-base text-slate-800 font-medium leading-relaxed italic">"{prompt.text}"</p>
+                                    </button>
+                                    <div className="space-y-2 md:space-y-3 pl-2 border-l-2 border-slate-300">
+                                      {prompt.questions.map((q, qIdx) => (
+                                        <button
+                                          key={qIdx}
+                                          onClick={() => handleSpeak(q)}
+                                          className="w-full text-left text-xs md:text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                                        >
+                                          • {q}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Practice for the test Section */}
+                          <div className="bg-slate-900 p-5 md:p-8 rounded-2xl shadow-sm border border-slate-800 text-slate-300">
+                            <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                              <div className="bg-rose-500/20 p-1.5 md:p-2 rounded-lg border border-rose-500/30">
+                                <i className="fa-solid fa-bullseye text-rose-400 text-xl md:text-2xl"></i>
+                              </div>
+                              <h3 className="text-lg md:text-2xl font-bold text-white">Practice for the Test</h3>
+                            </div>
+                            <p className="text-slate-400 text-xs md:text-sm mb-4 md:mb-6">
+                              Authentic IELTS Tasks (Bands 3.5 - 4.5) to test exam readiness. Click to read aloud.
+                            </p>
+
+                            <div className="grid grid-cols-1 gap-4 md:gap-6">
+                              {activeUnit.practiceTests && activeUnit.practiceTests.map((test, idx) => (
+                                <div key={idx} className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-inner flex flex-col">
+                                  <div className="bg-slate-900/50 px-4 py-2.5 md:px-5 md:py-3 border-b border-slate-700">
+                                    <span className="font-bold text-teal-400 text-xs md:text-sm">{test.type}</span>
+                                  </div>
+                                  <div className="p-4 md:p-5 flex-1 flex flex-col">
+                                    <button 
+                                      onClick={() => handleSpeak(test.text)}
+                                      className="w-full text-left text-xs md:text-sm text-slate-300 mb-4 hover:text-white transition-colors"
+                                    >
+                                      {test.text}
+                                    </button>
+                                    
+                                    {test.questions && test.questions.length > 0 && (
+                                      <div className="bg-slate-900/50 p-3 md:p-4 rounded-lg mt-auto mb-4">
+                                        <h4 className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Test Tasks:</h4>
+                                        <div className="space-y-2">
+                                          {test.questions.map((q, qIdx) => (
+                                            <button
+                                              key={qIdx}
+                                              onClick={() => handleSpeak(q)}
+                                              className="w-full text-left text-xs md:text-sm font-medium text-slate-200 hover:text-teal-300 transition-colors block whitespace-pre-line"
+                                            >
+                                              {q}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Show Model Answer Button for Writing Tasks */}
+                                    {test.modelAnswer && (
+                                      <div className="mt-auto border-t border-slate-700 pt-4">
+                                        <button
+                                          onClick={() => toggleModelAnswer(idx)}
+                                          className="flex items-center gap-2 text-xs md:text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                                        >
+                                          <i className="fa-solid fa-eye text-base"></i> 
+                                          {showModelAnswer[idx] ? "Hide Model Answer" : "Show Model Answer"}
+                                        </button>
+                                        
+                                        {showModelAnswer[idx] && (
+                                          <div className="mt-3 p-4 bg-indigo-900/20 border border-indigo-500/30 rounded-lg animate-fade-in">
+                                            <h5 className="text-[10px] uppercase tracking-wider font-bold text-indigo-300 mb-2">Band 4.0 - 4.5 Model Response</h5>
+                                            <button 
+                                              onClick={() => handleSpeak(test.modelAnswer)}
+                                              className="w-full text-left text-xs md:text-sm text-slate-200 leading-relaxed font-medium whitespace-pre-line hover:text-white"
+                                            >
+                                              {test.modelAnswer}
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 8: GAME */}
+                      {activeTab === "game" && (
+                        <div className="space-y-6">
+                           <PracticeGame key={`game-${activeUnit.id}`} vocabulary={activeUnit.vocabulary} />
+                        </div>
+                      )}
+
+                    </div>
+                  </div>
+                </main>
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
