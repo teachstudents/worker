@@ -66,8 +66,12 @@
                 <span class="font-bold text-white text-base">Trap Master</span>
             </div>
             <div class="flex items-center gap-3">
+                <button onclick="showLeaderboard()" class="bg-slate-800 border border-slate-600 px-3 py-1 rounded-md flex items-center gap-1.5 shadow-inner hover:bg-slate-700 transition">
+                    <i class="fas fa-trophy text-yellow-400 text-xs"></i>
+                    <span class="text-slate-300 text-xs font-semibold hidden sm:inline">Leaderboard</span>
+                </button>
                 <!-- Persistent Header Score -->
-                <div class="bg-slate-800 border border-slate-600 px-3 py-1 rounded-md flex items-center gap-1.5 shadow-inner">
+                <div class="bg-slate-800 border border-slate-600 px-3 py-1 rounded-md flex items-center gap-1.5 shadow-inner hidden sm:flex">
                     <i class="fas fa-star text-yellow-400 text-xs"></i>
                     <span class="text-slate-300 text-xs font-semibold">Total Points:</span>
                     <span id="header-total-score" class="text-sky-400 font-bold text-base transition-transform duration-200">0</span>
@@ -97,6 +101,21 @@
 
         <button id="start-game-btn" class="w-full py-4 mt-2 bg-sky-500 hover:bg-sky-400 text-white font-bold text-xl rounded-xl shadow-lg transition-all transform hover:-translate-y-1">Start Training <i class="fas fa-rocket ml-2"></i></button>
       </div>
+    </div>
+
+    <!-- Leaderboard Overlay -->
+    <div id="leaderboard-overlay" class="fixed inset-0 bg-slate-900/95 flex flex-col items-center justify-center z-50 overflow-y-auto py-10 hidden">
+        <div class="bg-slate-800 border border-slate-600 p-6 rounded-3xl text-center w-[90%] max-w-md shadow-2xl relative">
+            <button onclick="closeLeaderboard()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div class="inline-block mb-2 text-yellow-400 text-4xl"><i class="fas fa-trophy"></i></div>
+            <h2 class="text-2xl font-extrabold text-white mb-4 tracking-tight">Leaderboard</h2>
+            <div id="leaderboard-list" class="flex flex-col gap-2 max-h-[40vh] overflow-y-auto mb-6 px-2">
+                <!-- Injected via JS -->
+            </div>
+            <button onclick="openPlayerConfig()" class="w-full py-3 bg-sky-500 hover:bg-sky-400 text-white font-bold text-lg rounded-xl shadow-lg transition-all">Change Players <i class="fas fa-users-cog ml-2"></i></button>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -558,6 +577,7 @@
         const femaleVoices = [];
         const audioRate = 1.0; // Enforced 1.0x (normal) speed as requested!
         
+        let globalLeaderboard = {}; // Persists scores across config changes
         let gameMode = '1p';
         let activePlayers = [];
         let rosterQueue = [];
@@ -729,6 +749,12 @@
             }
         }
 
+        function getOrInitPlayer(name) {
+            let safeName = name.trim() || 'Student';
+            if (globalLeaderboard[safeName] === undefined) globalLeaderboard[safeName] = 0;
+            return { name: safeName, score: globalLeaderboard[safeName] };
+        }
+
         async function startConfig() {
             try {
                 await initAudio(); 
@@ -741,13 +767,13 @@
                 rosterQueue = lines.map(s => s.trim()).filter(s => s.length > 0);
                 if (rosterQueue.length < 2) rosterQueue = ["Student A", "Student B", "Student C", "Student D"];
                 activePlayers = [
-                    { name: rosterQueue[0], score: 0 },
-                    { name: rosterQueue[1], score: 0 }
+                    getOrInitPlayer(rosterQueue[0]),
+                    getOrInitPlayer(rosterQueue[1])
                 ];
             } else {
-                activePlayers = [ { name: document.getElementById('p1-name-input').value || 'Student 1', score: 0 } ];
+                activePlayers = [ getOrInitPlayer(document.getElementById('p1-name-input').value || 'Student 1') ];
                 if (gameMode === '2p') {
-                    activePlayers.push({ name: document.getElementById('p2-name-input').value || 'Student 2', score: 0 });
+                    activePlayers.push(getOrInitPlayer(document.getElementById('p2-name-input').value || 'Student 2'));
                 }
             }
             
@@ -790,8 +816,8 @@
             rosterQueue.push(rosterQueue.shift());
             rosterQueue.push(rosterQueue.shift());
             activePlayers = [
-                { name: rosterQueue[0], score: 0 },
-                { name: rosterQueue[1], score: 0 }
+                { name: rosterQueue[0], score: globalLeaderboard[rosterQueue[0]] || 0 },
+                { name: rosterQueue[1], score: globalLeaderboard[rosterQueue[1]] || 0 }
             ];
             document.getElementById('active-players-label').textContent = `Active: ${activePlayers[0].name} vs ${activePlayers[1].name}`;
         }
@@ -1139,6 +1165,8 @@
             
             if (isCorrect) {
                 activePlayers[playerIndex].score++;
+                globalLeaderboard[pName] = activePlayers[playerIndex].score; // Update Global
+                
                 clickedBtn.classList.add('shake-correct');
                 fireConfetti();
                 
@@ -1150,6 +1178,8 @@
                 if (gameMode !== '1p') {
                     const otherPlayerIdx = playerIndex === 0 ? 1 : 0;
                     activePlayers[otherPlayerIdx].score++; // Give point to opponent
+                    globalLeaderboard[activePlayers[otherPlayerIdx].name] = activePlayers[otherPlayerIdx].score; // Update global for opponent
+                    
                     feedbackArea.className = "mt-6 p-4 rounded-xl text-center font-bold text-xl border shrink-0 transition-all bg-red-900/40 border-red-500/50 text-red-400";
                     feedbackArea.innerHTML = `<i class="fas fa-times-circle mr-3"></i> Incorrect! Point goes to ${activePlayers[otherPlayerIdx].name}.`;
                 } else {
@@ -1158,19 +1188,55 @@
                 }
             }
 
-            // Automatically advance with visible timer bar
-            if (gameMode !== '1p') {
-                startTimer(10000, true);
-                feedbackArea.innerHTML += `<div class="text-sm font-normal mt-2 opacity-75 animate-pulse text-white">Auto-advancing in 10s...</div>`;
-            } else {
-                startTimer(5000, true);
-                feedbackArea.innerHTML += `<div class="text-sm font-normal mt-2 opacity-75 animate-pulse text-white">Auto-advancing in 5s...</div>`;
-            }
+            // Universal 5-second Auto-advance
+            startTimer(5000, true);
+            feedbackArea.innerHTML += `<div class="text-sm font-normal mt-2 opacity-75 animate-pulse text-white">Auto-advancing in 5s...</div>`;
 
             if(document.getElementById('p1-score')) document.getElementById('p1-score').textContent = activePlayers[0].score;
             if(gameMode !== '1p' && document.getElementById('p2-score')) document.getElementById('p2-score').textContent = activePlayers[1].score;
             
             updateHeaderScore();
+        }
+
+        // Leaderboard Overlay Functions
+        function showLeaderboard() {
+            const lbList = document.getElementById('leaderboard-list');
+            lbList.innerHTML = '';
+            
+            const sorted = Object.entries(globalLeaderboard).sort((a, b) => b[1] - a[1]);
+            
+            if (sorted.length === 0) {
+                lbList.innerHTML = '<div class="text-slate-400 italic py-4">No scores yet. Start playing!</div>';
+            } else {
+                sorted.forEach(([name, score], idx) => {
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center bg-slate-700/50 p-3 rounded-lg border border-slate-600";
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-slate-400 w-6">${idx + 1}.</span>
+                            <span class="font-bold text-white">${name}</span>
+                        </div>
+                        <div class="font-extrabold text-sky-400">${score} pts</div>
+                    `;
+                    lbList.appendChild(row);
+                });
+            }
+            document.getElementById('leaderboard-overlay').classList.remove('hidden');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboard-overlay').classList.add('hidden');
+        }
+
+        function openPlayerConfig() {
+            closeLeaderboard();
+            clearAllTimers();
+            window.speechSynthesis.cancel();
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('main-nav').classList.add('hidden');
+            document.getElementById('exercise-view').classList.add('hidden');
+            document.getElementById('trap-rule-footer').classList.add('hidden');
+            document.getElementById('start-overlay').classList.remove('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
