@@ -100,10 +100,10 @@
         /* Chat bubbles for dialogues */
         .chat-bubble {
             position: relative;
-            padding: 15px 20px;
+            padding: 18px 24px;
             border-radius: 25px;
-            max-width: 80%;
-            font-size: 1.25rem;
+            max-width: 85%;
+            font-size: 1.6rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             cursor: pointer;
             transition: transform 0.2s;
@@ -187,13 +187,16 @@
         <!-- Teacher Header Overlay -->
         <div class="w-full bg-white/95 shadow-md border-b-2 border-indigo-100 p-2 flex justify-between items-center z-50 gap-2 overflow-x-auto whitespace-nowrap">
             <!-- Navigation -->
-            <div class="flex space-x-1 sm:space-x-2 shrink-0">
+            <div class="flex space-x-1 sm:space-x-2 shrink-0 items-center">
                 <button onclick="returnToMenu()" class="btn-game bg-gray-500 border-gray-700 text-white px-3 py-2 rounded-lg flex items-center font-bold text-sm">
                     <i class="fas fa-home"></i><span class="hidden md:inline ml-2">Home</span>
                 </button>
                 <button onclick="navigateGame(-1)" id="btn-back" class="btn-game bg-indigo-400 border-indigo-600 text-white px-3 py-2 rounded-lg flex items-center font-bold text-sm disabled:opacity-50">
                     <i class="fas fa-chevron-left"></i>
                 </button>
+                <select id="dialogue-selector" class="hidden font-bold text-indigo-900 bg-indigo-100 border-2 border-indigo-300 rounded-lg px-2 py-1 outline-none cursor-pointer max-w-[150px] sm:max-w-xs text-sm sm:text-base" onchange="jumpToDialogue(this.value)">
+                    <!-- Populated by JS -->
+                </select>
                 <button onclick="navigateGame(1)" id="btn-next" class="btn-game bg-indigo-500 border-indigo-700 text-white px-3 py-2 rounded-lg flex items-center font-bold text-sm">
                     <i class="fas fa-chevron-right"></i>
                 </button>
@@ -232,7 +235,7 @@
         </div>
 
         <!-- Active Game Container -->
-        <div id="game-container" class="flex-grow flex flex-col items-center justify-center w-full max-w-5xl mx-auto p-4 relative">
+        <div id="game-container" class="flex-grow flex flex-col items-center justify-center w-full max-w-full mx-auto p-2 sm:p-4 relative">
             
             <!-- Mode: Vocab Flashcards -->
             <div id="mode-vocab" class="hidden-screen w-full flex flex-col items-center text-center animate-pop">
@@ -284,14 +287,14 @@
             </div>
 
             <!-- Mode: Dialogues -->
-            <div id="mode-dialogues" class="hidden-screen w-full flex flex-col items-center animate-pop">
-                <div class="bg-white/95 p-6 md:p-8 rounded-3xl shadow-xl border-4 border-white w-full max-w-4xl flex flex-col relative h-[60vh]">
+            <div id="mode-dialogues" class="hidden-screen w-full flex flex-col items-center animate-pop h-full">
+                <div class="bg-white/95 p-4 md:p-8 rounded-3xl shadow-xl border-4 border-white w-full h-full flex flex-col relative flex-grow">
                     <div class="text-center mb-4 border-b-2 border-gray-200 pb-2">
-                        <h2 class="text-2xl font-display text-indigo-800">Roleplay Time!</h2>
+                        <h2 id="dialogue-title" class="text-2xl md:text-3xl font-display text-indigo-800">Roleplay Time!</h2>
                         <p class="text-gray-500">Teacher: Click on a chat bubble to hear the pronunciation.</p>
                     </div>
                     
-                    <div id="dialogue-container" class="flex-grow overflow-y-auto p-4 space-y-6 custom-scrollbar flex flex-col">
+                    <div id="dialogue-container" class="flex-grow overflow-y-auto p-2 sm:p-4 space-y-4 md:space-y-6 custom-scrollbar flex flex-col bg-gray-50 rounded-xl inner-shadow">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -431,24 +434,81 @@
         };
 
         const dialogueData = [
-            [
-                { speaker: "Emma", text: "Hi Andrew! Are you ready for the beach?", avatar: "👩" },
-                { speaker: "Andrew", text: "Yes! I am wearing my swimsuit and a pair of sunglasses.", avatar: "👨" },
-                { speaker: "Emma", text: "Great! Don't forget sunscreen. The sun is very hot today.", avatar: "👩" },
-                { speaker: "Andrew", text: "Good idea. What time are we going?", avatar: "👨" },
-                { speaker: "Emma", text: "At ten o'clock in the morning.", avatar: "👩" }
-            ],
-            [
-                { speaker: "Andrew", text: "Brrr! It is freezing outside today.", avatar: "👨" },
-                { speaker: "Emma", text: "It is winter! Are you wearing your coat?", avatar: "👩" },
-                { speaker: "Andrew", text: "Yes, and I am wearing a pair of gloves and a scarf too.", avatar: "👨" },
-                { speaker: "Emma", text: "Perfect. Let's go build a snowman!", avatar: "👩" }
-            ],
-            [
-                { speaker: "Emma", text: "Look at the beautiful autumn leaves! It is getting foggy.", avatar: "👩" },
-                { speaker: "Andrew", text: "Yes! I am glad I brought my warm sweater.", avatar: "👨" },
-                { speaker: "Emma", text: "I am wearing a pair of trousers and my new boots too.", avatar: "👩" }
-            ]
+            {
+                title: "1. A Trip to the Beach",
+                dialogue: [
+                    { speaker: "Emma", text: "Hi Andrew! Are you ready for the beach?", avatar: "👩" },
+                    { speaker: "Andrew", text: "Yes! I am wearing my swimsuit and a pair of sunglasses.", avatar: "👨" },
+                    { speaker: "Emma", text: "Great! Don't forget sunscreen. The sun is very hot today.", avatar: "👩" },
+                    { speaker: "Andrew", text: "Good idea. What time are we going?", avatar: "👨" },
+                    { speaker: "Emma", text: "At ten o'clock in the morning.", avatar: "👩" }
+                ]
+            },
+            {
+                title: "2. Building a Snowman",
+                dialogue: [
+                    { speaker: "Andrew", text: "Brrr! It is freezing outside today.", avatar: "👨" },
+                    { speaker: "Emma", text: "It is winter! Are you wearing your coat?", avatar: "👩" },
+                    { speaker: "Andrew", text: "Yes, and I am wearing a pair of gloves and a scarf too.", avatar: "👨" },
+                    { speaker: "Emma", text: "Perfect. Let's go build a snowman!", avatar: "👩" }
+                ]
+            },
+            {
+                title: "3. A Foggy Autumn Day",
+                dialogue: [
+                    { speaker: "Emma", text: "Look at the beautiful autumn leaves! It is getting foggy.", avatar: "👩" },
+                    { speaker: "Andrew", text: "Yes! I am glad I brought my warm sweater.", avatar: "👨" },
+                    { speaker: "Emma", text: "I am wearing a pair of trousers and my new boots too.", avatar: "👩" }
+                ]
+            },
+            {
+                title: "4. A Rainy Spring Morning",
+                dialogue: [
+                    { speaker: "Andrew", text: "Oh no, it is raining very hard today.", avatar: "👨" },
+                    { speaker: "Emma", text: "That is okay, it is spring. The spring flowers need water.", avatar: "👩" },
+                    { speaker: "Andrew", text: "I need to find my raincoat and my umbrella.", avatar: "👨" },
+                    { speaker: "Emma", text: "I am wearing my rain boots. Let's go jump in the puddles!", avatar: "👩" }
+                ]
+            },
+            {
+                title: "5. Shopping for Clothes",
+                dialogue: [
+                    { speaker: "Emma", text: "Welcome to the clothing store! How can I help you?", avatar: "👩" },
+                    { speaker: "Andrew", text: "Hi! I am looking for a pair of jeans and a t-shirt.", avatar: "👨" },
+                    { speaker: "Emma", text: "We have blue jeans and black jeans. Which do you like?", avatar: "👩" },
+                    { speaker: "Andrew", text: "I like the blue ones. And a red t-shirt, please.", avatar: "👨" },
+                    { speaker: "Emma", text: "Here you go. You can try them on over there.", avatar: "👩" }
+                ]
+            },
+            {
+                title: "6. Packing for a Trip",
+                dialogue: [
+                    { speaker: "Andrew", text: "I am packing my suitcase for our holiday.", avatar: "👨" },
+                    { speaker: "Emma", text: "Where are we going? Is it hot or cold?", avatar: "👩" },
+                    { speaker: "Andrew", text: "We are going to the mountains. It will be snowy.", avatar: "👨" },
+                    { speaker: "Emma", text: "Okay, I will pack my heavy jacket and a pair of thick socks.", avatar: "👩" },
+                    { speaker: "Andrew", text: "Don't forget your hat and gloves!", avatar: "👨" }
+                ]
+            },
+            {
+                title: "7. A Very Windy Day",
+                dialogue: [
+                    { speaker: "Emma", text: "Wow, it is so windy today! Hold on to your hat!", avatar: "👩" },
+                    { speaker: "Andrew", text: "My cap almost flew away! The autumn weather is crazy.", avatar: "👨" },
+                    { speaker: "Emma", text: "Let's go inside. It is too cold to play in the park.", avatar: "👩" },
+                    { speaker: "Andrew", text: "Agreed. Let's drink some hot chocolate.", avatar: "👨" }
+                ]
+            },
+            {
+                title: "8. Favorite Seasons",
+                dialogue: [
+                    { speaker: "Andrew", text: "What is your favorite season, Emma?", avatar: "👨" },
+                    { speaker: "Emma", text: "I love summer! I can wear my dress and a pair of flip-flops.", avatar: "👩" },
+                    { speaker: "Andrew", text: "My favorite season is winter. I love the snow.", avatar: "👨" },
+                    { speaker: "Emma", text: "But you have to wear so many clothes! A coat, a scarf, gloves...", avatar: "👩" },
+                    { speaker: "Andrew", text: "That is true, but making a snowman is the best!", avatar: "👨" }
+                ]
+            }
         ];
 
         const seasonsConfig = {
@@ -529,8 +589,19 @@
             if(voices.length === 0) return;
             state.voicesLoaded = true;
             
-            state.voiceEmma = voices.find(v => v.name.includes('Emma') || v.name.includes('Zira') || (v.lang.includes('en') && v.name.includes('Female'))) || voices.find(v => v.lang.includes('en'));
-            state.voiceAndrew = voices.find(v => v.name.includes('Andrew') || v.name.includes('David') || (v.lang.includes('en') && v.name.includes('Male'))) || voices.find(v => v.lang.includes('en'));
+            state.voiceEmma = voices.find(v => v.name.includes('Emma')) || 
+                              voices.find(v => v.name.includes('Zira')) || 
+                              voices.find(v => v.lang === 'en-US' && v.name.includes('Female')) || 
+                              voices.find(v => v.lang.includes('en') && v.name.includes('Female')) || 
+                              voices.find(v => v.lang.includes('en'));
+                              
+            state.voiceAndrew = voices.find(v => v.name.includes('Andrew')) || 
+                                voices.find(v => v.name.includes('David')) || 
+                                voices.find(v => v.name.includes('Mark')) || 
+                                voices.find(v => v.name.includes('George')) ||
+                                voices.find(v => v.lang === 'en-GB' && v.name.includes('Male')) || 
+                                voices.find(v => v.lang.includes('en') && v.name.includes('Male')) || 
+                                voices.find(v => v.lang.includes('en'));
         }
         window.speechSynthesis.onvoiceschanged = initVoices;
 
@@ -581,7 +652,7 @@
             if(mode === 'vocab') state.currentArray = [...vocabData].sort(() => Math.random() - 0.5);
             else if(mode === 'sentence') state.currentArray = [...sentenceData].sort(() => Math.random() - 0.5);
             else if(mode.startsWith('grammar')) state.currentArray = [...grammarData[mode]].sort(() => Math.random() - 0.5);
-            else if(mode === 'dialogues') state.currentArray = [...dialogueData];
+            else if(mode === 'dialogues') state.currentArray = [...dialogueData]; // No random sorting for dialogues so they stay 1-8
 
             showScreen('game-ui');
             
@@ -594,14 +665,36 @@
             const containerId = mode.startsWith('grammar') ? 'mode-grammar' : `mode-${mode}`;
             document.getElementById(containerId).classList.remove('hidden-screen');
             
-            // Teacher Grading bar visibility (hide for dialogues)
+            // Teacher Grading bar & dialogue selector visibility
+            const gradingGroup = document.getElementById('header-grading-group');
+            const dialogueSelector = document.getElementById('dialogue-selector');
+            
             if(mode === 'dialogues') {
-                document.getElementById('header-grading-group').classList.add('hidden-screen');
+                gradingGroup.classList.add('hidden-screen');
+                dialogueSelector.classList.remove('hidden');
+                populateDialogueSelector();
             } else {
-                document.getElementById('header-grading-group').classList.remove('hidden-screen');
+                gradingGroup.classList.remove('hidden-screen');
+                dialogueSelector.classList.add('hidden');
             }
 
             updateScoreUI();
+            loadCurrentQuestion();
+        }
+
+        function populateDialogueSelector() {
+            const selector = document.getElementById('dialogue-selector');
+            selector.innerHTML = '';
+            dialogueData.forEach((dialogue, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.innerText = dialogue.title;
+                selector.appendChild(option);
+            });
+        }
+
+        function jumpToDialogue(index) {
+            state.currentIndex = parseInt(index);
             loadCurrentQuestion();
         }
 
@@ -611,8 +704,10 @@
                 state.currentIndex = newIndex;
                 loadCurrentQuestion();
             } else if (newIndex >= state.currentArray.length) {
-                // End of array, re-shuffle and loop to keep play going
-                state.currentArray.sort(() => Math.random() - 0.5);
+                // End of array, re-shuffle and loop to keep play going (unless dialogues)
+                if(state.mode !== 'dialogues') {
+                    state.currentArray.sort(() => Math.random() - 0.5);
+                }
                 state.currentIndex = 0;
                 loadCurrentQuestion();
             }
@@ -622,6 +717,10 @@
             // Update Back button state
             document.getElementById('btn-back').disabled = state.currentIndex === 0;
             window.speechSynthesis.cancel();
+            
+            if(state.mode === 'dialogues') {
+                document.getElementById('dialogue-selector').value = state.currentIndex;
+            }
             
             const q = state.currentArray[state.currentIndex];
 
@@ -922,8 +1021,13 @@
             }
         }
 
-        function renderDialogue(dialogueArray) {
+        function renderDialogue(dialogueObj) {
             setGameTheme('default');
+            
+            // Support updated data structure
+            document.getElementById('dialogue-title').innerText = dialogueObj.title;
+            const dialogueArray = dialogueObj.dialogue;
+            
             const container = document.getElementById('dialogue-container');
             container.innerHTML = '';
 
@@ -935,14 +1039,14 @@
                 wrapper.style.animationDelay = `${index * 0.2}s`;
 
                 const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${isEmma ? 'chat-left' : 'chat-right'} flex items-start space-x-3`;
+                bubble.className = `chat-bubble ${isEmma ? 'chat-left' : 'chat-right'} flex items-start space-x-4`;
                 bubble.onclick = () => {
                     playSound('pop');
                     speakText(line.text, line.speaker);
                 };
 
-                const avatarHTML = `<span class="text-3xl">${line.avatar}</span>`;
-                const textHTML = `<div><div class="text-xs font-bold opacity-70 mb-1">${line.speaker}</div><div>${line.text}</div></div>`;
+                const avatarHTML = `<span class="text-4xl md:text-6xl">${line.avatar}</span>`;
+                const textHTML = `<div class="flex flex-col justify-center"><div class="text-sm md:text-base font-bold opacity-70 mb-1">${line.speaker}</div><div class="leading-snug">${line.text}</div></div>`;
 
                 if(isEmma) {
                     bubble.innerHTML = avatarHTML + textHTML;
@@ -953,6 +1057,9 @@
                 wrapper.appendChild(bubble);
                 container.appendChild(wrapper);
             });
+            
+            // Scroll to top when loading new dialogue
+            container.scrollTop = 0;
         }
 
         // --- STREAMING_CHUNK:Visual Effects & Awards... ---
