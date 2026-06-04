@@ -605,9 +605,9 @@
         }
         window.speechSynthesis.onvoiceschanged = initVoices;
 
-        function speakText(text, teacher = 'Emma') {
+        function speakText(text, teacher = 'Emma', clearQueue = true) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); 
+                if (clearQueue) window.speechSynthesis.cancel(); 
                 const utterance = new SpeechSynthesisUtterance(text);
                 
                 if (teacher === 'Emma' && state.voiceEmma) {
@@ -1060,6 +1060,14 @@
             
             // Scroll to top when loading new dialogue
             container.scrollTop = 0;
+
+            // Auto-play the full conversation after a short delay for animation
+            setTimeout(() => {
+                window.speechSynthesis.cancel(); // Clear any previous speech
+                dialogueArray.forEach(line => {
+                    speakText(line.text, line.speaker, false); // Queue without cancelling
+                });
+            }, 600);
         }
 
         // --- STREAMING_CHUNK:Visual Effects & Awards... ---
