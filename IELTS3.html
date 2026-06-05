@@ -26,7 +26,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
-        /* Sentence Highlight Transitions */
         .sentence-span {
             transition: all 0.2s ease-in-out;
             cursor: pointer;
@@ -34,11 +33,11 @@
             padding: 2px 0;
         }
         .sentence-span:hover {
-            background-color: #e0e7ff; /* indigo-100 */
+            background-color: #e0e7ff; 
         }
         .sentence-span.active {
-            background-color: #c7d2fe; /* indigo-200 */
-            color: #312e81; /* indigo-900 */
+            background-color: #c7d2fe; 
+            color: #312e81; 
             font-weight: 600;
         }
     </style>
@@ -47,7 +46,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         const unitData = [
           {
@@ -86,63 +85,54 @@
               { q: "[Grammar] She is a very ___ student.", options: ["create", "creatively", "creation", "creative"], answer: 3 },
               { q: "[Grammar] My brother's car is red. The car is ___ .", options: ["he", "his", "him", "her"], answer: 1 },
               { q: "[Grammar] These books belong to my parents. They are ___ .", options: ["theirs", "their", "them", "they"], answer: 0 },
-              { q: "[Vocab] A parent demanding rules are strictly obeyed is ___ .", options: ["lenient", "strict", "adolescent", "supportive"], answer: 1 },
+              { q: "[Vocab] A person whose husband has died is called a ___ .", options: ["widower", "widow", "stepfather", "relative"], answer: 1 },
               { q: "[Vocab] 'Nuclear family' usually includes parents and their ___ children.", options: ["dependent", "independent", "adolescent", "strict"], answer: 0 },
-              { q: "[Grammar] That is not ___ bag; it’s mine.", options: ["your", "yours", "you", "your's"], answer: 1 },
-              { q: "[Vocab] Someone who is very kind and helpful is ___ .", options: ["lenient", "supportive", "strict", "adolescent"], answer: 1 },
-              { q: "[Grammar] Is this pen ___ ?", options: ["your", "yours", "you", "your's"], answer: 1 },
-              { q: "[Vocab] The difference in views between young people and their parents is often called the ___ .", options: ["upbringing", "generation gap", "extended family", "sibling"], answer: 1 },
-              { q: "[Grammar] The dog wagged ___ tail happily.", options: ["it", "its", "it's", "their"], answer: 1 },
-              { q: "[Vocab] A family that includes grandparents, aunts, and uncles is an ___ .", options: ["nuclear family", "extended family", "adolescent", "sibling"], answer: 1 }
+              { q: "[Grammar] That is not ___ bag; it’s mine.", options: ["your", "yours", "you", "your's"], answer: 1 }
             ],
             speaking: [
               {
                 type: "Warm-up Questions (Part 1)",
                 questions: [
-                  "Do you have a large family?", 
-                  "Do you have any brothers or sisters? What are their names?", 
-                  "What does your mother (or father) do?", 
-                  "Who do you look like in your family?", 
-                  "Who makes you laugh in your family? Is someone in your family bossy?", 
-                  "Do you live with your family?"
+                  "Do you have a large extended family?", 
+                  "Who makes you laugh in your nuclear family?", 
+                  "Is your upbringing strict or lenient?"
                 ],
                 stems: [
-                  "I come from a fairly [small/large] family...", 
-                  "I live with my parents and my...", 
-                  "Whenever I am stressed about high school exams, the person who makes me laugh is..."
+                  "I come from a fairly [small/large] extended family...", 
+                  "I live in a nuclear family with...", 
+                  "My parents' upbringing was quite strict..."
                 ],
-                example: "I don't have a very large extended family. I live in a nuclear family with my parents and my younger sibling, Leo. My parents are usually quite lenient with our curfews. I probably look most like my mother, but my father is very supportive of my studies."
+                example: "I don't have a very large extended family. I live in a nuclear family with my parents and my younger sibling, Leo. My mother is a high school teacher, and she is very supportive. My father is an accountant. His upbringing was strict, but he is quite lenient with us, which helps close the generation gap."
               },
               {
                 type: "Long Turn (Describe) (Part 2)",
                 questions: [
-                  "Describe someone in your family who you like. You should say what kind of person he/she is."
+                  "Describe a supportive relative in your family."
                 ],
                 stems: [
-                  "I'd like to describe my...", 
-                  "In terms of their personality, they are very...", 
-                  "One of the reasons I admire them is because..."
+                  "I'd like to describe my relative...", 
+                  "They are very supportive of my adolescent years...", 
+                  "One of the reasons I admire their lenient attitude is..."
                 ],
-                example: "I'd like to describe my older sister, Sarah. She had a wonderful upbringing and is a great role model for me. She is a very patient and supportive person, bridging the generation gap between us and our strict older relatives. I admire her greatly."
+                example: "I'd like to describe my older sibling, Sarah. She had a strict upbringing, but she is very lenient and supportive of me. As an adolescent, I often struggle with school stress, but she bridges the generation gap perfectly. She is the best relative I could ask for."
               }
             ],
             reading: {
-              text: "An adolescent growing up in a nuclear family usually doesn't have as many relatives nearby, but one advantage is strong parental focus. However, extended family structures are still common, providing extra siblings and cousins to play with. Interestingly, a strict upbringing from parents often contrasts with a more lenient approach from grandparents, which can sometimes highlight the generation gap.",
+              text: "An adolescent growing up in a nuclear family usually doesn't have many possessions, but they receive highly supportive care. Conversely, extended family structures offer more relatives to socialize with. A strict upbringing from parents often contrasts with a more lenient approach from grandparents. This dynamic can sometimes highlight the generation gap between an older relative and a younger sibling.",
               questions: [
-                "1. Can you have a nuclear family of three people?",
-                "2. What is the reason for China having so many words for family relationships?",
-                "3. Does 'aunt's grandson' have exactly the same meaning as the example?",
-                "4. Where are extended families still considered the norm?",
-                "5. What is one advantage of a large family mentioned in the text?"
+                "1. Who provides highly supportive care?",
+                "2. What does an extended family offer?",
+                "3. Who typically has a lenient approach?",
+                "4. What does the dynamic highlight?"
               ]
             },
             listening: {
-              text: "Speaker: Welcome everyone. Today we are going to discuss the generation gap within the modern nuclear family. Studies show that a strict upbringing can sometimes make an adolescent feel isolated. However, if relatives are supportive and somewhat lenient, teenagers communicate better. Extended family gatherings also help bridge this divide.",
+              text: "Speaker: Welcome. Let's discuss the modern nuclear family. Studies show that a strict upbringing can cause stress for an adolescent. However, if relatives and siblings are supportive and somewhat lenient, the generation gap narrows. Extended family gatherings are vital for maintaining these bonds.",
               questions: [
-                "1. According to the speaker, what is a benefit of a family watching television together?",
-                "2. What reduces face-to-face communication?",
-                "3. What specific type of programme sparks debates?",
-                "4. How much TV time do many parents allow per day?"
+                "1. What type of family is being discussed?",
+                "2. What can cause stress for an adolescent?",
+                "3. What happens if relatives are lenient?",
+                "4. What are extended family gatherings vital for?"
               ]
             },
             grammar: {
@@ -154,7 +144,7 @@
                 "The generation gap is evident; those beliefs are theirs.",
                 "Her lenient father always listens to his children's concerns.",
                 "That blue backpack belongs to my relative; it is his.",
-                "Our extended family's annual gathering is always an exciting event.",
+                "Our extended family's annual gathering is an exciting event.",
                 "The nuclear family is common; the house is theirs.",
                 "My brother's car is red, but mine is blue.",
                 "The teacher's advice was extremely supportive.",
@@ -165,11 +155,11 @@
             tutorPrompts: [
               {
                 type: "Reading Prompt",
-                focus: "Target Skill: Identifying information | Grammar Focus: Possessive 's and pronouns",
-                text: "Read this sentence: 'Children in large extended families usually don't have many possessions, but one advantage is that they can get supportive help from their siblings.'",
+                focus: "Target Skill: Identifying information",
+                text: "Read this sentence: 'An adolescent in a nuclear family receives supportive care from lenient relatives.'",
                 questions: [
-                  "Skill Question: Is it True or False that children in large families have lots of toys? (Answer: False)",
-                  "Grammar Question: Who do the 'possessions' belong to? Can you rewrite the first part using a possessive 's? (e.g., The children's possessions...)"
+                  "Skill Question: True or False: Relatives in a nuclear family are always strict. (False)",
+                  "Grammar Question: Who provides the care?"
                 ]
               }
             ],
@@ -201,8 +191,8 @@
                       text: "I agree because parents are the most supportive figures and can provide a lenient, nurturing upbringing at home.",
                       breakdown: [
                         { type: "marker", text: "I agree because…", note: "opinion + reason" },
-                        { type: "grammar", text: "most supportive", note: "superlative adjective" },
-                        { type: "lexical", text: "lenient, nurturing upbringing", note: "advanced vocabulary phrasing" }
+                        { type: "lexical", text: "supportive / lenient / upbringing", note: "unit vocabulary" },
+                        { type: "grammar", text: "most supportive", note: "superlative adjective" }
                       ],
                       ieltsValue: "Shows ability to justify an opinion with complex vocabulary."
                     },
@@ -219,7 +209,7 @@
                       text: "Teachers, on the other hand, often enforce strict rules that prepare students for society.",
                       breakdown: [
                         { type: "marker", text: "on the other hand", note: "contrast marker (cohesion)" },
-                        { type: "lexical", text: "strict rules", note: "target vocabulary collocation" },
+                        { type: "lexical", text: "strict rules", note: "unit vocabulary collocation" },
                         { type: "structure", text: "that prepare students", note: "relative clause" }
                       ],
                       ieltsValue: "Adds contrast and shows range of cohesive devices."
@@ -227,8 +217,8 @@
                     {
                       text: "By listening to both, we can bridge the generation gap.",
                       breakdown: [
-                        { type: "structure", text: "By listening to both", note: "prepositional gerund phrase" },
-                        { type: "lexical", text: "bridge the generation gap", note: "advanced idiomatic collocation" }
+                        { type: "lexical", text: "generation gap", note: "unit vocabulary" },
+                        { type: "structure", text: "By listening to both", note: "prepositional gerund phrase" }
                       ],
                       ieltsValue: "Shows logical progression and cause–effect reasoning."
                     },
@@ -245,7 +235,7 @@
                 },
                 {
                   version: "Version 2 (Alternative)",
-                  text: "In my opinion, children should not rely only on teachers to learn how to behave. I agree because supportive parents play a massive role during a child's early upbringing. For example, a young adolescent often copies how their sibling or older relative speaks and solves problems. A strict teacher can guide students in the classroom, but they cannot replace the lenient daily lessons children receive from their nuclear family. As a result, children who learn from their extended family bridge the generation gap more easily. I believe that parental responsibility is crucial for respectful behaviour.",
+                  text: "In my opinion, children should not rely only on teachers to learn how to behave. I agree because a supportive parent plays a massive role during a child's early upbringing. For example, a young adolescent often copies how their sibling or older relative speaks and solves problems. A strict teacher can guide students in the classroom, but they cannot replace the lenient daily lessons children receive from their nuclear family. As a result, children who learn from their extended family bridge the generation gap more easily. I believe that parental responsibility is crucial for respectful behaviour.",
                   sentences: [
                     {
                       text: "In my opinion, children should not rely only on teachers to learn how to behave.",
@@ -257,10 +247,10 @@
                       ieltsValue: "Strong topic sentence establishing a clear stance."
                     },
                     {
-                      text: "I agree because supportive parents play a massive role during a child's early upbringing.",
+                      text: "I agree because a supportive parent plays a massive role during a child's early upbringing.",
                       breakdown: [
                         { type: "marker", text: "I agree because", note: "opinion + justification" },
-                        { type: "lexical", text: "supportive / upbringing", note: "topic-specific vocabulary" }
+                        { type: "lexical", text: "supportive / upbringing", note: "unit vocabulary" }
                       ],
                       ieltsValue: "Connects opinion to a logical, well-structured reason."
                     },
@@ -294,7 +284,7 @@
                     {
                       text: "I believe that parental responsibility is crucial for respectful behaviour.",
                       breakdown: [
-                        { type: "marker", text: "I believe that", note: "opinion marker" },
+                        { type: "marker", text: "I believe that", note: "opinion + conditional/time marker" },
                         { type: "lexical", text: "parental responsibility", note: "strong academic collocation" }
                       ],
                       ieltsValue: "Powerful concluding sentence summarizing the paragraph's core argument."
@@ -342,34 +332,29 @@
               { q: "[Grammar] We ___ to the park on Sundays.", options: ["go", "goes", "going", "are go"], answer: 0 },
               { q: "[Vocab] An activity you do for fun in your free time is a ___ .", options: ["tournament", "pastime", "amateur", "recreation"], answer: 1 },
               { q: "[Vocab] To 'let yourself enjoy something' means to ___ .", options: ["participate", "unwind", "indulge", "fascinate"], answer: 2 },
-              { q: "[Grammar] She doesn’t ___ watching TV.", options: ["likes", "like", "liking", "liked"], answer: 1 },
-              { q: "[Vocab] A person who loves photography is a photography ___ .", options: ["enthusiast", "amateur", "tournament", "pastime"], answer: 0 },
-              { q: "[Grammar] They ___ football twice a week.", options: ["plays", "play", "playing", "played"], answer: 1 },
-              { q: "[Vocab] Going hiking in the mountains is an ___ activity.", options: ["indoor", "outdoor", "boring", "sedentary"], answer: 1 },
-              { q: "[Grammar] I really ___ reading novels.", options: ["enjoy", "enjoys", "enjoying", "am enjoy"], answer: 0 },
-              { q: "[Vocab] Something extremely interesting is ___ .", options: ["relaxing", "boring", "fascinating", "ordinary"], answer: 2 }
+              { q: "[Grammar] She doesn’t ___ watching TV.", options: ["likes", "like", "liking", "liked"], answer: 1 }
             ],
             speaking: [
               {
                 type: "Warm-up Questions (Part 1)",
                 questions: [
-                  "What do you like doing in your free time?", 
-                  "Do you prefer chatting online or doing exercise?"
+                  "What do you participate in during your free time?", 
+                  "Do you prefer outdoor recreation or staying inside?"
                 ],
                 stems: [
-                  "To unwind after classes, I usually...", 
-                  "I definitely prefer [chatting online / doing exercise] because..."
+                  "To unwind after classes, I usually participate in...", 
+                  "I definitely prefer outdoor recreation because..."
                 ],
                 example: "To unwind after school, I usually participate in outdoor recreation. I love playing soccer because it's a fascinating and energetic pastime."
               },
               {
                 type: "Long Turn (Describe) (Part 2)",
                 questions: [
-                  "Describe an activity that you like doing. You should say what activity it is."
+                  "Describe a fascinating pastime that you indulge in."
                 ],
                 stems: [
                   "An activity I'm very enthusiastic about is...", 
-                  "I usually indulge in this hobby when..."
+                  "I usually indulge in this amateur tournament when..."
                 ],
                 example: "I am a huge chess enthusiast. I indulge in playing amateur tournaments every weekend. It is a fascinating indoor pastime that really helps me unwind."
               }
@@ -380,8 +365,7 @@
                 "1. What do teenagers value above everything else?",
                 "2. Name an outdoor activity teenagers participate in.",
                 "3. What fascinating pastime is mentioned?",
-                "4. Where might an amateur enthusiast compete?",
-                "5. Why do teenagers need time?"
+                "4. Where might an amateur enthusiast compete?"
               ]
             },
             listening: {
@@ -413,7 +397,7 @@
             tutorPrompts: [
               {
                 type: "Reading Prompt",
-                focus: "Target Skill: Skimming for key words | Grammar Focus: Present simple for habits",
+                focus: "Target Skill: Skimming for key words",
                 text: "Read this sentence: 'Younger age groups indulge in outdoor recreation, but older people do not participate as much.'",
                 questions: [
                   "Skill Question: What are the key contrasting words in this sentence? (Answer: but, do not)",
@@ -590,19 +574,14 @@
               { q: "[Grammar] She ___ traditional clothes yesterday.", options: ["wear", "wore", "wearing", "wears"], answer: 1 },
               { q: "[Vocab] Beliefs and customs passed down through generations are part of your cultural ___ .", options: ["stereotype", "heritage", "integration", "etiquette"], answer: 1 },
               { q: "[Vocab] A fixed, oversimplified idea about a group is a ___ .", options: ["tradition", "custom", "stereotype", "belief"], answer: 2 },
-              { q: "[Grammar] They ___ fireworks to celebrate.", options: ["use", "used", "using", "uses"], answer: 1 },
-              { q: "[Vocab] The way people behave politely in society is called social ___ .", options: ["values", "etiquette", "custom", "diversity"], answer: 1 },
-              { q: "[Grammar] I ___ to Japan in 2023.", options: ["go", "went", "gone", "going"], answer: 1 },
-              { q: "[Vocab] A society with many different cultures is ___ .", options: ["traditional", "multicultural", "diverse", "integrated"], answer: 1 },
-              { q: "[Grammar] He didn’t ___ the parade because he was sick.", options: ["attend", "attends", "attending", "attended"], answer: 0 },
-              { q: "[Vocab] Respecting elders is an important cultural ___ in many countries.", options: ["stereotype", "value", "heritage", "integration"], answer: 1 }
+              { q: "[Grammar] They ___ fireworks to celebrate.", options: ["use", "used", "using", "uses"], answer: 1 }
             ],
             speaking: [
               {
                 type: "Warm-up Questions (Part 1)",
                 questions: [
-                  "What is an important festival in your country?",
-                  "Do young people in your country celebrate special occasions?"
+                  "What is an important custom in your country?",
+                  "Does your country have a diverse heritage?"
                 ],
                 stems: [
                   "The best part of this tradition is definitely...",
@@ -642,7 +621,7 @@
             },
             grammar: {
               topic: "The Past Simple Tense",
-              focus: "Use the past simple tense to talk about finished past actions. Highlight the difference between regular verbs (adding -ed) and irregular verbs.",
+              focus: "Use the past simple tense to talk about finished past actions.",
               examples: [
                 "We watched the diverse parade and celebrated the new year.",
                 "My sister and I saw a multicultural play in London.",
@@ -660,7 +639,7 @@
             tutorPrompts: [
               {
                 type: "Reading Prompt",
-                focus: "Target Skill: Matching headings | Grammar Focus: Past simple tense",
+                focus: "Target Skill: Matching headings",
                 text: "Read this text: 'Despite its name, British Bulldog was a custom that did not involve actual animals.'",
                 questions: [
                   "Grammar Question: What tense is the text written in?"
@@ -835,12 +814,7 @@
               { q: "[Grammar] ___ two parks in this neighbourhood.", options: ["There is", "There are", "Is there", "Are there"], answer: 1 },
               { q: "[Vocab] A quiet area outside a city is called a ___ .", options: ["urban", "suburb", "campus", "neighbourhood"], answer: 1 },
               { q: "[Vocab] Buildings like gyms and libraries are public ___ .", options: ["accommodation", "amenities", "commutes", "rural"], answer: 1 },
-              { q: "[Grammar] The post office is ___ the bank.", options: ["next", "next to", "opposite to", "in front"], answer: 1 },
-              { q: "[Vocab] A place full of noise and activity is ___ .", options: ["tranquil", "rural", "bustling", "suburban"], answer: 2 },
-              { q: "[Grammar] ___ any restaurants on this street?", options: ["There is", "There are", "Is there", "Are there"], answer: 3 },
-              { q: "[Vocab] Living in the countryside means you live in a ___ area.", options: ["urban", "rural", "bustling", "suburban"], answer: 1 },
-              { q: "[Grammar] My school is ___ my home.", options: ["next to", "next", "opposite to", "between"], answer: 0 },
-              { q: "[Vocab] A university’s buildings and grounds are called its ___ .", options: ["neighbourhood", "campus", "suburb", "urban"], answer: 1 }
+              { q: "[Grammar] The post office is ___ the bank.", options: ["next", "next to", "opposite to", "in front"], answer: 1 }
             ],
             speaking: [
               {
@@ -858,7 +832,7 @@
               {
                 type: "Long Turn (Describe) (Part 2)",
                 questions: [
-                  "Describe an interesting city you know and like. You should say: where it is, how you went there, what you did there, and explain why you found it so interesting."
+                  "Describe an interesting city you know and like."
                 ],
                 stems: [
                   "A city that really fascinated me was...", 
@@ -905,7 +879,7 @@
             tutorPrompts: [
               {
                 type: "Listening Prompt",
-                focus: "Target Skill: Following directions | Grammar Focus: Prepositions of location",
+                focus: "Target Skill: Following directions | Grammar Focus: Prepositions",
                 text: "I am going to give you directions on a map. Listen closely: 'Take the lift up; the tutor's office is the third door on the right.'",
                 questions: [
                   "Grammar Question: Use 'There is' to describe what is on the floor."
@@ -1077,19 +1051,14 @@
               { q: "[Grammar] Half of the students ___ horror films.", options: ["likes", "like", "liking", "liked"], answer: 1 },
               { q: "[Vocab] A film based on real events is a ___ .", options: ["comedy", "thriller", "documentary", "horror"], answer: 2 },
               { q: "[Vocab] News reporting that is fair and not influenced by opinion is ___ .", options: ["biased", "objective", "tabloid", "coverage"], answer: 1 },
-              { q: "[Grammar] Three quarters of people over 65 ___ TV films.", options: ["watch", "watches", "watching", "watched"], answer: 0 },
-              { q: "[Vocab] Photographers who follow celebrities are called ___ .", options: ["journalists", "paparazzi", "broadcasters", "editors"], answer: 1 },
-              { q: "[Grammar] Ten per cent of film sales ___ from Bollywood.", options: ["come", "comes", "coming", "came"], answer: 0 },
-              { q: "[Vocab] A newspaper with sensational stories is a ___ .", options: ["journalist", "tabloid", "broadcast", "censorship"], answer: 1 },
-              { q: "[Grammar] Most teenagers ___ science fiction.", options: ["enjoy", "enjoys", "enjoying", "enjoyed"], answer: 0 },
-              { q: "[Vocab] The suppression of information in media is called ___ .", options: ["influence", "coverage", "censorship", "circulation"], answer: 2 }
+              { q: "[Grammar] Three quarters of people over 65 ___ TV films.", options: ["watch", "watches", "watching", "watched"], answer: 0 }
             ],
             speaking: [
               {
                 type: "Warm-up Questions (Part 1)",
                 questions: [
                   "What do you usually watch on television?", 
-                  "What kind of films do you enjoy? (e.g., comedy, action, documentary, thriller, horror, science fiction)"
+                  "What kind of films do you enjoy?"
                 ],
                 stems: [
                   "I rarely watch traditional TV anymore, but I stream...", 
@@ -1100,7 +1069,7 @@
               {
                 type: "Long Turn (Describe) (Part 2)",
                 questions: [
-                  "Talk about a programme you learnt something from. You should say: what type of programme it was, what your favourite parts were, who you watched it with, and explain what you learnt from it."
+                  "Talk about a programme you learnt something from."
                 ],
                 stems: [
                   "A documentary that really stood out to me was...", 
@@ -1318,12 +1287,7 @@
               { q: "[Grammar] Plastic waste is ___ in the ocean.", options: ["found", "find", "finding", "finds"], answer: 0 },
               { q: "[Vocab] Animals at serious risk of extinction are ___ .", options: ["renewable", "endangered", "sustainable", "polluted"], answer: 1 },
               { q: "[Vocab] Cutting down forests is called ___ .", options: ["pollution", "deforestation", "conservation", "habitat"], answer: 1 },
-              { q: "[Grammar] This river is ___ than that one.", options: ["pollute", "more polluted", "most polluted", "polluted"], answer: 1 },
-              { q: "[Vocab] A natural home for animals is their ___ .", options: ["ecosystem", "habitat", "species", "climate"], answer: 1 },
-              { q: "[Grammar] Volcanoes are ___ by Earth’s movement.", options: ["form", "formed", "forming", "forms"], answer: 1 },
-              { q: "[Vocab] Energy that can be used again and again is ___ .", options: ["endangered", "renewable", "polluted", "natural"], answer: 1 },
-              { q: "[Grammar] This is the ___ forest fire this year.", options: ["destructive", "more destructive", "most destructive", "destructively"], answer: 2 },
-              { q: "[Vocab] Preventing waste and protecting nature is called ___ .", options: ["pollution", "deforestation", "conservation", "climate change"], answer: 2 }
+              { q: "[Grammar] This river is ___ than that one.", options: ["pollute", "more polluted", "most polluted", "polluted"], answer: 1 }
             ],
             speaking: [
               {
@@ -1554,12 +1518,7 @@
               { q: "[Grammar] They ___ about changing schools.", options: ["think", "thinks", "are thinking", "thought"], answer: 2 },
               { q: "[Vocab] Passing off someone else’s work as your own is ___ .", options: ["curriculum", "plagiarism", "literacy", "syllabus"], answer: 1 },
               { q: "[Vocab] The ability to read and write is called ___ .", options: ["literacy", "vocational", "compulsory", "proportion"], answer: 0 },
-              { q: "[Grammar] I ___ online classes this semester.", options: ["take", "takes", "am taking", "took"], answer: 2 },
-              { q: "[Vocab] Subjects like nursing or carpentry are ___ courses.", options: ["academic", "co-educational", "vocational", "compulsory"], answer: 2 },
-              { q: "[Grammar] He ___ harder these days.", options: ["work", "works", "is working", "worked"], answer: 2 },
-              { q: "[Vocab] An outline of topics in a course is a ___ .", options: ["curriculum", "syllabus", "literacy", "assessment"], answer: 1 },
-              { q: "[Grammar] We ___ a presentation tomorrow.", options: ["give", "gives", "are giving", "gave"], answer: 2 },
-              { q: "[Vocab] Evaluating a student’s work is to ___ them.", options: ["assess", "fluctuate", "proportion", "literacy"], answer: 0 }
+              { q: "[Grammar] I ___ online classes this semester.", options: ["take", "takes", "am taking", "took"], answer: 2 }
             ],
             speaking: [
               {
@@ -1794,12 +1753,7 @@
               { q: "[Grammar] Sitting all day is bad for your back. ___, it causes eye strain.", options: ["Furthermore", "However", "Although", "But"], answer: 0 },
               { q: "[Vocab] A person who starts a business is an ___ .", options: ["entrepreneur", "colleague", "corporation", "sole trader"], answer: 0 },
               { q: "[Vocab] A fixed monthly payment for a job is a ___ .", options: ["promotion", "pension", "salary", "qualification"], answer: 2 },
-              { q: "[Grammar] He speaks English ___ well.", options: ["exceptional", "exceptions", "exceptionally", "except"], answer: 2 },
-              { q: "[Vocab] To give a task to someone else is to ___ it.", options: ["resign", "delegate", "promote", "corporate"], answer: 1 },
-              { q: "[Grammar] Working from home saves time. ___, it reduces travel costs.", options: ["Moreover", "However", "Although", "Despite"], answer: 0 },
-              { q: "[Vocab] Money paid after retirement is a ___ .", options: ["salary", "pension", "mortgage", "debt"], answer: 1 },
-              { q: "[Grammar] She argues her points ___ clearly.", options: ["exceptional", "exceptionally", "exceptions", "except"], answer: 1 },
-              { q: "[Vocab] Skills or degrees needed for a job are ___ .", options: ["colleagues", "qualifications", "salaries", "pensions"], answer: 1 }
+              { q: "[Grammar] He speaks English ___ well.", options: ["exceptional", "exceptions", "exceptionally", "except"], answer: 2 }
             ],
             speaking: [
               {
@@ -2038,12 +1992,7 @@
               { q: "[Grammar] They ___ stay in a hotel.", options: ["are going to", "is going to", "am going to", "go to"], answer: 0 },
               { q: "[Vocab] A planned journey is an ___ .", options: ["itinerary", "destination", "souvenir", "excursion"], answer: 0 },
               { q: "[Vocab] The opposite of 'modern' is ___ .", options: ["traditional", "scenic", "comfortable", "backpacking"], answer: 0 },
-              { q: "[Grammar] She ___ take any photos.", options: ["is not going to", "not going to", "is going not to", "doesn't going to"], answer: 0 },
-              { q: "[Vocab] Looking at famous places while traveling is ___ .", options: ["sightseeing", "backpacking", "reservation", "currency"], answer: 0 },
-              { q: "[Grammar] We ___ eat local food.", options: ["are going to", "is going to", "am going to", "going to"], answer: 0 },
-              { q: "[Vocab] A short trip for pleasure is an ___ .", options: ["itinerary", "excursion", "destination", "guidebook"], answer: 1 },
-              { q: "[Grammar] He ___ buy a souvenir.", options: ["is going to", "are going to", "am going to", "going to"], answer: 0 },
-              { q: "[Vocab] Money used in a country is its ___ .", options: ["souvenir", "currency", "reservation", "itinerary"], answer: 1 }
+              { q: "[Grammar] She ___ take any photos.", options: ["is not going to", "not going to", "is going not to", "doesn't going to"], answer: 0 }
             ],
             speaking: [
               {
@@ -2264,12 +2213,7 @@
               { q: "[Grammar] If I ___ rich, I would build a hospital.", options: ["am", "was", "were", "will be"], answer: 2 },
               { q: "[Vocab] Being inactive and sitting all day is a ___ lifestyle.", options: ["nutritious", "sedentary", "therapeutic", "immune"], answer: 1 },
               { q: "[Vocab] A medical order for medicine is a ___ .", options: ["remedy", "prescription", "symptom", "epidemic"], answer: 1 },
-              { q: "[Grammar] If she ___ early, she would catch the bus.", options: ["leave", "leaves", "left", "leaving"], answer: 2 },
-              { q: "[Vocab] Clean habits to prevent disease are good ___ .", options: ["hygiene", "obesity", "nutrition", "therapy"], answer: 0 },
-              { q: "[Grammar] If they ___ junk food, they wouldn’t be overweight.", options: ["eat", "ate", "eats", "eating"], answer: 1 },
-              { q: "[Vocab] The ability to resist infection is ___ .", options: ["immunity", "epidemic", "obesity", "remedy"], answer: 0 },
-              { q: "[Grammar] If hospitals ___ free, more people would live longer.", options: ["are", "were", "was", "will be"], answer: 1 },
-              { q: "[Vocab] A treatment for illness is a ___ .", options: ["symptom", "prescription", "remedy", "sedentary"], answer: 2 }
+              { q: "[Grammar] If she ___ early, she would catch the bus.", options: ["leave", "leaves", "left", "leaving"], answer: 2 }
             ],
             speaking: [
               {
@@ -2489,12 +2433,7 @@
               { q: "[Grammar] Students ___ skip class without a reason.", options: ["should", "ought to", "shouldn't", "would"], answer: 2 },
               { q: "[Vocab] Being answerable for your actions is ___ .", options: ["initiative", "accountability", "consequence", "volunteering"], answer: 1 },
               { q: "[Vocab] Doing something because you feel it’s your duty is an ___ .", options: ["obligation", "resolution", "leadership", "civic"], answer: 0 },
-              { q: "[Grammar] She ___ study harder if she wants to pass.", options: ["should", "ought to", "would", "could"], answer: 1 },
-              { q: "[Vocab] Starting a project on your own shows ___ .", options: ["commit", "initiative", "consequence", "ethical"], answer: 1 },
-              { q: "[Grammar] We ___ ignore our responsibilities.", options: ["should", "shouldn't", "ought", "would"], answer: 1 },
-              { q: "[Vocab] A firm decision to act is a ___ .", options: ["civic", "resolution", "obligation", "accountability"], answer: 1 },
-              { q: "[Grammar] You ___ apologize if you hurt someone.", options: ["should", "would", "could", "might"], answer: 0 },
-              { q: "[Vocab] Relating to moral principles is being ___ .", options: ["ethical", "volunteering", "leadership", "initiative"], answer: 0 }
+              { q: "[Grammar] She ___ study harder if she wants to pass.", options: ["should", "ought to", "would", "could"], answer: 1 }
             ],
             speaking: [
               {
@@ -2715,12 +2654,7 @@
               { q: "[Grammar] She has worked at the bank ___ five years.", options: ["since", "for", "in", "at"], answer: 1 },
               { q: "[Vocab] The total amount you spend is your ___ .", options: ["budget", "profit", "expenditure", "investment"], answer: 2 },
               { q: "[Vocab] A loan to buy a house is a ___ .", options: ["debt", "mortgage", "inflation", "subsidy"], answer: 1 },
-              { q: "[Grammar] Saving money ___ important.", options: ["is", "are", "was", "be"], answer: 0 },
-              { q: "[Vocab] A general increase in prices is ___ .", options: ["bankruptcy", "inflation", "mortgage", "profit"], answer: 1 },
-              { q: "[Grammar] They have known each other ___ ten years.", options: ["since", "for", "in", "at"], answer: 1 },
-              { q: "[Vocab] Financial support from the government is a ___ .", options: ["loan", "mortgage", "subsidy", "debt"], answer: 2 },
-              { q: "[Grammar] Investing wisely ___ smart.", options: ["is", "are", "was", "be"], answer: 0 },
-              { q: "[Vocab] The state of owing money is ___ .", options: ["profit", "debt", "budget", "expenditure"], answer: 1 }
+              { q: "[Grammar] Saving money ___ important.", options: ["is", "are", "was", "be"], answer: 0 }
             ],
             speaking: [
               {
@@ -2925,16 +2859,6 @@
                 }
             };
 
-            const getIcon = (type) => {
-                switch(type) {
-                    case 'marker': return 'fa-link';
-                    case 'grammar': return 'fa-spell-check';
-                    case 'structure': return 'fa-sitemap';
-                    case 'lexical': return 'fa-book-open';
-                    default: return 'fa-check';
-                }
-            };
-
             return (
                 <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 animate-fade-in">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4 pb-4 border-b border-slate-100">
@@ -3016,8 +2940,7 @@
                                     <div className="space-y-2">
                                         {activeData.sentences[activeSentenceIdx].breakdown.map((item, i) => (
                                             <div key={i} className={`border p-2 rounded-lg flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 ${getPillColor(item.type)}`}>
-                                                <div className="font-bold shrink-0 flex items-center gap-1.5 text-xs">
-                                                    <i className={`fa-solid ${getIcon(item.type)} opacity-70`}></i> 
+                                                <div className="font-bold shrink-0 text-xs">
                                                     {item.text}
                                                 </div>
                                                 <div className="hidden sm:block text-slate-300">→</div>
@@ -3282,6 +3205,13 @@
           const [isSidebarOpen, setIsSidebarOpen] = useState(false);
           const [activeTab, setActiveTab] = useState("overview");
           const [showModelAnswer, setShowModelAnswer] = useState({});
+          
+          const voiceIndexRef = useRef(0);
+          const allowedVoices = [
+            "Remy", "Giuseppe", "Vivienne", "Florian",
+            "Seraphina", "Emma", "Brian", "Ava",
+            "Andrew", "William"
+          ];
 
           useEffect(() => {
             return () => {
@@ -3295,25 +3225,35 @@
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
             
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.85; 
-            
-            const allowedVoices = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew"];
-            const voices = window.speechSynthesis.getVoices();
-            
-            const preferredVoice = voices.find(v => 
-                allowedVoices.some(name => v.name.includes(name)) && 
-                v.name.includes("Microsoft") && 
-                v.name.includes("Online") && 
-                v.lang.startsWith("en")
-            );
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.rate = 0.85; 
 
-            // ONLY speak if the exact allowed voice is found. No fallbacks allowed.
-            if (preferredVoice) {
-              utterance.voice = preferredVoice;
-              window.speechSynthesis.speak(utterance);
+            const loadVoices = () => {
+              const voices = window.speechSynthesis.getVoices();
+              
+              const validVoices = voices.filter(v => 
+                allowedVoices.some(name => v.name.includes(name)) &&
+                v.name.includes("Microsoft") &&
+                (v.name.includes("Online") || v.name.includes("Natural")) &&
+                v.lang.startsWith("en")
+              );
+
+              if (validVoices.length === 0) {
+                console.warn("Voice strict match failed: No allowed Microsoft Online English voices found.");
+                return;
+              }
+
+              const selected = validVoices[voiceIndexRef.current % validVoices.length];
+              voiceIndexRef.current += 1;
+
+              utter.voice = selected;
+              window.speechSynthesis.speak(utter);
+            };
+
+            if (window.speechSynthesis.getVoices().length === 0) {
+              window.speechSynthesis.onvoiceschanged = loadVoices;
             } else {
-              console.warn("Required Microsoft Multilingual Online English voice not found. TTS aborted to prevent fallback.");
+              loadVoices();
             }
           };
 
@@ -3362,7 +3302,6 @@
                 />
               )}
 
-              {/* Sidebar */}
               <div className={`
                 fixed inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-in-out flex flex-col
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -3403,7 +3342,6 @@
 
               <div className="flex-1 flex flex-col h-full relative w-full">
                 
-                {/* Header */}
                 <header className="bg-white border-b border-slate-200 px-3 md:px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
                   <div className="flex items-center gap-3">
                     <button 
@@ -3432,7 +3370,6 @@
                 <main className="flex-1 overflow-y-auto bg-slate-50 p-2 md:p-4 scroll-smooth">
                   <div className="max-w-7xl mx-auto flex flex-col h-full">
                     
-                    {/* Nav Tabs */}
                     <div className="flex flex-wrap gap-1.5 pb-3 mb-4 border-b border-slate-200">
                       {tabs.map(tab => (
                         <button
@@ -3452,7 +3389,6 @@
 
                     <div className="flex-1 animate-fade-in pb-12">
                       
-                      {/* TAB 1: OVERVIEW */}
                       {activeTab === "overview" && (
                         <div className="space-y-3">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -3530,7 +3466,6 @@
                         </div>
                       )}
 
-                      {/* TAB 2: VOCABULARY */}
                       {activeTab === "vocab" && (
                         <div className="space-y-4">
                           <div className="bg-slate-900 p-4 rounded-xl text-slate-300 border border-slate-800 shadow-md flex items-start gap-3">
@@ -3563,7 +3498,6 @@
                         </div>
                       )}
 
-                      {/* TAB 3: SPEAKING */}
                       {activeTab === "speaking" && (
                         <div className="space-y-4">
                           {activeUnit.speaking.map((section, idx) => (
@@ -3627,7 +3561,6 @@
                         </div>
                       )}
 
-                      {/* TAB 4: READING */}
                       {activeTab === "reading" && (
                         <div className="space-y-4">
                           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -3668,7 +3601,6 @@
                         </div>
                       )}
 
-                      {/* TAB 5: LISTENING */}
                       {activeTab === "listening" && (
                         <div className="space-y-4">
                           <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden text-slate-300">
@@ -3709,7 +3641,6 @@
                         </div>
                       )}
 
-                      {/* TAB 6: WRITING / GRAMMAR */}
                       {activeTab === "grammar" && (
                         <div className="space-y-4">
                           <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -3727,13 +3658,13 @@
                                   {activeUnit.grammar.focus}
                                 </p>
                               </button>
-                              <div className="space-y-1.5 mt-2">
+                              <div className="space-y-1 md:space-y-1.5 mt-2">
                                 <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1.5">Example Sentences</h4>
                                 {activeUnit.grammar.examples.map((ex, idx) => (
                                    <button 
                                     key={idx}
                                     onClick={() => handleSpeak(ex)}
-                                    className="w-full text-left bg-white hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 py-2 px-3 rounded-lg transition-all text-xs md:text-sm font-medium text-slate-700 shadow-sm"
+                                    className="w-full text-left bg-white hover:bg-indigo-50 border-2 border-slate-100 hover:border-indigo-200 py-1.5 px-3 rounded-lg transition-all text-xs md:text-sm font-medium text-slate-700 shadow-sm"
                                   >
                                     {ex}
                                   </button>
@@ -3755,15 +3686,12 @@
                         </div>
                       )}
 
-                      {/* TAB 7: ANALYSIS (NEW INTERACTIVE TOOL) */}
                       {activeTab === "analysis" && (
                          <InteractiveParagraph data={activeUnit.paragraphAnalysis} handleSpeak={handleSpeak} />
                       )}
 
-                      {/* TAB 8: TUTOR & TEST */}
                       {activeTab === "testing" && (
                         <div className="space-y-4 md:space-y-6">
-                          {/* Tutor Prompts Section */}
                           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200">
                             <div className="flex items-center gap-2 mb-3">
                               <div className="bg-teal-100 p-1.5 rounded-lg">
@@ -3772,7 +3700,7 @@
                               <h3 className="text-base md:text-lg font-bold text-slate-800">Tutor Prompts</h3>
                             </div>
                             <p className="text-slate-500 text-[10px] md:text-xs mb-4">
-                              Interactive one-on-one coaching tasks. Click any block to hear it read aloud.
+                              Interactive coaching tasks. Click to read aloud.
                             </p>
                             
                             <div className="space-y-3">
@@ -3808,7 +3736,6 @@
                             </div>
                           </div>
 
-                          {/* Practice for the test Section */}
                           <div className="bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-800 text-slate-300">
                             <div className="flex items-center gap-2 mb-3">
                               <div className="bg-rose-500/20 p-1.5 rounded-lg border border-rose-500/30">
@@ -3817,7 +3744,7 @@
                               <h3 className="text-base md:text-lg font-bold text-white">Practice for the Test</h3>
                             </div>
                             <p className="text-slate-400 text-[10px] md:text-xs mb-4">
-                              Authentic IELTS Tasks (Bands 3.5 - 4.5) to test exam readiness. Click to read aloud.
+                              Authentic IELTS Tasks. Click to read aloud.
                             </p>
 
                             <div className="grid grid-cols-1 gap-3">
@@ -3851,7 +3778,6 @@
                                       </div>
                                     )}
 
-                                    {/* Show Model Answer Button for Writing Tasks */}
                                     {test.modelAnswer && (
                                       <div className="mt-auto border-t border-slate-700 pt-3">
                                         <button
@@ -3864,7 +3790,7 @@
                                         
                                         {showModelAnswer[idx] && (
                                           <div className="mt-2 p-3 bg-indigo-900/20 border border-indigo-500/30 rounded-md animate-fade-in">
-                                            <h5 className="text-[10px] uppercase tracking-wider font-bold text-indigo-300 mb-1.5">Band 4.0 - 4.5 Model Response</h5>
+                                            <h5 className="text-[10px] uppercase tracking-wider font-bold text-indigo-300 mb-1.5">Model Response</h5>
                                             <button 
                                               onClick={() => handleSpeak(test.modelAnswer)}
                                               className="w-full text-left text-[10px] md:text-xs text-slate-200 leading-relaxed font-medium whitespace-pre-line hover:text-white"
@@ -3875,7 +3801,6 @@
                                         )}
                                       </div>
                                     )}
-
                                   </div>
                                 </div>
                               ))}
