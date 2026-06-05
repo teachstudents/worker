@@ -2851,24 +2851,40 @@
             };
           }, []);
 
-          const handleSpeak = (text) => {
-            if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.85; 
-            
-            // Strictly enforce Microsoft Edge specific voices; NO fallbacks allowed.
-            const allowedVoices = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
-            const voices = window.speechSynthesis.getVoices();
-            
-            const preferredVoice = voices.find(v => allowedVoices.some(name => v.name.includes(name)));
+       const handleSpeak = (text) => {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.85; 
+  
+  const allowedVoices = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
+  const voices = window.speechSynthesis.getVoices();
+  
+  // Priority 1: Exact match with allowed voices
+  let preferredVoice = voices.find(v => allowedVoices.some(name => v.name.includes(name)));
+  
+  // Priority 2: Any Microsoft Online English voice
+  if (!preferredVoice) {
+    preferredVoice = voices.find(v => v.name.includes('Microsoft') && v.name.includes('Online') && v.lang.startsWith('en'));
+  }
+  
+  // Priority 3: Any English voice
+  if (!preferredVoice) {
+    preferredVoice = voices.find(v => v.lang.startsWith('en'));
+  }
+  
+  // Priority 4: First available voice
+  if (!preferredVoice && voices.length > 0) {
+    preferredVoice = voices[0];
+  }
 
-            if (preferredVoice) {
-              utterance.voice = preferredVoice;
-              window.speechSynthesis.speak(utterance);
-            }
-          };
+  if (preferredVoice) {
+    utterance.voice = preferredVoice;
+  }
+  
+  window.speechSynthesis.speak(utterance);
+};
 
           const selectUnit = (unit) => {
             setActiveUnit(unit);
