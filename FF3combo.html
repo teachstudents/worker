@@ -41,10 +41,11 @@
         .unit-btn:hover { transform: translateY(-3px); border-color: #4f46e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         #convo-container {
             display: flex; flex-direction: column; justify-content: flex-start;
-            height: 100%; padding: 1rem 1rem 3rem 1rem; gap: 0.6rem; overflow-y: auto;
+            height: 100%; padding: 1.5rem 2rem 4rem 2rem; gap: 0.8rem; overflow-y: auto;
+            width: 100%;
         }
         .chat-bubble {
-            max-width: 85%; padding: 0.8rem 1.4rem; border-radius: 1.5rem;
+            max-width: 75%; padding: 0.8rem 1.4rem; border-radius: 1.5rem;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 1; transform: scale(1); font-size: 1.3rem; line-height: 1.4; border-width: 3px;
         }
@@ -52,8 +53,8 @@
             transform: scale(1.04); font-weight: 700; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
             z-index: 10; font-size: 1.45rem;
         }
-        .chat-left { align-self: flex-start; border-bottom-left-radius: 0.2rem; }
-        .chat-right { align-self: flex-end; border-bottom-right-radius: 0.2rem; text-align: right; }
+        .chat-left { align-self: flex-start; border-bottom-left-radius: 0.2rem; margin-right: auto; }
+        .chat-right { align-self: flex-end; border-bottom-right-radius: 0.2rem; text-align: right; margin-left: auto; }
         .theme-blue { background-color: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
         .theme-black { background-color: #f8fafc; color: #0f172a; border-color: #e2e8f0; }
         .theme-purple { background-color: #faf5ff; color: #6b21a8; border-color: #e9d5ff; }
@@ -126,6 +127,51 @@
             transition: width 1s linear, background-color 0.3s;
         }
 
+        /* --- PATTERN APP CSS --- */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 140px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border: 4px solid;
+        }
+        .flip-card-front {
+            background-color: #fff1f2;
+            border-color: #fecdd3;
+            color: #be123c;
+        }
+        .flip-card-back {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #15803d;
+            transform: rotateY(180deg);
+        }
+
         #glitter-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 100; }
         
         /* Custom Scrollbar */
@@ -142,17 +188,17 @@
     <!--                 MAIN HUB                   -->
     <!-- ========================================== -->
     <div id="hub-screen" class="screen active bg-gradient-to-br from-indigo-100 via-purple-50 to-sky-100 screen-center">
-        <div class="max-w-5xl w-full">
+        <div class="max-w-7xl w-full">
             <h1 class="text-5xl md:text-7xl font-black text-center text-indigo-900 mb-4 drop-shadow-sm">Learning Hub</h1>
             <p class="text-center text-slate-600 mb-12 text-xl md:text-2xl font-semibold">Choose your learning adventure!</p>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- App 1: Conversation -->
                 <div onclick="openConvoApp()" class="hub-card cursor-pointer bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-blue-100 flex flex-col items-center text-center">
                     <div class="text-7xl mb-6 bg-blue-50 w-32 h-32 flex items-center justify-center rounded-full shadow-inner">🗣️</div>
                     <h2 class="text-2xl font-black text-blue-900 mb-3">Conversation Practice</h2>
                     <p class="text-slate-500 font-medium leading-relaxed">Improve your speaking and listening skills with natural teen dialogues.</p>
-                    <button class="mt-8 bg-blue-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-blue-700">Play Mode</button>
+                    <button class="mt-auto pt-8 bg-blue-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-blue-700 transition-colors">Play Mode</button>
                 </div>
 
                 <!-- App 2: Grammar -->
@@ -160,7 +206,7 @@
                     <div class="text-7xl mb-6 bg-emerald-50 w-32 h-32 flex items-center justify-center rounded-full shadow-inner">⚔️</div>
                     <h2 class="text-2xl font-black text-emerald-900 mb-3">Grammar Quest</h2>
                     <p class="text-slate-500 font-medium leading-relaxed">Test your knowledge, complete quizzes, and collect all 16 badges!</p>
-                    <button class="mt-8 bg-emerald-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-emerald-700">Play Mode</button>
+                    <button class="mt-auto pt-8 bg-emerald-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-emerald-700 transition-colors">Play Mode</button>
                 </div>
 
                 <!-- App 3: Mystery Game / Emoji Word Quest -->
@@ -168,7 +214,15 @@
                     <div class="text-7xl mb-6 bg-orange-50 w-32 h-32 flex items-center justify-center rounded-full shadow-inner">🧩</div>
                     <h2 class="text-2xl font-black text-orange-900 mb-3">Emoji Word Quest</h2>
                     <p class="text-slate-500 font-medium leading-relaxed">Review quick learning cards and beat the spelling timer!</p>
-                    <button class="mt-8 bg-orange-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-orange-700">Play Mode</button>
+                    <button class="mt-auto pt-8 bg-orange-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-orange-700 transition-colors">Play Mode</button>
+                </div>
+
+                <!-- App 4: Speaking Patterns -->
+                <div onclick="openPatternApp()" class="hub-card cursor-pointer bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-rose-100 flex flex-col items-center text-center">
+                    <div class="text-7xl mb-6 bg-rose-50 w-32 h-32 flex items-center justify-center rounded-full shadow-inner">🔄</div>
+                    <h2 class="text-2xl font-black text-rose-900 mb-3">Speaking Patterns</h2>
+                    <p class="text-slate-500 font-medium leading-relaxed">Master essential Q&A stems to confidently structure your sentences.</p>
+                    <button class="mt-auto pt-8 bg-rose-600 text-white font-bold py-3 px-8 rounded-full w-full hover:bg-rose-700 transition-colors">Play Mode</button>
                 </div>
             </div>
         </div>
@@ -210,12 +264,8 @@
         <div class="bg-white rounded-[3rem] shadow-2xl p-10 max-w-5xl w-full border-[6px] border-indigo-100">
             <h2 id="obj-unit-title" class="text-4xl font-black text-indigo-950 mb-8 border-b-4 border-indigo-50 pb-6 text-center"></h2>
             <p class="text-center text-slate-500 mb-8 text-lg font-medium">Select a conversation scenario below to begin practicing.</p>
-            <div class="flex justify-center gap-4 flex-wrap">
-                <button onclick="startConversationFlow(1)" class="bg-indigo-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-indigo-700 transform hover:-translate-y-1 transition-all text-xl">Scene 1 🗣️</button>
-                <button onclick="startConversationFlow(2)" class="bg-purple-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-purple-700 transform hover:-translate-y-1 transition-all text-xl">Scene 2 🗣️</button>
-                <button onclick="startConversationFlow(3)" class="bg-emerald-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-emerald-700 transform hover:-translate-y-1 transition-all text-xl">Scene 3 🗣️</button>
-                <button onclick="startConversationFlow(4)" class="bg-pink-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-pink-700 transform hover:-translate-y-1 transition-all text-xl">Scene 4 🗣️</button>
-                <button onclick="startConversationFlow(5)" class="bg-orange-600 text-white font-black py-4 px-8 rounded-2xl shadow-lg hover:bg-orange-700 transform hover:-translate-y-1 transition-all text-xl">Scene 5 🗣️</button>
+            <div id="convo-scene-buttons" class="flex justify-center gap-4 flex-wrap">
+                <!-- Dynamically generated scene buttons -->
             </div>
             <div class="mt-8 text-center">
                 <button onclick="goToConvoMenu()" class="text-slate-500 hover:text-indigo-600 font-bold underline transition-colors">Cancel & Return to Units</button>
@@ -232,7 +282,7 @@
             <button onclick="nextConversation()" class="header-btn bg-slate-100 border-2 border-slate-200 rounded-xl font-black text-slate-700 hover:bg-slate-200" title="Next Scene">➡</button>
             <button onclick="toggleReview()" class="header-btn bg-indigo-600 border-2 border-indigo-700 rounded-xl font-black text-white hover:bg-indigo-800 shadow-md whitespace-nowrap" title="Lesson Goals">📝 Goals</button>
         </header>
-        <div id="convo-container" class="flex-grow max-w-6xl w-full mx-auto shadow-inner bg-white rounded-b-2xl hide-scroll"></div>
+        <div id="convo-container" class="flex-grow w-full shadow-inner bg-white rounded-b-2xl hide-scroll"></div>
     </div>
 
     <!-- Review Modal for Convo -->
@@ -427,6 +477,72 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!--         APP 4: SPEAKING PATTERNS           -->
+    <!-- ========================================== -->
+
+    <!-- Pattern Menu -->
+    <div id="pattern-menu-screen" class="screen bg-rose-50 overflow-y-auto pt-24 pb-12">
+        <header class="fixed top-0 left-0 w-full p-4 flex justify-between items-center bg-white/90 backdrop-blur shadow-md z-50">
+            <button onclick="goToHub()" class="bg-slate-100 border-2 border-slate-300 px-4 py-1.5 rounded-full font-bold text-slate-700 hover:bg-slate-200 text-sm">
+                ⬅ HUB
+            </button>
+            <span class="text-rose-600 font-black text-2xl hidden sm:inline ml-2">Speaking Patterns 🔄</span>
+            <div class="w-[88px]"></div> <!-- Spacer for centering -->
+        </header>
+
+        <h1 class="text-5xl md:text-6xl font-black text-rose-700 mb-4 drop-shadow-lg text-center mt-8">Sentence Building</h1>
+        <p class="text-slate-600 font-bold mb-10 text-center px-4 max-w-2xl mx-auto text-lg">
+            Review the topics and grammar, then flip the cards to practice essential Q&A stems for fluent speaking!
+        </p>
+
+        <div id="pattern-unit-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full mx-auto p-6">
+            <!-- Buttons generated by JS -->
+        </div>
+    </div>
+
+    <!-- Pattern Play Screen -->
+    <div id="pattern-play-screen" class="screen bg-rose-50 overflow-y-auto pt-24 pb-12">
+        <header class="fixed top-0 left-0 w-full p-4 flex justify-between items-center bg-white/90 backdrop-blur shadow-md z-50">
+            <div class="flex gap-2">
+                <button onclick="goToHub()" class="bg-slate-100 border-2 border-slate-300 px-4 py-1.5 rounded-full font-bold text-slate-700 hover:bg-slate-200 text-sm shadow-sm transition-all hover:scale-105">
+                    🏠 HOME
+                </button>
+                <button onclick="showScreen('pattern-menu-screen')" class="bg-slate-100 border-2 border-slate-300 px-4 py-1.5 rounded-full font-bold text-slate-700 hover:bg-slate-200 text-sm shadow-sm transition-all hover:scale-105">
+                    ⬅ BACK
+                </button>
+            </div>
+            <span id="pattern-play-title" class="text-rose-600 font-black text-xl md:text-2xl hidden sm:inline truncate px-2">Unit Title</span>
+            <button onclick="nextPatternUnit()" class="bg-rose-100 border-2 border-rose-300 px-4 py-1.5 rounded-full font-bold text-rose-700 hover:bg-rose-200 text-sm shadow-sm transition-all hover:scale-105">
+                NEXT UNIT ➡
+            </button>
+        </header>
+
+        <div class="max-w-4xl w-full mx-auto px-4 flex flex-col gap-5">
+            <!-- Word Bank & Grammar Info -->
+            <div class="bg-white rounded-2xl shadow-md border-4 border-rose-100 p-4 md:p-5">
+                <div class="mb-3">
+                    <h3 class="text-base font-black text-rose-600 uppercase tracking-wider mb-1 flex items-center gap-2">
+                        <span class="bg-rose-100 p-1.5 rounded-lg">📚</span> Topics & Word Bank
+                    </h3>
+                    <p id="pattern-topics" class="text-slate-700 font-semibold text-sm bg-slate-50 p-2 px-3 rounded-lg border border-slate-200"></p>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-indigo-600 uppercase tracking-wider mb-1 flex items-center gap-2">
+                        <span class="bg-indigo-100 p-1.5 rounded-lg">⚙️</span> Grammar Focus
+                    </h3>
+                    <p id="pattern-grammar" class="text-slate-700 font-semibold text-sm bg-slate-50 p-2 px-3 rounded-lg border border-slate-200"></p>
+                </div>
+            </div>
+
+            <!-- Interactive QA Cards -->
+            <div id="pattern-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                <!-- Cards injected here -->
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // ==========================================
         // SHARED UTILITIES & TTS SETUP
@@ -470,7 +586,14 @@
                 const utter = new SpeechSynthesisUtterance(text);
                 utter.voice = voice || brianVoice;
                 utter.rate = 0.85; // Adjusted to 85% as requested by user
-                if (onEnd) utter.onend = onEnd;
+                
+                if (onEnd) {
+                    utter.onend = onEnd;
+                    utter.onerror = (e) => {
+                        console.warn('TTS Error or Interruption:', e);
+                        onEnd(); // Proceed to the next line even if speech fails
+                    };
+                }
                 synth.speak(utter);
             } catch(e) {
                 console.error('Speak error:', e);
@@ -496,7 +619,48 @@
         // APP 1: CONVERSATION DATA & LOGIC
         // ==========================================
         const convoLessons = {
-            "Unit 1: Countries": {
+            "Starter: My family": {
+                title: "My Family", emoji: "👨‍👩‍👧‍👦",
+                review: { keywords: "cousins, younger, older, tall, short, birthday, August", grammar: "Possessive 's, Comparatives, Simple Past (was/were)" },
+                conversations: [
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Look at this old photo, Amy. It was sunny that day! 📸" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "Who are the children? Is that your cousin? 👤" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Yes, we've got two cousins. That is my uncle. 👨‍👩‍👧‍👦" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "left", text: "Your cousin is taller than you! 📏" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Yes, but I am faster! The children were very happy. 😊" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "When is your brother's birthday? 🎂" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "His birthday is in August. He is older than me. 👦" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "Are you planning a big family party for him? 🎉" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "Yes, my grandparents are coming. My grandpa is seventy years old! 👴" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "That sounds fun. Family events are always the best. 🌟" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "I have a lot of homework tonight. My parents are helping me. 📚" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "My older sister usually helps me. She is very smart. 🧠" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Is your sister taller than you? 📏" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "No, I am taller than her now! But she is faster. 🏃‍♂️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "That is funny. My younger brother is shorter, but very loud! 🗣️" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Look at my new backpack! The red bag is bigger than the blue bag. 🎒" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "It looks great. Did your aunt buy it for your birthday? 🎁" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Yes, she did! My birthday was in May. 📅" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "You are lucky. My aunt always buys me clothes for school. 👗" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Clothes are good too! You always look very stylish. ✨" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "How old are you, Leo? Are you fourteen? 🤔" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "No, I'm thirteen. I am younger than you! 👦" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Wow, I thought you were older. You are very tall. 📏" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "My dad is very tall. I look like him. 👨" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I look like my mom. We both have brown hair. 👩" }
+                    ]
+                ]
+            },
+            "Unit 1: Australia!": {
                 title: "Where are you from?", emoji: "🌍",
                 review: { keywords: "Egypt, UK, Russia, Spain, Thailand, Australia, USA, Brazil", grammar: "Where are you from? I'm from..." },
                 conversations: [
@@ -506,6 +670,34 @@
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I'm from the USA. Are you from Spain? 🇪🇸" },
                         { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "No, I'm not. I'm from Australia! 🦘" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Nice to meet you, Amy! Welcome to our school. 🎒" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "Did you meet the new student in our science class? 🔬" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "Yes, I did. Where is he from? Is he from Brazil? 🇧🇷" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "No, he isn't. He's from Thailand. His name is Kasem. 🇹🇭" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "That is so cool. I want to visit Thailand one day! ✈️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "Me too! We should ask him about his home country. 🗺️" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Look at these photos from the international club! 📸" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Wow. Where are they from? Are they from Russia? 🇷🇺" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "No, they aren't. They are from the UK! 🇬🇧" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "The weather looks very cold there. ❄️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Yes, it is winter. It snows a lot! ⛄" }
+                    ],
+                    [
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "I have a penfriend for our English project! 📝" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "That's awesome! Where is she from? 🌍" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "She's from Egypt. She sent me a picture of the pyramids! 🇪🇬" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "I love learning about history. Is it hot there? ☀️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Yes, it is very hot and sunny all year. 🐪" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Are you from Spain, Leo? You speak Spanish very well. 🇪🇸" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "No, I'm not. I'm from the USA, but my mom is from Mexico. 🇲🇽" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That is amazing. I want to learn another language for college. 🎓" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "It is very useful! We can practice together if you want. 🗣️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Yes, please! Let's start studying tomorrow. 📚" }
                     ]
                 ]
             },
@@ -519,6 +711,34 @@
                         { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "Does your brother like playing volleyball? 🏐" },
                         { name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "No, he doesn't. He likes reading comics and playing chess. 📖" },
                         { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "I like taking photos. Let's take a photo now! 📸" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Do you like fishing, Leo? My dad is taking me to the lake. 🎣" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "No, I don't. I don't like being near the water. 🚫" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "What do you like doing outside? 🌳" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "I like skateboarding with my friends at the park. 🛹" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That sounds fun! Next time, I will skateboard with you. 👟" }
+                    ],
+                    [
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Does Amy like reading books in the library? 📚" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "Yes, she does! But she likes reading comics the most. 🦸‍♀️" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "I like playing chess on the weekend. It is good for my brain! 🧠" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "I don't like playing chess. It is too difficult for me. 😅" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "I can teach you! We can practice after school. 🏫" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "We have a long weekend! What are your plans? 🎉" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "I like taking photos of nature. I am going to the forest. 🌲" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "Does your sister like taking photos too? 📷" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "No, she doesn't. She likes doing gymnastics inside. 🤸‍♀️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "Everyone has different hobbies! Have a great time! 😊" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Do you and your friends like playing sports? 🏀" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Yes, we do! We love playing basketball on Saturdays. ⛹️‍♀️" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Do you like skateboarding to the courts? 🛹" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "No, we don't. We walk so we can talk about our homework. 🚶‍♀️" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "That is very responsible! See you on Monday! 👋" }
                     ]
                 ]
             },
@@ -532,6 +752,34 @@
                         { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Okay. Can I listen to your MP3 player? 🎵" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Yes, you can. Please turn it off when you finish. 🎧" },
                         { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Thanks! I'm going to look at my shell collection now. 🐚" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Amy, can I use your camera? I want to take a photo of my friends. 📷" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Yes, you can. But please hold it carefully! It is new. 🤲" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Thank you! Are these your posters on the wall? 🖼️" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "No, they are their posters. My brother put them up yesterday. 📌" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "They look really cool! I collect stickers instead. ✨" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Holly, it is very noisy in here. Can you turn off the DVD player, please? 📀" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Yes, I can. I am sorry, I was watching a movie for history class. 🎬" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "That's okay. Is this our MP3 player on the table? 🎶" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "No, it is my friend's. I am borrowing it for the weekend. 🎧" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Make sure you charge it before you give it back! 🔋" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "Leo, look at our shell collection! We found so many at the beach. 🐚" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "Wow, they are beautiful! Can I touch this big shell? 👆" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "Yes, you can. But don't drop it on the floor. ⚠️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "left", text: "I will be careful. I like collecting pins on my jacket. 📍" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "I have some extra pins. Can I give you one for your collection? 🎁" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-blue", side: "left", text: "Class, can you turn on your computers, please? 💻" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "Mr. Davis, my computer is not working. Can I use your computer? 🖥️" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-blue", side: "left", text: "No, you can't. But you can use the extra laptop on the back desk. 🎒" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "Thank you! I need it to research my project on posters. 🖼️" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-blue", side: "left", text: "You're welcome. Work hard and finish the assignment today! 📝" }
                     ]
                 ]
             },
@@ -545,6 +793,34 @@
                         { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "Is Amy snorkeling? 🤿" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "right", text: "No, she isn't. She is windsurfing. It looks dangerous! 🌬️" },
                         { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "It is safe if she wears a life jacket. This beach is beautiful. ☀️" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "What are you doing, Holly? The water is very clean today! ✨" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "I'm looking for fish. I'm snorkeling near the rocks. 🐠" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "That sounds fun. I am not snorkeling, I am kayaking. 🛶" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Are your parents sailing their boat? ⛵" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Yes, they are. They love being on the water! 🌊" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Max, look at those big waves! What is that man doing? 🌊" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "He is surfing! He is going very fast. 🏄‍♂️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Is he swimming? It looks like he fell in! 💦" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "No, he isn't swimming. He is getting back on his board. 🛹" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Surfing looks difficult. I prefer relaxing on the sand. 🏖️" }
+                    ],
+                    [
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "The lifeguards are blowing their whistles. Are the children swimming? 👮" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "No, they aren't. They are playing volleyball on the clean sand. 🏐" },
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Good. The water looks dangerous right now. The waves are too high. ⚠️" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "I agree. We aren't sailing today because it is too windy. 🌬️" },
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "We can walk along the beach instead. It is very beautiful. 🌅" }
+                    ],
+                    [
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Leo, why aren't you windsurfing today? 🌬️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "I'm tired! I am resting and reading a magazine right now. 📖" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Is Amy reading too? 🧐" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "No, she isn't. She is collecting shells near the water. 🐚" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "I will go help her! Collecting shells is very fun. 🏃‍♀️" }
                     ]
                 ]
             },
@@ -558,6 +834,34 @@
                         { name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Is the monkey taking your sandwich? 🥪" },
                         { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Yes, it is! That is a very naughty monkey! I am angry. 😠" },
                         { name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "It is eating your lunch! But it looks very funny. 😄" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Is the zebra running in the field? 🦓" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "No, it isn't. It is eating the green grass. 🌿" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Are the kangaroos jumping? I want to see them jump! 🦘" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Yes, they are! They are jumping very high. ⬆️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "That is amazing! They look very strong and free. 🌟" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "Look at the big birds. Are the flamingos sleeping? 🦩" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "No, they aren't. They are standing on one leg! 🦵" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "That is very strange! Is the camel drinking water? 🐫" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "Yes, it is. It looks very thirsty today. 💧" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "The zoo is a great place to learn about nature. 🌍" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "I hear a loud noise! Is the lion roaring? 🦁" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "left", text: "Yes, it is! It sounds very angry and scary! 😨" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "Are the other animals scared? 🐘" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "left", text: "No, they aren't. They are safe behind the fences. 🚧" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "That is good! I don't want the monkeys to be scared. 🐒" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Class, look closely at the enclosure. Is the crocodile eating? 🐊" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "No, it isn't. It is resting in the sun. ☀️" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Correct. Are the lizards hiding in the rocks? 🦎" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "Yes, they are. They blend in perfectly! I can barely see them. 🕵️‍♀️" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "You have very good observation skills for this project! 📝" }
                     ]
                 ]
             },
@@ -571,6 +875,34 @@
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Does your brother get up at seven o'clock? 🤔" },
                         { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "No, he doesn't. He wakes up late and runs to catch the bus! 🚌" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Then he must eat breakfast fast! 🥞" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "What do you do in the morning, Holly? 🌅" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "First, I brush my teeth. Then, I get dressed for school. 👕" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Do you have breakfast with your family? 🍳" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Yes, we do. Next, we eat eggs and toast. 🍞" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Finally, you catch the bus to come here! 🚌" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "Max, what time does your cousin Jim start work? ⏰" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "He starts work at eight o'clock. He works on a big farm! 🚜" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "Does he live in a big house on the farm? 🏠" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "right", text: "Yes, he does. He doesn't catch a bus. He rides a horse! 🐎" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "That is an amazing daily routine! 🌟" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "I am always tired on Mondays. Do you have a busy routine? 😴" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Yes. I do my homework after school, and then I brush my hair. 💇‍♀️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "Does your sister do her homework early too? 📚" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "No, she doesn't. She watches TV first, and then she studies. 📺" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "I prefer to finish my work early so I can relax! 😌" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Class, write an essay about your evening routine. What do you do? 📝" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "First, I eat dinner with my family. Then, I read a book. 📖" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Very good! Do you take a shower in the evening or morning? 🚿" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "I take a shower at night. Finally, I go to sleep at nine o'clock. 🌙" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "That is a very healthy routine, Leo. Excellent work. 🌟" }
                     ]
                 ]
             },
@@ -584,6 +916,34 @@
                         { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "What time do you go? 🕒" },
                         { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "I go at nine o'clock in the morning. 🌅" },
                         { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Let's go to the movie theater in May! 🍿" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Do you ever go to the café after school, Amy? ☕" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Yes, I sometimes go to the café on Fridays. 🍩" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "My friends and I always go to the shopping mall. 🛍️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "The mall is too crowded. I never go there on the weekend. 🚫" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I guess we like different places in town! 🏙️" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "We have a free weekend! Where do you want to go? 🤔" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "I want to visit the science museum! We never go there. 🦖" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "That is a great idea. We can go on Saturday morning. 📅" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Can we go to the swimming pool at two o'clock? 🏊‍♂️" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "Yes, we always swim when the weather is hot! ☀️" }
+                    ],
+                    [
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "When is your birthday party, Max? 🎉" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "My birthday is in August. We always have a picnic. 🧺" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "Do you ever have the party at the sports center? 🏀" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Sometimes we do! We play basketball at four o'clock. ⏰" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "I will make sure I am free on your birthday! 🎁" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "left", text: "Class, how often do you read books outside of school? 📚" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-black", side: "right", text: "I always go to the library in the afternoon. 🌇" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "left", text: "That is excellent, Amy. What about you, Leo? 🧐" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "I sometimes read at home. But I always go to the movie theater! 🎬" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "left", text: "Movies tell great stories, too. But remember to read! 📖" }
                     ]
                 ]
             },
@@ -597,6 +957,34 @@
                         { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Okay. Would you like a lemon or a melon? 🍋🍈" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I'd like a melon! It is sweet and delicious. 😋" },
                         { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Great. I will also buy some big onions and a cucumber. 🧅" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "I am so hungry after football practice! 🏃‍♂️" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "Would you like some cereal for a snack? 🥣" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "No, thanks. I'd like a potato and some meat, please. 🥔🥩" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "That is a big meal! Would you like an onion with it? 🧅" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Yes, please! I love cooked onions. Thank you, Dad! 👨‍🍳" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "left", text: "We are at the cafe! What would you like to eat, Holly? 🍰" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "I'd like a melon slice and some water, please. 🍈💧" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "left", text: "Would you like a lemon in your water? 🍋" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Yes, please. What are you going to order? 🤔" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "left", text: "I'd like some noodles. I am very hungry today! 🍜" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Class, we are learning about healthy food. Do you eat vegetables? 🥦" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "left", text: "Yes! I eat a cucumber every day for lunch. 🥒" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "That is very healthy. Would you like some fruit with it? 🍎" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "left", text: "Yes, please! I'd like a melon or an apple. 🍏" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Good choices. A balanced diet gives you lots of energy! ⚡" }
+                    ],
+                    [
+                        { name: "Mom", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "We are making a big salad for the family party. 🥗" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "Can I help? I'd like to cut the cucumber. 🥒" },
+                        { name: "Mom", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Yes, please. Would you like an onion in the salad? 🧅" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "No, thanks. The taste is too strong for me. 🙅‍♂️" },
+                        { name: "Mom", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Okay, we will use a lemon for juice instead! 🍋" }
                     ]
                 ]
             },
@@ -610,6 +998,34 @@
                         { name: "Teacher", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Correct. Is Russia bigger than the UK? 🇷🇺" },
                         { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Yes, it is. Russia is the biggest country in the world! 🗺️" },
                         { name: "Teacher", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Great job! And the cheetah is the fastest animal. 🐆" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "I am reading a book about world records for school. 📖" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "That sounds cool. What is the deepest lake? 🌊" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Lake Baikal is the deepest lake. It is very cold! 🥶" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-black", side: "left", text: "Is the Pacific Ocean wider than the Atlantic Ocean? 🌎" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Yes, it is. The Pacific is the widest ocean. 🛥️" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "Look at this bridge we are driving over, Holly! 🌉" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Wow, it is very long. Is it the longest bridge in the country? 🚗" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "No, it isn't. But it crosses a very wide river. 🌊" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "The buildings in the city look so high from here! 🏙️" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "Yes, they are taller than the trees! 🌲" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "My project is about animals. Did you know a mouse is smaller than a cat? 🐁" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Of course! But an elephant is the biggest land animal. 🐘" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Yes. And a cheetah is faster than a lion. 🐆" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "I like cheetahs. They are the fastest animals in the world! ⚡" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "We should put a picture of a cheetah on our poster. 🖼️" }
+                    ],
+                    [
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "We are flying to a new country for vacation! ✈️" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "I can't wait! Is a plane faster than a train? 🚂" },
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Yes, a plane is the fastest transport. We will be there soon. ☁️" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-emerald", side: "right", text: "Will we see high mountains from the window? 🏔️" },
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Yes, we will fly right over the highest mountains! 🌟" }
                     ]
                 ]
             },
@@ -623,6 +1039,34 @@
                         { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "That is correct. We must stay on the path. 🚶" },
                         { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "Look at Max! He is chasing the ducks! 🦆" },
                         { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "Max! You mustn't chase the animals. You must be kind! 😠" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Welcome to the school library. What are the rules here? 📚" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "We must be quiet. We mustn't shout! 🤫" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Very good! Can you eat your lunch in the library? 🍱" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "No, we mustn't eat food here. We must keep it clean. 🧼" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Perfect. Now you can find a good book to read. 📖" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Max, look! The fountain is so beautiful! Let's jump in! ⛲" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "No, Amy! The sign says you mustn't swim in the fountain. 🛑" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Oh, I see. What must we do with our trash? 🗑️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "We must put litter in the bin. We mustn't drop it on the path. 🚮" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "You are right. We must take care of the park. 🌳" }
+                    ],
+                    [
+                        { name: "Mom", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "It is time to cross the road. You must hold my hand! 🤝" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Okay, Mom. We must wait for the green light, right? 🚦" },
+                        { name: "Mom", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "Yes. You mustn't cross when the cars are moving. 🚗" },
+                        { name: "Holly", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Look, the light is green! We can cross the street now. 🚶‍♀️" },
+                        { name: "Mom", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "Good job paying attention. Safety is very important. ✅" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "Let's play a game of tag! I will chase you! 🏃‍♂️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "right", text: "Okay, but you mustn't run into other people! ⚠️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "I will be careful. Try to catch me! 😂" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "right", text: "You must run faster if you want to win! ⚡" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "This is so fun! We are laughing so much! 😆" }
                     ]
                 ]
             },
@@ -636,6 +1080,34 @@
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "No, there weren't any helicopters. But there were trains! 🚂" },
                         { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "right", text: "Was there a trolley in the middle of the town? 🚋" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Yes, there was! It went along the street. 🛣️" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Let's look at the history of our city. Was there a park here? 🌳" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "Yes, there was. There were lots of trees and flowers. 🌸" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Very good! Were there any big shopping malls 100 years ago? 🛍️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "No, there weren't. There were only small shops. 🏪" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Correct! The city has changed so much since then. 🏙️" }
+                    ],
+                    [
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "I love this museum. Look at that old horse bus! 🐴" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "It looks very slow. There wasn't a subway system back then. 🚇" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "Were there any taxis on the road? 🚕" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "No, there weren't any modern taxis. People walked a lot! 🚶‍♂️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "left", text: "I'm glad we have fast cars and buses now! 🚌" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "right", text: "When I was a boy, there wasn't a big bridge over the river. 🌉" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Really? How did people cross the water? 🤔" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "right", text: "There was a ferry! It carried cars and people across. ⛴️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "That sounds fun! Were there any motorbikes on the ferry? 🏍️" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "right", text: "Yes, there were some motorbikes. It was a busy boat! 🌊" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "Did you finish the history homework about planes? ✈️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "Yes! Did you know there weren't any planes 300 years ago? ☁️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "That is crazy. How did people travel long distances? 🗺️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "There were some ships. They traveled across the ocean! 🚢" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "left", text: "The museum showed us so many cool facts yesterday! 🏛️" }
                     ]
                 ]
             },
@@ -649,10 +1121,38 @@
                         { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "left", text: "Yes, he was. And Grandma was very pretty. 👵" },
                         { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "Was Uncle John a shy boy? 🙈" },
                         { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "left", text: "No, he wasn't. He was very cheerful and friendly! 😊" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "I found an old photo of myself! I was so small! 👶" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "left", text: "You weren't tall when you were five! You were very short. 📏" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "I know! And I had very blonde hair. Now it is dark. 👱‍♂️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-purple", side: "left", text: "Were you shy on your first day of school? 🎒" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "Yes, I was. I was very worried! But now I am confident. 🌟" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "How was your vacation last week, Holly? 🏖️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "It was great! We were very happy on holiday. ☀️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Was the weather good? 🌤️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-black", side: "right", text: "Yes, it was sunny. But my dad was tired after the long drive. 🚗" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "I am glad you had fun. You look very relaxed now! 😌" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Max, did you have a math lesson yesterday? 📚" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Yes, I had a math lesson. It was very difficult! 🧮" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Were the students confused? 🤔" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "left", text: "Some of them were worried. But Amy was very clever. She understood it! 🧠" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Amy is always very generous with her help. 🤝" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "Did you see your baby cousin today, Amy? 👶" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "Yes! She didn't have a toy, so I gave her my teddy bear. 🧸" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "That was very kind of you. Was she cheerful? 😊" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "Yes, she was! She laughed a lot. She is a clever baby. 💡" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-black", side: "left", text: "Babies are so much fun when they are happy! ❤️" }
                     ]
                 ]
             },
-            "Unit 13: Ancient Mayans": {
+            "Unit 13: Ancient Egyptians": {
                 title: "The Ancient Mayans", emoji: "🏺",
                 review: { keywords: "start, finish, love, hate, want, use, laugh, live", grammar: "Simple Past with regular verbs (played, lived, finished)" },
                 conversations: [
@@ -662,6 +1162,34 @@
                         { name: "Teacher", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "No, they lived in rainforests and stone cities. 🌴" },
                         { name: "Leo", gender: "m", voice: "andrew", theme: "theme-blue", side: "right", text: "Did they play games? ⚽" },
                         { name: "Teacher", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Yes, they loved sports! But the games were very difficult. 😅" }
+                    ],
+                    [
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "I finished reading the chapter on Ancient Egypt. 📖" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Did they use computers back then? 💻" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "No, they didn't use computers! They lived 5,000 years ago! ⏳" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-emerald", side: "left", text: "Did they cook pizza? 🍕" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "right", text: "No, they didn't cook pizza. But they baked bread! 🍞" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "How was your history test, Leo? 📝" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-purple", side: "right", text: "It was easy! I started early and finished the project yesterday. ✅" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "I am proud of you. Did you write about the Mayans? 🏺" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-purple", side: "right", text: "Yes, I loved learning about their stone temples! 🏛️" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "History is fascinating when you study hard! 🌟" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "Max, did you watch the movie about the ancient kings last night? 🎬" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "left", text: "Yes, I watched it! The kings lived in huge palaces. 🏰" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "I laughed at the funny joke the court jester made. 😂" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "left", text: "Me too. But I hated the scary battle scene! ⚔️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-emerald", side: "right", text: "Yes, it was very intense! 🍿" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Who wants to answer the next question about the Mayans? 🙋‍♀️" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "I do! They used a special alphabet with pictures! 🖼️" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "That is correct, Holly. Did they paint the pictures on paper? 🎨" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "No, they painted on walls and carved them into stone! 🧱" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-purple", side: "left", text: "Excellent job! You studied very well! 🌟" }
                     ]
                 ]
             },
@@ -676,6 +1204,34 @@
                         { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "Yes, he took his sleeping bag and a frying pan. 🍳" },
                         { name: "Mom", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Where did they go? Did they cook on a fire? 🔥" },
                         { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "Yes! They used matches to make a fire. It sounded fun! 🌲" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Max, did you use your dictionary in English class? 📖" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "left", text: "Yes, I did. I had to look up a lot of new words! 🧐" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Did you wear an apron in art class? 🎨" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-black", side: "left", text: "No, I didn't. And I got blue paint on my shirt! 👕" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-emerald", side: "right", text: "Oh no! Your mom is going to be mad! 😅" }
+                    ],
+                    [
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "Holly, what did you watch last night on TV? 📺" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "I watched a film about a brave explorer in the jungle. 🌴" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "Did she sleep in a tent? ⛺" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-purple", side: "right", text: "No, she didn't! She slept in a hammock in the trees! 🌳" },
+                        { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-blue", side: "left", text: "That sounds like an exciting adventure! 🌟" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Leo, where did your family go for the camping trip? 🗺️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "We went to the big forest near the lake. 🌲" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "Did you have a good time? What did you eat? 🍽️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "Yes, I did! We cooked fish in a frying pan over the fire. 🐟" },
+                        { name: "Teacher", gender: "f", voice: "vivienne", theme: "theme-emerald", side: "right", text: "That is fantastic. Camping is a great way to enjoy nature. 🏞️" }
+                    ],
+                    [
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "Max, did you remember to bring your PE kit today? 🏃‍♂️" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Oh no, I didn't! I left my sneakers at home! 👟" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "What did the gym teacher say? 👨‍🏫" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "He said I must sit and watch the game today. I'm sad. 😔" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "You must pack your bag the night before, so you don't forget! 🎒" }
                     ]
                 ]
             },
@@ -689,6 +1245,34 @@
                         { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "Are you going to take your sunscreen and a towel? 🧴" },
                         { name: "Max", gender: "m", voice: "brian", theme: "theme-blue", side: "right", text: "Yes, I am. And I'm going to pack my toothbrush. 🪥" },
                         { name: "Dad", gender: "m", voice: "giuseppe", theme: "theme-emerald", side: "left", text: "Don't forget the shampoo! We're going to have a great time! ✈️" }
+                    ],
+                    [
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "What are you going to do this summer, Amy? ☀️" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "My family is going to visit the mountains next week. 🏔️" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "Are they going to swim in the sea? 🌊" },
+                        { name: "Amy", gender: "f", voice: "emma", theme: "theme-purple", side: "left", text: "No, they aren't! We are going to hike and look at birds. 🦅" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "right", text: "That sounds fun. Make sure you pack good shoes! 🥾" }
+                    ],
+                    [
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-blue", side: "left", text: "Max, is your brother going to play basketball tomorrow? 🏀" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "right", text: "Yes, he is. The big championship game is tomorrow night! 🏆" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-blue", side: "left", text: "Are you going to watch him play? 👀" },
+                        { name: "Max", gender: "m", voice: "brian", theme: "theme-emerald", side: "right", text: "Yes, I am going to cheer very loud! 🙌" },
+                        { name: "Holly", gender: "f", voice: "ava", theme: "theme-blue", side: "left", text: "Tell him good luck! I hope he scores a goal! 🌟" }
+                    ],
+                    [
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Leo, what are you going to do this afternoon? 🕒" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "I'm going to finish my homework, and then meet my friends. 🎒" },
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "Are you going to take your camera? 📷" },
+                        { name: "Leo", gender: "m", voice: "andrew", theme: "theme-black", side: "left", text: "No, I'm not. I don't want to lose it at the park. 🌳" },
+                        { name: "Mom", gender: "f", voice: "vivienne", theme: "theme-purple", side: "right", text: "That is smart. Come home before dinner! 🍽️" }
+                    ],
+                    [
+                        { name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Class, school is ending soon. What are we going to do tomorrow? 🏫" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "We are going to visit the science museum! 🏛️" },
+                        { name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Yes, we are! Are you going to bring your lunch boxes? 🍱" },
+                        { name: "Amy", gender: "f", voice: "ava", theme: "theme-blue", side: "right", text: "Yes, I am going to pack a big sandwich and an apple. 🥪" },
+                        { name: "Teacher", gender: "f", voice: "emma", theme: "theme-emerald", side: "left", text: "Perfect. We are going to have a wonderful field trip! 🚌" }
                     ]
                 ]
             }
@@ -714,6 +1298,28 @@
                 currentLessonData = convoLessons[unitKey];
                 if(!currentLessonData) return;
                 document.getElementById('obj-unit-title').textContent = `${currentLessonData.emoji} ${unitKey} Scenarios`;
+                
+                const btnContainer = document.getElementById('convo-scene-buttons');
+                if (btnContainer) {
+                    btnContainer.innerHTML = '';
+                    const colorClasses = [
+                        'bg-indigo-600 hover:bg-indigo-700',
+                        'bg-purple-600 hover:bg-purple-700',
+                        'bg-emerald-600 hover:bg-emerald-700',
+                        'bg-pink-600 hover:bg-pink-700',
+                        'bg-orange-600 hover:bg-orange-700'
+                    ];
+                    
+                    // Generate exactly the number of buttons needed for the loaded unit
+                    currentLessonData.conversations.forEach((scene, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = `${colorClasses[idx % colorClasses.length]} text-white font-black py-4 px-8 rounded-2xl shadow-lg transform hover:-translate-y-1 transition-all text-xl`;
+                        btn.innerHTML = `Scene ${idx + 1} 🗣️`;
+                        btn.onclick = () => startConversationFlow(idx + 1);
+                        btnContainer.appendChild(btn);
+                    });
+                }
+
                 showScreen('convo-objective-screen');
             } catch(e) {
                 console.error('Select unit error:', e);
@@ -724,8 +1330,14 @@
             try {
                 currentConvoType = convoType;
                 synth.cancel();
+                
+                // Unlock audio for strict browsers (Safari/iOS) by playing an empty sound on click
+                let unlock = new SpeechSynthesisUtterance('');
+                unlock.volume = 0;
+                synth.speak(unlock);
+
                 showScreen('convo-conversation-screen');
-                document.getElementById('convo-unit-header').textContent = `${currentLessonData.title} (Scene ${convoType} of 5)`;
+                document.getElementById('convo-unit-header').textContent = `${currentLessonData.title} (Scene ${convoType} of ${currentLessonData.conversations.length})`;
                 const container = document.getElementById('convo-container');
                 container.innerHTML = '';
                 convoIndex = 0;
@@ -772,6 +1384,12 @@
                 
                 const cleanText = stripEmojis(turn.text);
                 
+                if (!cleanText) {
+                    convoIndex++;
+                    if (convoIndex < conversation.length) setTimeout(nextTurn, 600);
+                    return;
+                }
+                
                 speak(cleanText, voiceToUse, () => {
                     convoIndex++;
                     if (convoIndex < conversation.length) {
@@ -787,13 +1405,13 @@
         }
 
         function nextConversation() { 
-            if (currentConvoType < 5) startConversationFlow(currentConvoType + 1); 
+            if (currentConvoType < currentLessonData.conversations.length) startConversationFlow(currentConvoType + 1); 
             else startConversationFlow(1);
         }
 
         function prevConversation() { 
             if (currentConvoType > 1) startConversationFlow(currentConvoType - 1); 
-            else startConversationFlow(5);
+            else startConversationFlow(currentLessonData.conversations.length);
         }
 
         function toggleReview() {
@@ -1694,6 +2312,263 @@
             menuBtn.textContent = 'Back to Units';
             menuBtn.onclick = () => showScreen('mystery-menu-screen');
             document.getElementById('mystery-options').appendChild(menuBtn);
+        }
+
+        // ==========================================
+        // APP 4: SPEAKING PATTERNS DATA & LOGIC
+        // ==========================================
+        const patternData = {
+            "Starter: My family": {
+                emoji: "👨‍👩‍👧‍👦",
+                topics: "Family words, adjectives, numbers 1–100, and months of the year.",
+                grammar: "Simple present with be and have (or got), simple past with be, and comparatives.",
+                qa: [
+                    { q: "When is your birthday?", a: "I'm seven. I've got a sister." },
+                    { q: "How old are you?", a: "I'm seven." },
+                    { q: "Which car is bigger?", a: "The red car is bigger than the blue car." },
+                    { q: "Have you got a brother?", a: "No, I haven't got a brother." }
+                ]
+            },
+            "Unit 1: Australia!": {
+                emoji: "🌍",
+                topics: "Countries, seasons, and home.",
+                grammar: "Present simple with be.",
+                qa: [
+                    { q: "Where are you from?", a: "I'm from Egypt." },
+                    { q: "Where is he from?", a: "He's from Brazil." },
+                    { q: "Where is she from?", a: "She's from Spain." },
+                    { q: "Are you from Thailand?", a: "No, I'm from Australia." }
+                ]
+            },
+            "Unit 2: My weekend": {
+                emoji: "🚲",
+                topics: "Hobbies.",
+                grammar: "Present simple using like + verb + -ing.",
+                qa: [
+                    { q: "Does he like playing chess?", a: "Yes, he does. / No, he doesn't." },
+                    { q: "What do you like doing?", a: "I like reading. I don't like fishing." },
+                    { q: "Do you like skateboarding?", a: "Yes, I do." },
+                    { q: "Does she like taking photos?", a: "No, she likes doing gymnastics." }
+                ]
+            },
+            "Unit 3: My things": {
+                emoji: "💻",
+                topics: "My things, phrasal verbs, and collections.",
+                grammar: "Possessive adjectives (your / our / their) and can for permission and requests.",
+                qa: [
+                    { q: "Can I use your computer?", a: "Yes, you can. / No, you can't." },
+                    { q: "Can you help me?", a: "Can you turn off the DVD player, please?" },
+                    { q: "Is this your MP3 player?", a: "No, that's our computer." },
+                    { q: "Can we watch TV?", a: "Yes, you can turn on the TV." }
+                ]
+            },
+            "Unit 4: The beach": {
+                emoji: "🏖️",
+                topics: "Water sports and adjectives to describe places.",
+                grammar: "Present continuous (affirmative and negative).",
+                qa: [
+                    { q: "What are you doing?", a: "I'm swimming." },
+                    { q: "What is she doing?", a: "She isn't snorkeling." },
+                    { q: "Are they surfing?", a: "Yes, they are surfing." },
+                    { q: "Is he windsurfing?", a: "No, he's water skiing." }
+                ]
+            },
+            "Unit 5: A naughty monkey!": {
+                emoji: "🐒",
+                topics: "Zoo animals and adjectives to describe emotions and things.",
+                grammar: "Present continuous questions and short answers.",
+                qa: [
+                    { q: "Is the crocodile eating the sandwich?", a: "Yes, it is. / No, it isn't." },
+                    { q: "Are they swimming?", a: "Yes, they are." },
+                    { q: "Is the monkey taking your hat?", a: "Yes, it is!" },
+                    { q: "Are the penguins sleeping?", a: "No, they are walking." }
+                ]
+            },
+            "Unit 6: Jim's day": {
+                emoji: "🕐",
+                topics: "Daily routine and time words.",
+                grammar: "Present simple (affirmative, negative, and questions).",
+                qa: [
+                    { q: "Do they live in a big house?", a: "Yes, they do. / No, they don't." },
+                    { q: "What time does he start work?", a: "He starts work at eight o'clock." },
+                    { q: "Do you have breakfast at seven o'clock?", a: "Yes, I do." },
+                    { q: "Does she catch the bus?", a: "No, she walks to school." }
+                ]
+            },
+            "Unit 7: Places to go!": {
+                emoji: "🏛️",
+                topics: "Places in town and performances.",
+                grammar: "Present simple, adverbs of frequency, and prepositions of time.",
+                qa: [
+                    { q: "How often do you go to the library?", a: "I sometimes go to the library." },
+                    { q: "When is your birthday?", a: "My birthday is in May." },
+                    { q: "Do you ever go to the museum?", a: "I never go to the museum." },
+                    { q: "What time does the film start?", a: "It starts at six o'clock." }
+                ]
+            },
+            "Unit 8: I'd like a melon!": {
+                emoji: "🍈",
+                topics: "Food.",
+                grammar: "Countable and uncountable nouns (a, an, some) and would like.",
+                qa: [
+                    { q: "Would you like some cereal?", a: "Yes, please. / No, thanks." },
+                    { q: "What would you like?", a: "I'd like a melon." },
+                    { q: "Would you like an onion?", a: "No, thank you." },
+                    { q: "Would you like some meat?", a: "Yes, please. I'd like some meat." }
+                ]
+            },
+            "Unit 9: The fastest animal!": {
+                emoji: "🐆",
+                topics: "Describing places.",
+                grammar: "Comparative and superlative adjectives.",
+                qa: [
+                    { q: "What's the highest mountain in the world?", a: "Mount Everest is the highest mountain." },
+                    { q: "Which country is bigger?", a: "Russia is bigger than the UK." },
+                    { q: "Which animal is the fastest?", a: "The cheetah is the fastest animal." },
+                    { q: "Is the Pacific Ocean wider than the Atlantic?", a: "Yes, it is the widest ocean." }
+                ]
+            },
+            "Unit 10: In the park!": {
+                emoji: "🌳",
+                topics: "In the park and verbs.",
+                grammar: "Must / mustn't for rules and obligations.",
+                qa: [
+                    { q: "What are the rules here?", a: "You must turn off your mobile phone." },
+                    { q: "Can I walk here?", a: "You mustn't walk on the grass." },
+                    { q: "Must I drop litter?", a: "No, you mustn't drop litter in the park." },
+                    { q: "Can I shout in the library?", a: "No, you must be quiet in the library." }
+                ]
+            },
+            "Unit 11: In the museum": {
+                emoji: "🚁",
+                topics: "Transport and prepositions.",
+                grammar: "Past simple with be (There was/wasn't, There were/weren't).",
+                qa: [
+                    { q: "Was there a park in our town fifty years ago?", a: "There was / wasn't a park in our town." },
+                    { q: "Were there trains a hundred years ago?", a: "There were / weren't some trains." },
+                    { q: "Was there a shopping mall?", a: "No, there wasn't a shopping mall." },
+                    { q: "Were there any helicopters?", a: "No, there weren't any helicopters." }
+                ]
+            },
+            "Unit 12: A clever baby!": {
+                emoji: "👶",
+                topics: "Adjectives to describe people.",
+                grammar: "Past simple with be and have (affirmative and negative).",
+                qa: [
+                    { q: "Were you tall when you were five?", a: "I wasn't tall when I was five." },
+                    { q: "Were you happy?", a: "You were happy on holiday." },
+                    { q: "Did you have a math lesson?", a: "I had a math lesson last week." },
+                    { q: "Was he shy when he was a boy?", a: "No, he was very cheerful." }
+                ]
+            },
+            "Unit 13: Ancient Egyptians": {
+                emoji: "🏺",
+                topics: "Verbs and adjectives to describe things.",
+                grammar: "Past simple with regular verbs (affirmative and negative).",
+                qa: [
+                    { q: "When did they live?", a: "They lived 5,000 years ago." },
+                    { q: "Did they cook pizza?", a: "They didn't cook pizza." },
+                    { q: "Did they play games?", a: "Yes, they loved sports!" },
+                    { q: "Did they use computers?", a: "No, they didn't use computers." }
+                ]
+            },
+            "Unit 14: Did you have a good day?": {
+                emoji: "⛺",
+                topics: "School things and camping things.",
+                grammar: "Past simple questions and Wh- questions (what / when / where).",
+                qa: [
+                    { q: "Did you have a good day?", a: "Yes, I did. / No, I didn't." },
+                    { q: "What did you watch last night?", a: "A film." },
+                    { q: "Did Leo go camping?", a: "Yes, he took his sleeping bag." },
+                    { q: "Where did they go?", a: "They went to the forest." }
+                ]
+            },
+            "Unit 15: Our holiday!": {
+                emoji: "✈️",
+                topics: "Holiday/vacation things and time words.",
+                grammar: "be going to + verb.",
+                qa: [
+                    { q: "Are you going to swim in the sea?", a: "Yes, I am. / No, I'm not." },
+                    { q: "What is he going to do tomorrow?", a: "He's going to play basketball tomorrow." },
+                    { q: "Are you going to take your sunscreen?", a: "Yes, I am going to pack it." },
+                    { q: "What are they going to do?", a: "They are going to visit the museum." }
+                ]
+            }
+        };
+
+        let currentPatternUnitKey = null;
+
+        function openPatternApp() {
+            const grid = document.getElementById('pattern-unit-grid');
+            grid.innerHTML = '';
+            
+            Object.keys(patternData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-white p-6 rounded-[2rem] shadow-md border-4 border-rose-100 hover:border-rose-400 hover:shadow-xl transition-all flex flex-col items-center justify-center text-left hover:-translate-y-1';
+                btn.innerHTML = `
+                    <div class="flex items-center gap-4 w-full">
+                        <span class="text-5xl">${patternData[key].emoji}</span>
+                        <span class="font-black text-rose-900 text-lg leading-tight">${key}</span>
+                    </div>
+                `;
+                btn.onclick = () => loadPatternUnit(key);
+                grid.appendChild(btn);
+            });
+            
+            showScreen('pattern-menu-screen');
+        }
+
+        function loadPatternUnit(unitKey) {
+            currentPatternUnitKey = unitKey;
+            const data = patternData[unitKey];
+            
+            document.getElementById('pattern-play-title').textContent = `${data.emoji} ${unitKey}`;
+            document.getElementById('pattern-topics').textContent = data.topics;
+            document.getElementById('pattern-grammar').textContent = data.grammar;
+
+            const cardsContainer = document.getElementById('pattern-cards-container');
+            cardsContainer.innerHTML = '';
+
+            data.qa.forEach((item, idx) => {
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'flip-card';
+                cardWrapper.onclick = () => {
+                    cardWrapper.classList.toggle('flipped');
+                    if(cardWrapper.classList.contains('flipped')) {
+                        speak(item.a, emmaVoice);
+                    } else {
+                        speak(item.q, andrewVoice);
+                    }
+                };
+
+                cardWrapper.innerHTML = `
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <span class="text-sm font-black text-rose-400 uppercase tracking-widest mb-2">Question ${idx + 1}</span>
+                            <span class="text-xl md:text-2xl font-black text-center">${item.q}</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <span class="text-sm font-black text-green-500 uppercase tracking-widest mb-2">Answer</span>
+                            <span class="text-xl md:text-2xl font-black text-center">${item.a}</span>
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(cardWrapper);
+            });
+
+            showScreen('pattern-play-screen');
+        }
+
+        function nextPatternUnit() {
+            try { synth.cancel(); } catch(e) {}
+            const keys = Object.keys(patternData);
+            const nextIdx = keys.indexOf(currentPatternUnitKey) + 1;
+            
+            if (nextIdx < keys.length) {
+                loadPatternUnit(keys[nextIdx]);
+            } else {
+                goToHub(); // Loop back to hub if at end
+            }
         }
 
         // ==========================================
