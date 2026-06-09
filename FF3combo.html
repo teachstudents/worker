@@ -551,14 +551,17 @@
         let williamVoice, andrewVoice, brianVoice, emmaVoice, avaVoice;
         let giuseppeVoice, remyVoice, vivienneVoice, florianVoice;
 
-        const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{2300}-\u{23FF}]|[\u{25A0}-\u{25FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2900}-\u{297F}]|[\u{2B00}-\u{2BFF}]|[\u{3030}]|[\u{303D}]|[\u{3297}]|[\u{3299}]/gu;
+        // Modern, comprehensive regex for detecting emojis and their modifiers
+        const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
 
         function wrapEmojis(text) {
-            return text.replace(emojiRegex, (emoji) => `<span class="emoji-wrapper">${emoji}</span>`);
+            // Adds aria-hidden to prevent standard screen readers from picking them up visually
+            return text.replace(emojiRegex, (emoji) => `<span class="emoji-wrapper" aria-hidden="true">${emoji}</span>`);
         }
 
         function stripEmojis(text) {
-            return text.replace(emojiRegex, '').trim();
+            // Aggressively strips emojis, ZWJ sequences, and skin tones so the TTS engine ignores them
+            return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200d\uFE0F]/gu, '').trim();
         }
 
         function initVoices() {
@@ -2027,105 +2030,150 @@
                 { e: "💂", c: "the UK", w: "the Yoo Kay" },
                 { e: "❄️", c: "Russia", w: "Rusha" },
                 { e: "💃", c: "Spain", w: "Spane" },
-                { e: "🏖️", c: "Australia", w: "Ostralia" }
+                { e: "🏖️", c: "Australia", w: "Ostralia" },
+                { e: "🗽", c: "the USA", w: "the UZA" },
+                { e: "🐘", c: "Thailand", w: "Tieland" },
+                { e: "🦜", c: "Brazil", w: "Brasil" }
             ],
             "Unit 2: My Weekend": [
                 { e: "🛹", c: "skateboard", w: "skatebord" },
                 { e: "🤸", c: "gymnastics", w: "gymnastic" },
                 { e: "📖", c: "comics", w: "commics" },
                 { e: "🎣", c: "fishing", w: "fissing" },
-                { e: "🏀", c: "basketball", w: "baskitball" }
+                { e: "🏀", c: "basketball", w: "baskitball" },
+                { e: "♟️", c: "chess", w: "ches" },
+                { e: "📸", c: "photos", w: "fotos" },
+                { e: "📚", c: "reading", w: "reeding" }
             ],
             "Unit 3: My Things": [
                 { e: "💻", c: "computer", w: "computor" },
                 { e: "📷", c: "camera", w: "cammira" },
                 { e: "🐚", c: "shells", w: "sheals" },
                 { e: "📍", c: "pins", w: "pinns" },
-                { e: "🖼️", c: "posters", w: "postars" }
+                { e: "🖼️", c: "posters", w: "postars" },
+                { e: "🎵", c: "MP3 player", w: "MP3 playar" },
+                { e: "📀", c: "DVD player", w: "DVD plair" },
+                { e: "⭐", c: "stickers", w: "stikkers" }
             ],
             "Unit 4: Beach": [
                 { e: "🏄", c: "surfing", w: "serfing" },
-                { e: "🛶", c: "kayak", w: "kiyak" },
+                { e: "🛶", c: "kayaking", w: "kiyak" },
                 { e: "🤿", c: "snorkel", w: "snorkle" },
                 { e: "⛵", c: "sailing", w: "saling" },
-                { e: "🏊", c: "swimming", w: "swiming" }
+                { e: "🏊", c: "swimming", w: "swiming" },
+                { e: "🌬️", c: "windsurfing", w: "windsirfing" },
+                { e: "🚤", c: "waterskiing", w: "watersking" },
+                { e: "🌊", c: "diving", w: "diveing" }
             ],
             "Unit 5: Zoo Animals": [
                 { e: "🐧", c: "penguin", w: "pengwin" },
                 { e: "🦓", c: "zebra", w: "zeebra" },
                 { e: "🐒", c: "monkey", w: "munkey" },
                 { e: "🦘", c: "kangaroo", w: "kangeroo" },
-                { e: "🐫", c: "camel", w: "cammel" }
+                { e: "🐫", c: "camel", w: "cammel" },
+                { e: "🦩", c: "flamingo", w: "flomingo" },
+                { e: "🐊", c: "crocodile", w: "crocadile" },
+                { e: "🦎", c: "lizard", w: "lizerd" }
             ],
             "Unit 6: Daily Routine": [
                 { e: "🚿", c: "shower", w: "showar" },
                 { e: "🥞", c: "breakfast", w: "brekfast" },
                 { e: "🚌", c: "bus", w: "buss" },
                 { e: "🦷", c: "teeth", w: "teath" },
-                { e: "👕", c: "dressed", w: "dresed" }
+                { e: "👕", c: "dressed", w: "dresed" },
+                { e: "⏰", c: "wake up", w: "wak up" },
+                { e: "🏃", c: "catch", w: "cach" },
+                { e: "📝", c: "homework", w: "homwork" }
             ],
             "Unit 7: Places to Go": [
                 { e: "🏛️", c: "museum", w: "museam" },
                 { e: "☕", c: "cafe", w: "caffey" },
                 { e: "📚", c: "library", w: "libary" },
                 { e: "🛝", c: "playground", w: "playgrond" },
-                { e: "🏊", c: "pool", w: "poole" }
+                { e: "🏊", c: "pool", w: "poole" },
+                { e: "🛍️", c: "mall", w: "maul" },
+                { e: "🏀", c: "sports center", w: "sports centar" },
+                { e: "🎬", c: "theater", w: "theator" }
             ],
             "Unit 8: Food": [
                 { e: "🍈", c: "melon", w: "mellen" },
                 { e: "🥒", c: "cucumber", w: "cucumbor" },
                 { e: "🧅", c: "onion", w: "onyon" },
                 { e: "🍋", c: "lemon", w: "lemmon" },
-                { e: "🍜", c: "noodles", w: "nudles" }
+                { e: "🍜", c: "noodles", w: "nudles" },
+                { e: "🥣", c: "cereal", w: "sereal" },
+                { e: "🥩", c: "meat", w: "meet" },
+                { e: "🍞", c: "bread", w: "bred" }
             ],
             "Unit 9: Geography": [
                 { e: "🏔️", c: "mountain", w: "mountin" },
                 { e: "🌉", c: "bridge", w: "brije" },
                 { e: "🌊", c: "river", w: "rivar" },
                 { e: "🏙️", c: "building", w: "bilding" },
-                { e: "🌎", c: "country", w: "cuntry" }
+                { e: "🌎", c: "country", w: "cuntry" },
+                { e: "🚤", c: "ocean", w: "oshun" },
+                { e: "💧", c: "lake", w: "laik" },
+                { e: "🐆", c: "cheetah", w: "cheeta" }
             ],
             "Unit 10: In the Park": [
                 { e: "⛲", c: "fountain", w: "founten" },
                 { e: "🌳", c: "grass", w: "gras" },
                 { e: "🗑️", c: "litter", w: "litar" },
                 { e: "🏃", c: "chase", w: "chace" },
-                { e: "🚶", c: "path", w: "poth" }
+                { e: "🚶", c: "path", w: "poth" },
+                { e: "🗣️", c: "shout", w: "showt" },
+                { e: "👐", c: "catch", w: "cach" },
+                { e: "🚦", c: "cross", w: "cros" }
             ],
             "Unit 11: In the Museum": [
                 { e: "🚁", c: "helicopter", w: "helicoptor" },
                 { e: "🏍️", c: "motorbike", w: "motorbyke" },
                 { e: "🚕", c: "taxi", w: "taxee" },
                 { e: "🚂", c: "train", w: "trane" },
-                { e: "⛴️", c: "ferry", w: "fery" }
+                { e: "⛴️", c: "ferry", w: "fery" },
+                { e: "🚌", c: "bus", w: "buss" },
+                { e: "✈️", c: "plane", w: "plain" },
+                { e: "🚋", c: "trolley", w: "trolly" }
             ],
             "Unit 12: A Clever Baby!": [
                 { e: "😊", c: "cheerful", w: "cherful" },
                 { e: "😟", c: "worried", w: "worryed" },
                 { e: "😌", c: "relaxed", w: "relaxd" },
                 { e: "🎁", c: "generous", w: "generus" },
-                { e: "😠", c: "mean", w: "meen" }
+                { e: "😠", c: "mean", w: "meen" },
+                { e: "🙈", c: "shy", w: "shie" },
+                { e: "👦", c: "handsome", w: "hansome" },
+                { e: "👧", c: "pretty", w: "prity" }
             ],
             "Unit 13: Ancient Mayans": [
                 { e: "🏁", c: "start", w: "starte" },
                 { e: "🏆", c: "finish", w: "finnish" },
                 { e: "❤️", c: "love", w: "lov" },
                 { e: "😡", c: "hate", w: "hayte" },
-                { e: "🧱", c: "live", w: "liv" }
+                { e: "🧱", c: "live", w: "liv" },
+                { e: "🙋", c: "want", w: "wont" },
+                { e: "🛠️", c: "use", w: "yuse" },
+                { e: "😆", c: "laugh", w: "laff" }
             ],
             "Unit 14: School & Camping": [
                 { e: "⛺", c: "tent", w: "tentt" },
                 { e: "🛌", c: "sleeping bag", w: "sleping bag" },
                 { e: "🍳", c: "frying pan", w: "friing pan" },
                 { e: "🧮", c: "calculator", w: "calclator" },
-                { e: "🖌️", c: "paintbrush", w: "paintbruss" }
+                { e: "🖌️", c: "paintbrush", w: "paintbruss" },
+                { e: "🎽", c: "apron", w: "aprun" },
+                { e: "📖", c: "dictionary", w: "dictionery" },
+                { e: "👟", c: "PE kit", w: "PE kitt" }
             ],
             "Unit 15: Our Vacation!": [
                 { e: "🧳", c: "suitcase", w: "sutcase" },
                 { e: "🧴", c: "sunscreen", w: "sunscrean" },
                 { e: "🧼", c: "soap", w: "sope" },
                 { e: "🧴", c: "shampoo", w: "shampooo" },
-                { e: "🪥", c: "toothbrush", w: "toothbruss" }
+                { e: "🪥", c: "toothbrush", w: "toothbruss" },
+                { e: "🧻", c: "towel", w: "towl" },
+                { e: "🫧", c: "toothpaste", w: "toothpast" },
+                { e: "🪮", c: "hairbrush", w: "hairbruss" }
             ]
         };
 
