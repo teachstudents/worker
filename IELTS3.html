@@ -2892,7 +2892,7 @@
                             <h4 className="text-[10px] md:text-xs font-bold text-indigo-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                                 <i className="fa-solid fa-pen-nib"></i> IELTS Writing Prompt
                             </h4>
-                            <p className="text-indigo-900 font-medium italic leading-relaxed text-sm">
+                            <p className="text-indigo-900 font-medium leading-relaxed text-sm">
                                 "{data.prompt}"
                             </p>
                         </div>
@@ -2932,7 +2932,7 @@
                                         <button onClick={() => handleSpeak(activeData.sentences[activeSentenceIdx].text)} className="mt-0.5 text-indigo-500 hover:text-indigo-700 transition-colors">
                                             Read
                                         </button>
-                                        <p className="text-indigo-900 text-sm font-medium italic leading-relaxed">
+                                        <p className="text-indigo-900 text-sm font-medium leading-relaxed">
                                             "{activeData.sentences[activeSentenceIdx].text}"
                                         </p>
                                     </div>
@@ -3221,14 +3221,16 @@
             };
           }, []);
 
+          // THE FIX: The handleSpeak logic has been updated to prevent 
+          // the 'onvoiceschanged' event from triggering multiple times.
           const handleSpeak = (text) => {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
             
             const utter = new SpeechSynthesisUtterance(text);
-            utter.rate = 0.85; 
+            utter.rate = 0.85; // Speed locked to 85%
 
-            const loadVoices = () => {
+            const speakText = () => {
               const voices = window.speechSynthesis.getVoices();
               
               const validVoices = voices.filter(v => 
@@ -3238,22 +3240,30 @@
                 v.lang.startsWith("en")
               );
 
-              if (validVoices.length === 0) {
-                console.warn("Voice strict match failed: No allowed Microsoft Online English voices found.");
-                return;
+              // Set a specific voice if valid ones are found, otherwise rely on the browser's default
+              if (validVoices.length > 0) {
+                const selected = validVoices[voiceIndexRef.current % validVoices.length];
+                voiceIndexRef.current += 1;
+                utter.voice = selected;
+              } else if (voices.length > 0) {
+                // Fallback to the first available English voice
+                const englishVoices = voices.filter(v => v.lang.startsWith("en"));
+                utter.voice = englishVoices.length > 0 ? englishVoices[0] : voices[0];
               }
 
-              const selected = validVoices[voiceIndexRef.current % validVoices.length];
-              voiceIndexRef.current += 1;
-
-              utter.voice = selected;
               window.speechSynthesis.speak(utter);
             };
 
+            // Fix for the duplicate audio bug
             if (window.speechSynthesis.getVoices().length === 0) {
-              window.speechSynthesis.onvoiceschanged = loadVoices;
+              window.speechSynthesis.onvoiceschanged = () => {
+                speakText();
+                // Crucial: Nullify the listener immediately so it doesn't fire 
+                // a second time randomly and play old text again!
+                window.speechSynthesis.onvoiceschanged = null;
+              };
             } else {
-              loadVoices();
+              speakText();
             }
           };
 
@@ -3550,7 +3560,7 @@
                                     <h4 className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                       <i className="fa-regular fa-circle-check text-indigo-500"></i> Model High School Answer
                                     </h4>
-                                    <p className="text-xs text-indigo-900 leading-relaxed font-medium italic">
+                                    <p className="text-xs text-indigo-900 leading-relaxed font-medium">
                                       "{section.example}"
                                     </p>
                                   </button>
@@ -3615,7 +3625,7 @@
                                 onClick={() => handleSpeak(activeUnit.listening.text)}
                                 className="w-full text-left bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-teal-500 p-4 rounded-lg transition-all shadow-inner"
                               >
-                                <p className="text-xs md:text-sm leading-relaxed font-medium italic text-slate-200">
+                                <p className="text-xs md:text-sm leading-relaxed font-medium text-slate-200">
                                   "{activeUnit.listening.text}"
                                 </p>
                               </button>
@@ -3717,7 +3727,7 @@
                                       onClick={() => handleSpeak(prompt.text)}
                                       className="w-full text-left bg-white border border-slate-200 p-2.5 rounded-md shadow-sm hover:border-teal-300 transition-colors mb-2.5"
                                     >
-                                      <p className="text-xs md:text-sm text-slate-800 font-medium leading-relaxed italic">"{prompt.text}"</p>
+                                      <p className="text-xs md:text-sm text-slate-800 font-medium leading-relaxed">"{prompt.text}"</p>
                                     </button>
                                     <div className="space-y-1.5 pl-2 border-l-2 border-slate-300">
                                       {prompt.questions.map((q, qIdx) => (
