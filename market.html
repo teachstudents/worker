@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Produce Market: Master Edition</title>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #FF9800;
+            --bg: #f4f7f6;
+            --text: #333;
+            --panel-bg: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        /* Header & Time */
+        #datetime-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .season-badge {
+            background-color: #FFC107;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        h1 { color: #2c3e50; font-size: 2.2em; margin-top: 0; }
+
+        #main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .input-group { margin-bottom: 20px; }
+        input[type="text"] {
+            font-size: 1.5em;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            text-align: center;
+            width: 300px;
+            max-width: 90%;
+        }
+        .btn-group { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 650px;}
+        .menu-btn {
+            font-size: 1.5em;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            flex: 1;
+            min-width: 250px;
+        }
+        .menu-btn:hover { transform: scale(1.05); }
+        #btn-fruit { background-color: #E91E63; }
+        #btn-veg { background-color: #4CAF50; }
+        #btn-model { background-color: #9C27B0; width: 100%; }
+        #btn-quiz { background-color: #00BCD4; width: 100%; }
+
+        #selection-area { display: none; max-width: 1200px; margin: 0 auto; }
+        .produce-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+        .produce-card { 
+            cursor: pointer; 
+            padding: 20px 10px; 
+            border-radius: 15px; 
+            background: #fff; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            font-size: 1.2em; 
+            transition: 0.2s; 
+            border: 2px solid transparent; 
+        }
+        .produce-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .produce-card .emoji { font-size: 3.5em; display: block; margin-bottom: 10px; }
+        
+        #quantity-selection { 
+            display: none; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            margin-top: 20px; 
+        }
+        .quant-btn { 
+            background: #E3F2FD; 
+            color: #1565C0; 
+            font-size: 1.1em; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            margin: 5px; 
+            font-weight: bold; 
+            transition: 0.2s; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .quant-btn:hover { background: #2196F3; color: white; transform: scale(1.05); }
+
+        #game-area { display: none; max-width: 1200px; margin: 0 auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .back-btn { padding: 10px 20px; background: #607D8B; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        
+        /* Chat Log (Keeps history, positioned at the top) */
+        .chat-log {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .chat-message {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            width: 100%;
+        }
+        .seller-message { justify-content: flex-start; }
+        .buyer-message { justify-content: flex-end; }
+        .chat-avatar { font-size: 3em; }
+        .chat-bubble {
+            padding: 15px 20px;
+            background: #e0f7fa;
+            border-radius: 15px;
+            font-size: 1.25em; 
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 60%;
+            line-height: 1.5;
+        }
+        .buyer-message .chat-bubble { background: #fff9c4; text-align: right; }
+        
+        .vocab { font-weight: bold; color: #D32F2F; text-decoration: underline; }
+        .vocab-good { font-weight: bold; color: #388E3C; text-decoration: underline; }
+
+        .produce-display {
+            font-size: 4.5em;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 15px;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+        .action-btn {
+            font-size: 1.1em;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .action-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-agree { background-color: #4CAF50; }
+        .btn-complain { background-color: #F44336; }
+        .btn-ask { background-color: #2196F3; }
+        .btn-leave { background-color: #607D8B; }
+        .btn-pay { background-color: #FF9800; }
+        .btn-next { background-color: #9C27B0; }
+
+        /* Model Menu Styles */
+        #model-menu-area { display: none; max-width: 800px; margin: 0 auto; }
+        .scenario-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .scenario-btn {
+            background: white; padding: 20px; border-radius: 15px; border: 2px solid #2196F3;
+            font-size: 1.3em; cursor: pointer; transition: 0.2s; font-weight: bold; color: #2c3e50;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left;
+        }
+        .scenario-btn:hover { background: #E3F2FD; transform: translateX(10px); }
+
+        /* Quiz Styles */
+        #quiz-area { display: none; max-width: 800px; margin: 0 auto; }
+        #quiz-container {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: left;
+        }
+        #quiz-options { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .quiz-option-btn {
+            background: #f8f9fa; color: #2c3e50; font-size: 1.2em; padding: 15px 20px;
+            border: 2px solid #dee2e6; border-radius: 12px; cursor: pointer;
+            text-align: left; font-weight: bold; transition: 0.2s;
+        }
+        .quiz-option-btn:hover:not(:disabled) { background: #e2e6ea; border-color: #adb5bd; }
+        .quiz-option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        
+        #quiz-header-controls { display: flex; align-items: center; gap: 15px; flex-grow: 1; justify-content: center; }
+
+        /* Flashing Praise Animation (Ensures it vanishes) */
+        #praise-text {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #FFEB3B;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 1000; pointer-events: none; opacity: 0;
+        }
+        @keyframes flashPraise {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            10% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            20% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; } /* Forces it to vanish completely */
+        }
+        .animate-praise { animation: flashPraise 3.5s forwards; }
+
+        @media (max-width: 768px) {
+            .conversation-board { flex-direction: column; align-items: center; }
+            .character { width: 100%; align-items: center !important; margin-bottom: 20px; }
+            .buyer-side .bubble { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="datetime-header">
+        <span id="current-date">Loading date...</span> | <span id="current-time">Loading time...</span>
+        <span class="season-badge" id="current-season">Season</span>
+    </div>
+
+    <!-- MAIN MENU -->
+    <div id="main-menu">
+        <div class="input-group">
+            <label for="player-name" style="font-size: 1.5em; display: block; margin-bottom: 10px;">What is your name?</label>
+            <input type="text" id="player-name" placeholder="Enter your name here..." />
+        </div>
+        <div class="btn-group">
+            <button class="menu-btn" id="btn-fruit" onclick="startGame('fruit')">🍎 Shop for Fruit</button>
+            <button class="menu-btn" id="btn-veg" onclick="startGame('veg')">🥕 Shop for Vegetables</button>
+            <button class="menu-btn" id="btn-model" onclick="showModelMenu()">🗣️ Model Conversations</button>
+            <button class="menu-btn" id="btn-quiz" onclick="startQuiz()">📝 50-Question Market Quiz</button>
+        </div>
+    </div>
+
+    <!-- SELECTION AREA (Shopping Cart UI) -->
+    <div id="selection-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Back to Menu</button>
+            <h2>Choose Your <span id="selection-type-title"></span></h2>
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.2em;">Buyer: <span id="display-name-selection"></span></div>
+        </div>
+        <div id="produce-grid" class="produce-grid"></div>
+        
+        <div id="quantity-selection">
+            <h2 id="quantity-item-name"></h2>
+            <div class="produce-display" id="quantity-item-emoji" style="margin: 10px 0; font-size: 4em; padding: 10px; background: transparent; box-shadow: none;"></div>
+            <p style="font-size: 1.3em;">How much would you like to buy?</p>
+            <div id="quantity-buttons" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;"></div>
+            <button class="back-btn" style="margin-top: 20px;" onclick="renderSelection()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- EXTENDED CONVERSATION MENU -->
+    <div id="model-menu-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Back to Main Menu</button>
+            <h2>Choose a Conversation to Model</h2>
+            <div></div>
+        </div>
+        <div class="scenario-list" id="scenario-list"></div>
+    </div>
+
+    <!-- GAME AREA (Conversation UI) -->
+    <div id="game-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="returnToSelection()">← Back to Basket</button>
+            <h2 id="market-title">Market</h2>
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.2em;">Buyer: <span id="display-name-game"></span></div>
+        </div>
+
+        <!-- Chat History Log (Now at the top) -->
+        <div id="chat-log" class="chat-log"></div>
+
+        <!-- Produce Display (Now below conversation) -->
+        <div class="produce-display" id="emoji-display"></div>
+
+        <div class="controls" id="control-panel"></div>
+    </div>
+
+    <!-- QUIZ AREA -->
+    <div id="quiz-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Main Menu</button>
+            <h2 style="margin:0;">Market Knowledge Quiz</h2>
+            
+            <!-- Feedback and Next Button moved to Header -->
+            <div id="quiz-header-controls">
+                <span id="quiz-feedback-text" style="font-size: 1.4em; font-weight: bold;"></span>
+                <button id="btn-next-question" class="action-btn btn-next" style="display: none; padding: 8px 15px; font-size: 1em; margin: 0;" onclick="nextQuestion()">Next ➡️</button>
+            </div>
+
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.4em; background: white; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                Score: <span id="quiz-score" style="color: #4CAF50;">0</span> / 50
+            </div>
+        </div>
+        <div id="quiz-container">
+            <h2 id="quiz-question-text" style="font-size: 1.6em; margin-top: 0;">Loading Question...</h2>
+            <div id="quiz-options"></div>
+        </div>
+    </div>
+
+    <div id="praise-text"></div>
+
+    <script>
+        let currentSeasonStr = "Summer";
+
+        function updateDateTime() {
+            const now = new Date();
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            
+            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', optionsDate);
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', optionsTime);
+
+            const month = now.getMonth();
+            if (month >= 2 && month <= 4) currentSeasonStr = "Spring";
+            else if (month >= 5 && month <= 7) currentSeasonStr = "Summer";
+            else if (month >= 8 && month <= 10) currentSeasonStr = "Fall";
+            else currentSeasonStr = "Winter";
+
+            document.getElementById('current-season').innerText = currentSeasonStr;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        const fruits = [
+            { emoji: '🍎', name: 'apple', plur: 'apples', type: 'countable', season: 'Fall', basePrice: 0.75 },
+            { emoji: '🍌', name: 'banana', plur: 'bananas', type: 'countable', season: 'Summer', basePrice: 0.35 },
+            { emoji: '🍍', name: 'pineapple', plur: 'pineapples', type: 'countable', season: 'Spring', basePrice: 3.50 },
+            { emoji: '🥭', name: 'mango', plur: 'mangoes', type: 'countable', season: 'Summer', basePrice: 1.80 },
+            { emoji: '🥑', name: 'avocado', plur: 'avocados', type: 'countable', season: 'Spring', basePrice: 2.20 },
+            { emoji: '🍉', name: 'watermelon', plur: 'watermelons', type: 'countable', season: 'Summer', basePrice: 0.60 },
+            { emoji: '🍊', name: 'orange', plur: 'oranges', type: 'countable', season: 'Winter', basePrice: 1.45 },
+            { emoji: '🍋', name: 'lemon', plur: 'lemons', type: 'countable', season: 'Winter', basePrice: 1.20 },
+            { emoji: '🍓', name: 'strawberry', plur: 'strawberries', type: 'countable', season: 'Spring', basePrice: 2.50 },
+            { emoji: '🍑', name: 'peach', plur: 'peaches', type: 'countable', season: 'Summer', basePrice: 1.90 },
+            { emoji: '🍐', name: 'pear', plur: 'pears', type: 'countable', season: 'Fall', basePrice: 1.60 },
+            { emoji: '🥥', name: 'coconut', plur: 'coconuts', type: 'countable', season: 'Summer', basePrice: 3.00 },
+            { emoji: '🥝', name: 'kiwi', plur: 'kiwis', type: 'countable', season: 'Winter', basePrice: 2.10 },
+            { emoji: '🍇', name: 'grapes', plur: 'grapes', type: 'uncountable', season: 'Summer', basePrice: 2.10 },
+            { emoji: '🍒', name: 'cherries', plur: 'cherries', type: 'uncountable', season: 'Summer', basePrice: 3.50 }
+        ];
+
+        const vegetables = [
+            { emoji: '🍅', name: 'tomato', plur: 'tomatoes', type: 'countable', season: 'Summer', basePrice: 0.60 },
+            { emoji: '🍆', name: 'eggplant', plur: 'eggplants', type: 'countable', season: 'Summer', basePrice: 1.40 },
+            { emoji: '🧅', name: 'onion', plur: 'onions', type: 'countable', season: 'Fall', basePrice: 0.50 },
+            { emoji: '🥒', name: 'cucumber', plur: 'cucumbers', type: 'countable', season: 'Summer', basePrice: 1.20 },
+            { emoji: '🫑', name: 'bell pepper', plur: 'bell peppers', type: 'countable', season: 'Summer', basePrice: 1.60 },
+            { emoji: '🌶️', name: 'hot pepper', plur: 'hot peppers', type: 'countable', season: 'Summer', basePrice: 1.30 },
+            { emoji: '🍠', name: 'sweet potato', plur: 'sweet potatoes', type: 'countable', season: 'Fall', basePrice: 1.00 },
+            { emoji: '🥔', name: 'potato', plur: 'potatoes', type: 'uncountable', season: 'Fall', basePrice: 0.89 },
+            { emoji: '🥦', name: 'broccoli', plur: 'broccoli', type: 'uncountable', season: 'Winter', basePrice: 2.48 },
+            { emoji: '🥬', name: 'spinach', plur: 'spinach', type: 'uncountable', season: 'Spring', basePrice: 2.20 },
+            { emoji: '🧄', name: 'garlic', plur: 'garlic', type: 'uncountable', season: 'Spring', basePrice: 3.50 },
+            { emoji: '🥕', name: 'carrot', plur: 'carrots', type: 'countable', season: 'Spring', basePrice: 0.98 },
+            { emoji: '🌽', name: 'corn', plur: 'corn', type: 'uncountable', season: 'Summer', basePrice: 1.10 },
+            { emoji: '🥗', name: 'lettuce', plur: 'lettuce', type: 'uncountable', season: 'Spring', basePrice: 1.80 }
+        ];
+
+        const currencies = [
+            { symbol: '$', name: 'dollars', rate: 1.0 },
+            { symbol: '€', name: 'euros', rate: 0.90 },
+            { symbol: '£', name: 'pounds', rate: 0.75 }
+        ];
+
+        let currentMode = 'fruit';
+        let playerName = 'Student';
+        let state = {};
+
+        // EXTENDED CONVERSATION DATA
+        const extendedScenarios = [
+            {
+                title: "🍅 Scenario 1: Asking for Recipe Advice (A1/A2)", emoji: "🍅",
+                dialogue: [
+                    { isSeller: true, text: "Hello there! Are you looking for anything special today?" },
+                    { isSeller: false, text: "Yes, I want to make a fresh salsa, but I am not sure which tomatoes to use." },
+                    { isSeller: true, text: "For salsa, Roma tomatoes are the absolute best. They have less water and a rich, bold flavor." },
+                    { isSeller: false, text: "That sounds perfect! I will take one kilo, please." },
+                    { isSeller: true, text: "Excellent choice! Let me bag those up for you. That will be $3.50." }
+                ]
+            },
+            {
+                title: "🍎 Scenario 2: Negotiating a Bulk Discount (A1/A2)", emoji: "🍎🍎🍎",
+                dialogue: [
+                    { isSeller: false, text: "Excuse me, how much are these apples?" },
+                    { isSeller: true, text: "They are $2.00 a pound. They are very crisp and sweet!" },
+                    { isSeller: false, text: "I am baking pies for a big party. If I buy 10 pounds, can I get a <span class='vocab-good'>discount</span>?" },
+                    { isSeller: true, text: "Since you are buying in bulk, I can drop the price to $1.50 a pound for you." },
+                    { isSeller: false, text: "It is a deal! Thank you so much!" }
+                ]
+            },
+            {
+                title: "🍓 Scenario 3: Returning Spoiled Produce (A1/A2)", emoji: "🍓🗑️",
+                dialogue: [
+                    { isSeller: false, text: "Hi, I bought these strawberries yesterday, but many of them are moldy at the bottom." },
+                    { isSeller: true, text: "Oh no, I am so sorry about that! Let me take a look. You are absolutely right." },
+                    { isSeller: false, text: "Can I please get a refund or a fresh box?" },
+                    { isSeller: true, text: "Of course! Here is a brand new, fresh box, and I will give you your money back for the trouble." },
+                    { isSeller: false, text: "Wow, I really appreciate your great customer service. Thank you." }
+                ]
+            },
+            {
+                title: "🍉 Scenario 4: Learning About Seasonal Availability (A1/A2)", emoji: "🍉❄️",
+                dialogue: [
+                    { isSeller: false, text: "Do you have any watermelons? I don't see any out here." },
+                    { isSeller: true, text: "I am sorry, but watermelons are a summer fruit. It is winter right now, so they are out of season." },
+                    { isSeller: false, text: "Oh, I see. What fruit is in season during the winter?" },
+                    { isSeller: true, text: "Right now, our oranges and kiwis are in season. They are very sweet and on sale!" },
+                    { isSeller: false, text: "Great! I will try half a dozen oranges instead." }
+                ]
+            },
+            {
+                title: "🥭 Scenario 5: Trying an Exotic Fruit (A1/A2)", emoji: "🥭❓",
+                dialogue: [
+                    { isSeller: false, text: "What is this spiky fruit over here? I have never seen it before." },
+                    { isSeller: true, text: "That is a dragon fruit! It looks crazy, but it tastes like a mix of a pear and a kiwi." },
+                    { isSeller: false, text: "Is it <span class='vocab'>expensive</span>?" },
+                    { isSeller: true, text: "It is a little expensive because it is an exotic fruit. It costs $4.00 each." },
+                    { isSeller: false, text: "That is pricey, but I want to try something new. I will buy one!" },
+                    { isSeller: true, text: "You will love it. Just slice it in half and eat it with a spoon." }
+                ]
+            },
+            {
+                title: "🌿 Scenario 6: Organic Farming & Origin (B1)", emoji: "🌿👩‍🌾",
+                dialogue: [
+                    { isSeller: false, text: "Hello! Could you tell me if these tomatoes are grown locally?" },
+                    { isSeller: true, text: "Yes, they are! We harvest them from a family-owned farm just 20 miles away." },
+                    { isSeller: false, text: "That is wonderful. Are they certified organic? I am trying to avoid synthetic pesticides." },
+                    { isSeller: true, text: "Absolutely. We use completely natural farming methods, so no harsh chemicals are involved." },
+                    { isSeller: false, text: "Perfect. Since they are organic and locally sourced, I will happily take two kilos." }
+                ]
+            },
+            {
+                title: "🍲 Scenario 7: Dinner Party Recommendations (B1)", emoji: "🍲🍷",
+                dialogue: [
+                    { isSeller: true, text: "Good afternoon! You look like you're shopping for a specific recipe today." },
+                    { isSeller: false, text: "I am! I'm hosting a dinner party tonight and planning to cook ratatouille for six people." },
+                    { isSeller: true, text: "Ratatouille is an excellent choice. You will need high-quality eggplants, zucchini, and bell peppers." },
+                    { isSeller: false, text: "Do you have any suggestions on which eggplants are the least bitter?" },
+                    { isSeller: true, text: "I recommend these smaller, darker ones. They have thinner skin and a much sweeter, creamier texture when roasted." },
+                    { isSeller: false, text: "I'll take your word for it. Please select five of your best ones for me." }
+                ]
+            },
+            {
+                title: "🔄 Scenario 8: Dealing with a Shortage (B1)", emoji: "🔄🛒",
+                dialogue: [
+                    { isSeller: false, text: "Excuse me, I was looking for fresh basil, but the crate seems to be completely empty." },
+                    { isSeller: true, text: "I apologize for the inconvenience. We completely sold out of basil early this morning due to high demand." },
+                    { isSeller: false, text: "That is unfortunate. I was planning to make a caprese salad. What would be a good substitute?" },
+                    { isSeller: true, text: "While it has a slightly different flavor profile, fresh oregano or even a bit of arugula can provide a wonderful peppery contrast." },
+                    { isSeller: false, text: "Arugula sounds like an interesting twist. I'll take a bunch of that instead, please." }
+                ]
+            },
+            {
+                title: "📦 Scenario 9: Wholesale Bulk Order (B1)", emoji: "📦🤝",
+                dialogue: [
+                    { isSeller: false, text: "Hi there. I manage a local restaurant and we go through a tremendous amount of potatoes each week." },
+                    { isSeller: true, text: "It is a pleasure to meet you! We supply several restaurants in the area. What volume are you considering?" },
+                    { isSeller: false, text: "We would need a recurring weekly delivery of roughly 50 kilos. If we set up a contract, what terms can we negotiate?" },
+                    { isSeller: true, text: "For a guaranteed weekly order of that size, I can wave the delivery fee entirely and reduce the base price by 15%." },
+                    { isSeller: false, text: "Those terms sound very reasonable. Let's start with a trial order this week to test the quality." }
+                ]
+            },
+            {
+                title: "🥑 Scenario 10: Storage & Ripening Advice (B1)", emoji: "🥑⏱️",
+                dialogue: [
+                    { isSeller: false, text: "I need some avocados for guacamole, but these all feel incredibly firm and unripe." },
+                    { isSeller: true, text: "You are correct, they arrived just this morning. However, there is a simple trick to ripen them rapidly at home." },
+                    { isSeller: false, text: "Really? How can I speed up the ripening process without them spoiling?" },
+                    { isSeller: true, text: "Place them inside a brown paper bag along with a ripe banana or apple. The ethylene gas trapped inside will ripen them in a day or two." },
+                    { isSeller: false, text: "That is incredibly helpful advice! I will buy four of them and try that method tonight." }
+                ]
+            }
+        ];
+
+        // STRICT PREMIUM VOICES & GENDER ROLES
+        const maleVoiceNames = ["Remy", "Giuseppe", "Florian", "Brian", "Andrew", "William"];
+        const femaleVoiceNames = ["Vivienne", "Seraphina", "Emma"];
+        let sellerVoice = null;
+        let buyerVoice = null;
+
+        function assignVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            
+            // Prioritize specific premium names
+            let maleVoices = voices.filter(v => maleVoiceNames.some(name => v.name.includes(name)));
+            let femaleVoices = voices.filter(v => femaleVoiceNames.some(name => v.name.includes(name)));
+
+            // Ensure Microsoft Multilingual Online Emma is preferred explicitly
+            let emmaVoice = voices.find(v => v.name.includes("Emma") && v.name.includes("Microsoft") && v.name.includes("Online"));
+            if (emmaVoice && !femaleVoices.includes(emmaVoice)) {
+                femaleVoices.unshift(emmaVoice); 
+            }
+
+            // Fallback rules if exact names are missing
+            if (maleVoices.length === 0) maleVoices = voices.filter(v => v.lang.startsWith('en') && (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Guy')));
+            if (femaleVoices.length === 0) femaleVoices = voices.filter(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Girl')));
+            
+            // Absolute fallback
+            if (maleVoices.length === 0) maleVoices = voices.filter(v => v.lang.startsWith('en'));
+            if (femaleVoices.length === 0) femaleVoices = voices.filter(v => v.lang.startsWith('en'));
+
+            // Select one distinct male and one distinct female
+            const selectedMale = maleVoices[Math.floor(Math.random() * maleVoices.length)] || voices[0];
+            const selectedFemale = femaleVoices[Math.floor(Math.random() * femaleVoices.length)] || voices[0];
+
+            // Randomly assign roles to ensure we always have one male and one female interacting
+            if (Math.random() > 0.5) {
+                sellerVoice = selectedMale;
+                buyerVoice = selectedFemale;
+            } else {
+                sellerVoice = selectedFemale;
+                buyerVoice = selectedMale;
+            }
+        }
+        
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => { assignVoices(); };
+        }
+
+        // Conversational Queuing Engine (Keeps Chat History)
+        function playConversation(dialogueArray, append = false, onCompleteCallback = null) {
+            window.speechSynthesis.cancel();
+            
+            const chatLog = document.getElementById('chat-log');
+            if (!append) chatLog.innerHTML = ''; // Clear only if it's a brand new conversation
+            
+            let i = 0;
+
+            function speakNext() {
+                if (i >= dialogueArray.length) {
+                    if (onCompleteCallback) onCompleteCallback();
+                    return;
+                }
+
+                const line = dialogueArray[i];
+                const cleanText = line.text.replace(/<[^>]*>?/gm, ''); 
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                
+                if (line.isSeller && sellerVoice) utterance.voice = sellerVoice;
+                if (!line.isSeller && buyerVoice) utterance.voice = buyerVoice;
+                
+                utterance.rate = 0.85; // Strict 85% processing speed
+
+                utterance.onstart = () => {
+                    // Create and append the message bubble dynamically
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `chat-message ${line.isSeller ? 'seller-message' : 'buyer-message'}`;
+                    
+                    const avatar = document.createElement('div');
+                    avatar.className = 'chat-avatar';
+                    avatar.innerText = line.isSeller ? '🧑‍🌾' : '🙋🏽';
+
+                    const bubble = document.createElement('div');
+                    bubble.className = 'chat-bubble';
+                    bubble.innerHTML = `<strong>${line.isSeller ? 'Seller' : playerName}:</strong> ${line.text}`;
+
+                    if (line.isSeller) {
+                        msgDiv.appendChild(avatar);
+                        msgDiv.appendChild(bubble);
+                    } else {
+                        msgDiv.appendChild(bubble);
+                        msgDiv.appendChild(avatar);
+                    }
+
+                    chatLog.appendChild(msgDiv);
+                    chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the newest message
+                };
+
+                utterance.onend = () => {
+                    i++;
+                    speakNext();
+                };
+                
+                // Fallback in case onend drops out
+                utterance.onerror = () => { i++; speakNext(); };
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            speakNext();
+        }
+
+        function showMenu() {
+            document.getElementById('main-menu').style.display = 'flex';
+            document.getElementById('selection-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('model-menu-area').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'none';
+            window.speechSynthesis.cancel();
+        }
+
+        function showModelMenu() {
+            const nameInput = document.getElementById('player-name').value.trim();
+            playerName = nameInput !== '' ? nameInput : 'Student';
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('model-menu-area').style.display = 'block';
+            
+            const list = document.getElementById('scenario-list');
+            list.innerHTML = '';
+            
+            extendedScenarios.forEach((scenario, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'scenario-btn';
+                btn.innerText = scenario.title;
+                btn.onclick = () => startModelConversation(index);
+                list.appendChild(btn);
+            });
+            assignVoices();
+        }
+
+        function startModelConversation(index) {
+            document.getElementById('model-menu-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('display-name-game').innerText = playerName;
+            
+            const scenario = extendedScenarios[index];
+            document.getElementById('market-title').innerText = "Model Conversation";
+            document.getElementById('emoji-display').innerText = scenario.emoji;
+            document.getElementById('control-panel').innerHTML = '';
+
+            const customizedDialogue = scenario.dialogue.map(line => {
+                return { isSeller: line.isSeller, text: line.text.replace('{name}', playerName) };
+            });
+
+            playConversation(customizedDialogue, false, () => {
+                setButtons([{ text: "← Back to Scenarios", class: "btn-next", action: () => showModelMenu() }]);
+            });
+        }
+
+        function startGame(type) {
+            const nameInput = document.getElementById('player-name').value.trim();
+            playerName = nameInput !== '' ? nameInput : 'Student';
+            
+            document.getElementById('display-name-selection').innerText = playerName;
+            document.getElementById('display-name-game').innerText = playerName;
+            
+            currentMode = type;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+            
+            document.getElementById('selection-type-title').innerText = type === 'fruit' ? 'Fruit 🍎' : 'Vegetables 🥕';
+            document.getElementById('market-title').innerText = type === 'fruit' ? '🍎 Fruit Market' : '🥕 Vegetable Market';
+            
+            assignVoices();
+            renderSelection();
+        }
+
+        function returnToSelection() {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+            window.speechSynthesis.cancel();
+            renderSelection();
+        }
+
+        function renderSelection() {
+            document.getElementById('quantity-selection').style.display = 'none';
+            const grid = document.getElementById('produce-grid');
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+            
+            const db = currentMode === 'fruit' ? fruits : vegetables;
+            
+            db.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'produce-card';
+                card.innerHTML = `<span class="emoji">${item.emoji}</span><strong>${item.name.toUpperCase()}</strong>`;
+                card.onclick = () => showQuantitySelection(index);
+                grid.appendChild(card);
+            });
+        }
+
+        function showQuantitySelection(index) {
+            document.getElementById('produce-grid').style.display = 'none';
+            const qBox = document.getElementById('quantity-selection');
+            qBox.style.display = 'block';
+            
+            const db = currentMode === 'fruit' ? fruits : vegetables;
+            state.item = db[index];
+            state.currency = currencies[Math.floor(Math.random() * currencies.length)];
+            
+            document.getElementById('quantity-item-name').innerText = `Select quantity for ${state.item.plur}`;
+            
+            let displayEmojis = "";
+            for(let i=0; i<3; i++) displayEmojis += state.item.emoji;
+            document.getElementById('quantity-item-emoji').innerText = displayEmojis;
+            
+            const btnContainer = document.getElementById('quantity-buttons');
+            btnContainer.innerHTML = '';
+            
+            if (state.item.type === 'countable') {
+                const options = [
+                    { label: "1 item", val: 1, text: "one", count: 1 }, 
+                    { label: "2 items", val: 2, text: "two", count: 2 }, 
+                    { label: "3 items", val: 3, text: "three", count: 3 },
+                    { label: "4 items", val: 4, text: "four", count: 4 }, 
+                    { label: "5 items", val: 5, text: "five", count: 5 }, 
+                    { label: "Half a dozen (6)", val: 6, text: "half a dozen", count: 6 },
+                    { label: "A dozen (12)", val: 12, text: "a dozen", count: 12 }
+                ];
+                options.forEach(opt => {
+                    const b = document.createElement('button');
+                    b.className = 'quant-btn';
+                    b.innerText = opt.label;
+                    b.onclick = () => startConversation(opt.val, opt.text, "each", opt.count);
+                    btnContainer.appendChild(b);
+                });
+            } else {
+                const options = [
+                    { label: "Quarter Pound", val: 0.25, unit: "pound", text: "a quarter pound", count: 1 }, 
+                    { label: "Half a Pound", val: 0.5, unit: "pound", text: "half a pound", count: 2 },
+                    { label: "1 Pound", val: 1, unit: "pound", text: "one pound", count: 3 }, 
+                    { label: "2 Pounds", val: 2, unit: "pound", text: "two pounds", count: 4 },
+                    { label: "Quarter Kilo", val: 0.25, unit: "kilo", text: "a quarter kilo", count: 1 }, 
+                    { label: "Half a Kilo", val: 0.5, unit: "kilo", text: "half a kilo", count: 2 },
+                    { label: "1 Kilo", val: 1, unit: "kilo", text: "one kilo", count: 3 }
+                ];
+                options.forEach(opt => {
+                    const b = document.createElement('button');
+                    b.className = 'quant-btn';
+                    b.innerText = opt.label;
+                    b.onclick = () => startConversation(opt.val, opt.text, "per " + opt.unit, opt.count);
+                    btnContainer.appendChild(b);
+                });
+            }
+        }
+
+        function startConversation(amountValue, amountLabel, unitName, displayCount) {
+            document.getElementById('selection-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            
+            const praiseEl = document.getElementById('praise-text');
+            praiseEl.style.opacity = 0;
+            praiseEl.classList.remove('animate-praise');
+
+            state.amountValue = amountValue;
+            state.amountLabel = amountLabel;
+            state.unitName = unitName;
+            state.displayCount = displayCount;
+
+            let priceBase = state.item.basePrice;
+            state.isInSeason = (state.item.season === currentSeasonStr);
+            if (!state.isInSeason) priceBase = priceBase * 1.3;
+
+            if (state.item.type === 'uncountable' && unitName.includes('kilo')) {
+                priceBase = priceBase * 2.204;
+            }
+
+            state.unitPrice = priceBase * state.currency.rate; 
+            state.totalPrice = state.unitPrice * state.amountValue;
+
+            const displayContainer = document.getElementById('emoji-display');
+            displayContainer.innerHTML = '';
+            for(let i=0; i<state.displayCount; i++) {
+                const span = document.createElement('span');
+                span.innerText = state.item.emoji;
+                displayContainer.appendChild(span);
+            }
+
+            let itemText = "";
+            if (state.item.type === 'countable') {
+                const isPlural = (state.amountValue > 1 || state.amountValue === 6 || state.amountValue === 12);
+                itemText = `${state.amountLabel} ${isPlural ? state.item.plur : state.item.name}`;
+            } else {
+                itemText = `${state.amountLabel} of ${state.item.name}`;
+            }
+
+            const sellerGreeting = `Welcome, ${playerName}! Today, ${state.item.plur} are ${state.currency.symbol}${state.unitPrice.toFixed(2)} ${state.unitName}.`;
+            const buyerStart = `I would like to buy ${itemText}.`;
+            const sellerMath = `For ${itemText}, the total is ${state.currency.symbol}${state.totalPrice.toFixed(2)}.`;
+
+            playConversation([
+                { text: sellerGreeting, isSeller: true },
+                { text: buyerStart, isSeller: false },
+                { text: sellerMath, isSeller: true }
+            ], false, () => {
+                setButtons([
+                    { text: "👍 It's a deal! (Pay)", class: "btn-agree", action: () => branch('buy_full') },
+                    { text: "👎 Too Expensive! (Negotiate)", class: "btn-complain", action: () => branch('expensive') },
+                    { text: "🤔 Are these fresh?", class: "btn-ask", action: () => branch('fresh') }
+                ]);
+            });
+        }
+
+        function setButtons(buttons) {
+            const panel = document.getElementById('control-panel');
+            panel.innerHTML = '';
+            buttons.forEach(btn => {
+                const b = document.createElement('button');
+                b.className = `action-btn ${btn.class}`;
+                b.innerText = btn.text;
+                b.onclick = btn.action;
+                panel.appendChild(b);
+            });
+        }
+
+        function branch(choice) {
+            if (choice === 'buy_full') {
+                const buyerHtml = `I agree. ${state.currency.symbol}${state.totalPrice.toFixed(2)} is a fair price.`;
+                const sellerHtml = `Thank you! Here is your produce.`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => { completePurchase(); });
+            } 
+            
+            else if (choice === 'expensive') {
+                state.discountPrice = state.totalPrice * 0.75; 
+                const buyerHtml = `That is too <span class="vocab">expensive</span>! I cannot pay ${state.currency.symbol}${state.totalPrice.toFixed(2)}.`;
+                const sellerHtml = `You are a tough negotiator! I will give you a special <span class="vocab-good">discount</span>. You can have them for ${state.currency.symbol}${state.discountPrice.toFixed(2)}.`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => {
+                    setButtons([
+                        { text: "🤝 Accept Discount (Pay)", class: "btn-pay", action: () => { state.totalPrice = state.discountPrice; branch('buy_discount'); } },
+                        { text: "🚶‍♂️ Walk Away (Leave)", class: "btn-leave", action: () => branch('leave') }
+                    ]);
+                });
+            }
+
+            else if (choice === 'fresh') {
+                let sellerHtml = "";
+                state.discountPrice = state.totalPrice * 0.90; 
+                
+                const buyerHtml = `Before I buy, are these fresh?`;
+                
+                if (state.isInSeason) {
+                    sellerHtml = `Yes! It is ${currentSeasonStr}, so they are perfectly in season. I'll give you a 10% <span class="vocab-good">discount</span> for asking. The new price is ${state.currency.symbol}${state.discountPrice.toFixed(2)}.`;
+                } else {
+                    sellerHtml = `They are out of season right now, so they are rare and a bit <span class="vocab">expensive</span>. But I will give you a <span class="vocab-good">discount</span> down to ${state.currency.symbol}${state.discountPrice.toFixed(2)}.`;
+                }
+
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => {
+                    setButtons([
+                        { text: "🤝 Accept Discount (Pay)", class: "btn-pay", action: () => { state.totalPrice = state.discountPrice; branch('buy_discount'); } },
+                        { text: "👎 Still too expensive (Leave)", class: "btn-leave", action: () => branch('leave') }
+                    ]);
+                });
+            }
+
+            else if (choice === 'buy_discount') {
+                const buyerHtml = `Thank you for the <span class="vocab-good">discount</span>! I will take it for ${state.currency.symbol}${state.totalPrice.toFixed(2)}.`;
+                const sellerHtml = `You are welcome, ${playerName}! Enjoy your food!`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => { completePurchase(); });
+            }
+
+            else if (choice === 'leave') {
+                const buyerHtml = `No thank you. I will go to another store.`;
+                const sellerHtml = `Have a nice day! Come back tomorrow!`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => {
+                    setButtons([{ text: "Shop for More 🛒", class: "btn-next", action: () => returnToSelection() }]);
+                });
+            }
+        }
+
+        function completePurchase() {
+            setButtons([{ text: "Shop for More 🛒", class: "btn-next", action: () => returnToSelection() }]);
+            triggerFireworks();
+            
+            const praises = ['Master Negotiator!', 'Excellent Math!', 'Smart Shopper!', 'Great Vocabulary!'];
+            const praiseEl = document.getElementById('praise-text');
+            praiseEl.innerText = praises[Math.floor(Math.random() * praises.length)];
+            
+            // Re-trigger the flashing animation
+            praiseEl.classList.remove('animate-praise');
+            void praiseEl.offsetWidth; 
+            praiseEl.classList.add('animate-praise');
+        }
+
+        function triggerFireworks() {
+            const duration = 2500;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.3, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.3 + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // ==========================================
+        // MASSIVE 50 QUESTION QUIZ LOGIC
+        // ==========================================
+        const quizData = [
+            { q: "How many items are in 'a dozen'?", options: ["6", "10", "12", "14"], ans: 2 },
+            { q: "How many items are in 'half a dozen'?", options: ["6", "12", "5", "3"], ans: 0 },
+            { q: "Which of the following is a fruit?", options: ["Carrot", "Potato", "Apple", "Onion"], ans: 2 },
+            { q: "Which of the following is a vegetable?", options: ["Banana", "Strawberry", "Orange", "Broccoli"], ans: 3 },
+            { q: "What is the correct plural spelling for potato?", options: ["Potatos", "Potatoes", "Potato", "Potato's"], ans: 1 },
+            { q: "What is the correct plural spelling for cherry?", options: ["Cherries", "Cherrys", "Cherys", "Cherryes"], ans: 0 },
+            { q: "What is the correct plural spelling for tomato?", options: ["Tomatos", "Tomatoes", "Tomatoe", "Tomates"], ans: 1 },
+            { q: "Which item is usually treated as an uncountable noun?", options: ["Apple", "Mango", "Spinach", "Lemon"], ans: 2 },
+            { q: "Which item is a countable noun?", options: ["Corn", "Garlic", "Lettuce", "Watermelon"], ans: 3 },
+            { q: "Seller: 'How many do you want?' \nBuyer: '__________'", options: ["It is $2.00.", "I would like half a dozen, please.", "Yes, that is fresh.", "I am walking away."], ans: 1 },
+            { q: "Buyer: 'Is this okay?' \nSeller: '__________'", options: ["Yes, that is perfect.", "It is an apple.", "I am selling fruit.", "I want a dozen."], ans: 0 },
+            { q: "Buyer: 'What do you want for these?' \nSeller: '__________'", options: ["They are $1.50 per pound.", "I want three.", "It is summer.", "Half a kilo."], ans: 0 },
+            { q: "What is the opposite of 'expensive'?", options: ["Priceless", "Cheap", "Discount", "Money"], ans: 1 },
+            { q: "If the seller gives you a 'discount', what happens?", options: ["The price goes up.", "The price stays the same.", "The price goes down.", "You get less fruit."], ans: 2 },
+            { q: "If apples are $2.00 per pound, how much will 3 pounds cost?", options: ["$3.00", "$4.00", "$5.00", "$6.00"], ans: 3 },
+            { q: "If bananas are $0.50 each, how much will a dozen cost?", options: ["$5.00", "$6.00", "$12.00", "$3.00"], ans: 1 },
+            { q: "If a quarter pound is $1.00, how much is one full pound?", options: ["$1.00", "$2.00", "$4.00", "$8.00"], ans: 2 },
+            { q: "Which fraction means the same as 'a quarter'?", options: ["1/2", "1/3", "1/4", "3/4"], ans: 2 },
+            { q: "Which currency is used in the United States?", options: ["Euros (€)", "Pounds (£)", "Yen (¥)", "Dollars ($)"], ans: 3 },
+            { q: "Which currency is used in the United Kingdom?", options: ["Dollars ($)", "Pounds (£)", "Euros (€)", "Francs (₣)"], ans: 1 },
+            { q: "Which currency is used in France and Germany?", options: ["Pounds (£)", "Pesos ($)", "Euros (€)", "Dollars ($)"], ans: 2 },
+            { q: "Is a Kilogram heavier or lighter than a Pound?", options: ["Heavier (1 kg = 2.2 lbs)", "Lighter (1 kg = 0.5 lbs)", "They are exactly the same", "Kilograms only measure liquids"], ans: 0 },
+            { q: "If a fruit is 'out of season', what usually happens to the price?", options: ["It goes down.", "It becomes free.", "It stays the same.", "It goes up."], ans: 3 },
+            { q: "Which of these is a popular summer fruit?", options: ["Watermelon", "Potato", "Garlic", "Onion"], ans: 0 },
+            { q: "Which of these is typically a winter fruit?", options: ["Strawberry", "Orange", "Cherry", "Peach"], ans: 1 },
+            { q: "What do you call the person buying the food?", options: ["The Vendor", "The Seller", "The Customer", "The Farmer"], ans: 2 },
+            { q: "What do you call the person selling the food?", options: ["The Buyer", "The Shopper", "The Customer", "The Vendor"], ans: 3 },
+            { q: "What is the correct plural spelling for mango?", options: ["Mangos", "Mangoes", "Mangose", "Mangies"], ans: 1 },
+            { q: "What is the correct plural spelling for peach?", options: ["Peaches", "Peach", "Peachs", "Peachees"], ans: 0 },
+            { q: "Seller: 'That will be $5.50, please.' \nWhat should the buyer do next?", options: ["Ask 'How much is it?'", "Hand the seller money.", "Walk away.", "Say 'Too expensive!'"], ans: 1 },
+            { q: "Seller: 'Here is your change.' \nWhat does this mean?", options: ["The buyer gave the exact amount of money.", "The buyer gave too little money.", "The buyer gave more money than the total cost.", "The buyer did not pay."], ans: 2 },
+            { q: "Which of these is usually sold by the 'bunch'?", options: ["Apples", "Grapes", "Watermelons", "Potatoes"], ans: 1 },
+            { q: "Which of these is usually sold by the 'head'?", options: ["Broccoli", "Cherries", "Corn", "Mangoes"], ans: 0 },
+            { q: "Which of these is usually sold by the 'bulb'?", options: ["Lettuce", "Garlic", "Strawberry", "Tomato"], ans: 1 },
+            { q: "Which of these is considered an exotic fruit?", options: ["Apple", "Dragon fruit", "Carrot", "Potato"], ans: 1 },
+            { q: "If you buy 1/2 pound of onions at $1.00 per pound, what is the total?", options: ["$1.00", "$0.25", "$0.50", "$2.00"], ans: 2 },
+            { q: "Buyer: 'Are these fresh?' \nSeller: 'Yes, they were picked _________'", options: ["next week.", "this morning.", "last year.", "tomorrow."], ans: 1 },
+            { q: "Buyer: 'Can I have a receipt?' \nSeller: 'Of course, here is your _________'", options: ["paper.", "plastic bag.", "money.", "fruit."], ans: 0 },
+            { q: "If a dozen lemons cost $4.00, how much does half a dozen cost?", options: ["$4.00", "$8.00", "$2.00", "$1.00"], ans: 2 },
+            { q: "Buyer: 'I want to return these, they are spoiled.' \nWhat does 'spoiled' mean?", options: ["Very delicious", "Too expensive", "Rotten or bad", "Very fresh"], ans: 2 },
+            { q: "Buyer: 'Do you sell organic vegetables?' \nWhat does 'organic' mean?", options: ["Grown on a computer", "Grown without artificial chemicals", "Made of plastic", "Imported from far away"], ans: 1 },
+            { q: "Seller: 'We are sold out.' \nWhat does this mean?", options: ["We have too many.", "They are on sale.", "We are giving them away.", "We have no more left to sell."], ans: 3 },
+            { q: "Buyer: 'I'll take it!' \nWhat does this mean?", options: ["I am stealing it.", "I agree to buy it.", "I do not want it.", "It is too expensive."], ans: 1 },
+            { q: "Seller: 'You drive a hard bargain.' \nWhat does this mean?", options: ["You are bad at driving.", "You pay too much money.", "You are very good at negotiating prices.", "You are angry."], ans: 2 },
+            { q: "Buyer: 'What is the total?' \nWhat is the buyer asking for?", options: ["The final price to pay.", "The time of day.", "The name of the fruit.", "The weight of the bag."], ans: 0 },
+            { q: "If oranges are 3 for $2.00, how much will 6 oranges cost?", options: ["$3.00", "$4.00", "$6.00", "$8.00"], ans: 1 },
+            { q: "What is the correct plural spelling for strawberry?", options: ["Strawberrys", "Strawberries", "Strawberryes", "Strawberys"], ans: 1 },
+            { q: "Which vegetable is known for making people cry when cutting it?", options: ["Carrot", "Potato", "Onion", "Corn"], ans: 2 },
+            { q: "Seller: 'Would you like a bag?' \nBuyer: '__________'", options: ["No, it is too expensive.", "Yes, please. I have too much to carry.", "I want an apple.", "It is a dollar."], ans: 1 },
+            { q: "What does it mean to buy 'in bulk'?", options: ["Buying a very small amount", "Buying a large quantity at once", "Buying bad fruit", "Buying one piece"], ans: 1 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+
+        function startQuiz() {
+            assignVoices();
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('model-menu-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = quizScore;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = quizData[currentQuestionIndex];
+            document.getElementById('quiz-question-text').innerText = `Q${currentQuestionIndex + 1}: ${q.q}`;
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = '';
+            
+            document.getElementById('quiz-feedback-text').innerText = '';
+            document.getElementById('btn-next-question').style.display = 'none';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsDiv.appendChild(btn);
+            });
+
+            // Read Question Aloud (Replaces underscores with "blank")
+            if ('speechSynthesis' in window) {
+                let speakText = q.q.replace(/_+/g, "blank");
+                const utterance = new SpeechSynthesisUtterance(speakText);
+                if(sellerVoice) utterance.voice = sellerVoice;
+                utterance.rate = 0.85; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            window.speechSynthesis.cancel();
+            const q = quizData[currentQuestionIndex];
+            const optionsDiv = document.getElementById('quiz-options');
+            const buttons = optionsDiv.querySelectorAll('.quiz-option-btn');
+
+            buttons.forEach(b => b.disabled = true); // Lock choices
+
+            if (selectedIndex === q.ans) {
+                btnElement.style.backgroundColor = '#4CAF50';
+                btnElement.style.color = 'white';
+                document.getElementById('quiz-feedback-text').innerText = '✅ Correct!';
+                document.getElementById('quiz-feedback-text').style.color = '#4CAF50';
+                quizScore++;
+                document.getElementById('quiz-score').innerText = quizScore;
+                speakSound("Correct!");
+            } else {
+                btnElement.style.backgroundColor = '#F44336';
+                btnElement.style.color = 'white';
+                document.getElementById('quiz-feedback-text').innerText = '❌ Incorrect!';
+                document.getElementById('quiz-feedback-text').style.color = '#F44336';
+                // Highlight the correct answer
+                buttons[q.ans].style.backgroundColor = '#4CAF50';
+                buttons[q.ans].style.color = 'white';
+                speakSound("Incorrect.");
+            }
+
+            document.getElementById('btn-next-question').style.display = 'inline-block';
+        }
+
+        function speakSound(text) {
+             if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                if(sellerVoice) utterance.voice = sellerVoice;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function nextQuestion() {
+            window.speechSynthesis.cancel();
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('quiz-question-text').innerText = `Quiz Complete! You scored ${quizScore} out of ${quizData.length}.`;
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('quiz-feedback-text').innerText = '';
+                document.getElementById('btn-next-question').style.display = 'none';
+                
+                triggerFireworks();
+                const praiseEl = document.getElementById('praise-text');
+                praiseEl.innerText = 'Quiz Master!';
+                praiseEl.classList.remove('animate-praise');
+                void praiseEl.offsetWidth; 
+                praiseEl.classList.add('animate-praise');
+                speakSound(`Congratulations! You scored ${quizScore} points!`);
+            }
+        }
+    </script>
+</body>
+</html>
