@@ -102,9 +102,10 @@
         .scenario-btn, .quiz-option-btn, .grammar-btn { background: white; padding: 15px 20px; border-radius: 10px; border: 2px solid #ccc; font-size: 1.2em; cursor: pointer; transition: 0.2s; font-weight: bold; text-align: left; }
         .scenario-btn:hover, .quiz-option-btn:hover:not(:disabled), .grammar-btn:hover:not(:disabled) { background: #E3F2FD; border-color: #2196F3; transform: translateX(5px); }
         .grammar-options { flex-direction: row; justify-content: center; flex-wrap: wrap; }
-        .grammar-btn { text-align: center; min-width: 150px; flex: 1; }
         
-        .grammar-rule-box { display: none; background: #FFF9C4; color: #F57F17; padding: 20px; border-radius: 15px; margin-top: 20px; font-size: 1.2em; font-weight: bold; border: 2px dashed #FBC02D; }
+        /* Grammar Game Font Increase */
+        .grammar-btn { text-align: center; min-width: 150px; flex: 1; font-size: 1.5em; padding: 20px; }
+        .grammar-rule-box { display: none; background: #FFF9C4; color: #F57F17; padding: 25px; border-radius: 15px; margin-top: 25px; font-size: 1.5em; font-weight: bold; border: 2px dashed #FBC02D; }
 
         /* Praise Animation */
         #praise-text { font-size: 4em; font-weight: bold; color: #FFEB3B; text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); z-index: 1000; pointer-events: none; opacity: 0; }
@@ -183,15 +184,15 @@
         <div class="top-bar">
             <button class="back-btn" onclick="showMenu()">← Menu</button>
             <h2>Market Quiz</h2>
-            <div style="font-weight: bold; background: white; padding: 5px 15px; border-radius: 10px;">Score: <span id="quiz-score" style="color: #4CAF50;">0</span></div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span id="quiz-feedback-text" style="font-size: 1.3em; font-weight: bold;"></span>
+                <button id="btn-next-question" class="action-btn btn-next" style="display: none; padding: 8px 15px; font-size: 1em;" onclick="nextQuestion()">Next ➡️</button>
+                <div style="font-weight: bold; background: white; padding: 8px 15px; border-radius: 10px; font-size: 1.2em;">Score: <span id="quiz-score" style="color: #4CAF50;">0</span></div>
+            </div>
         </div>
         <div style="background: white; padding: 30px; border-radius: 20px; text-align: left;">
-            <h2 id="quiz-question-text" style="margin-top: 0; color: #1976D2;">Loading...</h2>
+            <h2 id="quiz-question-text" style="font-size: 1.8em; margin-top: 0; color: #1976D2;">Loading...</h2>
             <div id="quiz-options"></div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                <span id="quiz-feedback-text" style="font-size: 1.3em; font-weight: bold;"></span>
-                <button id="btn-next-question" class="action-btn btn-next" style="display: none; padding: 10px 20px;" onclick="nextQuestion()">Next ➡️</button>
-            </div>
         </div>
     </div>
 
@@ -199,13 +200,15 @@
         <div class="top-bar">
             <button class="back-btn" onclick="showMenu()">← Menu</button>
             <h2>Grammar Challenge</h2>
-            <div style="font-weight: bold; background: white; padding: 5px 15px; border-radius: 10px;">Score: <span id="grammar-score" style="color: #FF5722;">0</span></div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="btn-grammar-next" class="action-btn btn-next" style="display: none; padding: 8px 15px; font-size: 1em;" onclick="nextGrammarQuestion()">Next ➡️</button>
+                <div style="font-weight: bold; background: white; padding: 8px 15px; border-radius: 10px; font-size: 1.2em;">Score: <span id="grammar-score" style="color: #FF5722;">0</span></div>
+            </div>
         </div>
-        <div style="background: white; padding: 30px; border-radius: 20px;">
-            <h2 id="grammar-question-text" style="margin-top: 0;">Loading...</h2>
+        <div style="background: white; padding: 40px; border-radius: 20px;">
+            <h2 id="grammar-question-text" style="font-size: 2.2em; margin-top: 0;">Loading...</h2>
             <div class="grammar-options" id="grammar-options"></div>
             <div class="grammar-rule-box" id="grammar-rule-box"></div>
-            <button id="btn-grammar-next" class="action-btn btn-next" style="display: none; margin: 20px auto 0 auto;" onclick="nextGrammarQuestion()">Next ➡️</button>
         </div>
     </div>
 
@@ -402,7 +405,9 @@
                     scenarios: [
                         { title: "Hello & Buy", emoji: "🍎", dialogue: [{isSeller: true, text: "Hello!"}, {isSeller: false, text: "Hello. I want a sweet apple."}, {isSeller: true, text: "Here is one fresh apple."}] },
                         { title: "How Much?", emoji: "🍌", dialogue: [{isSeller: false, text: "How much is the big, yellow banana?"}, {isSeller: true, text: "It is one dollar. It is very good."}] },
-                        { title: "Colors", emoji: "🍓", dialogue: [{isSeller: false, text: "Do you have red fruit?"}, {isSeller: true, text: "Yes, I have fresh, red strawberries."}] }
+                        { title: "Colors", emoji: "🍓", dialogue: [{isSeller: false, text: "Do you have red fruit?"}, {isSeller: true, text: "Yes, I have fresh, red strawberries."}] },
+                        { title: "Counting", emoji: "🍋", dialogue: [{isSeller: false, text: "I want five sweet lemons."}, {isSeller: true, text: "Okay. One, two, three, four, five. Here you go!"}] },
+                        { title: "The Bag", emoji: "🛍️", dialogue: [{isSeller: true, text: "Do you want a big bag?"}, {isSeller: false, text: "Yes, please. Thank you very much."}] }
                     ]
                 };
             } else if (currentLevel === 'A2') {
@@ -429,7 +434,9 @@
                     scenarios: [
                         { title: "Asking for a Discount", emoji: "🍎🍎", dialogue: [{isSeller: false, text: "These juicy apples are expensive. Can I get a cheaper price?"}, {isSeller: true, text: "Yes, I will give you a special discount on these delicious fruits."}] },
                         { title: "Returning Bad Fruit", emoji: "🍓", dialogue: [{isSeller: false, text: "These strawberries are sour and bad."}, {isSeller: true, text: "I am sorry. Here is a fresh, ripe box."}] },
-                        { title: "Out of Stock", emoji: "🛒", dialogue: [{isSeller: false, text: "Do you have any heavy watermelons?"}, {isSeller: true, text: "Sorry, those tasty fruits are sold out today."}] }
+                        { title: "Out of Stock", emoji: "🛒", dialogue: [{isSeller: false, text: "Do you have any heavy watermelons?"}, {isSeller: true, text: "Sorry, those tasty fruits are sold out today."}] },
+                        { title: "Freshness", emoji: "🍑", dialogue: [{isSeller: false, text: "Are these soft peaches fresh today?"}, {isSeller: true, text: "Yes, they are very fresh and sweet. I picked them this morning."}] },
+                        { title: "Quantity Check", emoji: "🧅", dialogue: [{isSeller: false, text: "I only want a few onions. This is too many."}, {isSeller: true, text: "No problem. I will take some out of the bag for you."}] }
                     ]
                 };
             } else if (currentLevel === 'B1') {
@@ -456,7 +463,9 @@
                     scenarios: [
                         { title: "Organic Farming", emoji: "🌿", dialogue: [{isSeller: false, text: "Are these crisp apples certified organic? I avoid pesticides."}, {isSeller: true, text: "Yes, we use completely natural, chemical-free farming methods."}] },
                         { title: "Recipe Advice", emoji: "🍲", dialogue: [{isSeller: false, text: "I'm cooking a savory stew. Which potatoes are best?"}, {isSeller: true, text: "I recommend these starchy potatoes. They become very fluffy and flavorful when cooked."}] },
-                        { title: "Ripening Advice", emoji: "🥑", dialogue: [{isSeller: false, text: "These green avocados feel unripe and hard. How can I soften them?"}, {isSeller: true, text: "Place them in a paper bag. They will become creamy and ripe soon."}] }
+                        { title: "Ripening Advice", emoji: "🥑", dialogue: [{isSeller: false, text: "These green avocados feel unripe and hard. How can I soften them?"}, {isSeller: true, text: "Place them in a paper bag. They will become creamy and ripe soon."}] },
+                        { title: "Imported Goods", emoji: "🥝", dialogue: [{isSeller: false, text: "Are these kiwis grown locally or are they imported?"}, {isSeller: true, text: "They are imported from overseas, but they are still extremely fresh."}] },
+                        { title: "Bulk Discount", emoji: "🥔", dialogue: [{isSeller: false, text: "If I buy five kilos of potatoes, can I get a better deal?"}, {isSeller: true, text: "Yes, for a bulk purchase, I can offer you a ten percent discount."}] }
                     ]
                 };
             } else { // B2
@@ -483,7 +492,9 @@
                     scenarios: [
                         { title: "Wholesale Negotiation", emoji: "📦", dialogue: [{isSeller: false, text: "I manage a bistro. We need 50 kilos of aromatic garlic. What terms can we negotiate?"}, {isSeller: true, text: "For a guaranteed bulk contract, I can reduce the overhead margin on these premium bulbs by 15%."}] },
                         { title: "Supply Chain Issues", emoji: "🔄", dialogue: [{isSeller: false, text: "The fresh basil crate is empty. Is there a supply chain issue?"}, {isSeller: true, text: "Yes, an unexpected frost damaged the delicate leaves. We are entirely out of stock."}] },
-                        { title: "Premium Exotic Goods", emoji: "🐉", dialogue: [{isSeller: false, text: "The premium on this exotic dragon fruit is quite steep."}, {isSeller: true, text: "It is a rare, delicate commodity with high logistical costs, hence the premium valuation."}] }
+                        { title: "Premium Exotic Goods", emoji: "🐉", dialogue: [{isSeller: false, text: "The premium on this exotic dragon fruit is quite steep."}, {isSeller: true, text: "It is a rare, delicate commodity with high logistical costs, hence the premium valuation."}] },
+                        { title: "Seasonal Yields", emoji: "🌽", dialogue: [{isSeller: false, text: "The corn yield seems lower this year. Is it affecting the pricing?"}, {isSeller: true, text: "Indeed, a severe drought impacted the harvest, causing prices to surge significantly across the board."}] },
+                        { title: "Credit Terms", emoji: "📋", dialogue: [{isSeller: false, text: "For our weekly restaurant shipments, can we establish net-30 credit terms?"}, {isSeller: true, text: "Given your consistent order volume and credit history, we can certainly accommodate net-30 invoicing."}] }
                     ]
                 };
             }
