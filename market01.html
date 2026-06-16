@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Produce Market! Level 1 (A1)</title>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #FF9800;
+            --bg: #f0f8ff; 
+            --text: #333;
+            --panel-bg: #ffffff;
+        }
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        /* Header & Time */
+        #datetime-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            display: inline-block;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .season-badge {
+            background-color: #FFC107;
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-left: 10px;
+            border: 2px solid #FFA000;
+        }
+        h1 { color: #2c3e50; font-size: 2.5em; margin-top: 0; text-shadow: 2px 2px 0px white; }
+
+        /* MAIN MENU */
+        #main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .input-group { margin-bottom: 20px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        input[type="text"] {
+            font-size: 1.5em;
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #64B5F6;
+            text-align: center;
+            width: 300px;
+            max-width: 90%;
+            font-family: inherit;
+        }
+        .btn-group { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 700px;}
+        .menu-btn {
+            font-size: 1.4em;
+            padding: 20px 30px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            flex: 1;
+            min-width: 280px;
+            font-family: inherit;
+        }
+        .menu-btn:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 20px rgba(0,0,0,0.3); }
+        #btn-fruit { background-color: #E91E63; border-bottom: 5px solid #C2185B; }
+        #btn-veg { background-color: #4CAF50; border-bottom: 5px solid #388E3C; }
+        #btn-model { background-color: #9C27B0; width: 100%; border-bottom: 5px solid #7B1FA2; }
+        #btn-quiz { background-color: #00BCD4; width: 100%; border-bottom: 5px solid #0097A7; }
+        #btn-grammar { background-color: #FF5722; width: 100%; border-bottom: 5px solid #E64A19; }
+
+        /* SELECTION AREA */
+        #selection-area { display: none; max-width: 1200px; margin: 0 auto; }
+        .produce-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 20px; 
+            margin-top: 20px; 
+        }
+        .produce-card { 
+            cursor: pointer; 
+            padding: 25px 10px; 
+            border-radius: 20px; 
+            background: #fff; 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+            font-size: 1.3em; 
+            transition: 0.2s; 
+            border: 3px solid transparent; 
+        }
+        .produce-card:hover { transform: translateY(-8px); border-color: var(--primary); }
+        .produce-card .emoji { font-size: 4em; display: block; margin-bottom: 10px; }
+        
+        #quantity-selection { 
+            display: none; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            margin-top: 20px; 
+        }
+        .quant-btn { 
+            background: #E3F2FD; 
+            color: #1565C0; 
+            font-size: 1.3em; 
+            padding: 15px 25px; 
+            border: 3px solid #90CAF9; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            margin: 8px; 
+            font-weight: bold; 
+            transition: 0.2s; 
+        }
+        .quant-btn:hover { background: #2196F3; color: white; border-color: #1976D2; transform: scale(1.05); }
+
+        /* GAME / CHAT AREA */
+        #game-area { display: none; max-width: 1000px; margin: 0 auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .back-btn { padding: 12px 25px; background: #607D8B; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.1em; border-bottom: 4px solid #455A64;}
+        .back-btn:hover { transform: translateY(-2px); }
+        
+        .chat-log {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
+            border: 4px solid #E0F7FA;
+        }
+        .chat-message { display: flex; align-items: flex-end; gap: 15px; width: 100%; }
+        .seller-message { justify-content: flex-start; }
+        .buyer-message { justify-content: flex-end; }
+        .chat-avatar { font-size: 3.5em; background: #f0f0f0; border-radius: 50%; padding: 5px; }
+        .chat-bubble {
+            padding: 20px 25px;
+            background: #e0f7fa;
+            border-radius: 20px;
+            font-size: 1.4em; 
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 65%;
+            line-height: 1.5;
+            border: 2px solid #B2EBF2;
+        }
+        .buyer-message .chat-bubble { background: #fff9c4; text-align: right; border-color: #FFF59D; }
+        
+        .vocab { font-weight: bold; color: #D32F2F; text-decoration: underline; }
+        .vocab-good { font-weight: bold; color: #388E3C; text-decoration: underline; }
+
+        .produce-display {
+            font-size: 5em;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 20px;
+            min-height: 100px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+            border: 3px dashed #ccc;
+        }
+
+        .controls { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+        .action-btn {
+            font-size: 1.3em;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: 0.2s;
+            box-shadow: 0 5px 0px rgba(0,0,0,0.2);
+            font-family: inherit;
+        }
+        .action-btn:hover { transform: translateY(-2px); }
+        .action-btn:active { transform: translateY(3px); box-shadow: 0 2px 0px rgba(0,0,0,0.2); }
+        .btn-agree { background-color: #4CAF50; border-bottom-color: #388E3C; }
+        .btn-complain { background-color: #F44336; border-bottom-color: #D32F2F; }
+        .btn-ask { background-color: #2196F3; border-bottom-color: #1976D2; }
+        .btn-leave { background-color: #607D8B; border-bottom-color: #455A64; }
+        .btn-pay { background-color: #FF9800; border-bottom-color: #F57C00; }
+        .btn-next { background-color: #9C27B0; border-bottom-color: #7B1FA2; }
+
+        /* Model Menu */
+        #model-menu-area { display: none; max-width: 900px; margin: 0 auto; }
+        .scenario-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .scenario-btn {
+            background: white; padding: 20px; border-radius: 15px; border: 3px solid #2196F3;
+            font-size: 1.3em; cursor: pointer; transition: 0.2s; font-weight: bold; color: #2c3e50;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; font-family: inherit;
+        }
+        .scenario-btn:hover { background: #E3F2FD; transform: translateX(10px); }
+        .challenge-badge { background: #E91E63; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; margin-left: 10px; }
+
+        /* Quiz */
+        #quiz-area { display: none; max-width: 900px; margin: 0 auto; }
+        #quiz-container { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: left; }
+        #quiz-options { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .quiz-option-btn {
+            background: #f8f9fa; color: #2c3e50; font-size: 1.3em; padding: 15px 25px;
+            border: 3px solid #dee2e6; border-radius: 15px; cursor: pointer;
+            text-align: left; font-weight: bold; transition: 0.2s; font-family: inherit;
+        }
+        .quiz-option-btn:hover:not(:disabled) { background: #e2e6ea; border-color: #adb5bd; transform: translateX(5px); }
+        .quiz-option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        #quiz-header-controls { display: flex; align-items: center; gap: 15px; flex-grow: 1; justify-content: center; }
+
+        /* Grammar Challenge */
+        #grammar-area { display: none; max-width: 900px; margin: 0 auto; }
+        .grammar-card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
+        .grammar-options { display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+        .grammar-btn {
+            background: #E3F2FD; color: #1565C0; font-size: 1.4em; padding: 20px 40px;
+            border: 4px solid #2196F3; border-radius: 20px; cursor: pointer;
+            font-weight: bold; transition: 0.2s; flex: 1; min-width: 200px; font-family: inherit;
+        }
+        .grammar-btn:hover:not(:disabled) { background: #2196F3; color: white; transform: translateY(-5px); box-shadow: 0 8px 15px rgba(33,150,243,0.3); }
+        .grammar-rule-box {
+            display: none; background: #FFF9C4; color: #F57F17; padding: 25px;
+            border-radius: 20px; margin-top: 25px; font-size: 1.3em; font-weight: bold; border: 3px dashed #FBC02D;
+        }
+
+        /* Praise Animation */
+        #praise-text {
+            font-size: 4.5em;
+            font-weight: bold;
+            color: #FFEB3B;
+            text-shadow: 3px 3px 0 #FF5722, -2px -2px 0 #FF5722, 2px -2px 0 #FF5722, -2px 2px 0 #FF5722, 2px 2px 0 #FF5722;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 1000; pointer-events: none; opacity: 0;
+        }
+        @keyframes flashPraise {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.3) rotate(5deg); opacity: 1; }
+            30% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        .animate-praise { animation: flashPraise 3s forwards; }
+    </style>
+</head>
+<body>
+
+    <div id="datetime-header">
+        <span id="current-date">Date...</span> | <span id="current-time">Time...</span>
+        <span class="season-badge" id="current-season">Season</span>
+    </div>
+
+    <div id="main-menu">
+        <h1 style="font-size: 3em;">🍎 Market Game - Level 1 (A1) 🥕</h1>
+        <div class="input-group">
+            <label for="player-name" style="font-size: 1.5em; display: block; margin-bottom: 10px; font-weight: bold; color: #1976D2;">Hello! What is your name?</label>
+            <input type="text" id="player-name" placeholder="Type your name..." />
+        </div>
+        <div class="btn-group">
+            <button class="menu-btn" id="btn-fruit" onclick="startGame('fruit')">🍎 Buy Fruit</button>
+            <button class="menu-btn" id="btn-veg" onclick="startGame('veg')">🥕 Buy Vegetables</button>
+            <button class="menu-btn" id="btn-model" onclick="showModelMenu()">🗣️ Listen & Learn</button>
+            <button class="menu-btn" id="btn-quiz" onclick="startQuiz()">📝 Easy Quiz (10 Q's)</button>
+            <button class="menu-btn" id="btn-grammar" onclick="startGrammarGame()">🧩 Basic Words Game</button>
+        </div>
+    </div>
+
+    <div id="selection-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Back to Menu</button>
+            <h2 style="font-size: 2em;">Choose Food <span id="selection-type-title"></span></h2>
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.3em; background: white; padding: 5px 15px; border-radius: 10px;">Shopper: <span id="display-name-selection"></span></div>
+        </div>
+        <div id="produce-grid" class="produce-grid"></div>
+        
+        <div id="quantity-selection">
+            <h2 id="quantity-item-name" style="font-size: 2em; color: #1976D2;"></h2>
+            <div class="produce-display" id="quantity-item-emoji" style="margin: 10px 0; font-size: 4em; padding: 10px; background: transparent; box-shadow: none; border: none;"></div>
+            <p style="font-size: 1.5em; font-weight: bold;">How many do you want?</p>
+            <div id="quantity-buttons" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;"></div>
+            <button class="back-btn" style="margin-top: 30px; background: #F44336; border-bottom-color: #D32F2F;" onclick="renderSelection()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="model-menu-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Back to Menu</button>
+            <h2 style="font-size: 2em;">Listen & Learn</h2>
+            <div></div>
+        </div>
+        <div class="scenario-list" id="scenario-list"></div>
+    </div>
+
+    <div id="game-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="returnToSelection()">← Back to Food</button>
+            <h2 id="market-title" style="font-size: 2em;">Market</h2>
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.3em; background: white; padding: 5px 15px; border-radius: 10px;">Shopper: <span id="display-name-game"></span></div>
+        </div>
+
+        <div id="chat-log" class="chat-log"></div>
+        <div class="produce-display" id="emoji-display"></div>
+        <div class="controls" id="control-panel"></div>
+    </div>
+
+    <div id="quiz-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Menu</button>
+            <h2 style="margin:0; font-size: 1.8em;">Easy Quiz</h2>
+            
+            <div id="quiz-header-controls">
+                <span id="quiz-feedback-text" style="font-size: 1.5em; font-weight: bold;"></span>
+                <button id="btn-next-question" class="action-btn btn-next" style="display: none; padding: 10px 20px; font-size: 1.1em; margin: 0;" onclick="nextQuestion()">Next ➡️</button>
+            </div>
+
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.5em; background: white; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                Score: <span id="quiz-score" style="color: #4CAF50;">0</span> / 10
+            </div>
+        </div>
+        <div id="quiz-container">
+            <h2 id="quiz-question-text" style="font-size: 1.8em; margin-top: 0; color: #1976D2;">Question...</h2>
+            <div id="quiz-options"></div>
+        </div>
+    </div>
+
+    <div id="grammar-area">
+        <div class="top-bar">
+            <button class="back-btn" onclick="showMenu()">← Menu</button>
+            <h2 style="margin:0; font-size: 1.8em;">Basic Words Game 🧩</h2>
+            <div style="font-weight: bold; color: #2c3e50; font-size: 1.5em; background: white; padding: 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                Score: <span id="grammar-score" style="color: #FF5722;">0</span>
+            </div>
+        </div>
+        <div class="grammar-card">
+            <h2 id="grammar-question-text" style="font-size: 2.2em; margin-top: 0; color: #2c3e50;">Loading...</h2>
+            <div class="grammar-options" id="grammar-options"></div>
+            <div class="grammar-rule-box" id="grammar-rule-box"></div>
+            <button id="btn-grammar-next" class="action-btn btn-next" style="display: none; margin: 30px auto 0 auto; font-size: 1.3em;" onclick="nextGrammarQuestion()">Next ➡️</button>
+        </div>
+    </div>
+
+    <div id="praise-text"></div>
+
+    <script>
+        // Set up the Live Clock & Season logic
+        let currentSeasonStr = "Summer";
+
+        function updateDateTime() {
+            const now = new Date();
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            
+            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', optionsDate);
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', optionsTime);
+
+            const month = now.getMonth();
+            if (month >= 2 && month <= 4) currentSeasonStr = "Spring";
+            else if (month >= 5 && month <= 7) currentSeasonStr = "Summer";
+            else if (month >= 8 && month <= 10) currentSeasonStr = "Fall";
+            else currentSeasonStr = "Winter";
+
+            document.getElementById('current-season').innerText = currentSeasonStr;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // Product Databases - Simple A1 Base Prices (Round numbers)
+        const fruits = [
+            { emoji: '🍎', name: 'apple', plur: 'apples', type: 'countable', season: 'Fall', basePrice: 1.00 },
+            { emoji: '🍌', name: 'banana', plur: 'bananas', type: 'countable', season: 'Summer', basePrice: 1.00 },
+            { emoji: '🍍', name: 'pineapple', plur: 'pineapples', type: 'countable', season: 'Spring', basePrice: 3.00 },
+            { emoji: '🥭', name: 'mango', plur: 'mangoes', type: 'countable', season: 'Summer', basePrice: 2.00 },
+            { emoji: '🥑', name: 'avocado', plur: 'avocados', type: 'countable', season: 'Spring', basePrice: 2.00 },
+            { emoji: '🍉', name: 'watermelon', plur: 'watermelons', type: 'countable', season: 'Summer', basePrice: 4.00 },
+            { emoji: '🍊', name: 'orange', plur: 'oranges', type: 'countable', season: 'Winter', basePrice: 1.00 },
+            { emoji: '🍋', name: 'lemon', plur: 'lemons', type: 'countable', season: 'Winter', basePrice: 1.00 },
+            { emoji: '🍓', name: 'strawberry', plur: 'strawberries', type: 'countable', season: 'Spring', basePrice: 2.00 },
+            { emoji: '🍑', name: 'peach', plur: 'peaches', type: 'countable', season: 'Summer', basePrice: 2.00 },
+            { emoji: '🍐', name: 'pear', plur: 'pears', type: 'countable', season: 'Fall', basePrice: 1.00 },
+            { emoji: '🥥', name: 'coconut', plur: 'coconuts', type: 'countable', season: 'Summer', basePrice: 3.00 },
+            { emoji: '🥝', name: 'kiwi', plur: 'kiwis', type: 'countable', season: 'Winter', basePrice: 2.00 },
+            { emoji: '🍇', name: 'grapes', plur: 'grapes', type: 'uncountable', season: 'Summer', basePrice: 3.00 },
+            { emoji: '🍒', name: 'cherries', plur: 'cherries', type: 'uncountable', season: 'Summer', basePrice: 4.00 }
+        ];
+
+        const vegetables = [
+            { emoji: '🍅', name: 'tomato', plur: 'tomatoes', type: 'countable', season: 'Summer', basePrice: 1.00 },
+            { emoji: '🍆', name: 'eggplant', plur: 'eggplants', type: 'countable', season: 'Summer', basePrice: 2.00 },
+            { emoji: '🧅', name: 'onion', plur: 'onions', type: 'countable', season: 'Fall', basePrice: 1.00 },
+            { emoji: '🥒', name: 'cucumber', plur: 'cucumbers', type: 'countable', season: 'Summer', basePrice: 1.00 },
+            { emoji: '🫑', name: 'bell pepper', plur: 'bell peppers', type: 'countable', season: 'Summer', basePrice: 2.00 },
+            { emoji: '🌶️', name: 'hot pepper', plur: 'hot peppers', type: 'countable', season: 'Summer', basePrice: 1.00 },
+            { emoji: '🍠', name: 'sweet potato', plur: 'sweet potatoes', type: 'countable', season: 'Fall', basePrice: 1.00 },
+            { emoji: '🥔', name: 'potato', plur: 'potatoes', type: 'uncountable', season: 'Fall', basePrice: 2.00 },
+            { emoji: '🥦', name: 'broccoli', plur: 'broccoli', type: 'uncountable', season: 'Winter', basePrice: 3.00 },
+            { emoji: '🥬', name: 'spinach', plur: 'spinach', type: 'uncountable', season: 'Spring', basePrice: 2.00 },
+            { emoji: '🧄', name: 'garlic', plur: 'garlic', type: 'uncountable', season: 'Spring', basePrice: 3.00 },
+            { emoji: '🥕', name: 'carrot', plur: 'carrots', type: 'countable', season: 'Spring', basePrice: 1.00 },
+            { emoji: '🌽', name: 'corn', plur: 'corn', type: 'uncountable', season: 'Summer', basePrice: 2.00 },
+            { emoji: '🥗', name: 'lettuce', plur: 'lettuce', type: 'uncountable', season: 'Spring', basePrice: 2.00 }
+        ];
+
+        const currencies = [
+            { symbol: '$', name: 'dollars', rate: 1.0 },
+            { symbol: '€', name: 'euros', rate: 1.0 }, // Keep math simple for A1
+            { symbol: '£', name: 'pounds', rate: 1.0 }
+        ];
+
+        let currentMode = 'fruit';
+        let playerName = 'Student';
+        let state = {};
+
+        // 10 VERY SIMPLE A1 Scenarios
+        const extendedScenarios = [
+            {
+                title: "🍎 Scenario 1: Saying Hello", emoji: "🍎", isChallenge: false,
+                dialogue: [
+                    { isSeller: true, text: "Hello!" },
+                    { isSeller: false, text: "Hello. I want an apple, please." },
+                    { isSeller: true, text: "Okay. Here is one apple." },
+                    { isSeller: false, text: "Thank you!" },
+                    { isSeller: true, text: "You are welcome. Goodbye!" }
+                ]
+            },
+            {
+                title: "🍌 Scenario 2: How much?", emoji: "🍌", isChallenge: false,
+                dialogue: [
+                    { isSeller: false, text: "Excuse me. How much is the banana?" },
+                    { isSeller: true, text: "The banana is one dollar." },
+                    { isSeller: false, text: "Okay. I want two bananas." },
+                    { isSeller: true, text: "That is two dollars, please." },
+                    { isSeller: false, text: "Here is two dollars." }
+                ]
+            },
+            {
+                title: "🍓 Scenario 3: Colors", emoji: "🍓", isChallenge: false,
+                dialogue: [
+                    { isSeller: false, text: "Do you have red fruit?" },
+                    { isSeller: true, text: "Yes. I have red apples and red strawberries." },
+                    { isSeller: false, text: "Are the strawberries good?" },
+                    { isSeller: true, text: "Yes, they are very good and sweet." },
+                    { isSeller: false, text: "I want strawberries, please." }
+                ]
+            },
+            {
+                title: "🍊 Scenario 4: Yes or No", emoji: "🍊", isChallenge: false,
+                dialogue: [
+                    { isSeller: true, text: "Do you want an orange?" },
+                    { isSeller: false, text: "No, thank you. I do not like oranges." },
+                    { isSeller: true, text: "Do you like grapes?" },
+                    { isSeller: false, text: "Yes, I do! I love grapes." },
+                    { isSeller: true, text: "Here are some grapes for you." }
+                ]
+            },
+            {
+                title: "🍉 Scenario 5: Too Much Money", emoji: "🍉", isChallenge: false,
+                dialogue: [
+                    { isSeller: false, text: "How much is the big watermelon?" },
+                    { isSeller: true, text: "It is ten dollars." },
+                    { isSeller: false, text: "Oh no. That is too much money." },
+                    { isSeller: true, text: "Okay. Special price. Five dollars." },
+                    { isSeller: false, text: "Five dollars is good. Thank you!" }
+                ]
+            },
+            {
+                title: "🍅 Scenario 6: Counting Numbers", emoji: "🍅", isChallenge: true,
+                dialogue: [
+                    { isSeller: true, text: "How many tomatoes do you want?" },
+                    { isSeller: false, text: "I want one, two, three... four tomatoes." },
+                    { isSeller: true, text: "Four tomatoes. That is four dollars." },
+                    { isSeller: false, text: "Okay. Here is five dollars." },
+                    { isSeller: true, text: "Thank you. Here is one dollar back." }
+                ]
+            },
+            {
+                title: "🥦 Scenario 7: Good Morning", emoji: "🥦", isChallenge: true,
+                dialogue: [
+                    { isSeller: true, text: "Good morning!" },
+                    { isSeller: false, text: "Good morning. Do you have broccoli?" },
+                    { isSeller: true, text: "Yes, I do. The broccoli is fresh today." },
+                    { isSeller: false, text: "I want a lot of broccoli for dinner." },
+                    { isSeller: true, text: "Okay. Here is a big bag of broccoli." }
+                ]
+            },
+            {
+                title: "🥔 Scenario 8: Plurals (s)", emoji: "🥔", isChallenge: true,
+                dialogue: [
+                    { isSeller: false, text: "I want potato." },
+                    { isSeller: true, text: "Do you want ONE potato, or TWO potatoes?" },
+                    { isSeller: false, text: "Ah. I want two potatoes, please." },
+                    { isSeller: true, text: "Very good. Two potatoes is two euros." },
+                    { isSeller: false, text: "Thank you." }
+                ]
+            },
+            {
+                title: "🗑️ Scenario 9: Bad Fruit", emoji: "🗑️", isChallenge: true,
+                dialogue: [
+                    { isSeller: false, text: "Excuse me. This apple is bad." },
+                    { isSeller: true, text: "Oh! I am sorry." },
+                    { isSeller: false, text: "Can I have a good apple?" },
+                    { isSeller: true, text: "Yes. Here is a very good, fresh apple." },
+                    { isSeller: false, text: "Thank you very much." }
+                ]
+            },
+            {
+                title: "🛍️ Scenario 10: The Bag", emoji: "🛍️", isChallenge: true,
+                dialogue: [
+                    { isSeller: true, text: "That is six dollars, please." },
+                    { isSeller: false, text: "Here is six dollars." },
+                    { isSeller: true, text: "Thank you. Do you need a bag?" },
+                    { isSeller: false, text: "Yes, please. A big bag." },
+                    { isSeller: true, text: "Here is your bag. Have a good day!" }
+                ]
+            }
+        ];
+
+        const targetVoiceNames = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
+        const explicitMale = ["Remy", "Giuseppe", "Florian", "Brian", "Andrew", "William", "Guy", "David"];
+        const explicitFemale = ["Vivienne", "Seraphina", "Emma", "Ava", "Jenny", "Aria", "Zira", "Girl"];
+        
+        let sellerVoice = null;
+        let buyerVoice = null;
+
+        function assignVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            if(voices.length === 0) return;
+
+            let premiumVoices = voices.filter(v => v.lang.startsWith('en') && (
+                targetVoiceNames.some(name => v.name.includes(name)) || 
+                (v.name.includes("Microsoft") && v.name.includes("Online"))
+            ));
+            
+            if(premiumVoices.length < 2) premiumVoices = voices.filter(v => v.lang.startsWith('en'));
+
+            let maleVoices = premiumVoices.filter(v => explicitMale.some(m => v.name.includes(m)));
+            let femaleVoices = premiumVoices.filter(v => explicitFemale.some(f => v.name.includes(f)));
+
+            if(maleVoices.length === 0) maleVoices = premiumVoices;
+            if(femaleVoices.length === 0) femaleVoices = premiumVoices;
+
+            const mVoice = maleVoices[Math.floor(Math.random() * maleVoices.length)];
+            const fVoice = femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
+
+            if (Math.random() > 0.5) {
+                sellerVoice = mVoice;
+                buyerVoice = fVoice;
+            } else {
+                sellerVoice = fVoice;
+                buyerVoice = mVoice;
+            }
+        }
+        
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => { assignVoices(); };
+            assignVoices(); 
+        }
+
+        function playConversation(dialogueArray, append = false, onCompleteCallback = null) {
+            window.speechSynthesis.cancel();
+            
+            const chatLog = document.getElementById('chat-log');
+            if (!append) chatLog.innerHTML = '';
+            
+            let i = 0;
+
+            function speakNext() {
+                if (i >= dialogueArray.length) {
+                    if (onCompleteCallback) onCompleteCallback();
+                    return;
+                }
+
+                const line = dialogueArray[i];
+                let speakText = line.text.replace(/_+/g, "blank"); 
+                const cleanText = speakText.replace(/<[^>]*>?/gm, ''); 
+                
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                
+                if (line.isSeller && sellerVoice) utterance.voice = sellerVoice;
+                if (!line.isSeller && buyerVoice) utterance.voice = buyerVoice;
+                
+                utterance.rate = 0.85;
+
+                utterance.onstart = () => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `chat-message ${line.isSeller ? 'seller-message' : 'buyer-message'}`;
+                    
+                    const avatar = document.createElement('div');
+                    avatar.className = 'chat-avatar';
+                    avatar.innerText = line.isSeller ? '🧑‍🌾' : '🙋🏽';
+
+                    const bubble = document.createElement('div');
+                    bubble.className = 'chat-bubble';
+                    bubble.innerHTML = `<strong>${line.isSeller ? 'Seller' : playerName}:</strong> ${line.text}`;
+
+                    if (line.isSeller) {
+                        msgDiv.appendChild(avatar);
+                        msgDiv.appendChild(bubble);
+                    } else {
+                        msgDiv.appendChild(bubble);
+                        msgDiv.appendChild(avatar);
+                    }
+
+                    chatLog.appendChild(msgDiv);
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                };
+
+                utterance.onend = () => {
+                    i++;
+                    speakNext();
+                };
+                
+                utterance.onerror = (e) => { 
+                    console.log("Speech error:", e);
+                    i++; 
+                    speakNext(); 
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+            
+            speakNext();
+        }
+
+        function showMenu() {
+            document.getElementById('main-menu').style.display = 'flex';
+            document.getElementById('selection-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('model-menu-area').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('grammar-area').style.display = 'none';
+            window.speechSynthesis.cancel();
+        }
+
+        function showModelMenu() {
+            const nameInput = document.getElementById('player-name').value.trim();
+            playerName = nameInput !== '' ? nameInput : 'Friend';
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('model-menu-area').style.display = 'block';
+            
+            const list = document.getElementById('scenario-list');
+            list.innerHTML = '';
+            
+            extendedScenarios.forEach((scenario, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'scenario-btn';
+                btn.innerHTML = `${scenario.title}`;
+                btn.onclick = () => startModelConversation(index);
+                list.appendChild(btn);
+            });
+            assignVoices();
+        }
+
+        function startModelConversation(index) {
+            document.getElementById('model-menu-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('display-name-game').innerText = playerName;
+            
+            const scenario = extendedScenarios[index];
+            document.getElementById('market-title').innerText = "Listen & Learn";
+            document.getElementById('emoji-display').innerText = scenario.emoji;
+            document.getElementById('control-panel').innerHTML = '';
+
+            const customizedDialogue = scenario.dialogue.map(line => {
+                return { isSeller: line.isSeller, text: line.text.replace('{name}', playerName) };
+            });
+
+            playConversation(customizedDialogue, false, () => {
+                setButtons([{ text: "← Back to Scenarios", class: "btn-next", action: () => showModelMenu() }]);
+            });
+        }
+
+        function startGame(type) {
+            const nameInput = document.getElementById('player-name').value.trim();
+            playerName = nameInput !== '' ? nameInput : 'Friend';
+            
+            document.getElementById('display-name-selection').innerText = playerName;
+            document.getElementById('display-name-game').innerText = playerName;
+            
+            currentMode = type;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+            
+            document.getElementById('selection-type-title').innerText = type === 'fruit' ? 'Fruit 🍎' : 'Vegetables 🥕';
+            
+            assignVoices();
+            renderSelection();
+        }
+
+        function returnToSelection() {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+            window.speechSynthesis.cancel();
+            renderSelection();
+        }
+
+        function renderSelection() {
+            document.getElementById('quantity-selection').style.display = 'none';
+            const grid = document.getElementById('produce-grid');
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+            
+            const db = currentMode === 'fruit' ? fruits : vegetables;
+            
+            db.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'produce-card';
+                card.innerHTML = `<span class="emoji">${item.emoji}</span><strong>${item.name.toUpperCase()}</strong>`;
+                card.onclick = () => showQuantitySelection(index);
+                grid.appendChild(card);
+            });
+        }
+
+        function showQuantitySelection(index) {
+            document.getElementById('produce-grid').style.display = 'none';
+            const qBox = document.getElementById('quantity-selection');
+            qBox.style.display = 'block';
+            
+            const db = currentMode === 'fruit' ? fruits : vegetables;
+            state.item = db[index];
+            state.currency = currencies[Math.floor(Math.random() * currencies.length)];
+            
+            document.getElementById('quantity-item-name').innerText = `How many ${state.item.plur}?`;
+            
+            let displayEmojis = "";
+            for(let i=0; i<3; i++) displayEmojis += state.item.emoji;
+            document.getElementById('quantity-item-emoji').innerText = displayEmojis;
+            
+            const btnContainer = document.getElementById('quantity-buttons');
+            btnContainer.innerHTML = '';
+            
+            // Simple A1 Numbers
+            if (state.item.type === 'countable') {
+                const options = [
+                    { label: "1", val: 1, text: "one", count: 1 }, 
+                    { label: "2", val: 2, text: "two", count: 2 }, 
+                    { label: "3", val: 3, text: "three", count: 3 },
+                    { label: "4", val: 4, text: "four", count: 4 }, 
+                    { label: "5", val: 5, text: "five", count: 5 }, 
+                    { label: "10", val: 10, text: "ten", count: 10 }
+                ];
+                options.forEach(opt => {
+                    const b = document.createElement('button');
+                    b.className = 'quant-btn';
+                    b.innerText = opt.label;
+                    b.onclick = () => startConversation(opt.val, opt.text, "each", opt.count);
+                    btnContainer.appendChild(b);
+                });
+            } else {
+                // A1 Kilograms
+                const options = [
+                    { label: "1 Kilo", val: 1, unit: "kilo", text: "one kilo", count: 2 }, 
+                    { label: "2 Kilos", val: 2, unit: "kilos", text: "two kilos", count: 4 },
+                    { label: "3 Kilos", val: 3, unit: "kilos", text: "three kilos", count: 6 }
+                ];
+                options.forEach(opt => {
+                    const b = document.createElement('button');
+                    b.className = 'quant-btn';
+                    b.innerText = opt.label;
+                    b.onclick = () => startConversation(opt.val, opt.text, "per kilo", opt.count);
+                    btnContainer.appendChild(b);
+                });
+            }
+        }
+
+        function startConversation(amountValue, amountLabel, unitName, displayCount) {
+            document.getElementById('selection-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('market-title').innerText = currentMode === 'fruit' ? '🍎 Fruit Shop' : '🥕 Veggie Shop';
+            
+            const praiseEl = document.getElementById('praise-text');
+            praiseEl.style.opacity = 0;
+            praiseEl.classList.remove('animate-praise');
+
+            state.amountValue = amountValue;
+            state.amountLabel = amountLabel;
+            state.unitName = unitName;
+            state.displayCount = displayCount;
+
+            let priceBase = state.item.basePrice;
+            state.isInSeason = (state.item.season === currentSeasonStr);
+            if (!state.isInSeason) priceBase = priceBase + 1; // simple +1 for A1 math
+
+            state.unitPrice = priceBase; 
+            state.totalPrice = state.unitPrice * state.amountValue;
+
+            const displayContainer = document.getElementById('emoji-display');
+            displayContainer.innerHTML = '';
+            for(let i=0; i<state.displayCount; i++) {
+                const span = document.createElement('span');
+                span.innerText = state.item.emoji;
+                displayContainer.appendChild(span);
+            }
+
+            let itemText = "";
+            if (state.item.type === 'countable') {
+                const isPlural = (state.amountValue > 1);
+                itemText = `${state.amountLabel} ${isPlural ? state.item.plur : state.item.name}`;
+            } else {
+                const isPluralUnit = (state.amountValue > 1);
+                itemText = `${state.amountLabel} ${isPluralUnit ? 'kilos' : 'kilo'} of ${state.item.name}`;
+            }
+
+            const sellerGreeting = `Hello, ${playerName}! The ${state.item.plur} are ${state.currency.symbol}${state.unitPrice} ${state.unitName}.`;
+            const buyerStart = `Hello! I want ${itemText}, please.`;
+            const sellerMath = `Okay. That is ${state.currency.symbol}${state.totalPrice}.`;
+
+            playConversation([
+                { text: sellerGreeting, isSeller: true },
+                { text: buyerStart, isSeller: false },
+                { text: sellerMath, isSeller: true }
+            ], false, () => {
+                setButtons([
+                    { text: "👍 Yes! (Pay)", class: "btn-agree", action: () => branch('buy_full') },
+                    { text: "👎 Too much money!", class: "btn-complain", action: () => branch('expensive') },
+                    { text: "🤔 Are they good?", class: "btn-ask", action: () => branch('fresh') }
+                ]);
+            });
+        }
+
+        function setButtons(buttons) {
+            const panel = document.getElementById('control-panel');
+            panel.innerHTML = '';
+            buttons.forEach(btn => {
+                const b = document.createElement('button');
+                b.className = `action-btn ${btn.class}`;
+                b.innerText = btn.text;
+                b.onclick = btn.action;
+                panel.appendChild(b);
+            });
+        }
+
+        function branch(choice) {
+            if (choice === 'buy_full') {
+                const buyerHtml = `Okay. Here is ${state.currency.symbol}${state.totalPrice}.`;
+                const sellerHtml = `Thank you! Here is your food.`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => { completePurchase(); });
+            } 
+            
+            else if (choice === 'expensive') {
+                state.discountPrice = state.totalPrice - 1; // Simple A1 math: minus 1
+                if (state.discountPrice < 1) state.discountPrice = 1;
+
+                const buyerHtml = `Oh no. That is too much money!`;
+                const sellerHtml = `Okay, special price. Just ${state.currency.symbol}${state.discountPrice} for you.`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => {
+                    setButtons([
+                        { text: "🤝 Okay! (Pay)", class: "btn-pay", action: () => { state.totalPrice = state.discountPrice; branch('buy_discount'); } },
+                        { text: "🚶‍♂️ No, goodbye.", class: "btn-leave", action: () => branch('leave') }
+                    ]);
+                });
+            }
+
+            else if (choice === 'fresh') {
+                let sellerHtml = "";
+                state.discountPrice = state.totalPrice - 1; 
+                if (state.discountPrice < 1) state.discountPrice = 1;
+                
+                const buyerHtml = `Are they good and fresh?`;
+                
+                if (state.isInSeason) {
+                    sellerHtml = `Yes! Very good. I will make it ${state.currency.symbol}${state.discountPrice} for you.`;
+                } else {
+                    sellerHtml = `They are okay. I will make it ${state.currency.symbol}${state.discountPrice} for you.`;
+                }
+
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => {
+                    setButtons([
+                        { text: "🤝 Okay! (Pay)", class: "btn-pay", action: () => { state.totalPrice = state.discountPrice; branch('buy_discount'); } },
+                        { text: "👎 No, goodbye.", class: "btn-leave", action: () => branch('leave') }
+                    ]);
+                });
+            }
+
+            else if (choice === 'buy_discount') {
+                const buyerHtml = `Thank you for the good price! Here is ${state.currency.symbol}${state.totalPrice}.`;
+                const sellerHtml = `You are welcome, ${playerName}!`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => { completePurchase(); });
+            }
+
+            else if (choice === 'leave') {
+                const buyerHtml = `No thank you. Goodbye.`;
+                const sellerHtml = `Okay. Goodbye!`;
+                
+                document.getElementById('control-panel').innerHTML = '';
+                playConversation([
+                    { text: buyerHtml, isSeller: false },
+                    { text: sellerHtml, isSeller: true }
+                ], true, () => {
+                    setButtons([{ text: "Shop Again 🛒", class: "btn-next", action: () => returnToSelection() }]);
+                });
+            }
+        }
+
+        function completePurchase() {
+            setButtons([{ text: "Shop Again 🛒", class: "btn-next", action: () => returnToSelection() }]);
+            triggerFireworks();
+            
+            const praises = ['Very Good!', 'Great!', 'Good Job!', 'Awesome!', 'Perfect!'];
+            const praiseEl = document.getElementById('praise-text');
+            praiseEl.innerText = praises[Math.floor(Math.random() * praises.length)];
+            
+            praiseEl.classList.remove('animate-praise');
+            void praiseEl.offsetWidth; 
+            praiseEl.classList.add('animate-praise');
+        }
+
+        function triggerFireworks() {
+            const duration = 2500;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.3, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.3 + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // 50 SIMPLE A1 QUIZ QUESTIONS
+        const quizData = [
+            { q: "What color is a banana 🍌?", options: ["Blue", "Yellow", "Red", "Green"], ans: 1 },
+            { q: "What color is an apple 🍎?", options: ["Purple", "Yellow", "Red", "Black"], ans: 2 },
+            { q: "Which one is a fruit?", options: ["Potato", "Onion", "Apple", "Carrot"], ans: 2 },
+            { q: "Which one is a vegetable?", options: ["Banana", "Orange", "Strawberry", "Carrot"], ans: 3 },
+            { q: "Seller says: 'Hello!' \nBuyer says: '__________'", options: ["Goodbye!", "Hello!", "One dollar.", "Red."], ans: 1 },
+            { q: "Seller says: 'Goodbye!' \nBuyer says: '__________'", options: ["Hello!", "Goodbye!", "Yes.", "Apple."], ans: 1 },
+            { q: "Buyer: 'How much is it?' \nSeller: 'It is __________'", options: ["Red.", "An apple.", "One dollar.", "Yes."], ans: 2 },
+            { q: "Buyer: 'Do you have apples?' \nSeller: 'Yes, I __________'", options: ["do.", "am.", "is.", "have."], ans: 0 },
+            { q: "Buyer: 'Is it good?' \nSeller: 'Yes, it __________'", options: ["am.", "are.", "do.", "is."], ans: 3 },
+            { q: "Count: One, Two, Three, __________", options: ["Five", "Six", "Four", "Ten"], ans: 2 },
+            { q: "Count: Seven, Eight, Nine, __________", options: ["Ten", "Four", "One", "Six"], ans: 0 },
+            { q: "Seller: 'That is two dollars.' \nBuyer: 'Here is two __________'", options: ["Apples", "Dollars", "Bananas", "Yes"], ans: 1 },
+            { q: "Buyer: 'I want an apple.' \nSeller: 'Here __________ go.'", options: ["you", "I", "it", "she"], ans: 0 },
+            { q: "What is 🥔?", options: ["Tomato", "Potato", "Apple", "Orange"], ans: 1 },
+            { q: "What is 🥕?", options: ["Carrot", "Banana", "Onion", "Grapes"], ans: 0 },
+            { q: "What is 🧅?", options: ["Apple", "Orange", "Onion", "Tomato"], ans: 2 },
+            { q: "What is 🍉?", options: ["Grapes", "Watermelon", "Banana", "Strawberry"], ans: 1 },
+            { q: "What color is a carrot 🥕?", options: ["Blue", "Orange", "Red", "Green"], ans: 1 },
+            { q: "What color is broccoli 🥦?", options: ["Green", "Yellow", "Red", "Black"], ans: 0 },
+            { q: "Buyer: 'Do you like bananas?' \nSeller: 'Yes, I __________'", options: ["like.", "do.", "am.", "is."], ans: 1 },
+            { q: "One apple. Two __________.", options: ["Apple", "Apples", "Appless", "Aple"], ans: 1 },
+            { q: "One banana. Three __________.", options: ["Bananas", "Banana", "Banan", "Bananas'"], ans: 0 },
+            { q: "Buyer: 'Thank you.' \nSeller: 'You are __________'", options: ["good.", "welcome.", "hello.", "happy."], ans: 1 },
+            { q: "Buyer: 'I want watermelons.' \nSeller: 'How __________?'", options: ["much", "many", "color", "yes"], ans: 1 },
+            { q: "Buyer: 'How much is the potato?' \nSeller: 'It is one __________'", options: ["dollar.", "apple.", "red.", "yes."], ans: 0 },
+            { q: "What is 🍓?", options: ["Strawberry", "Tomato", "Apple", "Cherry"], ans: 0 },
+            { q: "What is 🍒?", options: ["Grapes", "Cherries", "Apples", "Bananas"], ans: 1 },
+            { q: "What is 🍇?", options: ["Cherries", "Watermelon", "Grapes", "Onion"], ans: 2 },
+            { q: "Buyer: 'Are the apples red?' \nSeller: 'Yes, __________ are.'", options: ["it", "they", "he", "she"], ans: 1 },
+            { q: "Buyer: 'Is the banana yellow?' \nSeller: 'Yes, __________ is.'", options: ["they", "it", "he", "we"], ans: 1 },
+            { q: "Count: Two, Four, Six, __________", options: ["Ten", "Seven", "Eight", "Nine"], ans: 2 },
+            { q: "Seller: 'Do you want a bag?' \nBuyer: 'Yes, __________'", options: ["thank you.", "please.", "no.", "goodbye."], ans: 1 },
+            { q: "Buyer: 'I want __________ apple.'", options: ["a", "an", "two", "red"], ans: 1 },
+            { q: "Buyer: 'I want __________ banana.'", options: ["an", "a", "three", "yellow"], ans: 1 },
+            { q: "Seller: 'Do you have money?' \nBuyer: 'Yes, I __________'", options: ["am.", "have.", "do.", "is."], ans: 2 },
+            { q: "What color is a lemon 🍋?", options: ["Red", "Blue", "Yellow", "Green"], ans: 2 },
+            { q: "What color is an orange 🍊?", options: ["Orange", "Blue", "Red", "Black"], ans: 0 },
+            { q: "Buyer: 'I do not want apples.' \nSeller: 'Okay. Do you want __________?'", options: ["bananas", "banana", "a bananas", "an bananas"], ans: 0 },
+            { q: "Buyer: 'This apple is bad.' \nSeller: 'I am __________'", options: ["happy.", "sorry.", "good.", "hello."], ans: 1 },
+            { q: "Buyer: 'I like fruit.' \nSeller: 'Me __________!'", options: ["two", "too", "to", "do"], ans: 1 },
+            { q: "One dollar. Five __________.", options: ["Dollar", "Dollars", "Money", "Coins"], ans: 1 },
+            { q: "Buyer: 'Where is the market?' \nSeller: 'It is __________ here.'", options: ["in", "on", "over", "at"], ans: 2 },
+            { q: "Buyer: 'Is this a fruit?' \nSeller: 'No, it is a __________'", options: ["vegetable.", "apple.", "red.", "money."], ans: 0 },
+            { q: "Buyer: 'I want five apples.' \nSeller: 'Okay. One, two, three, four, __________.'", options: ["six", "five", "ten", "two"], ans: 1 },
+            { q: "What is 🍅?", options: ["Potato", "Tomato", "Apple", "Strawberry"], ans: 1 },
+            { q: "What is 🌽?", options: ["Carrot", "Corn", "Banana", "Yellow"], ans: 1 },
+            { q: "Buyer: 'Hello. I am hungry.' \nSeller: 'Do you want __________?'", options: ["food", "money", "bag", "goodbye"], ans: 0 },
+            { q: "Buyer: 'Are they good?' \nSeller: 'Yes, they are very __________'", options: ["bad.", "good.", "red.", "one."], ans: 1 },
+            { q: "Seller: 'Goodbye! Have a good __________!'", options: ["day", "apple", "red", "yes"], ans: 0 },
+            { q: "Buyer: 'Thank you for the fruit.' \nSeller: '__________'", options: ["You are welcome.", "Goodbye.", "Yes.", "One dollar."], ans: 0 }
+        ];
+
+        let activeQuizQuestions = [];
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+
+        function startQuiz() {
+            assignVoices();
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            
+            // Randomly select 10 questions for this round
+            activeQuizQuestions = quizData.sort(() => 0.5 - Math.random()).slice(0, 10);
+            
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = quizScore;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = activeQuizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-question-text').innerText = `Q${currentQuestionIndex + 1}: ${q.q}`;
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = '';
+            
+            document.getElementById('quiz-feedback-text').innerText = '';
+            document.getElementById('btn-next-question').style.display = 'none';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsDiv.appendChild(btn);
+            });
+
+            if ('speechSynthesis' in window) {
+                let speakText = q.q.replace(/_+/g, "blank");
+                const utterance = new SpeechSynthesisUtterance(speakText);
+                if(sellerVoice) utterance.voice = sellerVoice;
+                utterance.rate = 0.85; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            window.speechSynthesis.cancel();
+            const q = activeQuizQuestions[currentQuestionIndex];
+            const optionsDiv = document.getElementById('quiz-options');
+            const buttons = optionsDiv.querySelectorAll('.quiz-option-btn');
+
+            buttons.forEach(b => b.disabled = true); 
+
+            if (selectedIndex === q.ans) {
+                btnElement.style.backgroundColor = '#4CAF50';
+                btnElement.style.color = 'white';
+                document.getElementById('quiz-feedback-text').innerText = '✅ Correct!';
+                document.getElementById('quiz-feedback-text').style.color = '#4CAF50';
+                quizScore++;
+                document.getElementById('quiz-score').innerText = quizScore;
+                speakSound("Correct!");
+            } else {
+                btnElement.style.backgroundColor = '#F44336';
+                btnElement.style.color = 'white';
+                document.getElementById('quiz-feedback-text').innerText = '❌ No!';
+                document.getElementById('quiz-feedback-text').style.color = '#F44336';
+                buttons[q.ans].style.backgroundColor = '#4CAF50';
+                buttons[q.ans].style.color = 'white';
+                speakSound("No, that is not correct.");
+            }
+
+            document.getElementById('btn-next-question').style.display = 'inline-block';
+        }
+
+        function speakSound(text) {
+             if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                if(sellerVoice) utterance.voice = sellerVoice;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function nextQuestion() {
+            window.speechSynthesis.cancel();
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuizQuestions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('quiz-question-text').innerText = `Quiz is over! Your score is ${quizScore} / 10.`;
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('quiz-feedback-text').innerText = '';
+                document.getElementById('btn-next-question').style.display = 'none';
+                
+                triggerFireworks();
+                const praiseEl = document.getElementById('praise-text');
+                praiseEl.innerText = 'Good Job!';
+                praiseEl.classList.remove('animate-praise');
+                void praiseEl.offsetWidth; 
+                praiseEl.classList.add('animate-praise');
+                speakSound(`Good job! Your score is ${quizScore}!`);
+                
+                setTimeout(() => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn btn-next';
+                    btn.innerText = 'Play Again ↺';
+                    btn.onclick = () => startQuiz();
+                    document.getElementById('quiz-options').appendChild(btn);
+                }, 1000);
+            }
+        }
+
+        // 15 SIMPLE A1 GRAMMAR QUESTIONS
+        const grammarData = [
+            { q: "One apple. Two __________.", options: ["apples", "apple"], ans: 0, rule: "Rule: Add 's' for two or more. (Apples)" },
+            { q: "I want __________ apple.", options: ["a", "an"], ans: 1, rule: "Rule: Use 'an' before words starting with A, E, I, O, U. (An apple)" },
+            { q: "I want __________ banana.", options: ["a", "an"], ans: 0, rule: "Rule: Use 'a' before consonants. (A banana)" },
+            { q: "The apple __________ red.", options: ["is", "are"], ans: 0, rule: "Rule: Use 'is' for one thing. (The apple is)" },
+            { q: "The apples __________ red.", options: ["is", "are"], ans: 1, rule: "Rule: Use 'are' for two or more things. (The apples are)" },
+            { q: "I __________ bananas.", options: ["want", "wants"], ans: 0, rule: "Rule: With 'I', 'You', 'We', 'They', use 'want'. (I want)" },
+            { q: "Do you __________ money?", options: ["has", "have"], ans: 1, rule: "Rule: Say 'Do you have...?'" },
+            { q: "__________ color is it?", options: ["What", "Who"], ans: 0, rule: "Rule: Use 'What' to ask about color. (What color)" },
+            { q: "How __________ is the apple?", options: ["much", "many"], ans: 0, rule: "Rule: Use 'How much' to ask for the price." },
+            { q: "One potato. Two __________.", options: ["potatos", "potatoes"], ans: 1, rule: "Rule: Words ending in 'o' often add 'es'. (Potatoes)" },
+            { q: "Yes, I __________.", options: ["do", "am"], ans: 0, rule: "Rule: Answer 'Do you...?' with 'Yes, I do.'" },
+            { q: "No, I __________ not.", options: ["do", "does"], ans: 0, rule: "Rule: Use 'do not' with 'I'." },
+            { q: "__________ are five dollars.", options: ["They", "It"], ans: 0, rule: "Rule: Use 'They' for two or more things." },
+            { q: "__________ is one dollar.", options: ["They", "It"], ans: 1, rule: "Rule: Use 'It' for one thing." },
+            { q: "Are __________ good?", options: ["they", "it"], ans: 0, rule: "Rule: Use 'they' for plural things (like apples)." }
+        ];
+
+        let currentGrammarIndex = 0;
+        let grammarScore = 0;
+
+        function startGrammarGame() {
+            assignVoices();
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('grammar-area').style.display = 'block';
+            
+            grammarData.sort(() => Math.random() - 0.5);
+            
+            currentGrammarIndex = 0;
+            grammarScore = 0;
+            document.getElementById('grammar-score').innerText = grammarScore;
+            loadGrammarQuestion();
+        }
+
+        function loadGrammarQuestion() {
+            const q = grammarData[currentGrammarIndex];
+            document.getElementById('grammar-question-text').innerText = q.q;
+            document.getElementById('grammar-rule-box').style.display = 'none';
+            document.getElementById('btn-grammar-next').style.display = 'none';
+            
+            const optionsDiv = document.getElementById('grammar-options');
+            optionsDiv.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'grammar-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkGrammarAnswer(index, btn);
+                optionsDiv.appendChild(btn);
+            });
+
+            if ('speechSynthesis' in window) {
+                let speakText = q.q.replace(/_+/g, "blank");
+                const utterance = new SpeechSynthesisUtterance(speakText);
+                if(sellerVoice) utterance.voice = sellerVoice;
+                utterance.rate = 0.85; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkGrammarAnswer(selectedIndex, btnElement) {
+            window.speechSynthesis.cancel();
+            const q = grammarData[currentGrammarIndex];
+            const buttons = document.querySelectorAll('.grammar-btn');
+            
+            buttons.forEach(b => b.disabled = true);
+
+            const ruleBox = document.getElementById('grammar-rule-box');
+            ruleBox.innerText = q.rule;
+            ruleBox.style.display = 'block';
+
+            if (selectedIndex === q.ans) {
+                btnElement.style.backgroundColor = '#4CAF50';
+                btnElement.style.color = 'white';
+                btnElement.style.borderColor = '#388E3C';
+                grammarScore += 10;
+                document.getElementById('grammar-score').innerText = grammarScore;
+                speakSound("Yes! " + q.rule);
+                ruleBox.style.backgroundColor = '#E8F5E9';
+                ruleBox.style.color = '#2E7D32';
+                ruleBox.style.borderColor = '#4CAF50';
+            } else {
+                btnElement.style.backgroundColor = '#F44336';
+                btnElement.style.color = 'white';
+                btnElement.style.borderColor = '#D32F2F';
+                buttons[q.ans].style.backgroundColor = '#4CAF50';
+                buttons[q.ans].style.color = 'white';
+                speakSound("No. " + q.rule);
+                ruleBox.style.backgroundColor = '#FFEBEE';
+                ruleBox.style.color = '#C62828';
+                ruleBox.style.borderColor = '#F44336';
+            }
+
+            document.getElementById('btn-grammar-next').style.display = 'block';
+        }
+
+        function nextGrammarQuestion() {
+            window.speechSynthesis.cancel();
+            currentGrammarIndex++;
+            if (currentGrammarIndex < 10) {
+                loadGrammarQuestion();
+            } else {
+                document.getElementById('grammar-question-text').innerText = `Game is over! Your score is: ${grammarScore}`;
+                document.getElementById('grammar-options').innerHTML = '';
+                document.getElementById('grammar-rule-box').style.display = 'none';
+                document.getElementById('btn-grammar-next').style.display = 'none';
+                
+                triggerFireworks();
+                const praiseEl = document.getElementById('praise-text');
+                praiseEl.innerText = 'Very Good!';
+                praiseEl.classList.remove('animate-praise');
+                void praiseEl.offsetWidth; 
+                praiseEl.classList.add('animate-praise');
+                speakSound(`Very good! Your score is ${grammarScore}!`);
+
+                setTimeout(() => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn btn-next';
+                    btn.innerText = 'Play Again ↺';
+                    btn.style.display = 'block';
+                    btn.onclick = () => startGrammarGame();
+                    document.getElementById('grammar-options').appendChild(btn);
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
