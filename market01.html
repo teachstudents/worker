@@ -6,6 +6,9 @@
     <title>Global Produce Market: Master Edition (A1-B2)</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        /* Global Box Sizing to prevent width overflows */
+        *, *::before, *::after { box-sizing: border-box; }
+
         :root {
             --primary: #4CAF50;
             --secondary: #FF9800;
@@ -18,8 +21,9 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 10px 20px; /* Adjusted padding */
             text-align: center;
+            overflow-x: hidden; /* Absolute block against horizontal scrolling */
         }
         
         #datetime-header {
@@ -71,13 +75,13 @@
         .quant-btn:hover { background: #2196F3; color: white; transform: scale(1.05); }
 
         /* Conversation Board */
-        .conversation-board { display: flex; flex-direction: column; gap: 15px; background: var(--panel-bg); padding: 20px 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; max-height: 500px; overflow-y: auto; border: 3px solid #E0F7FA; }
-        .chat-message { display: flex; align-items: flex-end; gap: 15px; width: 100%; margin-bottom: 10px; }
-        .seller-message { justify-content: flex-start; margin-right: 30%; padding-right: 0; }
-        .buyer-message { justify-content: flex-end; margin-left: 30%; padding-left: 0; }
-        .chat-avatar { font-size: 3em; background: #f0f0f0; border-radius: 50%; padding: 5px; flex-shrink: 0; }
-        .chat-bubble { padding: 15px 25px; background: #e0f7fa; border-radius: 15px; font-size: 1.25em; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-width: 100%; line-height: 1.5; border: 1px solid #B2EBF2; }
-        .buyer-message .chat-bubble { background: #fff9c4; border: 1px solid #FFF59D; text-align: right; }
+        .conversation-board { display: flex; flex-direction: column; gap: 20px; background: var(--panel-bg); padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; max-height: 600px; overflow-y: auto; overflow-x: hidden; border: 3px solid #E0F7FA; width: 100%; }
+        .chat-message { display: flex; align-items: flex-end; gap: 15px; width: 100%; margin-bottom: 15px; }
+        .seller-message { justify-content: flex-start; }
+        .buyer-message { justify-content: flex-end; }
+        .chat-avatar { font-size: 3.5em; background: #f0f0f0; border-radius: 50%; padding: 5px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .chat-bubble { padding: 20px 30px; background: #e0f7fa; border-radius: 20px; font-size: 1.6em; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-width: 75%; line-height: 1.5; border: 2px solid #B2EBF2; word-wrap: break-word; }
+        .buyer-message .chat-bubble { background: #fff9c4; border: 2px solid #FFF59D; text-align: right; }
         
         /* Produce Display */
         .produce-display { font-size: 4em; margin: 20px 0; padding: 15px; background: #fff; border-radius: 15px; min-height: 70px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; border: 2px dashed #ccc; }
@@ -270,7 +274,7 @@
 
         const targetVoiceNames = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
         const explicitMale = ["Remy", "Giuseppe", "Florian", "Brian", "Andrew", "William", "Guy", "David"];
-        const explicitFemale = ["Vivienne", "Seraphina", "Emma", "Ava", "Jenny", "Aria", "Zira", "Girl"];
+        const explicitFemale = ["Vivienne", "Seraphina", "Emma", "Ava", "Jenny", "Aria", "Zira", "Girl", "Samantha"];
         let sellerVoice = null;
         let buyerVoice = null;
 
@@ -278,24 +282,42 @@
             const voices = window.speechSynthesis.getVoices();
             if(voices.length === 0) return;
 
-            // Strictly filter for the assigned names and ensure they operate in English
+            // 1. STRICTLY target requested names AND force them to be the "Online", "Natural", or "Multilingual" high-quality variants.
             let premiumVoices = voices.filter(v => 
-                v.lang.startsWith('en') && 
-                targetVoiceNames.some(name => v.name.includes(name))
+                targetVoiceNames.some(name => v.name.includes(name)) && 
+                (v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Multilingual'))
             );
             
-            // Absolute fallback only if the specific target voices are totally unavailable on the device
+            // 2. If the user doesn't have the specific names installed, fallback to ANY high-quality "Online/Natural" English voice.
+            if(premiumVoices.length < 2) {
+                premiumVoices = voices.filter(v => 
+                    v.lang.startsWith('en') && 
+                    (v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Premium'))
+                );
+            }
+
+            // 3. Mac/Chrome OS Fallback: Look for the best native Google/Apple voices
+            if(premiumVoices.length < 2) {
+                premiumVoices = voices.filter(v => 
+                    v.lang.startsWith('en') && 
+                    (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel') || v.name.includes('Karen'))
+                );
+            }
+
+            // 4. Absolute fallback only if the device has barely any voices installed
             if(premiumVoices.length < 2) premiumVoices = voices.filter(v => v.lang.startsWith('en'));
 
-            let maleVoices = premiumVoices.filter(v => explicitMale.some(m => v.name.includes(m)));
-            let femaleVoices = premiumVoices.filter(v => explicitFemale.some(f => v.name.includes(f)));
+            // Separate into Male and Female pools based on name identifiers
+            let maleVoices = premiumVoices.filter(v => explicitMale.some(m => v.name.includes(m)) || v.name.includes('Male'));
+            let femaleVoices = premiumVoices.filter(v => explicitFemale.some(f => v.name.includes(f)) || v.name.includes('Female'));
+            
             if(maleVoices.length === 0) maleVoices = premiumVoices;
             if(femaleVoices.length === 0) femaleVoices = premiumVoices;
 
             let mVoice = maleVoices[Math.floor(Math.random() * maleVoices.length)];
             let fVoice = femaleVoices[Math.floor(Math.random() * femaleVoices.length)];
 
-            // GUARANTEE TWO DIFFERENT VOICES: If they match, force an alternative from the pool.
+            // GUARANTEE TWO DIFFERENT VOICES: If they accidentally match, force an alternative.
             if (mVoice && fVoice && mVoice.name === fVoice.name) {
                 let alternative = premiumVoices.find(v => v.name !== mVoice.name);
                 if (alternative) fVoice = alternative;
@@ -304,7 +326,11 @@
             if (Math.random() > 0.5) { sellerVoice = mVoice; buyerVoice = fVoice; } 
             else { sellerVoice = fVoice; buyerVoice = mVoice; }
         }
-        if ('speechSynthesis' in window) { window.speechSynthesis.onvoiceschanged = assignVoices; assignVoices(); }
+        if ('speechSynthesis' in window) { 
+            window.speechSynthesis.getVoices(); // Trigger immediate load
+            window.speechSynthesis.onvoiceschanged = assignVoices; 
+            assignVoices(); 
+        }
 
         function playConversation(dialogueArray, append = false, onCompleteCallback = null) {
             window.speechSynthesis.cancel();
@@ -689,7 +715,9 @@
                 opts.appendChild(b);
             });
             if ('speechSynthesis' in window) { 
+                window.speechSynthesis.cancel(); // Stop any background speaking
                 let u = new SpeechSynthesisUtterance(q.q.replace(/_+/g, "blank")); 
+                if (sellerVoice) u.voice = sellerVoice; // Use the premium voice!
                 u.lang = 'en-US'; // Force English pronunciation
                 u.rate = 0.85; 
                 window.speechSynthesis.speak(u); 
@@ -736,7 +764,9 @@
                 opts.appendChild(b);
             });
             if ('speechSynthesis' in window) { 
+                window.speechSynthesis.cancel(); // Stop any background speaking
                 let u = new SpeechSynthesisUtterance(q.q.replace(/_+/g, "blank")); 
+                if (sellerVoice) u.voice = sellerVoice; // Use the premium voice!
                 u.lang = 'en-US'; // Force English pronunciation
                 u.rate = 0.85; 
                 window.speechSynthesis.speak(u); 
