@@ -12,8 +12,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel (To understand JSX) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Babel (To understand JSX) - Pinned to stable version to prevent import errors -->
+    <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
 
     <style>
         /* Custom Animations */
@@ -53,7 +53,7 @@
 <body class="bg-indigo-50 text-slate-900 overflow-hidden h-screen">
     <div id="root" class="h-full"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-presets="react,env">
         const { useState, useEffect, useCallback, useRef } = React;
 
         const Icon = ({ children, className }) => (
@@ -72,6 +72,7 @@
         const Lightbulb = ({ className }) => <Icon className={className}><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.9.27-1.48.27-2.06a5.5 5.5 0 0 0-9.68-2.67c-.6.94-1.2 2.67-1.2 4.73 0 1.25.4 2 1.25 2H15.09z"></path></Icon>;
         const Check = ({ className }) => <Icon className={className}><polyline points="20 6 9 17 4 12"></polyline></Icon>;
         const Info = ({ className }) => <Icon className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></Icon>;
+        const Layers = ({ className }) => <Icon className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></Icon>;
 
         const conversationData = {
             travel: {
@@ -925,6 +926,477 @@
             ]
         };
 
+        const frameworkData = {
+            travel: {
+                prompt: "Tell me about a place you would like to visit. Why?",
+                paraphrases: [
+                    "The destination I am most eager to explore is...",
+                    "If I could travel anywhere in the world, I would choose...",
+                    "A country I have always dreamt of visiting in the future is..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I firmly believe that Japan is the most fascinating place to visit." },
+                            { label: "Reason", text: "I say this because it perfectly combines traditional culture with modern technology." },
+                            { label: "Example", text: "For instance, you can visit ancient temples in the morning and ride a bullet train in the afternoon." },
+                            { label: "Opinion", text: "Therefore, it is absolutely my top choice for a holiday." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "My ideal travel destination is London." },
+                            { label: "Evidence", text: "It is home to many world-famous historical sites, such as the British Museum." },
+                            { label: "Explanation", text: "Visiting these places will allow me to practice my English and find out more about history." },
+                            { label: "Link", text: "So, that is the main reason London is at the top of my itinerary." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "When I was younger, I used to travel only within my own country with my parents." },
+                            { label: "Present", text: "However, now I am studying English very hard to prepare for going abroad." },
+                            { label: "Future", text: "If I save enough money, I will definitely travel to Europe in a year's time." }
+                        ]
+                    }
+                }
+            },
+            rules: {
+                prompt: "What rules do you have at school? Do you think they are fair?",
+                paraphrases: [
+                    "Regarding the regulations at my school, I feel that...",
+                    "When it comes to our school policies, my opinion is...",
+                    "Thinking about the strict rules we must follow, I believe..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "In my opinion, most of our school rules are completely fair and necessary." },
+                            { label: "Reason", text: "We must have them to keep students safe and focused on their studies." },
+                            { label: "Example", text: "For example, the rule that forbids using mobile phones in class stops us from getting distracted." },
+                            { label: "Opinion", text: "So, I feel that these strict policies actually help us in the long run." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "I believe that the uniform policy at our school is unfair." },
+                            { label: "Evidence", text: "The uniforms are very expensive and the fabric is often quite uncomfortable." },
+                            { label: "Explanation", text: "Because of this, students are often distracted by feeling too hot or too cold during lessons." },
+                            { label: "Link", text: "Therefore, I think the school needs to change this particular rule." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "In primary school, the rules used to be quite relaxed and we had lots of playtime." },
+                            { label: "Present", text: "Currently, my secondary school is very strict, and we have to follow many policies." },
+                            { label: "Future", text: "If I become a teacher in the future, I might make the rules a bit more flexible for my students." }
+                        ]
+                    }
+                }
+            },
+            health: {
+                prompt: "What do you do to stay healthy? How important is exercise?",
+                paraphrases: [
+                    "To maintain a healthy lifestyle, my routine includes...",
+                    "When thinking about fitness, the main things I do are...",
+                    "Looking after my physical and mental wellbeing involves..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I strongly believe that regular exercise is the most important part of my life." },
+                            { label: "Reason", text: "This is because it improves not only my physical strength but also my mental health." },
+                            { label: "Example", text: "For instance, I play basketball three times a week to relax and relieve stress after studying." },
+                            { label: "Opinion", text: "Consequently, I think everyone must find an exercise routine they enjoy." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "A balanced diet is essential for staying active." },
+                            { label: "Evidence", text: "Eating plenty of vegetables and avoiding junk food gives you necessary vitamins." },
+                            { label: "Explanation", text: "These nutrients provide the energy you need to concentrate in class and perform well in sports." },
+                            { label: "Link", text: "That is why I focus so much on what I eat to maintain my wellbeing." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "A few years ago, I used to eat a lot of unhealthy snacks and rarely exercised." },
+                            { label: "Present", text: "Right now, I am trying hard to eat a balanced diet and I go jogging frequently." },
+                            { label: "Future", text: "If I keep up this good habit, I will definitely join the school athletics team next year." }
+                        ]
+                    }
+                }
+            },
+            money: {
+                prompt: "If you want to buy a new computer, what will you need to do?",
+                paraphrases: [
+                    "In order to afford something expensive like a PC, I would...",
+                    "If I needed to purchase a new laptop, my strategy would be to...",
+                    "To save up enough money for new technology, I plan to..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I feel that saving up for a computer requires a lot of discipline." },
+                            { label: "Reason", text: "Technology is very expensive, so you have to stop wasting money on small things." },
+                            { label: "Example", text: "For example, I would give up buying snacks and designer clothes to keep my money in the bank." },
+                            { label: "Opinion", text: "In conclusion, budgeting carefully is the only way I could afford it." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "To buy a new computer, I will need to find a part-time job." },
+                            { label: "Evidence", text: "My pocket money alone is not enough to cover such a large expense." },
+                            { label: "Explanation", text: "By working on weekends, I can earn extra currency and reach my financial goal faster." },
+                            { label: "Link", text: "Therefore, getting a job is the most practical solution for me." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "When I was a child, my parents used to buy me everything I needed." },
+                            { label: "Present", text: "Now, I am learning about financial independence and managing my own savings." },
+                            { label: "Future", text: "If I save half of my allowance every week, I will have enough to buy the computer in a year's time." }
+                        ]
+                    }
+                }
+            },
+            fashion: {
+                prompt: "In your opinion, do teenagers care too much about designer brands?",
+                paraphrases: [
+                    "When considering teenage fashion, I feel that...",
+                    "Regarding the obsession with designer labels, I believe...",
+                    "My view on whether young people care too much about brands is..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I firmly believe teenagers spend far too much money on designer brands." },
+                            { label: "Reason", text: "Many students feel they have to wear famous logos just to fit in with their peers." },
+                            { label: "Example", text: "For instance, my classmates often waste their entire allowance on a single pair of sneakers." },
+                            { label: "Opinion", text: "Therefore, I think they should focus less on labels and more on comfortable clothing." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "Designer brands are definitely a huge distraction for teenagers." },
+                            { label: "Evidence", text: "We constantly see celebrities wearing fast fashion on social media." },
+                            { label: "Explanation", text: "Because of this, young people feel immense pressure to copy these expensive outfits." },
+                            { label: "Link", text: "So, that proves society makes teenagers care too much about expensive fashion." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "When I was in primary school, I used to wear whatever my parents bought me." },
+                            { label: "Present", text: "Now, I have to admit I am saving up for a branded jacket." },
+                            { label: "Future", text: "However, in a few years' time, I might give up buying expensive brands altogether." }
+                        ]
+                    }
+                }
+            },
+            language: {
+                prompt: "Why do people learn English? What methods work best for you?",
+                paraphrases: [
+                    "The main reason individuals study English is...",
+                    "When it comes to mastering a foreign language, I find that...",
+                    "Regarding the best strategies for learning English, my approach is..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I think the best way to learn English is by watching movies without subtitles." },
+                            { label: "Reason", text: "It allows you to hear how native speakers actually communicate in real life." },
+                            { label: "Example", text: "For example, I was watching a comedy series last night and learned three new idioms." },
+                            { label: "Opinion", text: "Thus, using multimedia is the most effective learning strategy for me." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "People mainly learn English to increase their future opportunities." },
+                            { label: "Evidence", text: "Most international businesses require employees to be entirely bilingual." },
+                            { label: "Explanation", text: "If you are fluent, you will easily find a well-paying job or university placement abroad." },
+                            { label: "Link", text: "Consequently, career and academic advancement are the primary motivations for studying." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "I used to just translate grammar rules, which was extremely boring." },
+                            { label: "Present", text: "Currently, I am taking an online conversation class to build my confidence." },
+                            { label: "Future", text: "If I become fluent, I will definitely study abroad in a year's time." }
+                        ]
+                    }
+                }
+            },
+            environment: {
+                prompt: "If we don't reduce plastic waste, what will happen to the oceans?",
+                paraphrases: [
+                    "Regarding the issue of plastic pollution, the consequence will be...",
+                    "If we fail to cut down on single-use plastics, the marine environment...",
+                    "When thinking about the future of our oceans, I believe..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I strongly believe that plastic waste will completely destroy our oceans." },
+                            { label: "Reason", text: "Sea creatures often mistake the floating plastic for food and consume it." },
+                            { label: "Example", text: "For instance, turtles eat plastic bags because they think they are jellyfish." },
+                            { label: "Opinion", text: "Because of this, we absolutely must ban single-use plastics globally." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "Failing to reduce plastic waste will devastate marine habitats." },
+                            { label: "Evidence", text: "Millions of tons of non-biodegradable waste enter the ocean every single year." },
+                            { label: "Explanation", text: "This massive amount of pollution poisons the water and kills endangered wildlife." },
+                            { label: "Link", text: "Therefore, reducing our carbon footprint and recycling is essential for survival." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "People used to throw rubbish away without thinking about the environmental consequences." },
+                            { label: "Present", text: "Nowadays, we are trying to use eco-friendly paper bags instead to protect nature." },
+                            { label: "Future", text: "If we don't change our habits immediately, the oceans will become lifeless in 50 years' time." }
+                        ]
+                    }
+                }
+            },
+            festivals: {
+                prompt: "What is your favourite festival and why?",
+                paraphrases: [
+                    "The celebration I enjoy the most is...",
+                    "If I had to choose a favorite traditional event, it would be...",
+                    "The festival that holds the most meaning for me is..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "My absolute favourite celebration is the Lunar New Year." },
+                            { label: "Reason", text: "It is the only time of year when my entire extended family gathers together." },
+                            { label: "Example", text: "For example, we always eat traditional dumplings and watch the midnight fireworks." },
+                            { label: "Opinion", text: "So, the strong sense of community makes it the best historic holiday." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "The Mid-Autumn Festival is the most important holiday for me." },
+                            { label: "Evidence", text: "We always celebrate by eating mooncakes and admiring the full moon." },
+                            { label: "Explanation", text: "These customs help us remember our historic traditions and honor our ancestors." },
+                            { label: "Link", text: "That is why this festival is so special and meaningful to my family." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "When I was a child, I used to love receiving lucky money in red envelopes." },
+                            { label: "Present", text: "Now, I am helping my parents cook the massive festival feast." },
+                            { label: "Future", text: "Next year, we might travel abroad to celebrate instead of staying at home." }
+                        ]
+                    }
+                }
+            },
+            entertainment: {
+                prompt: "Why do people enjoy watching horror movies?",
+                paraphrases: [
+                    "The reason audiences love scary films is...",
+                    "When considering why horror is such a popular genre, I think...",
+                    "Regarding the appeal of frightening movies, my view is..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I feel that people watch horror movies because they love the adrenaline rush." },
+                            { label: "Reason", text: "Experiencing intense fear in a safe environment is actually very thrilling." },
+                            { label: "Example", text: "For instance, I was watching a horror movie last night and jumping at the jump-scares was surprisingly fun." },
+                            { label: "Opinion", text: "Therefore, it's the exciting plot that makes the genre so popular." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "Horror movies are popular because they provide an escape from reality." },
+                            { label: "Evidence", text: "Viewers get completely absorbed in the terrifying plot and forget their daily stress." },
+                            { label: "Explanation", text: "When you are watching a scary scene, you aren't thinking about your exams." },
+                            { label: "Link", text: "Consequently, this intense distraction is exactly what makes them enjoyable." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "I used to be terrified of horror movies and would hide behind the sofa." },
+                            { label: "Present", text: "Nowadays, I am watching thriller series on streaming platforms quite often." },
+                            { label: "Future", text: "If a new horror blockbuster comes out next week, I will definitely buy a ticket." }
+                        ]
+                    }
+                }
+            },
+            music: {
+                prompt: "What instrument did you use to play when you were younger?",
+                paraphrases: [
+                    "When reflecting on my musical background, I played...",
+                    "The musical instrument I practiced during my childhood was...",
+                    "Regarding my past experience with music, I used to..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I think learning the piano was the best decision my parents made for me." },
+                            { label: "Reason", text: "It taught me a huge amount of discipline and patience." },
+                            { label: "Example", text: "For example, I had to practice melodies for an hour every day before I could go out." },
+                            { label: "Opinion", text: "So, even though it was hard, playing an instrument was incredibly beneficial." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "I used to play the guitar, but I eventually had to give it up." },
+                            { label: "Evidence", text: "I found the chords too difficult and it hurt my fingers to press the strings." },
+                            { label: "Explanation", text: "Because of the physical pain, I lost my motivation to continue practicing." },
+                            { label: "Link", text: "That explains why I am no longer performing an instrument today." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "I used to play the violin in my primary school classical orchestra." },
+                            { label: "Present", text: "Now, I simply listen to background music to help me concentrate on studying." },
+                            { label: "Future", text: "In a few years' time, I might take up the drums just to relax." }
+                        ]
+                    }
+                }
+            },
+            shopping: {
+                prompt: "What is your opinion on online shopping?",
+                paraphrases: [
+                    "My view on purchasing goods via the internet is...",
+                    "When comparing online stores to physical malls, I feel...",
+                    "Regarding the trend of e-commerce, I believe..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I firmly believe that online shopping is much better than going to a mall." },
+                            { label: "Reason", text: "It is incredibly convenient and saves a massive amount of time." },
+                            { label: "Example", text: "For instance, I was ordering a new pair of sneakers from my bed yesterday." },
+                            { label: "Opinion", text: "Therefore, I rarely go out window shopping anymore." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "Online shopping has a major drawback regarding quality control." },
+                            { label: "Evidence", text: "You cannot try on clothes or see the true quality of the fabric before paying." },
+                            { label: "Explanation", text: "This means customers frequently have to return items and wait for refunds." },
+                            { label: "Link", text: "Consequently, buying clothes online can actually be quite frustrating." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "My family used to spend every Saturday window shopping in the city center." },
+                            { label: "Present", text: "Currently, we are buying almost all our groceries through an app for delivery." },
+                            { label: "Future", text: "If online delivery gets even faster, physical supermarkets might completely disappear." }
+                        ]
+                    }
+                }
+            },
+            sports: {
+                prompt: "Do you think students have to play team sports to learn cooperation?",
+                paraphrases: [
+                    "Regarding the necessity of team sports in school, I think...",
+                    "When considering how teenagers learn teamwork, my opinion is...",
+                    "My view on whether athletic teams teach cooperation is..."
+                ],
+                frameworks: {
+                    OREO: {
+                        name: "O.R.E.O. (Opinion, Reason, Example, Opinion)",
+                        desc: "Best for sharing and justifying your thoughts clearly.",
+                        sentences: [
+                            { label: "Opinion", text: "I strongly believe that team sports are essential for learning how to work together." },
+                            { label: "Reason", text: "You cannot win a match by yourself; you must rely on your teammates." },
+                            { label: "Example", text: "For example, in basketball, passing the ball is just as important as scoring." },
+                            { label: "Opinion", text: "Because of this, every student should have to join a school team." }
+                        ]
+                    },
+                    PEEL: {
+                        name: "P.E.E.L. (Point, Evidence, Explanation, Link)",
+                        desc: "Best for structured, logical arguments.",
+                        sentences: [
+                            { label: "Point", text: "Team sports are not the only way to learn cooperation." },
+                            { label: "Evidence", text: "Students can also learn teamwork through group projects or the school band." },
+                            { label: "Explanation", text: "These activities also require listening to others and working towards a shared goal." },
+                            { label: "Link", text: "Therefore, forcing students to play sports isn't strictly necessary." }
+                        ]
+                    },
+                    PPF: {
+                        name: "P.P.F. (Past, Present, Future)",
+                        desc: "Best for Trinity Exams to show off different tenses.",
+                        sentences: [
+                            { label: "Past", text: "I used to play football, but we argued all the time instead of cooperating." },
+                            { label: "Present", text: "Now, I am training for a solo running tournament which I find much less stressful." },
+                            { label: "Future", text: "If I go to university, I might join a rowing team to try cooperating again." }
+                        ]
+                    }
+                }
+            }
+        };
+
         const ExamplesTool = ({ timerProps }) => {
             const [selectedArea, setSelectedArea] = useState(null);
 
@@ -1476,18 +1948,135 @@
                                     <BookOpen size={16} /> Required Vocabulary
                                 </div>
                                 {topicData.vocab.length > 0 ? (
-                                    <ul className="flex flex-wrap gap-1.5">
-                                        {topicData.vocab.map((word, i) => (
-                                            <li key={i} className="bg-white px-2 py-1 rounded-md text-[13px] font-medium text-indigo-900 shadow-sm border border-indigo-200">
-                                                {word}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className="text-sm text-indigo-400 text-center mt-6 font-medium">Load a sample to see suggested words...</div>
-                                )}
+                                <ul className="flex flex-wrap gap-1.5">
+                                    {topicData.vocab.map((word, i) => (
+                                        <li key={i} className="bg-white px-2 py-1 rounded-md text-[13px] font-medium text-indigo-900 shadow-sm border border-indigo-200">
+                                            {word}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div className="text-sm text-indigo-400 text-center mt-6 font-medium">Load a sample to see suggested words...</div>
+                            )}
                             </div>
                         </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const FrameworksTool = ({ timerProps }) => {
+            const [selectedTopic, setSelectedTopic] = useState('travel');
+            const [selectedFramework, setSelectedFramework] = useState('OREO');
+
+            const data = frameworkData[selectedTopic];
+
+            return (
+                <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex justify-between items-center mb-2 flex-shrink-0">
+                        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <Layers className="w-6 h-6 text-emerald-600" />
+                            Structure & Paraphrase (Level 6)
+                        </h2>
+                        <div className="flex gap-2 items-center">
+                            <PhaseTimer {...timerProps} />
+                        </div>
+                    </div>
+                    
+                    {/* Topic Selection */}
+                    <div className="flex-shrink-0 flex gap-2 mb-4 overflow-x-auto pb-1">
+                        {Object.keys(frameworkData).map((key) => (
+                            <button
+                                key={key}
+                                onClick={() => setSelectedTopic(key)}
+                                className={`px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-all border ${
+                                    selectedTopic === key 
+                                    ? 'bg-emerald-600 text-white border-emerald-700' 
+                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-emerald-50'
+                                }`}
+                            >
+                                {key.charAt(0).toUpperCase() + key.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-4 h-full overflow-hidden">
+                        
+                        {/* Left Column: Prompt and Paraphrasing */}
+                        <div className="w-1/3 flex flex-col gap-4 overflow-y-auto pr-1">
+                            <div className="bg-slate-800 text-white p-4 rounded-xl shadow-md border border-slate-700">
+                                <div className="text-xs font-black uppercase tracking-wider text-emerald-400 mb-2">Examiner Prompt</div>
+                                <div className="text-lg font-medium leading-relaxed">"{data.prompt}"</div>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-xl shadow-md border border-slate-200 flex-grow">
+                                <div className="flex items-center gap-2 mb-3 border-b border-slate-100 pb-2">
+                                    <div className="bg-emerald-100 text-emerald-700 w-6 h-6 rounded-full flex items-center justify-center font-black text-xs">1</div>
+                                    <h3 className="font-bold text-slate-800 text-sm">Paraphrase the Opening</h3>
+                                </div>
+                                <p className="text-xs text-slate-500 mb-3 font-medium">Never repeat the question exactly. Choose one of these advanced openings to start your answer:</p>
+                                
+                                <div className="space-y-3">
+                                    {data.paraphrases.map((para, idx) => (
+                                        <div key={idx} className="bg-emerald-50 p-3 rounded-lg border border-emerald-100 hover:border-emerald-300 transition-colors cursor-pointer group">
+                                            <div className="text-emerald-800 font-medium text-sm group-hover:text-emerald-900">
+                                                "{para}"
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column: Frameworks */}
+                        <div className="w-2/3 bg-white p-4 rounded-xl shadow-md border border-slate-200 flex flex-col overflow-hidden">
+                            <div className="flex items-center gap-2 mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
+                                <div className="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-full flex items-center justify-center font-black text-xs">2</div>
+                                <h3 className="font-bold text-slate-800 text-sm">Build the Answer (Second Sentence & Beyond)</h3>
+                            </div>
+                            
+                            {/* Framework Tabs */}
+                            <div className="flex gap-2 mb-4 flex-shrink-0 bg-slate-100 p-1 rounded-lg">
+                                {Object.keys(data.frameworks).map(fwKey => (
+                                    <button
+                                        key={fwKey}
+                                        onClick={() => setSelectedFramework(fwKey)}
+                                        className={`flex-1 py-1.5 rounded-md text-xs font-black transition-all ${
+                                            selectedFramework === fwKey
+                                            ? 'bg-white text-indigo-700 shadow-sm'
+                                            : 'text-slate-500 hover:text-indigo-600 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                        {fwKey}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex-grow overflow-y-auto">
+                                <div className="mb-4">
+                                    <h4 className="font-black text-indigo-900 text-lg">{data.frameworks[selectedFramework].name}</h4>
+                                    <p className="text-sm text-slate-500 font-medium mt-1">{data.frameworks[selectedFramework].desc}</p>
+                                </div>
+
+                                <div className="space-y-3 relative">
+                                    {/* Connecting Line */}
+                                    <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-indigo-100 z-0"></div>
+
+                                    {data.frameworks[selectedFramework].sentences.map((sent, idx) => (
+                                        <div key={idx} className="flex gap-4 relative z-10 animate-in fade-in slide-in-from-right-4" style={{ animationDelay: `${idx * 100}ms` }}>
+                                            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white">
+                                                {sent.label.charAt(0)}
+                                            </div>
+                                            <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 flex-grow shadow-sm">
+                                                <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 mb-1">{sent.label}</div>
+                                                <div className="text-indigo-900 text-[15px] font-medium leading-relaxed">"{sent.text}"</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             );
@@ -1587,6 +2176,9 @@
                             <button onClick={() => setActiveTab('dashboard')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                                 <BookOpen size={16} /> Topic Planner
                             </button>
+                            <button onClick={() => setActiveTab('frameworks')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'frameworks' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                                <Layers size={16} /> Structure & Paraphrase
+                            </button>
                             <button onClick={() => setActiveTab('examples')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'examples' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                                 <Lightbulb size={16} /> Model Answers
                             </button>
@@ -1610,6 +2202,7 @@
                         <div className="bg-white rounded-2xl shadow-xl h-full overflow-hidden border border-slate-200 flex-grow">
                             <div className="h-full p-4 bg-slate-50/50">
                                 {activeTab === 'dashboard' && <TopicBuilder timerProps={timerProps} onReward={triggerReward} />}
+                                {activeTab === 'frameworks' && <FrameworksTool timerProps={timerProps} />}
                                 {activeTab === 'examples' && <ExamplesTool timerProps={timerProps} />}
                                 {activeTab === 'conversation' && <ConversationTool timerProps={timerProps} />}
                                 {activeTab === 'mock' && <MockExamTool timerProps={timerProps} onReward={triggerReward} />}
