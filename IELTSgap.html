@@ -74,31 +74,37 @@
             align-items: center;
             background: var(--dark);
             color: white;
-            padding: 8px 12px;          /* reduced padding */
+            padding: 8px 12px;
             border-radius: 8px;
-            margin-bottom: 12px;       /* smaller gap under header */
-            flex-wrap: wrap;
-            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: nowrap; /* Prevent wrapping onto multiple lines */
+            gap: 15px;
             box-shadow: 0 3px 8px rgba(0,0,0,0.12);
             position: sticky;
             top: 8px;
             z-index: 100;
-            height: 56px;              /* fixed compact height */
+            height: 56px;
             min-height: 56px;
-            overflow: hidden;          /* prevent header from growing */
+            overflow-x: auto; /* Enable horizontal scrolling if screen is too narrow */
+            overflow-y: hidden;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+        .unified-header::-webkit-scrollbar {
+            display: none; /* Hide scrollbar Chrome/Safari */
         }
 
         /* make the info text smaller and tighter */
         .header-info {
             display: flex;
             gap: 12px;
-            font-size: 13px;           /* reduced font-size */
+            font-size: 13px !important; /* Force constant size */
             align-items: center;
+            white-space: nowrap; /* Prevent text wrapping */
         }
         .header-info span { 
             font-weight: 600; 
             color: #ecf0f1; 
-            font-size: 13px;
+            font-size: 13px !important;
         }
 
         /* smaller buttons group */
@@ -106,22 +112,24 @@
             display: flex;
             gap: 6px;
             align-items: center;
-            flex-wrap: nowrap;
+            flex-wrap: nowrap; /* Prevent wrapping */
         }
 
         /* compact action buttons */
         .action-btn {
-            padding: 6px 10px;         /* reduced */
+            padding: 6px 10px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             color: white;
-            font-size: 12px;           /* slightly smaller */
+            font-size: 12px !important; /* Force constant size */
             font-weight: bold;
             transition: 0.15s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap; /* Prevent text wrapping */
+            height: 32px; /* Fixed height so they don't stretch */
         }
         .btn-play { background: var(--accent); }
         .btn-play.playing { background: #e67e22; }
@@ -130,12 +138,13 @@
         .btn-answers { background: #e74c3c; } 
         .btn-print { background: #16a085; }
         
-        /* keep the big submit button separate (with original colours/shadows) */
+        /* keep the big submit button separate */
         .action-btn.btn-check {
-            font-size: 15px;
+            font-size: 15px !important;
             padding: 10px 22px;
             width: 100%;
             margin-top: 10px;
+            height: auto;
             background: var(--success); 
             box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
         }
@@ -206,7 +215,7 @@
         }
 
         @media print {
-            body { background: white; color: black; }
+            body { background: white; color: black; font-size: 12pt !important; }
             .unified-header { 
                 position: static; 
                 background: transparent; 
@@ -222,7 +231,7 @@
             #display-score { display: none; }
             .header-controls, .btn-check, #feedback-area, #transcript-box, #answer-key-box { display: none !important; }
             .test-content-wrapper { box-shadow: none; padding: 0; }
-            .test-title-display { color: black; border-bottom: 2px solid black; }
+            .test-title-display { color: black; border-bottom: 2px solid black; font-size: 16pt !important; }
             .answer-input { 
                 border: none; 
                 border-bottom: 1px solid black; 
@@ -230,11 +239,12 @@
                 background: transparent !important;
                 color: black !important;
                 padding: 0 5px;
+                font-size: 12pt !important;
             }
             .answer-input::placeholder { color: transparent; }
             .question-block { page-break-inside: avoid; border-bottom: none; margin-bottom: 15px; }
-            .mcq-options, .matching-legend { background: transparent; border: 1px solid #ccc; color: black; }
-            .question-label { color: black; }
+            .mcq-options, .matching-legend { background: transparent; border: 1px solid #ccc; color: black; font-size: 12pt !important; }
+            .question-label { color: black; font-size: 12pt !important; line-height: 1.5 !important; }
         }
     </style>
 </head>
