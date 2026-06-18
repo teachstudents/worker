@@ -87,31 +87,40 @@
                 
                 // Target designated Microsoft Multilingual Online Voices
                 const targetNames = ['Remy', 'Giuseppe', 'Vivienne', 'Florian', 'Seraphina', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
-                let selectedVoice = voices.find(v => targetNames.some(name => v.name.toLowerCase().includes(name.toLowerCase())) && v.lang.startsWith('en'));
                 
-                if (!selectedVoice) {
-                    selectedVoice = voices.find(v => v.name.includes('Microsoft') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en'));
+                // Find matching target voices
+                const availableTargetVoices = voices.filter(v => 
+                    targetNames.some(name => v.name.toLowerCase().includes(name.toLowerCase())) && v.lang.startsWith('en')
+                );
+                
+                // STRICT RULE: No fallback. Block unauthorized voices.
+                if (availableTargetVoices.length === 0) {
+                    console.warn("No authorized Microsoft Multilingual voices found. TTS disabled.");
+                    return; 
                 }
+
+                // Pick a random designated voice for variety
+                utterance.voice = availableTargetVoices[Math.floor(Math.random() * availableTargetVoices.length)];
                 
-                if (selectedVoice) utterance.voice = selectedVoice;
+                // Adjust speed/pitch slightly for better clarity
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+
                 window.speechSynthesis.speak(utterance);
             }, [voices]);
 
             return <TTSContext.Provider value={{ speak }}>{children}</TTSContext.Provider>;
         };
 
-        const TTSText = ({ text, children, className = "", iconColor = "text-indigo-400" }) => {
+        const TTSText = ({ text, children, className = "" }) => {
             const { speak } = React.useContext(TTSContext);
             return (
                 <div 
                     onClick={(e) => { e.stopPropagation(); speak(text); }}
-                    className={`group cursor-pointer flex gap-2 items-start p-3 rounded-xl hover:bg-slate-200/60 transition-colors active:scale-[0.99] ${className}`}
+                    className={`group cursor-pointer flex gap-3 items-start p-5 md:p-6 rounded-2xl hover:bg-slate-200/50 hover:shadow-md border border-transparent hover:border-slate-300 transition-all active:scale-[0.99] ${className}`}
                     title="Push to listen"
                 >
                     <div className="flex-1 w-full">{children}</div>
-                    <button className={`p-1.5 rounded-full bg-white/50 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-all flex-shrink-0 ${iconColor}`}>
-                        <Volume2 className="w-4 h-4" />
-                    </button>
                 </div>
             );
         };
@@ -636,7 +645,7 @@
                             <span className="absolute top-6 left-6 text-xs font-black uppercase text-indigo-400 tracking-wider bg-indigo-50 px-3 py-1 rounded-full">
                                 Topic: {conversationData[selectedArea].title}
                             </span>
-                            <TTSText text={currentQuestion} className="w-full mt-8" iconColor="text-indigo-600">
+                            <TTSText text={currentQuestion} className="w-full mt-10 bg-indigo-50/40 border border-indigo-100/50 shadow-sm" iconColor="text-indigo-600">
                                 <p className="text-3xl md:text-4xl font-semibold text-slate-800 leading-tight animate-in fade-in slide-in-from-top-4 duration-500">
                                     "{currentQuestion}"
                                 </p>
@@ -746,8 +755,8 @@
                                     <div key={idx} className={`mb-4 flex ${line.role === 'E' ? 'justify-start' : (line.role === 'Note' ? 'justify-center' : 'justify-end')}`}>
                                         <TTSText 
                                             text={line.text}
-                                            className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm md:text-base shadow-sm font-medium
-                                            ${line.role === 'E' ? 'bg-white text-slate-800 border-l-4 border-indigo-500' : ''}
+                                            className={`max-w-[85%] text-sm md:text-base shadow-sm font-medium
+                                            ${line.role === 'E' ? 'bg-white text-slate-800 border-l-4 border-l-indigo-500' : ''}
                                             ${line.role === 'C' ? 'bg-indigo-100 text-indigo-900 italic' : ''}
                                             ${line.role === 'Note' ? 'bg-amber-100 text-amber-900 font-bold border-2 border-amber-300 animate-pulse text-center' : ''}
                                         `}>
@@ -846,9 +855,13 @@
                     <div className="flex gap-4 h-full overflow-hidden">
                         <div className="bg-white p-0 rounded-2xl shadow-sm border border-slate-200 overflow-y-auto flex-grow flex flex-col">
                             <div className="space-y-1 flex-shrink-0 p-4 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
-                                <div className="flex justify-between items-center mb-1">
-                                    <label className="text-xs font-black uppercase text-slate-500 tracking-wider">Prepared Topic Title</label>
-                                    <button onClick={() => speak(topicData.title)} className="text-purple-400 hover:text-purple-600"><Volume2 className="w-4 h-4" /></button>
+                                <div className="mb-2">
+                                    <label 
+                                        onClick={() => speak(topicData.title)} 
+                                        className="text-xs font-black uppercase text-slate-700 tracking-wider cursor-pointer bg-slate-200 hover:bg-slate-300 p-2.5 rounded-lg transition-all inline-block shadow-sm"
+                                    >
+                                        Prepared Topic Title (Listen)
+                                    </label>
                                 </div>
                                 <input 
                                     value={topicData.title} 
@@ -861,9 +874,11 @@
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-grow p-4 bg-slate-100/50">
                                 <div className="p-3 border border-blue-200 rounded-xl bg-blue-50/50 flex flex-col h-full shadow-sm">
-                                    <label className="text-xs font-black text-blue-700 flex justify-between items-center mb-2 uppercase tracking-wide">
-                                        <span>1. Past Habit (Used to...)</span>
-                                        <button onClick={() => speak(topicData.point1)} className="text-blue-400 hover:text-blue-600"><Volume2 className="w-4 h-4" /></button>
+                                    <label 
+                                        onClick={() => speak(topicData.point1)} 
+                                        className="text-xs font-black text-blue-800 uppercase tracking-wide cursor-pointer bg-blue-200 hover:bg-blue-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        1. Past Habit (Used to...) - Listen
                                     </label>
                                     <textarea 
                                         value={topicData.point1} 
@@ -873,9 +888,11 @@
                                     ></textarea>
                                 </div>
                                 <div className="p-3 border border-emerald-200 rounded-xl bg-emerald-50/50 flex flex-col h-full shadow-sm">
-                                    <label className="text-xs font-black text-emerald-700 flex justify-between items-center mb-2 uppercase tracking-wide">
-                                        <span>2. Past Cont. (was/were ...ing)</span>
-                                        <button onClick={() => speak(topicData.point2)} className="text-emerald-400 hover:text-emerald-600"><Volume2 className="w-4 h-4" /></button>
+                                    <label 
+                                        onClick={() => speak(topicData.point2)} 
+                                        className="text-xs font-black text-emerald-800 uppercase tracking-wide cursor-pointer bg-emerald-200 hover:bg-emerald-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        2. Past Cont. (was/were ...ing) - Listen
                                     </label>
                                     <textarea 
                                         value={topicData.point2} 
@@ -885,9 +902,11 @@
                                     ></textarea>
                                 </div>
                                 <div className="p-3 border border-amber-200 rounded-xl bg-amber-50/50 flex flex-col h-full shadow-sm">
-                                    <label className="text-xs font-black text-amber-700 flex justify-between items-center mb-2 uppercase tracking-wide">
-                                        <span>3. Opinion (I think...)</span>
-                                        <button onClick={() => speak(topicData.point3)} className="text-amber-400 hover:text-amber-600"><Volume2 className="w-4 h-4" /></button>
+                                    <label 
+                                        onClick={() => speak(topicData.point3)} 
+                                        className="text-xs font-black text-amber-800 uppercase tracking-wide cursor-pointer bg-amber-200 hover:bg-amber-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        3. Opinion (I think...) - Listen
                                     </label>
                                     <textarea 
                                         value={topicData.point3} 
@@ -897,9 +916,11 @@
                                     ></textarea>
                                 </div>
                                 <div className="p-3 border border-pink-200 rounded-xl bg-pink-50/50 flex flex-col h-full shadow-sm">
-                                    <label className="text-xs font-black text-pink-700 flex justify-between items-center mb-2 uppercase tracking-wide">
-                                        <span>4. Cond/Future (If... I will...)</span>
-                                        <button onClick={() => speak(topicData.point4)} className="text-pink-400 hover:text-pink-600"><Volume2 className="w-4 h-4" /></button>
+                                    <label 
+                                        onClick={() => speak(topicData.point4)} 
+                                        className="text-xs font-black text-pink-800 uppercase tracking-wide cursor-pointer bg-pink-200 hover:bg-pink-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        4. Cond/Future (If... I will...) - Listen
                                     </label>
                                     <textarea 
                                         value={topicData.point4} 
@@ -913,9 +934,13 @@
                             <div className="p-4 bg-red-50 border-t border-red-200 rounded-b-2xl flex items-center gap-4 flex-shrink-0">
                                 <AlertCircle className="text-red-500 w-8 h-8 flex-shrink-0" />
                                 <div className="flex-grow">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <label className="text-xs font-black text-red-700 uppercase tracking-wide">Question for Examiner:</label>
-                                        <button onClick={() => speak(topicData.question)} className="text-red-400 hover:text-red-600"><Volume2 className="w-4 h-4" /></button>
+                                    <div className="mb-2">
+                                        <label 
+                                            onClick={() => speak(topicData.question)} 
+                                            className="text-xs font-black text-red-800 uppercase tracking-wide cursor-pointer bg-red-200 hover:bg-red-300 p-2.5 rounded-lg transition-all inline-block shadow-sm"
+                                        >
+                                            Question for Examiner (Listen)
+                                        </label>
                                     </div>
                                     <input 
                                         value={topicData.question} 
@@ -1002,7 +1027,7 @@
                         </section>
 
                         <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                            <h3 className="text-lg font-black text-rose-900 mb-4 flex items-center gap-2"><Volume2 className="w-5 h-5"/> Phonological Criteria</h3>
+                            <h3 className="text-lg font-black text-rose-900 mb-4 flex items-center gap-2"><Play className="w-5 h-5"/> Phonological Criteria</h3>
                             <ul className="space-y-3 text-sm font-medium text-slate-700">
                                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Clear pronunciation of topic vocabulary</li>
                                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Sentence stress for meaning clarification</li>
@@ -1055,13 +1080,13 @@
                             <div className="space-y-6">
                                 {exampleData[selectedArea].map((ex, i) => (
                                     <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-in fade-in slide-in-from-bottom-4">
-                                        <TTSText text={ex.q} className="border-b border-slate-100 mb-4 pb-4">
+                                        <TTSText text={ex.q} className="mb-4 bg-slate-50 border border-slate-100 shadow-sm" iconColor="text-indigo-500">
                                             <div className="font-black text-lg text-slate-800 flex gap-3 items-center">
                                                 <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-sm">Q</span> 
                                                 {ex.q}
                                             </div>
                                         </TTSText>
-                                        <TTSText text={ex.a} className="bg-indigo-50/50 border border-indigo-100/50 mb-4 rounded-xl" iconColor="text-amber-500">
+                                        <TTSText text={ex.a} className="bg-indigo-50 border border-indigo-100 mb-6 shadow-sm" iconColor="text-amber-600">
                                             <div className="text-indigo-900 text-base font-medium leading-relaxed flex gap-3">
                                                 <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg text-sm h-fit">A</span>
                                                 "{ex.a}"
@@ -1136,10 +1161,10 @@
                             <>
                         {/* Left Column: Prompt and Paraphrasing */}
                         <div className="w-1/3 flex flex-col gap-4 overflow-y-auto pr-2">
-                            <div className="bg-slate-800 text-white p-4 rounded-2xl shadow-md border border-slate-700">
-                                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 mb-2">Examiner Prompt</div>
-                                <TTSText text={data.prompt} className="text-white hover:bg-slate-700/50 p-0" iconColor="text-emerald-400">
-                                    <div className="text-xl font-semibold leading-tight">"{data.prompt}"</div>
+                            <div className="bg-slate-800 text-white p-5 rounded-2xl shadow-md border border-slate-700">
+                                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 mb-3">Examiner Prompt</div>
+                                <TTSText text={data.prompt} className="bg-slate-700/50 border border-slate-600 shadow-sm hover:bg-slate-700" iconColor="text-emerald-400">
+                                    <div className="text-xl font-semibold leading-tight text-white">"{data.prompt}"</div>
                                 </TTSText>
                             </div>
 
@@ -1150,9 +1175,9 @@
                                 </div>
                                 <p className="text-xs text-slate-500 mb-4 font-medium">Never repeat the question exactly. Choose one of these advanced openings:</p>
                                 
-                                <div className="space-y-3 flex-grow overflow-y-auto">
+                                <div className="space-y-4 flex-grow overflow-y-auto">
                                     {data.paraphrases.map((para, idx) => (
-                                        <TTSText key={idx} text={para} className="bg-emerald-50/50 border border-emerald-100 hover:border-emerald-300 shadow-sm" iconColor="text-emerald-600">
+                                        <TTSText key={idx} text={para} className="bg-emerald-50/50 border border-emerald-100 shadow-sm hover:border-emerald-300" iconColor="text-emerald-600">
                                             <div className="text-emerald-900 font-semibold text-sm leading-relaxed">
                                                 "{para}"
                                             </div>
@@ -1189,16 +1214,16 @@
                                     <h4 className="font-black text-indigo-900 text-lg bg-indigo-50 inline-block px-4 py-1.5 rounded-lg border border-indigo-100">{data.frameworks[selectedFramework].title}</h4>
                                 </div>
 
-                                <div className="space-y-4 relative flex-grow overflow-y-auto pl-4 pb-4">
+                                <div className="space-y-4 relative flex-grow overflow-y-auto pl-4 pb-4 mt-2">
                                     {/* Connecting Line */}
-                                    <div className="absolute left-[31px] top-4 bottom-8 w-1 bg-indigo-100 rounded-full z-0"></div>
+                                    <div className="absolute left-[31px] top-6 bottom-8 w-1 bg-indigo-100 rounded-full z-0"></div>
 
                                     {data.frameworks[selectedFramework].sentences.map((sent, idx) => (
                                         <div key={idx} className="flex gap-4 relative z-10 animate-in fade-in slide-in-from-right-4" style={{ animationDelay: `${idx * 100}ms` }}>
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white mt-2">
+                                            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white mt-3">
                                                 {sent.label.charAt(0)}
                                             </div>
-                                            <TTSText text={sent.text} className="bg-indigo-50/80 border border-indigo-100 flex-grow shadow-sm hover:shadow-md transition-shadow">
+                                            <TTSText text={sent.text} className="bg-white border border-indigo-100 flex-grow shadow-sm hover:shadow-md">
                                                 <div>
                                                     <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1.5">{sent.label}</div>
                                                     <div className="text-indigo-900 text-base font-semibold leading-relaxed">"{sent.text}"</div>
