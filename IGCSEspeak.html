@@ -25,12 +25,12 @@
         }
         
         /* Pedagogical Color-Coded Rubric Highlights */
-        .hl-dev { background-color: #fef08a; color: #854d0e; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-style: italic; } /* Yellow: Signposting/Development */
-        .hl-gram { background-color: #bfdbfe; color: #1e40af; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-style: italic; } /* Blue: Grammar/Structure */
-        .hl-vocab { background-color: #bbf7d0; color: #166534; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-style: italic; font-weight: 600;} /* Green: Lexis/Vocab */
+        .hl-dev { background-color: #fef08a; color: #854d0e; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-style: italic; }
+        .hl-gram { background-color: #bfdbfe; color: #1e40af; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-style: italic; }
+        .hl-vocab { background-color: #bbf7d0; color: #166534; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-style: italic; font-weight: 600;}
 
         #display-model {
-            font-size: 21px; /* 30% larger */
+            font-size: 21px; 
             font-style: italic;
             line-height: 1.7;
         }
@@ -40,8 +40,8 @@
 
     <main class="flex-1 flex overflow-hidden w-full mx-auto gap-4">
         
-        <!-- Left Sidebar: Narrowed to 15% to expand right workspace -->
-        <aside class="w-[15%] min-w-[200px] flex flex-col gap-3 h-full shrink-0">
+        <!-- Left Sidebar -->
+        <aside class="w-[20%] min-w-[220px] max-w-[280px] flex flex-col gap-3 h-full shrink-0">
             <div class="glass-panel rounded-lg p-3 shrink-0">
                 <div class="space-y-2">
                     <select id="filter-part" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded p-1.5 focus:ring-blue-500 outline-none cursor-pointer">
@@ -78,7 +78,7 @@
             </div>
         </aside>
 
-        <!-- Right Content Area (Expanded to 85%) -->
+        <!-- Right Content Area -->
         <section class="flex-1 flex flex-col h-full overflow-hidden min-w-0 gap-3">
             
             <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-400 glass-panel rounded-lg">
@@ -88,7 +88,7 @@
 
             <div id="active-workspace" class="hidden flex-col h-full gap-3">
                 
-                <!-- Prompt Card with Integrated Timer -->
+                <!-- Prompt Card -->
                 <div class="glass-panel rounded-lg border-l-4 border-l-blue-600 p-5 shrink-0 relative bg-white flex flex-col justify-center min-h-[120px]">
                     <div class="flex justify-between items-start gap-4 w-full">
                         <div class="flex-1">
@@ -99,7 +99,13 @@
                                     <i class="fa-regular fa-circle-check text-base"></i>
                                 </span>
                             </div>
-                            <div id="display-text" class="text-[18px] text-slate-800 leading-snug font-bold"></div>
+                            <div id="display-text" class="text-[18px] text-slate-800 leading-snug font-bold cursor-pointer hover:text-blue-600 transition-colors" title="Click to listen"></div>
+                            
+                            <!-- IGCSE 0511 Paraphrased Prompt Feature -->
+                            <div id="paraphrase-container" class="mt-3 bg-blue-50/80 border-l-2 border-blue-400 p-4 rounded text-[13px] text-blue-900 shadow-sm relative group cursor-pointer hover:bg-blue-100 transition-colors" title="Click to listen">
+                                <span id="display-paraphrase" class="italic font-medium block"></span>
+                            </div>
+
                             <ul id="display-bullets" class="list-disc list-inside space-y-1 text-slate-600 mt-2 ml-1 text-[15px] font-medium marker:text-blue-400"></ul>
                         </div>
                         
@@ -118,33 +124,37 @@
                     </div>
                 </div>
 
-                <!-- Highly Compact Scaffolding Header -->
-                <div class="glass-panel rounded-lg flex-1 flex flex-col overflow-hidden bg-white">
-                    <div class="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-3 py-2 shrink-0">
-                        <div class="flex gap-4">
-                            <button class="tab-btn active text-sm font-bold text-blue-700 border-b-2 border-blue-700 pb-1 transition-colors" data-target="tab-model">Scaffolded Model Answer</button>
+                <!-- Tabs & Feature Workspace -->
+                <div class="glass-panel rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-3 py-2 shrink-0 overflow-x-auto">
+                        <div class="flex gap-2 lg:gap-4 whitespace-nowrap">
+                            <button class="tab-btn active text-sm font-bold text-blue-700 border-b-2 border-blue-700 pb-1 transition-colors" data-target="tab-model">Model Answer</button>
                             <button class="tab-btn text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent pb-1 transition-colors" data-target="tab-phrases">Phrase Bank</button>
-                            <button class="tab-btn text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent pb-1 transition-colors" data-target="tab-vocab">High-School Lexis</button>
+                            <button class="tab-btn text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent pb-1 transition-colors" data-target="tab-vocab">Lexis</button>
+                            <button class="tab-btn text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent pb-1 transition-colors" data-target="tab-grammar">Grammar</button>
                         </div>
-                        <div class="flex gap-1 bg-slate-200 p-1 rounded">
-                            <button class="band-toggle px-3 py-1 text-xs rounded text-slate-600 font-bold hover:bg-slate-300 transition-colors" data-band="3-4">Band 3-4</button>
-                            <button class="band-toggle px-3 py-1 text-xs rounded text-slate-600 font-bold hover:bg-slate-300 transition-colors" data-band="5-6">Band 5-6</button>
-                            <button class="band-toggle active px-3 py-1 text-xs rounded bg-blue-600 text-white shadow-sm font-bold transition-colors" data-band="7+">Band 7+</button>
+                        <div class="flex items-center gap-3 shrink-0 ml-4">
+                            <div class="flex gap-1 bg-slate-200 p-1 rounded">
+                                <button class="band-toggle px-3 py-1 text-xs rounded text-slate-600 font-bold hover:bg-slate-300 transition-colors" data-band="3-4">Band 3-4</button>
+                                <button class="band-toggle px-3 py-1 text-xs rounded text-slate-600 font-bold hover:bg-slate-300 transition-colors" data-band="5-6">Band 5-6</button>
+                                <button class="band-toggle active px-3 py-1 text-xs rounded bg-blue-600 text-white shadow-sm font-bold transition-colors" data-band="7+">Band 7+</button>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Content Area -->
-                    <div class="flex-1 overflow-y-auto p-6 bg-white relative">
+                    <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-white relative">
                         
+                        <!-- Model Answer -->
                         <div id="tab-model" class="tab-content block h-full flex flex-col">
-                            <div id="display-model" class="flex-1 text-slate-800 p-4 bg-slate-50 border border-slate-200 rounded-lg shadow-inner overflow-y-auto"></div>
+                            <div id="display-model" class="flex-1 text-slate-800 p-4 bg-slate-50 border border-slate-200 rounded-lg shadow-inner overflow-y-auto cursor-pointer hover:bg-slate-100 transition-colors" title="Click to listen"></div>
                             
                             <!-- Rubric Legend -->
                             <div id="rubric-legend" class="mt-4 border border-slate-200 rounded-lg overflow-hidden text-sm shrink-0">
                                 <div class="bg-slate-100 px-4 py-2 font-bold text-slate-600 border-b border-slate-200 uppercase tracking-wide text-[10px]">
                                     <i class="fa-solid fa-palette mr-1"></i> Examiner Rubric Mapping
                                 </div>
-                                <div class="p-3 grid grid-cols-3 gap-4 bg-white">
+                                <div class="p-3 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white">
                                     <div class="flex items-start gap-2">
                                         <div class="w-3 h-3 rounded mt-0.5 bg-green-200 border border-green-400 shrink-0"></div>
                                         <p class="text-[11px] text-slate-600 leading-tight"><strong class="text-green-800">Lexis (Green):</strong> Precision, topic collocations, shades of meaning.</p>
@@ -161,13 +171,21 @@
                             </div>
                         </div>
 
+                        <!-- Phrase Bank -->
                         <div id="tab-phrases" class="tab-content hidden h-full">
-                            <div class="grid grid-cols-1 gap-2" id="display-phrases"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="display-phrases"></div>
                         </div>
 
+                        <!-- Lexis -->
                         <div id="tab-vocab" class="tab-content hidden h-full">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="display-vocab"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="display-vocab"></div>
                         </div>
+
+                        <!-- Grammar Feature -->
+                        <div id="tab-grammar" class="tab-content hidden h-full">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="display-grammar"></div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -175,483 +193,292 @@
     </main>
 
     <script>
-        /* * 90-QUESTION DATABASE WITH INDIVIDUALLY CRAFTED BANDS & LEXIS 
-         * [ID, Part, Topic, Question, Vocab1, Vocab2, Phrases, Band3, Band5, Band7, Opt1, Opt2]
-         * Markers: [d]...[/d] = Development, [g]...[/g] = Grammar, [v]...[/v] = Lexis
-         */
-        const rawData = [
-            // PART 1 (1-30)
-            ['1_1', 1, 'Health & Food', 'Can you tell me something about the food you usually eat at home?', 'wholesome|Healthy and natural', 'culinary|Related to cooking', 'Speaking from personal experience|A prime example is', 
-             'I eat chicken and rice. My mom cooks it.', 
-             'I usually eat home-cooked meals like pasta. It is much healthier than fast food.', 
-             '[d]Speaking from personal experience,[/d] my family prioritizes [v]wholesome[/v] meals. [g]If my parents didn\'t cook every evening, we would definitely rely on unhealthy takeaways.[/g] [d]A prime example is[/d] our Sunday roast, which has a great [v]culinary[/v] influence on my diet.'],
-            
-            ['1_2', 1, 'Health & Food', 'Can you tell me about a special meal you had with family or friends?', 'atmosphere|The mood of a place', 'savour|To enjoy food slowly', 'One occasion that stands out is|What made it special was',
-             'I had pizza for my birthday. I ate it with my friends.',
-             'For my birthday, I went to a nice restaurant with my friends. We ate pizza and had fun.',
-             '[d]One occasion that stands out is[/d] my sixteenth birthday dinner. [g]We had booked a table at a local Italian restaurant, which was beautifully decorated.[/g] [d]What made it special was[/d] the vibrant [v]atmosphere[/v] that allowed us to truly [v]savour[/v] both the food and the company.'],
-             
-            ['1_3', 1, 'Health & Food', 'Do you think all young people should learn how to cook? Why? Why not?', 'self-sufficient|Able to provide for oneself', 'life skill|Skill necessary for everyday life', 'I strongly believe that|Consequently',
-             'Yes, young people should cook. It is good for when they live alone.',
-             'I think learning to cook is important for teenagers. When they go to university, they must prepare their own food.',
-             '[d]I strongly believe that[/d] cooking is an essential [v]life skill[/v] for teenagers. [g]Were schools to teach mandatory cooking classes, students would become entirely self-sufficient before leaving for university.[/g] [d]Consequently,[/d] they would eat much healthier diets.'],
-
-            ['1_4', 1, 'Health & Food', 'Can you tell me what you and your friends do to stay healthy?', 'cardiovascular|Relating to the heart', 'regimen|A prescribed course of exercise', 'In terms of fitness|As a result',
-             'We play football in the park. We drink water.',
-             'My friends and I try to stay fit by playing football. We also try not to eat junk food.',
-             '[d]In terms of fitness,[/d] my friends and I maintain a strict exercise [v]regimen[/v]. [g]Not only do we engage in cardiovascular sports like football, but we also closely monitor our diets.[/g] [d]As a result,[/d] we keep our energy levels high.'],
-
-            ['1_5', 1, 'Environment & Weather', 'Can you tell me about a time when you spent time outdoors, and what you did?', 'picturesque|Visually attractive', 'reconnect|Re-establish a bond', 'I vividly remember|It was a great opportunity to',
-             'I went to the beach. I swam in the sea.',
-             'Last summer, I went hiking in the mountains with my family. We walked for hours.',
-             '[d]I vividly remember[/d] hiking through a [v]picturesque[/v] national park last year. [g]Having reached the summit, we stopped to appreciate the incredible view over the valley.[/g] [d]It was a great opportunity to[/d] completely [v]reconnect[/v] with nature.'],
-
-            ['1_6', 1, 'Health & Food', 'Do you think our modern lifestyle makes it difficult for people to stay healthy?', 'sedentary|Spending too much time seated', 'processed|Modified for shelf life', 'Without a doubt|This inevitably leads to',
-             'Yes, because we play video games too much.',
-             'Yes, modern life is hard because people sit down all day. Also, fast food is very easy to buy.',
-             '[d]Without a doubt,[/d] modern society promotes a highly [v]sedentary[/v] lifestyle. [g]Because teenagers spend hours studying at desks and frequently consume processed foods, their health suffers.[/g] [d]This inevitably leads to[/d] a decline in physical well-being.'],
-
-            ['1_7', 1, 'Society & Community', 'How do you help your parents at home?', 'domestic chores|Household work', 'alleviate|Make a problem less severe', 'I make an effort to|By doing this, I',
-             'I clean my room and wash the dishes.',
-             'I try to help by washing the dishes after dinner. This gives my parents time to rest.',
-             '[d]I make an effort to[/d] manage various [v]domestic chores[/v], such as vacuuming and cooking. [g]By taking on these responsibilities, I can significantly alleviate the stress my parents face.[/g] [d]This ultimately[/d] gives them time to relax.'],
-
-            ['1_8', 1, 'Society & Community', 'Can you tell me about a time when someone helped you, and what happened?', 'overwhelmed|Burdened with too much', 'clarify|Make less confusing', 'I recall an instance when|Fortunately',
-             'My friend helped me with math. I didn\'t understand it.',
-             'When I was struggling with my homework, my friend helped me. He explained the equations.',
-             '[d]I recall an instance when[/d] I felt completely [v]overwhelmed[/v] by a complex physics assignment. [g]Fortunately, a classmate intervened and helped clarify the concepts that had confused me.[/g] [d]I was incredibly grateful[/d] for his patience.'],
-
-            ['1_9', 1, 'Society & Community', 'Do you think everyone should do something to help their local community?', 'civic duty|Responsibilities of a citizen', 'cohesion|Forming a united whole', 'I am of the opinion that|This fosters a sense of',
-             'Yes, we should help. We can pick up trash.',
-             'Yes, I think it is important. Helping out makes the town better for everyone.',
-             '[d]I am of the opinion that[/d] volunteering is a fundamental [v]civic duty[/v]. [g]If everyone contributed just a few hours a month, our neighborhoods would improve drastically.[/g] [d]This fosters a strong sense of[/d] social [v]cohesion[/v].'],
-
-            ['1_10', 1, 'Society & Community', 'Can you tell me about the shops where you live?', 'commercial|Intended to make a profit', 'boutiques|Small fashionable shops', 'In my immediate area|What I appreciate most is',
-             'There is a big mall. I go there a lot.',
-             'My neighborhood has a large shopping centre and some small grocery stores.',
-             '[d]In my immediate area,[/d] we have a dynamic [v]commercial[/v] district. [g]Not only are there large retail malls, but there are also independent boutiques scattered around.[/g] [d]What I appreciate most is[/d] the variety it provides.'],
-
-            ['1_11', 1, 'Society & Community', 'Can you tell me about a time when you did something interesting in your local area?', 'initiative|A strategy to resolve a difficulty', 'engagement|Participation in a community', 'A memorable occasion was|It was rewarding because',
-             'I planted a tree in the park. It was fun.',
-             'Last month, I helped clean up the local park. We collected rubbish and it felt good.',
-             '[d]A memorable occasion was[/d] when I joined a youth [v]initiative[/v] to restore our local park. [g]Having collected dozens of bags of litter, we genuinely transformed the landscape.[/g] [d]It was rewarding because[/d] it encouraged local [v]engagement[/v].'],
-
-            ['1_12', 1, 'Society & Community', 'Do you think people enjoy living in your area?', 'amenities|Desirable features of a place', 'vibrant|Full of energy', 'Generally speaking|Another appealing factor is',
-             'Yes, it is a nice place. There are parks.',
-             'Yes, most people like it here because it is safe and there are good parks.',
-             '[d]Generally speaking,[/d] residents find my area highly desirable. [g]Because it offers excellent amenities like sports centers, it attracts many young families.[/g] [d]Another appealing factor is[/d] the [v]vibrant[/v] cultural scene.'],
-
-            ['1_13', 1, 'Work & Future', 'Can you tell me about the jobs people in your family do?', 'profession|A paid occupation', 'corporate|Relating to a large company', 'My family is involved in|Whereas my mother',
-             'My dad is a businessman. My mom is a teacher.',
-             'My father works in an office as a manager, and my mother is a teacher.',
-             '[d]My family is involved in[/d] quite diverse [v]professions[/v]. [g]My father works in the corporate sector, whereas my mother has dedicated her career to education.[/g] [d]This contrast provides[/d] me with different perspectives.'],
-
-            ['1_14', 1, 'Work & Future', 'What job would you like to do and how are you planning to prepare for it?', 'aspirations|A hope or ambition', 'qualifications|Official completion of a course', 'My ultimate goal is|To achieve this',
-             'I want to be a doctor. I will go to university.',
-             'I would love to become a software engineer. To prepare, I am studying IT at school.',
-             '[d]My ultimate goal is[/d] to become an architect. [g]To achieve these career aspirations, I must first secure top grades in Mathematics and Art.[/g] [d]I am currently focusing on[/d] earning my university [v]qualifications[/v].'],
-
-            ['1_15', 1, 'Work & Future', 'Do you think that everyone should work only three days a week?', 'productivity|Effectiveness of productive effort', 'feasible|Possible to do easily', 'While it sounds appealing|In reality',
-             'Yes, because people need rest.',
-             'It would be nice to have more free time, but businesses could not survive.',
-             '[d]While it sounds appealing[/d] for mental health, [g]I doubt a three-day week would be economically feasible for most companies.[/g] [d]In reality,[/d] it would drastically reduce [v]productivity[/v] in major industries.'],
-
-            ['1_16', 1, 'Education', 'What can people do to learn a foreign language?', 'immersion|Deep mental involvement', 'consistent|Acting in the same way over time', 'The most effective method is|It requires',
-             'They can read books or watch movies in English.',
-             'People can download language apps and watch movies with subtitles.',
-             '[d]The most effective method is[/d] total cultural [v]immersion[/v]. [g]If learners constantly watched foreign media and practiced speaking with natives, they would progress rapidly.[/g] [d]It requires[/d] [v]consistent[/v] dedication.'],
-
-            ['1_17', 1, 'Education', 'Can you tell me about a time when you had to communicate in another language?', 'daunting|Seeming difficult to deal with', 'overcome|Succeed in dealing with a problem', 'A specific instance was|However, I managed to',
-             'I went to Spain. I ordered food in Spanish.',
-             'When I visited France, I asked for directions. I was nervous but the person understood.',
-             '[d]A specific instance was[/d] during a family trip to Berlin. [g]Although I found it quite daunting at first, I successfully ordered our meals in French.[/g] [d]However, I managed to[/d] [v]overcome[/v] my anxiety.'],
-
-            ['1_18', 1, 'Education', 'Do you think it is possible to enjoy a holiday in a country where you do not speak the language?', 'barrier|An obstacle that prevents communication', 'fascinating|Extremely interesting', 'Absolutely|It can actually be',
-             'Yes. You can use translation apps on your phone.',
-             'Yes, you can still enjoy the sights. You can easily use translation apps to communicate.',
-             '[d]Absolutely.[/d] [g]Even without speaking the local dialect, tourists can appreciate the architecture and cuisine.[/g] [d]It can actually be[/d] [v]fascinating[/v] to navigate the language [v]barrier[/v] using technology.'],
-
-            ['1_19', 1, 'Education', 'What lessons at school do you enjoy, and why?', 'analytical|Relating to logical reasoning', 'mechanics|The machinery or working parts of something', 'I am particularly drawn to|What makes it so',
-             'I like Science. We do experiments.',
-             'My favourite subject is History because I like learning about the past.',
-             '[d]I am particularly drawn to[/d] Physics. [g]What makes it so fascinating is how it explains the complex mechanics of the universe.[/g] [d]It challenges me to[/d] apply [v]analytical[/v] thinking.'],
-
-            ['1_20', 1, 'Education', 'Can you tell me about a school project you worked on with other students?', 'collaborate|Work jointly on an activity', 'delegate|Entrust a task to another person', 'Recently, we were tasked with|The experience taught me',
-             'We made a poster about the environment.',
-             'Last term, we created a presentation on climate change. We split the work.',
-             '[d]Recently, we were tasked with[/d] designing a science exhibition. [g]By carefully delegating specific roles to each group member, we managed to collaborate effectively.[/g] [d]The experience taught me[/d] the true value of teamwork.'],
-
-            ['1_21', 1, 'Education', 'Do you think people always need a teacher in order to learn something?', 'autonomous|Acting independently', 'guidance|Advice or information provided', 'Not necessarily|Nowadays, it is possible to',
-             'No. You can learn on YouTube by yourself.',
-             'No, because the internet has so many tutorials. However, a teacher is helpful for mistakes.',
-             '[d]Not necessarily.[/d] [g]While teachers provide essential structured guidance, the internet enables highly autonomous learning.[/g] [d]Nowadays, it is possible to[/d] master complex skills via online tutorials.'],
-
-            ['1_22', 1, 'Hobbies & Media', 'Can you tell me about singers who are popular with people your age?', 'mainstream|Belonging to the widely accepted group', 'relatable|Enabling a person to feel they understand', 'Currently, the trend is|They resonate with youth because',
-             'Taylor Swift is very popular. She sings pop music.',
-             'Many teenagers listen to mainstream pop artists like Taylor Swift because the lyrics are easy.',
-             '[d]Currently, the trend is[/d] heavily skewed toward [v]mainstream[/v] pop icons. [g]Artists like Taylor Swift resonate deeply with teenagers because their lyrics explore highly relatable emotional experiences.[/g]'],
-
-            ['1_23', 1, 'Hobbies & Media', 'Can you tell me about some music that you listened to recently, and why you enjoyed it?', 'upbeat|Cheerful and optimistic', 'distraction|A thing that prevents someone from giving full attention', 'Lately, I\'ve been listening to|What appealed to me was',
-             'I listened to a pop song. It was fast and made me happy.',
-             'I recently listened to a new pop album. It helped me relax while doing homework.',
-             '[d]Lately, I\'ve been listening to[/d] a lot of indie rock. [g]What appealed to me was the upbeat melody, which provided a perfect distraction from my studies.[/g] [d]It serves as a great[/d] stress reliever.'],
-
-            ['1_24', 1, 'Hobbies & Media', 'Do you think all young people should learn to play a musical instrument?', 'cognitive|Relating to cognition or thinking', 'discipline|Training people to obey rules', 'I am convinced that|Not only does it',
-             'Yes, it is good for the brain.',
-             'Yes, playing an instrument teaches you how to be patient. It is a great way to relax.',
-             '[d]I am convinced that[/d] music education offers immense [v]cognitive[/v] benefits. [g]Not only does it enhance creativity, but it also instills a strong sense of discipline.[/g] [d]Therefore, it should be encouraged.[/d]'],
-
-            ['1_25', 1, 'Hobbies & Media', 'Can you tell me about the types of books that are popular with people your age?', 'dystopian|Imagined society with great suffering', 'escapism|Seeking distraction from reality', 'A vast majority prefer|They offer a form of',
-             'Teenagers like fantasy books and magic.',
-             'Most teenagers enjoy reading science fiction or fantasy novels full of adventure.',
-             '[d]A vast majority prefer[/d] [v]dystopian[/v] fiction and fantasy. [g]Because these genres present alternate realities, they offer a perfect form of escapism from school pressures.[/g] [d]They allow us to disconnect.[/d]'],
-
-            ['1_26', 1, 'Hobbies & Media', 'Can you tell me about a story that you read recently, and why you read it?', 'intriguing|Arousing curiosity', 'narrative|A written account of connected events', 'I recently finished|I picked it up because',
-             'I read Harry Potter. It has magic.',
-             'I read a detective story recently. The plot was very exciting and full of mystery.',
-             '[d]I recently finished[/d] a historical thriller. [g]I picked it up because our English teacher had highly recommended the author\'s unique narrative style.[/g] [d]The plot was incredibly[/d] [v]intriguing[/v].'],
-
-            ['1_27', 1, 'Hobbies & Media', 'Do you think people will read paper books in the future?', 'tactile|Connected with the sense of touch', 'obsolete|No longer produced or used', 'Despite the rise of|There is a certain',
-             'No, people will use iPads. Books are heavy.',
-             'I think paper books will become less popular, but some people will still buy them.',
-             '[d]Despite the rise of[/d] digital tablets, [g]I doubt physical books will ever become entirely obsolete.[/g] [d]There is a certain[/d] [v]tactile[/v] pleasure in holding a real book that screens cannot replicate.'],
-
-            ['1_28', 1, 'Environment & Weather', 'Can you tell me about things people in your country like to do when the weather is sunny?', 'recreational|Relating to enjoyment', 'flock|Congregate in a group', 'When the sun is shining|It is a common tradition to',
-             'People go to the park and play sports.',
-             'When it is sunny, families often go to the beach or have a barbecue.',
-             '[d]When the sun is shining,[/d] residents absolutely [v]flock[/v] to coastal areas. [g]If the weather permits, families will spend the entire weekend engaging in recreational outdoor sports.[/g]'],
-
-            ['1_29', 1, 'Environment & Weather', 'Can you tell me about a holiday that you went on when the weather was bad?', 'dismal|Depressing or dreary', 'confined|Restricted within certain limits', 'Unfortunately, during a trip to|Despite the conditions',
-             'We went to the beach but it rained.',
-             'During our trip to London, it rained heavily. We had to stay inside museums.',
-             '[d]Unfortunately, during a trip to[/d] the mountains, the weather was completely [v]dismal[/v]. [g]Because of the severe storms, we were confined to our hotel room for three straight days.[/g]'],
-
-            ['1_30', 1, 'Environment & Weather', 'Do you think the weather affects how people feel?', 'psychological|Related to mental state', 'lethargic|Sluggish and apathetic', 'There is a clear link between|Conversely',
-             'Yes. Sunny days make people happy.',
-             'Yes, I think weather changes our mood. Sunshine gives people energy.',
-             '[d]There is a clear link between[/d] climate and [v]psychological[/v] well-being. [g]While bright sunshine boosts energy levels, prolonged periods of rain can leave people feeling lethargic.[/g]'],
-
-            // PART 2 (31-60)
-            ['2_31', 2, 'Technology', 'The best invention for the home', 'convenience|State of proceeding with little effort', 'sedentary|Inactive lifestyle', 'When comparing these options|Ultimately, my preference is',
-             'A microwave cooks food fast. A remote changes channels. I prefer the microwave.',
-             'A microwave is useful for heating food, but a remote is great for relaxing. I prefer the microwave.',
-             '[d]Both of these options present clear advantages.[/d] [g]Although a remote control enhances relaxation, it undoubtedly encourages a [v]sedentary[/v] lifestyle.[/g] [d]Conversely,[/d] a microwave offers extreme [v]convenience[/v] for busy students. [d]Taking all into account, I would select[/d] the microwave for meal efficiency.', 'a microwave', 'a TV remote control'],
-
-            ['2_32', 2, 'Technology', 'Finding information for a project', 'first-hand|Obtained by direct experience', 'extensive|Covering a large area', 'Both methods have their merits|However, the downside is',
-             'Internet is fast. Talking takes time. I prefer internet.',
-             'Researching online is fast. Talking is personal but takes longer. I prefer internet.',
-             '[d]Both methods have their merits.[/d] [g]While researching online provides [v]extensive[/v] data instantly, it lacks emotional depth.[/g] [d]On the other hand,[/d] interviewing offers [v]first-hand[/v] perspectives but takes time. [d]My preference is[/d] online research due to strict school deadlines.', 'researching online', 'talking to people'],
-
-            ['2_33', 2, 'Technology', 'Sharing a school trip experience', 'interactive|Two-way flow of info', 'permanent|Lasting indefinitely', 'These formats contrast greatly|The latter, however',
-             'A presentation is scary. A blog is easy.',
-             'A presentation is good face-to-face. But a blog stays online forever. I prefer the blog.',
-             '[d]These formats contrast greatly.[/d] [g]Although a live presentation is highly [v]interactive[/v], it can induce anxiety for students.[/g] [d]The latter, however,[/d] provides a [v]permanent[/v] digital record. [d]I would definitely opt for[/d] the blog.', 'giving a presentation', 'writing a blog'],
-
-            ['2_34', 2, 'Education', 'Different ways of learning', 'collaborative|Working together', 'isolation|State of being alone', 'In terms of learning styles|On the flip side',
-             'Group work is noisy. Home study is quiet.',
-             'Working in a group shares ideas. Studying at home is quieter. I prefer studying at home.',
-             '[d]In terms of learning styles, these are very different.[/d] [g]While [v]collaborative[/v] projects foster teamwork skills, online study promotes independence.[/g] [d]On the flip side,[/d] studying at home can lead to [v]isolation[/v]. [d]I personally favour[/d] the group approach.', 'working with others', 'studying online'],
-
-            ['2_35', 2, 'Education', 'A school project', 'global perspective|Worldview', 'tedious|Too long or dull', 'Both options present interesting angles|The disadvantage is that',
-             'Internet is fast. Interviews are slow.',
-             'Internet gives news from around the world. Interviewing classmates takes too much time.',
-             '[d]Both options present interesting angles.[/d] [g]While internet research yields a broad [v]global perspective[/v], interviewing classmates provides localized data.[/g] [d]The disadvantage is that[/d] conducting interviews can be [v]tedious[/v]. [d]Therefore, I prefer[/d] the online research.', 'researching positive news online', 'interviewing classmates'],
-
-            ['2_36', 2, 'Education', 'Preparing a project for school', 'distraction|Thing that prevents attention', 'comprehensive|Including all elements', 'Evaluating these two approaches|Conversely, the latter',
-             'Books are quiet. Online is loud.',
-             'Library books are reliable. Working online is faster but we might chat too much.',
-             '[d]Evaluating these two approaches, we see distinct benefits.[/d] [g]Independent library research guarantees a [v]comprehensive[/v], distraction-free environment.[/g] [d]Conversely, the latter[/d] method relies on digital tools which can fail. [d]I would opt for[/d] the traditional library route.', 'doing research using library books', 'working online with students'],
-
-            ['2_37', 2, 'Education', 'Outdoor learning', 'experiential|Based on experience', 'logistical|Relating to organization', 'Both activities promote|However, a trip requires',
-             'A garden is good. A trip is fun.',
-             'A garden teaches students every week. A camping trip is an exciting adventure. I prefer the garden.',
-             '[d]Both activities promote[/d] [v]experiential[/v] learning. [g]While a garden provides continuous weekly engagement, a camping trip is merely a one-off event.[/g] [d]Furthermore, a trip requires[/d] heavy [v]logistical[/v] planning. [d]I strongly favour[/d] the garden.', 'a school vegetable garden', 'a school camping trip'],
-
-            ['2_38', 2, 'Education', 'A new room for your school', 'recreation|Activity for enjoyment', 'academic pressure|Stress from schoolwork', 'When considering what students need|In contrast',
-             'A games room is fun. A study room is boring.',
-             'Students need a games room to relax. A study room is good for homework. I prefer the games room.',
-             '[d]When considering what students need,[/d] [g]we must balance [v]recreation[/v] against [v]academic pressure[/v].[/g] [d]In contrast[/d] to another silent library space, a games room provides a vital mental break. [d]I would advocate for[/d] the games room.', 'a games room', 'a room for quiet study'],
-
-            ['2_39', 2, 'Education', 'Writing an article', 'creative liberty|Freedom to express ideas', 'relevance|Being closely connected', 'Comparing these article ideas|The second option, meanwhile',
-             'Writing about my town is easy. Writing about school is boring.',
-             'Writing about my town is more creative. Writing about a school event is informative. I prefer my town.',
-             '[d]Comparing these article ideas,[/d] [g]the first choice allows for far more [v]creative liberty[/v].[/g] [d]The second option, meanwhile,[/d] possesses direct [v]relevance[/v] to the student body. [d]I would select[/d] the local town piece to showcase descriptive skills.', 'describing your favourite place', 'writing about a recent school event'],
-
-            ['2_40', 2, 'Education', 'A new experience', 'cultural immersion|Engaging with foreign culture', 'tangible|Clear and definite', 'Both experiences offer immense value|Conversely, a course yields',
-             'Trips are fun. Courses are like school.',
-             'A trip is a great adventure, but a course teaches you something useful. I prefer taking a course.',
-             '[d]Both experiences offer immense value.[/d] [g]While travelling provides broad [v]cultural immersion[/v], a course yields highly [v]tangible[/v] abilities.[/g] [d]Because I am preparing for university, I would prioritize[/d] the practical course.', 'going on a trip to a new place', 'taking a course to learn a practical skill'],
-
-            ['2_41', 2, 'Environment & Weather', 'Volunteering to help the environment', 'ecological|Relating to biology', 'immediate gratification|Satisfaction without delay', 'Both initiatives address pressing concerns|Although litter collection offers',
-             'Picking up litter is fast. Planting trees is hard.',
-             'Picking up litter makes streets look nice. Planting trees is better for the long-term.',
-             '[d]Both initiatives address pressing concerns.[/d] [g]Although litter collection offers [v]immediate gratification[/v], planting trees represents a profound [v]ecological[/v] investment.[/g] [d]I would definitely opt for[/d] planting trees due to its lasting legacy.', 'picking up litter in your area', 'helping to plant trees'],
-
-            ['2_42', 2, 'Environment & Weather', 'Reducing your impact on the environment', 'carbon footprint|Greenhouse gas emissions', 'consumerism|Promotion of consumers interests', 'Evaluating these personal changes|The former directly impacts',
-             'Turning off lights is easy. Not buying clothes is hard.',
-             'Using less electricity is an easy habit. Buying fewer clothes is harder. I prefer saving electricity.',
-             '[d]Evaluating these personal changes,[/d] [g]the former directly reduces one\'s [v]carbon footprint[/v], whereas the latter combats fast fashion [v]consumerism[/v].[/g] [d]I would focus on[/d] electricity reduction as it is universally applicable.', 'using less electricity in your home', 'buying fewer new clothes'],
-
-            ['2_43', 2, 'Environment & Weather', 'Being more environmentally friendly', 'emissions|Production of gas', 'e-waste|Electronic trash', 'These represent two major sacrifices|However, retaining a phone',
-             'Not flying is boring. Keeping an old phone is okay.',
-             'Stopping plane travel is very difficult. Keeping an old phone reduces electronic waste.',
-             '[d]These represent two major sacrifices.[/d] [g]Giving up flights drastically cuts [v]emissions[/v], yet it isolates families globally.[/g] [d]However, retaining a phone[/d] significantly reduces global [v]e-waste[/v]. [d]I would select[/d] the smartphone option.', 'stopping travelling by plane', 'using the same smartphone for many years'],
-
-            ['2_44', 2, 'Environment & Weather', 'Writing about environmental problems', 'visible|Able to be seen', 'psychological|Related to mental state', 'When selecting an article topic|In contrast, noise pollution',
-             'Litter is everywhere. Noise is just loud.',
-             'Litter is a very obvious problem. Noise pollution is annoying but harder to photograph.',
-             '[d]When selecting an article topic,[/d] [g]litter is a highly [v]visible[/v] issue that sparks immediate outrage.[/g] [d]In contrast, noise pollution[/d] has severe but hidden [v]psychological[/v] impacts. [d]I would prefer[/d] exploring noise pollution.', 'noise pollution', 'litter'],
-
-            ['2_45', 2, 'Environment & Weather', 'Helping nature at school', 'aesthetics|Appreciation of beauty', 'sustainable|Able to be maintained', 'Comparing these school-led projects|The first option improves',
-             'Planting trees looks nice. Picking up litter is dirty.',
-             'Planting trees makes the school greener. Picking up litter helps the park but is temporary.',
-             '[d]Comparing these school-led projects,[/d] [g]planting trees fundamentally improves campus [v]aesthetics[/v], while litter picking is merely a temporary fix.[/g] [d]Therefore, I lean towards[/d] the [v]sustainable[/v] tree-planting initiative.', 'planting trees around your school', 'picking up litter in the local park'],
-
-            ['2_46', 2, 'Health & Food', 'A free afternoon', 'commercial|Concerned with commerce', 'mental fatigue|Exhaustion of the mind', 'These options offer vastly different experiences|Conversely, a nature walk',
-             'I like shopping. Walking is boring.',
-             'Shopping centres are great for meeting friends. Country walks are peaceful. I prefer the shopping centre.',
-             '[d]These options offer vastly different experiences.[/d] [g]A mall provides [v]commercial[/v] entertainment, whereas a nature walk effectively cures [v]mental fatigue[/v].[/g] [d]Given the stress of exams, I would prefer[/d] the countryside to disconnect.', 'going to a shopping centre', 'going for a walk in the countryside'],
-
-            ['2_47', 2, 'Health & Food', 'Changing your lifestyle for health', 'logistical|Relating to organization', 'cardiovascular|Relating to the heart', 'When adopting new health habits|The latter effortlessly',
-             'Cooking is hard. Cycling is easy.',
-             'Cooking fresh meals takes a lot of time. Cycling to school is an easier way to get fit.',
-             '[d]When adopting new health habits,[/d] [g]the former demands severe [v]logistical[/v] planning, while the latter effortlessly integrates [v]cardiovascular[/v] exercise into an existing routine.[/g] [d]I would definitely opt for[/d] cycling.', 'cooking fresh meals every day', 'cycling to school once a week'],
-
-            ['2_48', 2, 'Health & Food', 'A special visit from a cousin', 'superficial|On the surface', 'enriching|Improving quality', 'Entertaining a guest requires|While a mall is a safe choice',
-             'The mall is fun. Museums are boring.',
-             'Going to the mall is safe and fun. A museum might be educational but less exciting.',
-             '[d]Entertaining a guest requires[/d] thoughtful planning. [g]While a mall is a safe choice, it offers a rather [v]superficial[/v] experience.[/g] [d]A museum, however,[/d] guarantees an [v]enriching[/v] cultural dialogue. [d]I would choose[/d] the museum.', 'going to your favourite shopping mall', 'visiting a new museum'],
-
-            ['2_49', 2, 'Health & Food', 'Party food', 'financial burden|Heavy financial cost', 'culinary|Related to cooking', 'Organizing party catering can be tricky|The first method reduces',
-             'Fast food is easy. Cooking takes time.',
-             'Asking guests is cheaper but risky. Ordering fast food guarantees everyone gets something quickly.',
-             '[d]Organizing party catering can be tricky.[/d] [g]The first method significantly reduces the [v]financial burden[/v] on the host, yet it risks [v]culinary[/v] chaos.[/g] [d]I would actually prefer[/d] the shared meal.', 'asking your guests to bring their favourite food', 'ordering from a fast food restaurant'],
-
-            ['2_50', 2, 'Health & Food', 'Healthy living class', 'endurance|Power of enduring', 'dietary|Relating to diets', 'Both classes target different aspects|An exercise class builds',
-             'Exercise makes you tired. Cooking gives you food.',
-             'An exercise class is great for losing weight. A cookery class teaches you how to eat well.',
-             '[d]Both classes target different aspects of health.[/d] [g]An exercise class builds physical [v]endurance[/v], whereas a cookery class instils lifelong [v]dietary[/v] knowledge.[/g] [d]I would undoubtedly choose[/d] the cookery class.', 'an exercise class at a sports centre', 'a cookery class at a local restaurant'],
-
-            ['2_51', 2, 'Travel', 'A holiday abroad', 'fast-paced|Moving quickly', 'tranquil|Calm', 'These destinations cater to|A city break offers',
-             'A city has shops. A park has trees.',
-             'A capital city is very exciting. A national park is peaceful but might get boring.',
-             '[d]These destinations cater to[/d] very different needs. [g]A city break offers [v]fast-paced[/v] cultural exposure, conversely, a national park provides a [v]tranquil[/v] escape.[/g] [d]Given the exhaustion of the school term, I would select[/d] the national park.', 'a weekend in a capital city', 'a week-long stay in a national park'],
-
-            ['2_52', 2, 'Travel', 'New developments in your area', 'exclusivity|Restriction to a group', 'communal|Shared by all', 'When debating local infrastructure|A luxury hotel promises',
-             'A hotel brings tourists. A sports centre is for us.',
-             'A luxury hotel creates jobs. A sports centre benefits everyone\'s health.',
-             '[d]When debating local infrastructure,[/d] [g]a luxury hotel promises tourist revenue but promotes [v]exclusivity[/v].[/g] [d]A fitness centre, however,[/d] acts as a [v]communal[/v] hub. [d]I strongly advocate for[/d] the sports centre.', 'a luxury 5-star hotel', 'a sports and fitness centre'],
-
-            ['2_53', 2, 'Travel', 'International visitors', 'heritage|Traditions', 'ice-breaker|A thing that serves to relieve tension', 'Welcoming foreign guests requires|A town tour highlights',
-             'A tour is long. A party is fun.',
-             'A town tour teaches visitors about our history. A school party helps students make friends.',
-             '[d]Welcoming foreign guests requires[/d] balancing education with fun. [g]While a town tour highlights local [v]heritage[/v], a dynamic school party serves as the ultimate [v]ice-breaker[/v].[/g] [d]I would definitely opt for[/d] the party.', 'a tour of your home town', 'a party at school'],
-
-            ['2_54', 2, 'Environment & Weather', 'Enjoying nature', 'tangible|Perceptible by touch', 'virtual|Made by software', 'The contrast here is between|Walking provides',
-             'Walking is real. Internet is just pictures.',
-             'Walking outside lets you breathe fresh air. The internet gives you more facts.',
-             '[d]The contrast here is between[/d] the [v]tangible[/v] and the [v]virtual[/v]. [g]Walking provides sensory engagement with the environment, whereas internet research yields sterile data.[/g] [d]I would certainly choose[/d] the physical walk.', 'going for a nature walk', 'doing research on the internet'],
-
-            ['2_55', 2, 'Travel', 'A school trip', 'biodiversity|Variety of life', 'recreational|Relating to enjoyment', 'Selecting a school trip involves|The zoo guarantees',
-             'The zoo has animals. The seaside has sand.',
-             'A zoo trip is educational. The seaside is great for relaxing and having fun.',
-             '[d]Selecting a school trip involves[/d] balancing learning with leisure. [g]The zoo guarantees exposure to global [v]biodiversity[/v], yet the seaside offers unparalleled [v]recreational[/v] freedom.[/g] [d]I would lean towards[/d] the seaside.', 'a day at the zoo', 'a day at the seaside'],
-
-            ['2_56', 2, 'Work & Future', 'Your future career', 'lucrative|Producing a great deal of profit', 'agricultural|Relating to farming', 'These paths represent entirely different lifestyles|Law promises',
-             'Lawyers make money. Farmers work outside.',
-             'Being a lawyer is well-paid but stressful. Being a farmer is peaceful but hard.',
-             '[d]These paths represent entirely different lifestyles.[/d] [g]Law promises a [v]lucrative[/v], albeit high-stress, urban career.[/g] [d]Farming connects you to[/d] essential [v]agricultural[/v] production. [d]I would select[/d] law.', 'working as a lawyer', 'becoming a farmer'],
-
-            ['2_57', 2, 'Work & Future', 'Important people to write about', 'intimate|Closely acquainted', 'objective|Not influenced by personal feelings', 'When choosing a biographical subject|Writing about a relative allows for',
-             'I know my family well. Famous people are hard to research.',
-             'Writing about my grandfather would be personal. Writing about a celebrity requires research.',
-             '[d]When choosing a biographical subject,[/d] [g]writing about a relative allows for [v]intimate[/v], nuanced storytelling.[/g] [d]Conversely, a celebrity requires[/d] strict [v]objective[/v] fact-checking. [d]I would opt for[/d] the personal profile.', 'writing about someone you know', 'writing about a famous person'],
-
-            ['2_58', 2, 'Society & Community', 'Friends moving away', 'consistent|Acting in the same way', 'profound|Very great or intense', 'Maintaining long-distance friendships requires|Video chats ensure',
-             'Video calls are easy. Meeting takes travel time.',
-             'Weekly video chats keep you connected. Meeting once a month is more special but costs money.',
-             '[d]Maintaining long-distance friendships requires[/d] effort. [g]Video chats ensure [v]consistent[/v], low-cost communication, whereas physical meetings generate [v]profound[/v] emotional connections.[/g] [d]I prefer[/d] video chats.', 'having a weekly video chat', 'meeting up in person every month'],
-
-            ['2_59', 2, 'Work & Future', 'Learning about nature', 'dynamic|Characterized by constant change', 'botanical|Relating to botany', 'Both volunteer roles offer|Animal care is highly',
-             'Animals are cute. Plants are boring.',
-             'Helping at the zoo is very exciting. Looking after plants is peaceful but less interesting.',
-             '[d]Both volunteer roles offer[/d] great value. [g]Animal care is highly [v]dynamic[/v] and unpredictable, while park maintenance provides peaceful [v]botanical[/v] education.[/g] [d]I would definitely choose[/d] the zoo.', 'helping with small animals at a local zoo', 'looking after plants at a local park'],
-
-            ['2_60', 2, 'Work & Future', 'Giving a presentation about endangered animals', 'captivity|Condition of being confined', 'cinematography|Art of making motion pictures', 'For a research project|A zoo visit offers',
-             'A zoo is real. TV is just a screen.',
-             'Visiting a zoo lets you see the animals in real life. Documentaries show animals in the wild.',
-             '[d]For a research project,[/d] both sources are valid. [g]A zoo visit offers tangible proof of animals in [v]captivity[/v], yet documentaries present stunning [v]cinematography[/v] of natural habitats.[/g] [d]I choose[/d] documentaries.', 'visiting a zoo', 'watching a TV documentary'],
-
-            // PART 3 (61-90)
-            ['3_61', 3, 'Technology', 'Young people are more interested in new devices than older people. Do you agree?', 'digital natives|People brought up in digital age', 'intuitive|Easy to understand', 'I strongly agree that|From a generational perspective',
-             'I agree. Young people like phones.',
-             'I generally agree because teenagers grow up using devices for school and entertainment.',
-             '[d]I strongly agree that[/d] there is a divide. [d]From a generational perspective,[/d] young people are [v]digital natives[/v], meaning they find new interfaces completely [v]intuitive[/v]. [g]Were older generations exposed to this technology earlier, they might be more adaptable.[/g]'],
-
-            ['3_62', 3, 'Technology', 'In the future, robots will do all the housework. Do you agree?', 'automation|Use of automatic equipment', 'nuanced|Subtle shades of meaning', 'While it is highly likely that|We must acknowledge that',
-             'Yes. Robots will clean the floor.',
-             'I agree partly. Robots already vacuum floors, but I don\'t think they can do everything.',
-             '[d]While it is highly likely that[/d] [v]automation[/v] will handle mundane chores like vacuuming, [g]I doubt robots will perform all domestic tasks.[/g] [d]We must acknowledge that[/d] organizing a messy room requires [v]nuanced[/v] human judgement.'],
-
-            ['3_63', 3, 'Technology', 'Do you think that all the information we find online is accurate?', 'disinformation|False information intended to mislead', 'credible|Able to be believed', 'I completely disagree with the notion that|Therefore, critical thinking is',
-             'No. People lie on the internet.',
-             'No, definitely not. Anyone can write an article online. We have to check if it is trustworthy.',
-             '[d]I completely disagree with the notion that[/d] web data is universally [v]credible[/v]. [g]Because the internet lacks central editorial control, it is frequently flooded with [v]disinformation[/v].[/g] [d]Therefore, critical thinking is[/d] absolutely essential.'],
-
-            ['3_64', 3, 'Technology', 'Some people believe that it is not necessary to remember facts because all information is available online. What is your opinion?', 'cognitive decline|Reduction in mental capabilities', 'synthesize|Combine into a coherent whole', 'That is a rather dangerous assumption|Memory is crucial because',
-             'I disagree. If your phone battery dies, you need to know things.',
-             'I think we still need to memorize facts. If we don\'t use our brains, we become lazy.',
-             '[d]That is a rather dangerous assumption.[/d] [g]While search engines provide instant data, relying solely on them risks severe [v]cognitive decline[/v].[/g] [d]Memory is crucial because[/d] it allows us to instantly [v]synthesize[/v] information.'],
-
-            ['3_65', 3, 'Technology', 'Will students spend less time at school in future, and more time studying at home?', 'hybrid model|Combining different methods', 'socialization|Process of learning to behave in society', 'It is highly probable that|However, the physical classroom',
-             'Yes. Online school is easy.',
-             'I think schools will use a mix of both. Students will study basic things at home online.',
-             '[d]It is highly probable that[/d] a [v]hybrid model[/v] will become the norm. [g]Although technology facilitates seamless remote learning, the physical classroom remains vital for adolescent [v]socialization[/v].[/g] [d]Therefore,[/d] a total shift is unlikely.'],
-
-            ['3_66', 3, 'Work & Future', 'Do you think working as a journalist or a TV reporter is an interesting job?', 'dynamic|Characterized by constant change', 'scrutiny|Critical observation', 'I imagine it would be incredibly|On the downside',
-             'Yes, it is fun. You go on TV.',
-             'Yes, it sounds very exciting because you travel to new places every day.',
-             '[d]I imagine it would be incredibly[/d] [v]dynamic[/v]. [g]A reporter constantly encounters new events, ensuring no two days are identical.[/g] [d]On the downside,[/d] enduring constant public [v]scrutiny[/v] would be exhausting.'],
-
-            ['3_67', 3, 'Work & Future', 'Who should help young people choose their career, and why?', 'impartial|Not biased', 'aptitude|A natural ability', 'Ultimately, the decision rests with|Teachers offer a more',
-             'Parents should help. They know their children best.',
-             'Parents and teachers should both help. Teachers know what subjects they are good at.',
-             '[d]Ultimately, the decision rests with[/d] the youth, [g]but parents and career advisors must provide structural support.[/g] [d]While parents understand personality, teachers offer a more[/d] [v]impartial[/v] view of a student\'s academic [v]aptitude[/v].'],
-
-            ['3_68', 3, 'Work & Future', 'How many days a week do you think people should work, and why?', 'burnout|Physical or mental collapse', 'optimal|Best or most favourable', 'A four-day work week seems|By extending the weekend',
-             'People should work four days. Five days is too much.',
-             'I think a four-day week is best. People need three days off to rest and recover.',
-             '[d]A four-day work week seems[/d] [v]optimal[/v]. [g]By extending the weekend, corporations would actively prevent employee [v]burnout[/v].[/g] [d]This ultimately[/d] boosts overall economic efficiency.'],
-
-            ['3_69', 3, 'Work & Future', 'Is being a writer a good job? Why? Why not?', 'autonomy|Freedom from external control', 'financial instability|Financially insecure', 'It is a double-edged sword|Conversely',
-             'It is okay. You can work at home.',
-             'Being a writer is great because you can use your imagination and work from home.',
-             '[d]It is a double-edged sword.[/d] [g]The greatest benefit is absolute creative [v]autonomy[/v], allowing you to dictate your own schedule.[/g] [d]Conversely,[/d] the constant threat of [v]financial instability[/v] makes it highly stressful.'],
-
-            ['3_70', 3, 'Work & Future', 'Do you think that making a lot of money when you are young is always a good thing?', 'financial literacy|Ability to understand financial skills', 'complacent|Smug satisfaction', 'Not necessarily|There is a severe risk of',
-             'Yes, money is good. You can buy a nice car.',
-             'It is nice to have money to travel, but young people might spend it foolishly.',
-             '[d]Not necessarily.[/d] [g]While wealth provides security, youth often lack the [v]financial literacy[/v] required to manage large sums.[/g] [d]There is a severe risk of[/d] becoming [v]complacent[/v] and losing ambition.'],
-
-            ['3_71', 3, 'Environment & Weather', 'Do you think that pollution in big cities can be reduced?', 'drastic|Strong or far-reaching effect', 'infrastructure|Physical structures needed for operation', 'It is definitely possible, provided that|A transition to',
-             'Yes. People should ride bikes.',
-             'Yes, but it requires teamwork. Governments must build better public transport.',
-             '[d]It is definitely possible, provided that[/d] [v]drastic[/v] legislation is enforced. [g]Governments must invest heavily in green [v]infrastructure[/v].[/g] [d]A transition to[/d] fully electric transport networks is the only solution.'],
-
-            ['3_72', 3, 'Environment & Weather', 'Some people say that it is the responsibility of governments, rather than individuals, to protect the environment. What do you think?', 'legislation|Laws, considered collectively', 'symbiotic|Interaction between two different organisms', 'It requires a combined effort|While governments enforce',
-             'Both must help. Government makes laws.',
-             'I think it is a shared job. The government has the power to ban plastics.',
-             '[d]It requires a combined effort.[/d] [g]While governments possess the power to enforce industrial [v]legislation[/v], individuals dictate market demand.[/g] [d]Therefore, the relationship is entirely[/d] [v]symbiotic[/v].'],
-
-            ['3_73', 3, 'Environment & Weather', 'Should everyone avoid travelling abroad in order to save the planet?', 'impractical|Not adapted for use', 'aviation|Operating of aircraft', 'That is an extreme measure|We should focus on',
-             'No. Flying is fun.',
-             'No, banning travel is too strict. Tourism helps many countries make money.',
-             '[d]That is an extreme and[/d] [v]impractical[/v] measure. [g]If global travel ceased entirely, developing nations reliant on tourism would suffer economic collapse.[/g] [d]We should focus on[/d] reforming [v]aviation[/v] fuel standards instead.'],
-
-            ['3_74', 3, 'Environment & Weather', 'Some people say that animals have a better life in zoos than in the wild. What do you think?', 'predation|Preying of one animal on others', 'confined|Restrict within certain limits', 'I strongly disagree with this assertion|Nothing replicates the',
-             'No. Animals want to be free.',
-             'Zoos are safe and give animals food. But wild animals belong in the jungle.',
-             '[d]I strongly disagree with this assertion.[/d] [g]While zoos protect vulnerable species from starvation and [v]predation[/v], a [v]confined[/v] concrete enclosure severely damages their psychology.[/g] [d]Nothing replicates the[/d] freedom of natural habitats.'],
-
-            ['3_75', 3, 'Environment & Weather', 'Should all city centres be car-free to protect the environment?', 'pedestrianised|Made accessible only to people walking', 'logistics|Coordination of a complex operation', 'In theory, it is a brilliant concept|However, in practice',
-             'Yes. Cars make smoke.',
-             'Yes, city centres would be much quieter and safer for walking.',
-             '[d]In theory, it is a brilliant concept.[/d] [g]Fully [v]pedestrianised[/v] zones dramatically reduce toxic emissions and noise.[/g] [d]However, in practice,[/d] the [v]logistics[/v] of delivering goods make a total ban difficult.'],
-
-            ['3_76', 3, 'Society & Community', 'Some people say that reading is the best way to relax. Do you agree?', 'subjective|Dependent on personal perception', 'immersive|Providing stimulation for senses', 'I partially agree|Conversely, others require',
-             'Yes, reading is quiet.',
-             'Reading is a great way to relax because it takes you to another world.',
-             '[d]I partially agree, though relaxation is highly[/d] [v]subjective[/v]. [g]For many, literature offers a deeply [v]immersive[/v] escape from screen fatigue.[/g] [d]Conversely, others require[/d] intense physical exertion to truly unwind.'],
-
-            ['3_77', 3, 'Society & Community', 'Young people are not interested in any news. What do you think?', 'traditional media|Print, radio, and television', 'format|Way in which something is arranged', 'This is a common misconception|They consume information via',
-             'It is false. Young people read news on phones.',
-             'I think this is wrong. Young people care about the world, but they don\'t watch TV news.',
-             '[d]This is a common misconception.[/d] [g]Youth are highly engaged with global issues, but they entirely reject [v]traditional media[/v] formats.[/g] [d]They consume information via[/d] rapid, visually-driven digital platforms.'],
-
-            ['3_78', 3, 'Society & Community', 'What makes a good neighbour?', 'considerate|Careful not to cause inconvenience', 'intrusive|Causing disruption or annoyance', 'The most crucial trait is|A good neighbour strikes a balance between',
-             'A good neighbor is quiet.',
-             'A good neighbour is friendly and helps you if you are on holiday.',
-             '[d]The most crucial trait is[/d] being deeply [v]considerate[/v]. [g]A good neighbour strikes a delicate balance between being supportive during emergencies and never becoming [v]intrusive[/v] into your private life.[/g]'],
-
-            ['3_79', 3, 'Society & Community', 'All historic buildings and museums should be free to visit. Do you agree?', 'upkeep|Maintenance', 'subsidise|Support financially', 'While free access promotes education|We must consider the reality that',
-             'Yes, everyone should learn history for free.',
-             'It would be great if they were free for students. But these old buildings need money for repairs.',
-             '[d]While free access promotes education,[/d] [g]we must consider the reality that architectural [v]upkeep[/v] requires massive funding.[/g] [d]Perhaps a compromise[/d] where the government [v]subsidises[/v] student entry would be effective.'],
-
-            ['3_80', 3, 'Society & Community', 'Do you think we should judge a person by the clothes they wear?', 'superficial|Existing only on the surface', 'socio-economic|Relating to social and economic factors', 'I strongly oppose this idea|It fails to reflect',
-             'No. Clothes do not show if a person is kind.',
-             'No, because fashion is just a choice. A kind person might wear cheap clothes.',
-             '[d]I strongly oppose this idea.[/d] [g]Judging character based on apparel is incredibly [v]superficial[/v] and often heavily biased by [v]socio-economic[/v] status.[/g] [d]It completely fails to reflect[/d] a person\'s genuine moral integrity.'],
-
-            ['3_81', 3, 'Education', 'Do you think that learning about science is more important than learning about art?', 'holistic|Comprehension of parts as interconnected', 'innovation|A new method or idea', 'This is a false dichotomy|While science drives',
-             'Both are important. Science gives us medicine.',
-             'Science is vital for technology and health, but art is also important for expressing human emotions.',
-             '[d]This is a false dichotomy.[/d] [g]While science undeniably drives medical and technological [v]innovation[/v], art cultivates the creative empathy that makes us human.[/g] [d]A truly[/d] [v]holistic[/v] education requires both.'],
-
-            ['3_82', 3, 'Education', 'Should parents be involved in deciding what their children study at college or university?', 'autonomy|Freedom from external control', 'dictate|State or order authoritatively', 'Parents should act as advisors rather than|If teenagers are forced to',
-             'Parents can give advice.',
-             'Parents have life experience and can guide their children. But they shouldn\'t force them.',
-             '[d]Parents should act as advisors rather than dictating choices.[/d] [g]If teenagers are forced into degrees they despise, their lack of passion will guarantee failure.[/g] [d]Ultimately,[/d] academic [v]autonomy[/v] is crucial at eighteen.'],
-
-            ['3_83', 3, 'Education', 'Do you think studying online is as effective as studying face to face?', 'discipline|Training people to obey rules', 'nuance|A subtle difference in shade of meaning', 'It depends entirely on the student\'s|Online platforms deliver facts, but',
-             'No. At home, I play games.',
-             'Online studying is okay for reading, but you miss talking with friends. In a real classroom, you can ask the teacher questions.',
-             '[d]It depends entirely on the student\'s[/d] self-[v]discipline[/v]. [g]Online platforms deliver facts efficiently, but they fail to capture the subtle [v]nuance[/v] of human debate.[/g] [d]Face-to-face interaction[/d] remains superior for deep learning.'],
-
-            ['3_84', 3, 'Education', 'Is reading books the best way to learn a language?', 'comprehension|Action of understanding something', 'phonetics|Study of speech sounds', 'Reading is excellent for vocabulary, however|To achieve true fluency',
-             'Books are good for words. Talking is better.',
-             'Reading helps you spell words correctly. But you must practice speaking too.',
-             '[d]Reading is excellent for vocabulary and grammatical[/d] [v]comprehension[/v]. [g]However, unless a student actively converses with native speakers, their [v]phonetics[/v] will remain severely underdeveloped.[/g] [d]A multi-faceted approach[/d] is essential.'],
-
-            ['3_85', 3, 'Education', 'Should all young people learn how to play a musical instrument at school?', 'mandatory|Required by law or rules', 'extracurricular|Activity in addition to normal study', 'While music exposes students to|Making it compulsory might',
-             'No, some students hate music.',
-             'Music is great for the brain, but not everyone has the talent. It should be a choice.',
-             '[d]While music exposes students to[/d] cultural beauty, [g]making it a [v]mandatory[/v] subject might simply generate resentment among those who prefer athletics.[/g] [d]It is better left as[/d] an [v]extracurricular[/v] option.'],
-
-            ['3_86', 3, 'Health & Food', 'Should junk food be banned? Why? Why not?', 'prohibition|Action of forbidding something', 'moderation|Avoidance of excess', 'An outright ban is too extreme|Instead of banning it',
-             'No. Junk food tastes good.',
-             'I don\'t think it should be banned completely. The government should teach teenagers to eat it in small amounts.',
-             '[d]An outright[/d] [v]prohibition[/v] is too extreme and rarely works. [g]Instead of banning fast food, governments should heavily tax it to subsidize fresh produce.[/g] [d]Education on[/d] [v]moderation[/v] is far more powerful.'],
-
-            ['3_87', 3, 'Health & Food', 'Looking after your mind is as important as looking after your body. Do you agree?', 'intertwined|Connected or linked closely', 'burnout|Physical or mental collapse', 'I completely agree, as the two are|If a student neglects their mental health',
-             'Yes. You need to sleep.',
-             'I agree. Teenagers have a lot of exam stress. If they don\'t relax their minds, they will get sick.',
-             '[d]I completely agree, as the two are deeply[/d] [v]intertwined[/v]. [g]If a student neglects their mental health during exam season, the resulting [v]burnout[/v] will manifest as physical illness.[/g]'],
-
-            ['3_88', 3, 'Health & Food', 'Some people say that going to the gym is the best way to stay fit. What is your opinion?', 'monotonous|Dull and repetitious', 'accessible|Able to be reached', 'While gyms offer excellent equipment|Many people find them',
-             'Gyms are good but expensive.',
-             'Gyms have great machines for muscles, but they cost a lot of money. Swimming is much more fun.',
-             '[d]While gyms offer excellent equipment,[/d] [g]many find lifting weights in a confined room incredibly [v]monotonous[/v].[/g] [d]Alternative activities like[/d] cycling or team sports are far more [v]accessible[/v] and socially engaging.'],
-
-            ['3_89', 3, 'Health & Food', 'Is it better to exercise indoors than outdoors? Why? Why not?', 'controlled environment|Setting where variables are managed', 'invigorating|Making one feel full of energy', 'It depends on the climate|Indoor facilities guarantee',
-             'Outdoors is better. You get fresh air.',
-             'Indoor exercise is safe when it rains. However, running outdoors is much better because of fresh air.',
-             '[d]It depends on the climate.[/d] [g]Indoor facilities guarantee a [v]controlled environment[/v] regardless of weather.[/g] [d]However, nothing beats[/d] the [v]invigorating[/v] feeling of breathing fresh air while jogging through a forest.'],
-
-            ['3_90', 3, 'Health & Food', 'Do you think that spending time in nature is a good way to relax?', 'therapeutic|Having a good effect on mind', 'sensory overload|Overstimulation of senses', 'Absolutely|Escaping the concrete jungle provides',
-             'Yes. Trees are green and quiet.',
-             'Yes, walking in nature is very peaceful. It takes you away from the noise of city traffic.',
-             '[d]Absolutely.[/d] [g]Escaping the concrete jungle provides immense [v]therapeutic[/v] benefits.[/g] [d]It acts as the perfect antidote to[/d] the [v]sensory overload[/v] generated by screens and city noise.']
+        /* BASE DATABASE (90 Prompts) */
+        const baseRawData = [
+            ['1_1', 1, 'Health & Food', 'Can you tell me something about the food you usually eat at home?', 'wholesome|Healthy and natural', 'culinary|Related to cooking', 'Speaking from personal experience|A prime example is', 'I eat chicken and rice. My mom cooks it.', 'I usually eat home-cooked meals like pasta. It is much healthier than fast food.', '[d]Speaking from personal experience,[/d] my family prioritizes [v]wholesome[/v] meals. [g]If my parents didn\'t cook every evening, we would definitely rely on unhealthy takeaways.[/g] [d]A prime example is[/d] our Sunday roast, which has a great [v]culinary[/v] influence on my diet.'],
+            ['1_2', 1, 'Health & Food', 'Can you tell me about a special meal you had with family or friends?', 'atmosphere|The mood of a place', 'savour|To enjoy food slowly', 'One occasion that stands out is|What made it special was', 'I had pizza for my birthday. I ate it with my friends.', 'For my birthday, I went to a nice restaurant with my friends. We ate pizza and had fun.', '[d]One occasion that stands out is[/d] my sixteenth birthday dinner. [g]We had booked a table at a local Italian restaurant, which was beautifully decorated.[/g] [d]What made it special was[/d] the vibrant [v]atmosphere[/v] that allowed us to truly [v]savour[/v] both the food and the company.'],
+            ['1_3', 1, 'Health & Food', 'Do you think all young people should learn how to cook? Why? Why not?', 'self-sufficient|Able to provide for oneself', 'life skill|Skill necessary for everyday life', 'I strongly believe that|Consequently', 'Yes, young people should cook. It is good for when they live alone.', 'I think learning to cook is important for teenagers. When they go to university, they must prepare their own food.', '[d]I strongly believe that[/d] cooking is an essential [v]life skill[/v] for teenagers. [g]Were schools to teach mandatory cooking classes, students would become entirely self-sufficient before leaving for university.[/g] [d]Consequently,[/d] they would eat much healthier diets.'],
+            ['1_4', 1, 'Health & Food', 'Can you tell me what you and your friends do to stay healthy?', 'cardiovascular|Relating to the heart', 'regimen|A prescribed course of exercise', 'In terms of fitness|As a result', 'We play football in the park. We drink water.', 'My friends and I try to stay fit by playing football. We also try not to eat junk food.', '[d]In terms of fitness,[/d] my friends and I maintain a strict exercise [v]regimen[/v]. [g]Not only do we engage in cardiovascular sports like football, but we also closely monitor our diets.[/g] [d]As a result,[/d] we keep our energy levels high.'],
+            ['1_5', 1, 'Environment & Weather', 'Can you tell me about a time when you spent time outdoors, and what you did?', 'picturesque|Visually attractive', 'reconnect|Re-establish a bond', 'I vividly remember|It was a great opportunity to', 'I went to the beach. I swam in the sea.', 'Last summer, I went hiking in the mountains with my family. We walked for hours.', '[d]I vividly remember[/d] hiking through a [v]picturesque[/v] national park last year. [g]Having reached the summit, we stopped to appreciate the incredible view over the valley.[/g] [d]It was a great opportunity to[/d] completely [v]reconnect[/v] with nature.'],
+            ['1_6', 1, 'Health & Food', 'Do you think our modern lifestyle makes it difficult for people to stay healthy?', 'sedentary|Spending too much time seated', 'processed|Modified for shelf life', 'Without a doubt|This inevitably leads to', 'Yes, because we play video games too much.', 'Yes, modern life is hard because people sit down all day. Also, fast food is very easy to buy.', '[d]Without a doubt,[/d] modern society promotes a highly [v]sedentary[/v] lifestyle. [g]Because teenagers spend hours studying at desks and frequently consume processed foods, their health suffers.[/g] [d]This inevitably leads to[/d] a decline in physical well-being.'],
+            ['1_7', 1, 'Society & Community', 'How do you help your parents at home?', 'domestic chores|Household work', 'alleviate|Make a problem less severe', 'I make an effort to|By doing this, I', 'I clean my room and wash the dishes.', 'I try to help by washing the dishes after dinner. This gives my parents time to rest.', '[d]I make an effort to[/d] manage various [v]domestic chores[/v], such as vacuuming and cooking. [g]By taking on these responsibilities, I can significantly alleviate the stress my parents face.[/g] [d]This ultimately[/d] gives them time to relax.'],
+            ['1_8', 1, 'Society & Community', 'Can you tell me about a time when someone helped you, and what happened?', 'overwhelmed|Burdened with too much', 'clarify|Make less confusing', 'I recall an instance when|Fortunately', 'My friend helped me with math. I didn\'t understand it.', 'When I was struggling with my homework, my friend helped me. He explained the equations.', '[d]I recall an instance when[/d] I felt completely [v]overwhelmed[/v] by a complex physics assignment. [g]Fortunately, a classmate intervened and helped clarify the concepts that had confused me.[/g] [d]I was incredibly grateful[/d] for his patience.'],
+            ['1_9', 1, 'Society & Community', 'Do you think everyone should do something to help their local community?', 'civic duty|Responsibilities of a citizen', 'cohesion|Forming a united whole', 'I am of the opinion that|This fosters a sense of', 'Yes, we should help. We can pick up trash.', 'Yes, I think it is important. Helping out makes the town better for everyone.', '[d]I am of the opinion that[/d] volunteering is a fundamental [v]civic duty[/v]. [g]If everyone contributed just a few hours a month, our neighborhoods would improve drastically.[/g] [d]This fosters a strong sense of[/d] social [v]cohesion[/v].'],
+            ['1_10', 1, 'Society & Community', 'Can you tell me about the shops where you live?', 'commercial|Intended to make a profit', 'boutiques|Small fashionable shops', 'In my immediate area|What I appreciate most is', 'There is a big mall. I go there a lot.', 'My neighborhood has a large shopping centre and some small grocery stores.', '[d]In my immediate area,[/d] we have a dynamic [v]commercial[/v] district. [g]Not only are there large retail malls, but there are also independent boutiques scattered around.[/g] [d]What I appreciate most is[/d] the variety it provides.'],
+            ['1_11', 1, 'Society & Community', 'Can you tell me about a time when you did something interesting in your local area?', 'initiative|A strategy to resolve a difficulty', 'engagement|Participation in a community', 'A memorable occasion was|It was rewarding because', 'I planted a tree in the park. It was fun.', 'Last month, I helped clean up the local park. We collected rubbish and it felt good.', '[d]A memorable occasion was[/d] when I joined a youth [v]initiative[/v] to restore our local park. [g]Having collected dozens of bags of litter, we genuinely transformed the landscape.[/g] [d]It was rewarding because[/d] it encouraged local [v]engagement[/v].'],
+            ['1_12', 1, 'Society & Community', 'Do you think people enjoy living in your area?', 'amenities|Desirable features of a place', 'vibrant|Full of energy', 'Generally speaking|Another appealing factor is', 'Yes, it is a nice place. There are parks.', 'Yes, most people like it here because it is safe and there are good parks.', '[d]Generally speaking,[/d] residents find my area highly desirable. [g]Because it offers excellent amenities like sports centers, it attracts many young families.[/g] [d]Another appealing factor is[/d] the [v]vibrant[/v] cultural scene.'],
+            ['1_13', 1, 'Work & Future', 'Can you tell me about the jobs people in your family do?', 'profession|A paid occupation', 'corporate|Relating to a large company', 'My family is involved in|Whereas my mother', 'My dad is a businessman. My mom is a teacher.', 'My father works in an office as a manager, and my mother is a teacher.', '[d]My family is involved in[/d] quite diverse [v]professions[/v]. [g]My father works in the corporate sector, whereas my mother has dedicated her career to education.[/g] [d]This contrast provides[/d] me with different perspectives.'],
+            ['1_14', 1, 'Work & Future', 'What job would you like to do and how are you planning to prepare for it?', 'aspirations|A hope or ambition', 'qualifications|Official completion of a course', 'My ultimate goal is|To achieve this', 'I want to be a doctor. I will go to university.', 'I would love to become a software engineer. To prepare, I am studying IT at school.', '[d]My ultimate goal is[/d] to become an architect. [g]To achieve these career aspirations, I must first secure top grades in Mathematics and Art.[/g] [d]I am currently focusing on[/d] earning my university [v]qualifications[/v].'],
+            ['1_15', 1, 'Work & Future', 'Do you think that everyone should work only three days a week?', 'productivity|Effectiveness of productive effort', 'feasible|Possible to do easily', 'While it sounds appealing|In reality', 'Yes, because people need rest.', 'It would be nice to have more free time, but businesses could not survive.', '[d]While it sounds appealing[/d] for mental health, [g]I doubt a three-day week would be economically feasible for most companies.[/g] [d]In reality,[/d] it would drastically reduce [v]productivity[/v] in major industries.'],
+            ['1_16', 1, 'Education', 'What can people do to learn a foreign language?', 'immersion|Deep mental involvement', 'consistent|Acting in the same way over time', 'The most effective method is|It requires', 'They can read books or watch movies in English.', 'People can download language apps and watch movies with subtitles.', '[d]The most effective method is[/d] total cultural [v]immersion[/v]. [g]If learners constantly watched foreign media and practiced speaking with natives, they would progress rapidly.[/g] [d]It requires[/d] [v]consistent[/v] dedication.'],
+            ['1_17', 1, 'Education', 'Can you tell me about a time when you had to communicate in another language?', 'daunting|Seeming difficult to deal with', 'overcome|Succeed in dealing with a problem', 'A specific instance was|However, I managed to', 'I went to Spain. I ordered food in Spanish.', 'When I visited France, I asked for directions. I was nervous but the person understood.', '[d]A specific instance was[/d] during a family trip to Berlin. [g]Although I found it quite daunting at first, I successfully ordered our meals in French.[/g] [d]However, I managed to[/d] [v]overcome[/v] my anxiety.'],
+            ['1_18', 1, 'Education', 'Do you think it is possible to enjoy a holiday in a country where you do not speak the language?', 'barrier|An obstacle that prevents communication', 'fascinating|Extremely interesting', 'Absolutely|It can actually be', 'Yes. You can use translation apps on your phone.', 'Yes, you can still enjoy the sights. You can easily use translation apps to communicate.', '[d]Absolutely.[/d] [g]Even without speaking the local dialect, tourists can appreciate the architecture and cuisine.[/g] [d]It can actually be[/d] [v]fascinating[/v] to navigate the language [v]barrier[/v] using technology.'],
+            ['1_19', 1, 'Education', 'What lessons at school do you enjoy, and why?', 'analytical|Relating to logical reasoning', 'mechanics|The machinery or working parts of something', 'I am particularly drawn to|What makes it so', 'I like Science. We do experiments.', 'My favourite subject is History because I like learning about the past.', '[d]I am particularly drawn to[/d] Physics. [g]What makes it so fascinating is how it explains the complex mechanics of the universe.[/g] [d]It challenges me to[/d] apply [v]analytical[/v] thinking.'],
+            ['1_20', 1, 'Education', 'Can you tell me about a school project you worked on with other students?', 'collaborate|Work jointly on an activity', 'delegate|Entrust a task to another person', 'Recently, we were tasked with|The experience taught me', 'We made a poster about the environment.', 'Last term, we created a presentation on climate change. We split the work.', '[d]Recently, we were tasked with[/d] designing a science exhibition. [g]By carefully delegating specific roles to each group member, we managed to collaborate effectively.[/g] [d]The experience taught me[/d] the true value of teamwork.'],
+            ['1_21', 1, 'Education', 'Do you think people always need a teacher in order to learn something?', 'autonomous|Acting independently', 'guidance|Advice or information provided', 'Not necessarily|Nowadays, it is possible to', 'No. You can learn on YouTube by yourself.', 'No, because the internet has so many tutorials. However, a teacher is helpful for mistakes.', '[d]Not necessarily.[/d] [g]While teachers provide essential structured guidance, the internet enables highly autonomous learning.[/g] [d]Nowadays, it is possible to[/d] master complex skills via online tutorials.'],
+            ['1_22', 1, 'Hobbies & Media', 'Can you tell me about singers who are popular with people your age?', 'mainstream|Belonging to the widely accepted group', 'relatable|Enabling a person to feel they understand', 'Currently, the trend is|They resonate with youth because', 'Taylor Swift is very popular. She sings pop music.', 'Many teenagers listen to mainstream pop artists like Taylor Swift because the lyrics are easy.', '[d]Currently, the trend is[/d] heavily skewed toward [v]mainstream[/v] pop icons. [g]Artists like Taylor Swift resonate deeply with teenagers because their lyrics explore highly relatable emotional experiences.[/g]'],
+            ['1_23', 1, 'Hobbies & Media', 'Can you tell me about some music that you listened to recently, and why you enjoyed it?', 'upbeat|Cheerful and optimistic', 'distraction|A thing that prevents someone from giving full attention', 'Lately, I\'ve been listening to|What appealed to me was', 'I listened to a pop song. It was fast and made me happy.', 'I recently listened to a new pop album. It helped me relax while doing homework.', '[d]Lately, I\'ve been listening to[/d] a lot of indie rock. [g]What appealed to me was the upbeat melody, which provided a perfect distraction from my studies.[/g] [d]It serves as a great[/d] stress reliever.'],
+            ['1_24', 1, 'Hobbies & Media', 'Do you think all young people should learn to play a musical instrument?', 'cognitive|Relating to cognition or thinking', 'discipline|Training people to obey rules', 'I am convinced that|Not only does it', 'Yes, it is good for the brain.', 'Yes, playing an instrument teaches you how to be patient. It is a great way to relax.', '[d]I am convinced that[/d] music education offers immense [v]cognitive[/v] benefits. [g]Not only does it enhance creativity, but it also instills a strong sense of discipline.[/g] [d]Therefore, it should be encouraged.[/d]'],
+            ['1_25', 1, 'Hobbies & Media', 'Can you tell me about the types of books that are popular with people your age?', 'dystopian|Imagined society with great suffering', 'escapism|Seeking distraction from reality', 'A vast majority prefer|They offer a form of', 'Teenagers like fantasy books and magic.', 'Most teenagers enjoy reading science fiction or fantasy novels full of adventure.', '[d]A vast majority prefer[/d] [v]dystopian[/v] fiction and fantasy. [g]Because these genres present alternate realities, they offer a perfect form of escapism from school pressures.[/g] [d]They allow us to disconnect.[/d]'],
+            ['1_26', 1, 'Hobbies & Media', 'Can you tell me about a story that you read recently, and why you read it?', 'intriguing|Arousing curiosity', 'narrative|A written account of connected events', 'I recently finished|I picked it up because', 'I read Harry Potter. It has magic.', 'I read a detective story recently. The plot was very exciting and full of mystery.', '[d]I recently finished[/d] a historical thriller. [g]I picked it up because our English teacher had highly recommended the author\'s unique narrative style.[/g] [d]The plot was incredibly[/d] [v]intriguing[/v].'],
+            ['1_27', 1, 'Hobbies & Media', 'Do you think people will read paper books in the future?', 'tactile|Connected with the sense of touch', 'obsolete|No longer produced or used', 'Despite the rise of|There is a certain', 'No, people will use iPads. Books are heavy.', 'I think paper books will become less popular, but some people will still buy them.', '[d]Despite the rise of[/d] digital tablets, [g]I doubt physical books will ever become entirely obsolete.[/g] [d]There is a certain[/d] [v]tactile[/v] pleasure in holding a real book that screens cannot replicate.'],
+            ['1_28', 1, 'Environment & Weather', 'Can you tell me about things people in your country like to do when the weather is sunny?', 'recreational|Relating to enjoyment', 'flock|Congregate in a group', 'When the sun is shining|It is a common tradition to', 'People go to the park and play sports.', 'When it is sunny, families often go to the beach or have a barbecue.', '[d]When the sun is shining,[/d] residents absolutely [v]flock[/v] to coastal areas. [g]If the weather permits, families will spend the entire weekend engaging in recreational outdoor sports.[/g]'],
+            ['1_29', 1, 'Environment & Weather', 'Can you tell me about a holiday that you went on when the weather was bad?', 'dismal|Depressing or dreary', 'confined|Restricted within certain limits', 'Unfortunately, during a trip to|Despite the conditions', 'We went to the beach but it rained.', 'During our trip to London, it rained heavily. We had to stay inside museums.', '[d]Unfortunately, during a trip to[/d] the mountains, the weather was completely [v]dismal[/v]. [g]Because of the severe storms, we were confined to our hotel room for three straight days.[/g]'],
+            ['1_30', 1, 'Environment & Weather', 'Do you think the weather affects how people feel?', 'psychological|Related to mental state', 'lethargic|Sluggish and apathetic', 'There is a clear link between|Conversely', 'Yes. Sunny days make people happy.', 'Yes, I think weather changes our mood. Sunshine gives people energy.', '[d]There is a clear link between[/d] climate and [v]psychological[/v] well-being. [g]While bright sunshine boosts energy levels, prolonged periods of rain can leave people feeling lethargic.[/g]'],
+            ['2_31', 2, 'Technology', 'The best invention for the home', 'convenience|State of proceeding with little effort', 'sedentary|Inactive lifestyle', 'When comparing these options|Ultimately, my preference is', 'A microwave cooks food fast. A remote changes channels. I prefer the microwave.', 'A microwave is useful for heating food, but a remote is great for relaxing. I prefer the microwave.', '[d]Both of these options present clear advantages.[/d] [g]Although a remote control enhances relaxation, it undoubtedly encourages a [v]sedentary[/v] lifestyle.[/g] [d]Conversely,[/d] a microwave offers extreme [v]convenience[/v] for busy students. [d]Taking all into account, I would select[/d] the microwave for meal efficiency.', 'a microwave', 'a TV remote control'],
+            ['2_32', 2, 'Technology', 'Finding information for a project', 'first-hand|Obtained by direct experience', 'extensive|Covering a large area', 'Both methods have their merits|However, the downside is', 'Internet is fast. Talking takes time. I prefer internet.', 'Researching online is fast. Talking is personal but takes longer. I prefer internet.', '[d]Both methods have their merits.[/d] [g]While researching online provides [v]extensive[/v] data instantly, it lacks emotional depth.[/g] [d]On the other hand,[/d] interviewing offers [v]first-hand[/v] perspectives but takes time. [d]My preference is[/d] online research due to strict school deadlines.', 'researching online', 'talking to people'],
+            ['2_33', 2, 'Technology', 'Sharing a school trip experience', 'interactive|Two-way flow of info', 'permanent|Lasting indefinitely', 'These formats contrast greatly|The latter, however', 'A presentation is scary. A blog is easy.', 'A presentation is good face-to-face. But a blog stays online forever. I prefer the blog.', '[d]These formats contrast greatly.[/d] [g]Although a live presentation is highly [v]interactive[/v], it can induce anxiety for students.[/g] [d]The latter, however,[/d] provides a [v]permanent[/v] digital record. [d]I would definitely opt for[/d] the blog.', 'giving a presentation', 'writing a blog'],
+            ['2_34', 2, 'Education', 'Different ways of learning', 'collaborative|Working together', 'isolation|State of being alone', 'In terms of learning styles|On the flip side', 'Group work is noisy. Home study is quiet.', 'Working in a group shares ideas. Studying at home is quieter. I prefer studying at home.', '[d]In terms of learning styles, these are very different.[/d] [g]While [v]collaborative[/v] projects foster teamwork skills, online study promotes independence.[/g] [d]On the flip side,[/d] studying at home can lead to [v]isolation[/v]. [d]I personally favour[/d] the group approach.', 'working with others', 'studying online'],
+            ['2_35', 2, 'Education', 'A school project', 'global perspective|Worldview', 'tedious|Too long or dull', 'Both options present interesting angles|The disadvantage is that', 'Internet is fast. Interviews are slow.', 'Internet gives news from around the world. Interviewing classmates takes too much time.', '[d]Both options present interesting angles.[/d] [g]While internet research yields a broad [v]global perspective[/v], interviewing classmates provides localized data.[/g] [d]The disadvantage is that[/d] conducting interviews can be [v]tedious[/v]. [d]Therefore, I prefer[/d] the online research.', 'researching positive news online', 'interviewing classmates'],
+            ['2_36', 2, 'Education', 'Preparing a project for school', 'distraction|Thing that prevents attention', 'comprehensive|Including all elements', 'Evaluating these two approaches|Conversely, the latter', 'Books are quiet. Online is loud.', 'Library books are reliable. Working online is faster but we might chat too much.', '[d]Evaluating these two approaches, we see distinct benefits.[/d] [g]Independent library research guarantees a [v]comprehensive[/v], distraction-free environment.[/g] [d]Conversely, the latter[/d] method relies on digital tools which can fail. [d]I would opt for[/d] the traditional library route.', 'doing research using library books', 'working online with students'],
+            ['2_37', 2, 'Education', 'Outdoor learning', 'experiential|Based on experience', 'logistical|Relating to organization', 'Both activities promote|However, a trip requires', 'A garden is good. A trip is fun.', 'A garden teaches students every week. A camping trip is an exciting adventure. I prefer the garden.', '[d]Both activities promote[/d] [v]experiential[/v] learning. [g]While a garden provides continuous weekly engagement, a camping trip is merely a one-off event.[/g] [d]Furthermore, a trip requires[/d] heavy [v]logistical[/v] planning. [d]I strongly favour[/d] the garden.', 'a school vegetable garden', 'a school camping trip'],
+            ['2_38', 2, 'Education', 'A new room for your school', 'recreation|Activity for enjoyment', 'academic pressure|Stress from schoolwork', 'When considering what students need|In contrast', 'A games room is fun. A study room is boring.', 'Students need a games room to relax. A study room is good for homework. I prefer the games room.', '[d]When considering what students need,[/d] [g]we must balance [v]recreation[/v] against [v]academic pressure[/v].[/g] [d]In contrast[/d] to another silent library space, a games room provides a vital mental break. [d]I would advocate for[/d] the games room.', 'a games room', 'a room for quiet study'],
+            ['2_39', 2, 'Education', 'Writing an article', 'creative liberty|Freedom to express ideas', 'relevance|Being closely connected', 'Comparing these article ideas|The second option, meanwhile', 'Writing about my town is easy. Writing about school is boring.', 'Writing about my town is more creative. Writing about a school event is informative. I prefer my town.', '[d]Comparing these article ideas,[/d] [g]the first choice allows for far more [v]creative liberty[/v].[/g] [d]The second option, meanwhile,[/d] possesses direct [v]relevance[/v] to the student body. [d]I would select[/d] the local town piece to showcase descriptive skills.', 'describing your favourite place', 'writing about a recent school event'],
+            ['2_40', 2, 'Education', 'A new experience', 'cultural immersion|Engaging with foreign culture', 'tangible|Clear and definite', 'Both experiences offer immense value|Conversely, a course yields', 'Trips are fun. Courses are like school.', 'A trip is a great adventure, but a course teaches you something useful. I prefer taking a course.', '[d]Both experiences offer immense value.[/d] [g]While travelling provides broad [v]cultural immersion[/v], a course yields highly [v]tangible[/v] abilities.[/g] [d]Because I am preparing for university, I would prioritize[/d] the practical course.', 'going on a trip to a new place', 'taking a course to learn a practical skill'],
+            ['2_41', 2, 'Environment & Weather', 'Volunteering to help the environment', 'ecological|Relating to biology', 'immediate gratification|Satisfaction without delay', 'Both initiatives address pressing concerns|Although litter collection offers', 'Picking up litter is fast. Planting trees is hard.', 'Picking up litter makes streets look nice. Planting trees is better for the long-term.', '[d]Both initiatives address pressing concerns.[/d] [g]Although litter collection offers [v]immediate gratification[/v], planting trees represents a profound [v]ecological[/v] investment.[/g] [d]I would definitely opt for[/d] planting trees due to its lasting legacy.', 'picking up litter in your area', 'helping to plant trees'],
+            ['2_42', 2, 'Environment & Weather', 'Reducing your impact on the environment', 'carbon footprint|Greenhouse gas emissions', 'consumerism|Promotion of consumers interests', 'Evaluating these personal changes|The former directly impacts', 'Turning off lights is easy. Not buying clothes is hard.', 'Using less electricity is an easy habit. Buying fewer clothes is harder. I prefer saving electricity.', '[d]Evaluating these personal changes,[/d] [g]the former directly reduces one\'s [v]carbon footprint[/v], whereas the latter combats fast fashion [v]consumerism[/v].[/g] [d]I would focus on[/d] electricity reduction as it is universally applicable.', 'using less electricity in your home', 'buying fewer new clothes'],
+            ['2_43', 2, 'Environment & Weather', 'Being more environmentally friendly', 'emissions|Production of gas', 'e-waste|Electronic trash', 'These represent two major sacrifices|However, retaining a phone', 'Not flying is boring. Keeping an old phone is okay.', 'Stopping plane travel is very difficult. Keeping an old phone reduces electronic waste.', '[d]These represent two major sacrifices.[/d] [g]Giving up flights drastically cuts [v]emissions[/v], yet it isolates families globally.[/g] [d]However, retaining a phone[/d] significantly reduces global [v]e-waste[/v]. [d]I would select[/d] the smartphone option.', 'stopping travelling by plane', 'using the same smartphone for many years'],
+            ['2_44', 2, 'Environment & Weather', 'Writing about environmental problems', 'visible|Able to be seen', 'psychological|Related to mental state', 'When selecting an article topic|In contrast, noise pollution', 'Litter is everywhere. Noise is just loud.', 'Litter is a very obvious problem. Noise pollution is annoying but harder to photograph.', '[d]When selecting an article topic,[/d] [g]litter is a highly [v]visible[/v] issue that sparks immediate outrage.[/g] [d]In contrast, noise pollution[/d] has severe but hidden [v]psychological[/v] impacts. [d]I would prefer[/d] exploring noise pollution.', 'noise pollution', 'litter'],
+            ['2_45', 2, 'Environment & Weather', 'Helping nature at school', 'aesthetics|Appreciation of beauty', 'sustainable|Able to be maintained', 'Comparing these school-led projects|The first option improves', 'Planting trees looks nice. Picking up litter is dirty.', 'Planting trees makes the school greener. Picking up litter helps the park but is temporary.', '[d]Comparing these school-led projects,[/d] [g]planting trees fundamentally improves campus [v]aesthetics[/v], while litter picking is merely a temporary fix.[/g] [d]Therefore, I lean towards[/d] the [v]sustainable[/v] tree-planting initiative.', 'planting trees around your school', 'picking up litter in the local park'],
+            ['2_46', 2, 'Health & Food', 'A free afternoon', 'commercial|Concerned with commerce', 'mental fatigue|Exhaustion of the mind', 'These options offer vastly different experiences|Conversely, a nature walk', 'I like shopping. Walking is boring.', 'Shopping centres are great for meeting friends. Country walks are peaceful. I prefer the shopping centre.', '[d]These options offer vastly different experiences.[/d] [g]A mall provides [v]commercial[/v] entertainment, whereas a nature walk effectively cures [v]mental fatigue[/v].[/g] [d]Given the stress of exams, I would prefer[/d] the countryside to disconnect.', 'going to a shopping centre', 'going for a walk in the countryside'],
+            ['2_47', 2, 'Health & Food', 'Changing your lifestyle for health', 'logistical|Relating to organization', 'cardiovascular|Relating to the heart', 'When adopting new health habits|The latter effortlessly', 'Cooking is hard. Cycling is easy.', 'Cooking fresh meals takes a lot of time. Cycling to school is an easier way to get fit.', '[d]When adopting new health habits,[/d] [g]the former demands severe [v]logistical[/v] planning, while the latter effortlessly integrates [v]cardiovascular[/v] exercise into an existing routine.[/g] [d]I would definitely opt for[/d] cycling.', 'cooking fresh meals every day', 'cycling to school once a week'],
+            ['2_48', 2, 'Health & Food', 'A special visit from a cousin', 'superficial|On the surface', 'enriching|Improving quality', 'Entertaining a guest requires|While a mall is a safe choice', 'The mall is fun. Museums are boring.', 'Going to the mall is safe and fun. A museum might be educational but less exciting.', '[d]Entertaining a guest requires[/d] thoughtful planning. [g]While a mall is a safe choice, it offers a rather [v]superficial[/v] experience.[/g] [d]A museum, however,[/d] guarantees an [v]enriching[/v] cultural dialogue. [d]I would choose[/d] the museum.', 'going to your favourite shopping mall', 'visiting a new museum'],
+            ['2_49', 2, 'Health & Food', 'Party food', 'financial burden|Heavy financial cost', 'culinary|Related to cooking', 'Organizing party catering can be tricky|The first method reduces', 'Fast food is easy. Cooking takes time.', 'Asking guests is cheaper but risky. Ordering fast food guarantees everyone gets something quickly.', '[d]Organizing party catering can be tricky.[/d] [g]The first method significantly reduces the [v]financial burden[/v] on the host, yet it risks [v]culinary[/v] chaos.[/g] [d]I would actually prefer[/d] the shared meal.', 'asking your guests to bring their favourite food', 'ordering from a fast food restaurant'],
+            ['2_50', 2, 'Health & Food', 'Healthy living class', 'endurance|Power of enduring', 'dietary|Relating to diets', 'Both classes target different aspects|An exercise class builds', 'Exercise makes you tired. Cooking gives you food.', 'An exercise class is great for losing weight. A cookery class teaches you how to eat well.', '[d]Both classes target different aspects of health.[/d] [g]An exercise class builds physical [v]endurance[/v], whereas a cookery class instils lifelong [v]dietary[/v] knowledge.[/g] [d]I would undoubtedly choose[/d] the cookery class.', 'an exercise class at a sports centre', 'a cookery class at a local restaurant'],
+            ['2_51', 2, 'Travel', 'A holiday abroad', 'fast-paced|Moving quickly', 'tranquil|Calm', 'These destinations cater to|A city break offers', 'A city has shops. A park has trees.', 'A capital city is very exciting. A national park is peaceful but might get boring.', '[d]These destinations cater to[/d] very different needs. [g]A city break offers [v]fast-paced[/v] cultural exposure, conversely, a national park provides a [v]tranquil[/v] escape.[/g] [d]Given the exhaustion of the school term, I would select[/d] the national park.', 'a weekend in a capital city', 'a week-long stay in a national park'],
+            ['2_52', 2, 'Travel', 'New developments in your area', 'exclusivity|Restriction to a group', 'communal|Shared by all', 'When debating local infrastructure|A luxury hotel promises', 'A hotel brings tourists. A sports centre is for us.', 'A luxury hotel creates jobs. A sports centre benefits everyone\'s health.', '[d]When debating local infrastructure,[/d] [g]a luxury hotel promises tourist revenue but promotes [v]exclusivity[/v].[/g] [d]A fitness centre, however,[/d] acts as a [v]communal[/v] hub. [d]I strongly advocate for[/d] the sports centre.', 'a luxury 5-star hotel', 'a sports and fitness centre'],
+            ['2_53', 2, 'Travel', 'International visitors', 'heritage|Traditions', 'ice-breaker|A thing that serves to relieve tension', 'Welcoming foreign guests requires|A town tour highlights', 'A tour is long. A party is fun.', 'A town tour teaches visitors about our history. A school party helps students make friends.', '[d]Welcoming foreign guests requires[/d] balancing education with fun. [g]While a town tour highlights local [v]heritage[/v], a dynamic school party serves as the ultimate [v]ice-breaker[/v].[/g] [d]I would definitely opt for[/d] the party.', 'a tour of your home town', 'a party at school'],
+            ['2_54', 2, 'Environment & Weather', 'Enjoying nature', 'tangible|Perceptible by touch', 'virtual|Made by software', 'The contrast here is between|Walking provides', 'Walking is real. Internet is just pictures.', 'Walking outside lets you breathe fresh air. The internet gives you more facts.', '[d]The contrast here is between[/d] the [v]tangible[/v] and the [v]virtual[/v]. [g]Walking provides sensory engagement with the environment, whereas internet research yields sterile data.[/g] [d]I would certainly choose[/d] the physical walk.', 'going for a nature walk', 'doing research on the internet'],
+            ['2_55', 2, 'Travel', 'A school trip', 'biodiversity|Variety of life', 'recreational|Relating to enjoyment', 'Selecting a school trip involves|The zoo guarantees', 'The zoo has animals. The seaside has sand.', 'A zoo trip is educational. The seaside is great for relaxing and having fun.', '[d]Selecting a school trip involves[/d] balancing learning with leisure. [g]The zoo guarantees exposure to global [v]biodiversity[/v], yet the seaside offers unparalleled [v]recreational[/v] freedom.[/g] [d]I would lean towards[/d] the seaside.', 'a day at the zoo', 'a day at the seaside'],
+            ['2_56', 2, 'Work & Future', 'Your future career', 'lucrative|Producing a great deal of profit', 'agricultural|Relating to farming', 'These paths represent entirely different lifestyles|Law promises', 'Lawyers make money. Farmers work outside.', 'Being a lawyer is well-paid but stressful. Being a farmer is peaceful but hard.', '[d]These paths represent entirely different lifestyles.[/d] [g]Law promises a [v]lucrative[/v], albeit high-stress, urban career.[/g] [d]Farming connects you to[/d] essential [v]agricultural[/v] production. [d]I would select[/d] law.', 'working as a lawyer', 'becoming a farmer'],
+            ['2_57', 2, 'Work & Future', 'Important people to write about', 'intimate|Closely acquainted', 'objective|Not influenced by personal feelings', 'When choosing a biographical subject|Writing about a relative allows for', 'I know my family well. Famous people are hard to research.', 'Writing about my grandfather would be personal. Writing about a celebrity requires research.', '[d]When choosing a biographical subject,[/d] [g]writing about a relative allows for [v]intimate[/v], nuanced storytelling.[/g] [d]Conversely, a celebrity requires[/d] strict [v]objective[/v] fact-checking. [d]I would opt for[/d] the personal profile.', 'writing about someone you know', 'writing about a famous person'],
+            ['2_58', 2, 'Society & Community', 'Friends moving away', 'consistent|Acting in the same way', 'profound|Very great or intense', 'Maintaining long-distance friendships requires|Video chats ensure', 'Video calls are easy. Meeting takes travel time.', 'Weekly video chats keep you connected. Meeting once a month is more special but costs money.', '[d]Maintaining long-distance friendships requires[/d] effort. [g]Video chats ensure [v]consistent[/v], low-cost communication, whereas physical meetings generate [v]profound[/v] emotional connections.[/g] [d]I prefer[/d] video chats.', 'having a weekly video chat', 'meeting up in person every month'],
+            ['2_59', 2, 'Work & Future', 'Learning about nature', 'dynamic|Characterized by constant change', 'botanical|Relating to botany', 'Both volunteer roles offer|Animal care is highly', 'Animals are cute. Plants are boring.', 'Helping at the zoo is very exciting. Looking after plants is peaceful but less interesting.', '[d]Both volunteer roles offer[/d] great value. [g]Animal care is highly [v]dynamic[/v] and unpredictable, while park maintenance provides peaceful [v]botanical[/v] education.[/g] [d]I would definitely choose[/d] the zoo.', 'helping with small animals at a local zoo', 'looking after plants at a local park'],
+            ['2_60', 2, 'Work & Future', 'Giving a presentation about endangered animals', 'captivity|Condition of being confined', 'cinematography|Art of making motion pictures', 'For a research project|A zoo visit offers', 'A zoo is real. TV is just a screen.', 'Visiting a zoo lets you see the animals in real life. Documentaries show animals in the wild.', '[d]For a research project,[/d] both sources are valid. [g]A zoo visit offers tangible proof of animals in [v]captivity[/v], yet documentaries present stunning [v]cinematography[/v] of natural habitats.[/g] [d]I choose[/d] documentaries.', 'visiting a zoo', 'watching a TV documentary'],
+            ['3_61', 3, 'Technology', 'Young people are more interested in new devices than older people. Do you agree?', 'digital natives|People brought up in digital age', 'intuitive|Easy to understand', 'I strongly agree that|From a generational perspective', 'I agree. Young people like phones.', 'I generally agree because teenagers grow up using devices for school and entertainment.', '[d]I strongly agree that[/d] there is a divide. [d]From a generational perspective,[/d] young people are [v]digital natives[/v], meaning they find new interfaces completely [v]intuitive[/v]. [g]Were older generations exposed to this technology earlier, they might be more adaptable.[/g]'],
+            ['3_62', 3, 'Technology', 'In the future, robots will do all the housework. Do you agree?', 'automation|Use of automatic equipment', 'nuanced|Subtle shades of meaning', 'While it is highly likely that|We must acknowledge that', 'Yes. Robots will clean the floor.', 'I agree partly. Robots already vacuum floors, but I don\'t think they can do everything.', '[d]While it is highly likely that[/d] [v]automation[/v] will handle mundane chores like vacuuming, [g]I doubt robots will perform all domestic tasks.[/g] [d]We must acknowledge that[/d] organizing a messy room requires [v]nuanced[/v] human judgement.'],
+            ['3_63', 3, 'Technology', 'Do you think that all the information we find online is accurate?', 'disinformation|False information intended to mislead', 'credible|Able to be believed', 'I completely disagree with the notion that|Therefore, critical thinking is', 'No. People lie on the internet.', 'No, definitely not. Anyone can write an article online. We have to check if it is trustworthy.', '[d]I completely disagree with the notion that[/d] web data is universally [v]credible[/v]. [g]Because the internet lacks central editorial control, it is frequently flooded with [v]disinformation[/v].[/g] [d]Therefore, critical thinking is[/d] absolutely essential.'],
+            ['3_64', 3, 'Technology', 'Some people believe that it is not necessary to remember facts because all information is available online. What is your opinion?', 'cognitive decline|Reduction in mental capabilities', 'synthesize|Combine into a coherent whole', 'That is a rather dangerous assumption|Memory is crucial because', 'I disagree. If your phone battery dies, you need to know things.', 'I think we still need to memorize facts. If we don\'t use our brains, we become lazy.', '[d]That is a rather dangerous assumption.[/d] [g]While search engines provide instant data, relying solely on them risks severe [v]cognitive decline[/v].[/g] [d]Memory is crucial because[/d] it allows us to instantly [v]synthesize[/v] information.'],
+            ['3_65', 3, 'Technology', 'Will students spend less time at school in future, and more time studying at home?', 'hybrid model|Combining different methods', 'socialization|Process of learning to behave in society', 'It is highly probable that|However, the physical classroom', 'Yes. Online school is easy.', 'I think schools will use a mix of both. Students will study basic things at home online.', '[d]It is highly probable that[/d] a [v]hybrid model[/v] will become the norm. [g]Although technology facilitates seamless remote learning, the physical classroom remains vital for adolescent [v]socialization[/v].[/g] [d]Therefore,[/d] a total shift is unlikely.'],
+            ['3_66', 3, 'Work & Future', 'Do you think working as a journalist or a TV reporter is an interesting job?', 'dynamic|Characterized by constant change', 'scrutiny|Critical observation', 'I imagine it would be incredibly|On the downside', 'Yes, it is fun. You go on TV.', 'Yes, it sounds very exciting because you travel to new places every day.', '[d]I imagine it would be incredibly[/d] [v]dynamic[/v]. [g]A reporter constantly encounters new events, ensuring no two days are identical.[/g] [d]On the downside,[/d] enduring constant public [v]scrutiny[/v] would be exhausting.'],
+            ['3_67', 3, 'Work & Future', 'Who should help young people choose their career, and why?', 'impartial|Not biased', 'aptitude|A natural ability', 'Ultimately, the decision rests with|Teachers offer a more', 'Parents should help. They know their children best.', 'Parents and teachers should both help. Teachers know what subjects they are good at.', '[d]Ultimately, the decision rests with[/d] the youth, [g]but parents and career advisors must provide structural support.[/g] [d]While parents understand personality, teachers offer a more[/d] [v]impartial[/v] view of a student\'s academic [v]aptitude[/v].'],
+            ['3_68', 3, 'Work & Future', 'How many days a week do you think people should work, and why?', 'burnout|Physical or mental collapse', 'optimal|Best or most favourable', 'A four-day work week seems|By extending the weekend', 'People should work four days. Five days is too much.', 'I think a four-day week is best. People need three days off to rest and recover.', '[d]A four-day work week seems[/d] [v]optimal[/v]. [g]By extending the weekend, corporations would actively prevent employee [v]burnout[/v].[/g] [d]This ultimately[/d] boosts overall economic efficiency.'],
+            ['3_69', 3, 'Work & Future', 'Is being a writer a good job? Why? Why not?', 'autonomy|Freedom from external control', 'financial instability|Financially insecure', 'It is a double-edged sword|Conversely', 'It is okay. You can work at home.', 'Being a writer is great because you can use your imagination and work from home.', '[d]It is a double-edged sword.[/d] [g]The greatest benefit is absolute creative [v]autonomy[/v], allowing you to dictate your own schedule.[/g] [d]Conversely,[/d] the constant threat of [v]financial instability[/v] makes it highly stressful.'],
+            ['3_70', 3, 'Work & Future', 'Do you think that making a lot of money when you are young is always a good thing?', 'financial literacy|Ability to understand financial skills', 'complacent|Smug satisfaction', 'Not necessarily|There is a severe risk of', 'Yes, money is good. You can buy a nice car.', 'It is nice to have money to travel, but young people might spend it foolishly.', '[d]Not necessarily.[/d] [g]While wealth provides security, youth often lack the [v]financial literacy[/v] required to manage large sums.[/g] [d]There is a severe risk of[/d] becoming [v]complacent[/v] and losing ambition.'],
+            ['3_71', 3, 'Environment & Weather', 'Do you think that pollution in big cities can be reduced?', 'drastic|Strong or far-reaching effect', 'infrastructure|Physical structures needed for operation', 'It is definitely possible, provided that|A transition to', 'Yes. People should ride bikes.', 'Yes, but it requires teamwork. Governments must build better public transport.', '[d]It is definitely possible, provided that[/d] [v]drastic[/v] legislation is enforced. [g]Governments must invest heavily in green [v]infrastructure[/v].[/g] [d]A transition to[/d] fully electric transport networks is the only solution.'],
+            ['3_72', 3, 'Environment & Weather', 'Some people say that it is the responsibility of governments, rather than individuals, to protect the environment. What do you think?', 'legislation|Laws, considered collectively', 'symbiotic|Interaction between two different organisms', 'It requires a combined effort|While governments enforce', 'Both must help. Government makes laws.', 'I think it is a shared job. The government has the power to ban plastics.', '[d]It requires a combined effort.[/d] [g]While governments possess the power to enforce industrial [v]legislation[/v], individuals dictate market demand.[/g] [d]Therefore, the relationship is entirely[/d] [v]symbiotic[/v].'],
+            ['3_73', 3, 'Environment & Weather', 'Should everyone avoid travelling abroad in order to save the planet?', 'impractical|Not adapted for use', 'aviation|Operating of aircraft', 'That is an extreme measure|We should focus on', 'No. Flying is fun.', 'No, banning travel is too strict. Tourism helps many countries make money.', '[d]That is an extreme and[/d] [v]impractical[/v] measure. [g]If global travel ceased entirely, developing nations reliant on tourism would suffer economic collapse.[/g] [d]We should focus on[/d] reforming [v]aviation[/v] fuel standards instead.'],
+            ['3_74', 3, 'Environment & Weather', 'Some people say that animals have a better life in zoos than in the wild. What do you think?', 'predation|Preying of one animal on others', 'confined|Restrict within certain limits', 'I strongly disagree with this assertion|Nothing replicates the', 'No. Animals want to be free.', 'Zoos are safe and give animals food. But wild animals belong in the jungle.', '[d]I strongly disagree with this assertion.[/d] [g]While zoos protect vulnerable species from starvation and [v]predation[/v], a [v]confined[/v] concrete enclosure severely damages their psychology.[/g] [d]Nothing replicates the[/d] freedom of natural habitats.'],
+            ['3_75', 3, 'Environment & Weather', 'Should all city centres be car-free to protect the environment?', 'pedestrianised|Made accessible only to people walking', 'logistics|Coordination of a complex operation', 'In theory, it is a brilliant concept|However, in practice', 'Yes. Cars make smoke.', 'Yes, city centres would be much quieter and safer for walking.', '[d]In theory, it is a brilliant concept.[/d] [g]Fully [v]pedestrianised[/v] zones dramatically reduce toxic emissions and noise.[/g] [d]However, in practice,[/d] the [v]logistics[/v] of delivering goods make a total ban difficult.'],
+            ['3_76', 3, 'Society & Community', 'Some people say that reading is the best way to relax. Do you agree?', 'subjective|Dependent on personal perception', 'immersive|Providing stimulation for senses', 'I partially agree|Conversely, others require', 'Yes, reading is quiet.', 'Reading is a great way to relax because it takes you to another world.', '[d]I partially agree, though relaxation is highly[/d] [v]subjective[/v]. [g]For many, literature offers a deeply [v]immersive[/v] escape from screen fatigue.[/g] [d]Conversely, others require[/d] intense physical exertion to truly unwind.'],
+            ['3_77', 3, 'Society & Community', 'Young people are not interested in any news. What do you think?', 'traditional media|Print, radio, and television', 'format|Way in which something is arranged', 'This is a common misconception|They consume information via', 'It is false. Young people read news on phones.', 'I think this is wrong. Young people care about the world, but they don\'t watch TV news.', '[d]This is a common misconception.[/d] [g]Youth are highly engaged with global issues, but they entirely reject [v]traditional media[/v] formats.[/g] [d]They consume information via[/d] rapid, visually-driven digital platforms.'],
+            ['3_78', 3, 'Society & Community', 'What makes a good neighbour?', 'considerate|Careful not to cause inconvenience', 'intrusive|Causing disruption or annoyance', 'The most crucial trait is|A good neighbour strikes a balance between', 'A good neighbor is quiet.', 'A good neighbour is friendly and helps you if you are on holiday.', '[d]The most crucial trait is[/d] being deeply [v]considerate[/v]. [g]A good neighbour strikes a delicate balance between being supportive during emergencies and never becoming [v]intrusive[/v] into your private life.[/g]'],
+            ['3_79', 3, 'Society & Community', 'All historic buildings and museums should be free to visit. Do you agree?', 'upkeep|Maintenance', 'subsidise|Support financially', 'While free access promotes education|We must consider the reality that', 'Yes, everyone should learn history for free.', 'It would be great if they were free for students. But these old buildings need money for repairs.', '[d]While free access promotes education,[/d] [g]we must consider the reality that architectural [v]upkeep[/v] requires massive funding.[/g] [d]Perhaps a compromise[/d] where the government [v]subsidises[/v] student entry would be effective.'],
+            ['3_80', 3, 'Society & Community', 'Do you think we should judge a person by the clothes they wear?', 'superficial|Existing only on the surface', 'socio-economic|Relating to social and economic factors', 'I strongly oppose this idea|It fails to reflect', 'No. Clothes do not show if a person is kind.', 'No, because fashion is just a choice. A kind person might wear cheap clothes.', '[d]I strongly oppose this idea.[/d] [g]Judging character based on apparel is incredibly [v]superficial[/v] and often heavily biased by [v]socio-economic[/v] status.[/g] [d]It completely fails to reflect[/d] a person\'s genuine moral integrity.'],
+            ['3_81', 3, 'Education', 'Do you think that learning about science is more important than learning about art?', 'holistic|Comprehension of parts as interconnected', 'innovation|A new method or idea', 'This is a false dichotomy|While science drives', 'Both are important. Science gives us medicine.', 'Science is vital for technology and health, but art is also important for expressing human emotions.', '[d]This is a false dichotomy.[/d] [g]While science undeniably drives medical and technological [v]innovation[/v], art cultivates the creative empathy that makes us human.[/g] [d]A truly[/d] [v]holistic[/v] education requires both.'],
+            ['3_82', 3, 'Education', 'Should parents be involved in deciding what their children study at college or university?', 'autonomy|Freedom from external control', 'dictate|State or order authoritatively', 'Parents should act as advisors rather than|If teenagers are forced to', 'Parents can give advice.', 'Parents have life experience and can guide their children. But they shouldn\'t force them.', '[d]Parents should act as advisors rather than dictating choices.[/d] [g]If teenagers are forced into degrees they despise, their lack of passion will guarantee failure.[/g] [d]Ultimately,[/d] academic [v]autonomy[/v] is crucial at eighteen.'],
+            ['3_83', 3, 'Education', 'Do you think studying online is as effective as studying face to face?', 'discipline|Training people to obey rules', 'nuance|A subtle difference in shade of meaning', 'It depends entirely on the student\'s|Online platforms deliver facts, but', 'No. At home, I play games.', 'Online studying is okay for reading, but you miss talking with friends. In a real classroom, you can ask the teacher questions.', '[d]It depends entirely on the student\'s[/d] self-[v]discipline[/v]. [g]Online platforms deliver facts efficiently, but they fail to capture the subtle [v]nuance[/v] of human debate.[/g] [d]Face-to-face interaction[/d] remains superior for deep learning.'],
+            ['3_84', 3, 'Education', 'Is reading books the best way to learn a language?', 'comprehension|Action of understanding something', 'phonetics|Study of speech sounds', 'Reading is excellent for vocabulary, however|To achieve true fluency', 'Books are good for words. Talking is better.', 'Reading helps you spell words correctly. But you must practice speaking too.', '[d]Reading is excellent for vocabulary and grammatical[/d] [v]comprehension[/v]. [g]However, unless a student actively converses with native speakers, their [v]phonetics[/v] will remain severely underdeveloped.[/g] [d]A multi-faceted approach[/d] is essential.'],
+            ['3_85', 3, 'Education', 'Should all young people learn how to play a musical instrument at school?', 'mandatory|Required by law or rules', 'extracurricular|Activity in addition to normal study', 'While music exposes students to|Making it compulsory might', 'No, some students hate music.', 'Music is great for the brain, but not everyone has the talent. It should be a choice.', '[d]While music exposes students to[/d] cultural beauty, [g]making it a [v]mandatory[/v] subject might simply generate resentment among those who prefer athletics.[/g] [d]It is better left as[/d] an [v]extracurricular[/v] option.'],
+            ['3_86', 3, 'Health & Food', 'Should junk food be banned? Why? Why not?', 'prohibition|Action of forbidding something', 'moderation|Avoidance of excess', 'An outright ban is too extreme|Instead of banning it', 'No. Junk food tastes good.', 'I don\'t think it should be banned completely. The government should teach teenagers to eat it in small amounts.', '[d]An outright[/d] [v]prohibition[/v] is too extreme and rarely works. [g]Instead of banning fast food, governments should heavily tax it to subsidize fresh produce.[/g] [d]Education on[/d] [v]moderation[/v] is far more powerful.'],
+            ['3_87', 3, 'Health & Food', 'Looking after your mind is as important as looking after your body. Do you agree?', 'intertwined|Connected or linked closely', 'burnout|Physical or mental collapse', 'I completely agree, as the two are|If a student neglects their mental health', 'Yes. You need to sleep.', 'I agree. Teenagers have a lot of exam stress. If they don\'t relax their minds, they will get sick.', '[d]I completely agree, as the two are deeply[/d] [v]intertwined[/v]. [g]If a student neglects their mental health during exam season, the resulting [v]burnout[/v] will manifest as physical illness.[/g]'],
+            ['3_88', 3, 'Health & Food', 'Some people say that going to the gym is the best way to stay fit. What is your opinion?', 'monotonous|Dull and repetitious', 'accessible|Able to be reached', 'While gyms offer excellent equipment|Many people find them', 'Gyms are good but expensive.', 'Gyms have great machines for muscles, but they cost a lot of money. Swimming is much more fun.', '[d]While gyms offer excellent equipment,[/d] [g]many find lifting weights in a confined room incredibly [v]monotonous[/v].[/g] [d]Alternative activities like[/d] cycling or team sports are far more [v]accessible[/v] and socially engaging.'],
+            ['3_89', 3, 'Health & Food', 'Is it better to exercise indoors than outdoors? Why? Why not?', 'controlled environment|Setting where variables are managed', 'invigorating|Making one feel full of energy', 'It depends on the climate|Indoor facilities guarantee', 'Outdoors is better. You get fresh air.', 'Indoor exercise is safe when it rains. However, running outdoors is much better because of fresh air.', '[d]It depends on the climate.[/d] [g]Indoor facilities guarantee a [v]controlled environment[/v] regardless of weather.[/g] [d]However, nothing beats[/d] the [v]invigorating[/v] feeling of breathing fresh air while jogging through a forest.'],
+            ['3_90', 3, 'Health & Food', 'Do you think that spending time in nature is a good way to relax?', 'therapeutic|Having a good effect on mind', 'sensory overload|Overstimulation of senses', 'Absolutely|Escaping the concrete jungle provides', 'Yes. Trees are green and quiet.', 'Yes, walking in nature is very peaceful. It takes you away from the noise of city traffic.', '[d]Absolutely.[/d] [g]Escaping the concrete jungle provides immense [v]therapeutic[/v] benefits.[/g] [d]It acts as the perfect antidote to[/d] the [v]sensory overload[/v] generated by screens and city noise.']
         ];
 
-        // Format raw data into the app structure
-        const questionBank = rawData.map(d => ({
-            id: d[0],
-            part: `Part ${d[1]}`,
-            topic: d[2],
-            text: d[1] === 2 ? `${d[3]}:` : d[3],
-            v: [
-                { w: d[4].split('|')[0], d: d[4].split('|')[1] },
-                { w: d[5].split('|')[0], d: d[5].split('|')[1] }
+        /* DATA EXPANSION ENGINE */
+        
+        // Dynamic Paraphrasing (IGCSE 0511 Feature)
+        function generateParaphrase(q, part) {
+            if (part === 2) return `Evaluate the choices and express a clear preference regarding: ${q.toLowerCase()}`;
+            let p = q.replace(/^Can you tell me (something )?about /i, 'Discuss ')
+                     .replace(/^Can you tell me what /i, 'Describe what ')
+                     .replace(/^Do you think (that )?/i, 'Provide your perspective on whether ')
+                     .replace(/^What /i, 'Analyze what ')
+                     .replace(/^How /i, 'Explain how ')
+                     .replace(/^Should /i, 'Evaluate whether ')
+                     .replace(/^Is /i, 'Consider if ')
+                     .replace(/^Will /i, 'Predict whether ')
+                     .replace(/^Who /i, 'Identify who ')
+                     .replace(/^Some people say (that )?/i, 'Reflect on the statement that ')
+                     .replace(/^The /i, 'Examine the ')
+                     .replace(/\?.*$/, '.');
+            p = p.trim().replace(/\s+/g, ' ');
+            return p.charAt(0).toUpperCase() + p.slice(1);
+        }
+
+        // Expanded Lexis Engine
+        const topicLexis = {
+            'Health & Food': ['nutritious|Providing essential nourishment', 'well-being|State of being comfortable and healthy', 'metabolism|Chemical processes in the body', 'balanced diet|Eating a variety of foods'],
+            'Environment & Weather': ['sustainable|Able to be maintained', 'ecosystem|Biological community', 'climate crisis|Severe changes in global weather', 'conservation|Preservation of nature'],
+            'Society & Community': ['infrastructure|Basic physical structures', 'civic duty|Responsibilities of a citizen', 'diversity|Variety of different elements', 'social cohesion|Willingness of members to cooperate'],
+            'Work & Future': ['ambition|Strong desire to achieve', 'employability|Skills that make you employable', 'innovation|A new method or idea', 'career trajectory|The path one\'s career takes'],
+            'Education': ['curriculum|Subjects comprising a course', 'extracurricular|Outside the normal curriculum', 'pedagogy|Method and practice of teaching', 'academic rigor|Strictness in educational standards'],
+            'Hobbies & Media': ['escapism|Seeking distraction from reality', 'engagement|Participation or involvement', 'mainstream|Widespread current thought', 'binge-watching|Viewing multiple episodes rapidly'],
+            'Technology': ['automation|Use of automatic equipment', 'digital footprint|Trail of data left online', 'intuitive|Easy to understand', 'cybersecurity|Protection of digital data'],
+            'Travel': ['itinerary|Planned route or journey', 'cultural immersion|Engaging deeply with a culture', 'hospitality|Friendly reception of guests', 'eco-tourism|Responsible travel to natural areas']
+        };
+
+        // Expanded Phrase Bank Engine
+        const generalPhrases = [
+            "Taking this into consideration,",
+            "From my perspective as a secondary student,",
+            "It's widely acknowledged that",
+            "A clear illustration of this is",
+            "To put it simply,",
+            "Reflecting on my own school experience,",
+            "This is particularly relevant because",
+            "As far as I am concerned,"
+        ];
+
+        // NEW: Simplified Chinese Translation Mapping
+        const zhTranslations = {
+            "wholesome": "健康的", "culinary": "烹饪的", "atmosphere": "氛围", "savour": "品尝",
+            "self-sufficient": "自给自足的", "life skill": "生活技能", "cardiovascular": "心血管的",
+            "regimen": "养生之道/计划", "picturesque": "风景如画的", "reconnect": "重新连接",
+            "sedentary": "久坐的", "processed": "加工过的", "domestic chores": "家务",
+            "alleviate": "缓解", "overwhelmed": "不知所措的", "clarify": "澄清",
+            "civic duty": "公民义务", "cohesion": "凝聚力", "commercial": "商业的",
+            "boutiques": "精品店", "initiative": "倡议", "engagement": "参与",
+            "amenities": "便利设施", "vibrant": "充满活力的", "profession": "职业",
+            "corporate": "企业的", "aspirations": "抱负", "qualifications": "资历",
+            "productivity": "生产力", "feasible": "可行的", "immersion": "沉浸",
+            "consistent": "一致的", "daunting": "令人生畏的", "overcome": "克服",
+            "barrier": "障碍", "fascinating": "迷人的", "analytical": "分析的",
+            "mechanics": "运作机制", "collaborate": "合作", "delegate": "委派",
+            "autonomous": "自主的", "guidance": "指导", "mainstream": "主流的",
+            "relatable": "引起共鸣的", "upbeat": "乐观的", "distraction": "分心",
+            "cognitive": "认知的", "discipline": "纪律", "dystopian": "反乌托邦的",
+            "escapism": "逃避现实", "intriguing": "引人入胜的", "narrative": "叙事",
+            "tactile": "触觉的", "obsolete": "过时的", "recreational": "休闲的",
+            "flock": "聚集", "dismal": "阴沉的", "confined": "受限的",
+            "psychological": "心理的", "lethargic": "无精打采的", "convenience": "便利",
+            "first-hand": "第一手的", "extensive": "广泛的", "interactive": "互动的",
+            "permanent": "永久的", "collaborative": "合作的", "isolation": "孤立",
+            "global perspective": "全球视野", "tedious": "乏味的", "comprehensive": "全面的",
+            "experiential": "体验式的", "logistical": "后勤的", "recreation": "娱乐",
+            "academic pressure": "学业压力", "creative liberty": "创作自由", "relevance": "相关性",
+            "cultural immersion": "文化沉浸", "tangible": "切实的", "ecological": "生态的",
+            "immediate gratification": "即时满足", "carbon footprint": "碳足迹", "consumerism": "消费主义",
+            "emissions": "排放物", "e-waste": "电子垃圾", "visible": "可见的",
+            "aesthetics": "美学", "sustainable": "可持续的", "mental fatigue": "精神疲劳",
+            "superficial": "肤浅的", "enriching": "丰富阅历的", "financial burden": "经济负担",
+            "endurance": "耐力", "dietary": "饮食的", "fast-paced": "快节奏的",
+            "tranquil": "宁静的", "exclusivity": "排他性", "communal": "公共的",
+            "heritage": "遗产", "ice-breaker": "破冰", "virtual": "虚拟的",
+            "biodiversity": "生物多样性", "lucrative": "有利可图的", "agricultural": "农业的",
+            "intimate": "亲密的", "objective": "客观的", "profound": "深刻的",
+            "dynamic": "动态的", "botanical": "植物学的", "captivity": "圈养",
+            "cinematography": "电影摄影", "digital natives": "数字原住民", "intuitive": "直观的",
+            "automation": "自动化", "nuanced": "细微的", "disinformation": "虚假信息",
+            "credible": "可信的", "cognitive decline": "认知衰退", "synthesize": "综合",
+            "hybrid model": "混合模式", "socialization": "社会化", "scrutiny": "审查",
+            "impartial": "公正的", "aptitude": "天资", "burnout": "职业倦怠",
+            "optimal": "最佳的", "autonomy": "自主权", "financial instability": "财务不稳定",
+            "financial literacy": "金融素养", "complacent": "自满的", "drastic": "剧烈的",
+            "infrastructure": "基础设施", "legislation": "立法", "symbiotic": "共生的",
+            "impractical": "不切实际的", "aviation": "航空", "predation": "捕食",
+            "pedestrianised": "步行化", "logistics": "物流", "subjective": "主观的",
+            "immersive": "沉浸式的", "traditional media": "传统媒体", "format": "格式",
+            "considerate": "体贴的", "intrusive": "打扰的", "upkeep": "保养",
+            "subsidise": "补贴", "socio-economic": "社会经济的", "holistic": "整体的",
+            "innovation": "创新", "dictate": "发号施令", "nuance": "细微差别",
+            "comprehension": "理解力", "phonetics": "语音学", "mandatory": "强制性的",
+            "extracurricular": "课外的", "prohibition": "禁止", "moderation": "适度",
+            "intertwined": "交织的", "monotonous": "单调的", "accessible": "易得的",
+            "controlled environment": "受控环境", "invigorating": "令人振奋的", "therapeutic": "有治疗作用的",
+            "sensory overload": "感官过载", "nutritious": "有营养的", "well-being": "健康与幸福",
+            "metabolism": "新陈代谢", "balanced diet": "均衡饮食", "ecosystem": "生态系统",
+            "climate crisis": "气候危机", "conservation": "保护", "diversity": "多样性",
+            "social cohesion": "社会凝聚力", "ambition": "抱负", "employability": "就业能力",
+            "career trajectory": "职业轨迹", "curriculum": "课程", "pedagogy": "教育学",
+            "academic rigor": "学术严谨性", "binge-watching": "刷剧", "digital footprint": "数字足迹",
+            "cybersecurity": "网络安全", "itinerary": "行程", "hospitality": "好客",
+            "eco-tourism": "生态旅游"
+        };
+
+        // Grammar Feature Engine (Tailored to Secondary Students)
+        const grammarFeatures = {
+            'Health & Food': [
+                { t: 'Zero Conditional', d: 'Expressing general truths about lifestyle.', e: 'If students eat sugary snacks during break, they often lose focus in class.' },
+                { t: 'Modal Verbs of Advice', d: 'Giving recommendations.', e: 'Teenagers ought to prioritize sleep over late-night studying for better health.' }
             ],
-            ph: d[6].split('|'),
-            b3: d[7],
-            b5: d[8],
-            b7: d[9],
-            opt1: d[10] || '',
-            opt2: d[11] || '',
-            timeLimit: d[1] === 1 ? 60 : d[1] === 2 ? 120 : 180
-        }));
+            'Environment & Weather': [
+                { t: 'Passive Voice', d: 'Focusing on the environmental action.', e: 'Recycling bins are placed in every classroom to encourage students to reduce waste.' },
+                { t: 'Second Conditional', d: 'Hypothetical environmental scenarios.', e: 'If our school installed solar panels, we would significantly reduce our carbon footprint.' }
+            ],
+            'Society & Community': [
+                { t: 'Relative Clauses', d: 'Adding detail to people/places.', e: 'The community center, which is located near my high school, offers great volunteer programs.' },
+                { t: 'Present Perfect', d: 'Past actions with present community impact.', e: 'Our class has raised over $500 for the local charity this term.' }
+            ],
+            'Work & Future': [
+                { t: 'Future Continuous', d: 'Visualizing future career paths.', e: 'In five years time, I will be studying engineering at university.' },
+                { t: 'First Conditional', d: 'Real possibilities for the future.', e: 'If I get high grades in my IGCSEs, I will apply for the advanced science program.' }
+            ],
+            'Education': [
+                { t: 'Gerund Phrases as Subjects', d: 'Discussing activities.', e: 'Balancing extracurricular activities with homework requires excellent time management.' },
+                { t: 'Past Perfect', d: 'Actions completed before another past action.', e: 'By the time the exams started, I had already reviewed the entire syllabus twice.' }
+            ],
+            'Hobbies & Media': [
+                { t: 'Used To / Would', d: 'Describing past habits.', e: 'When I was in middle school, I used to read fantasy novels every single day.' },
+                { t: 'Comparatives/Superlatives', d: 'Comparing media or hobbies.', e: 'Playing an instrument is far more cognitively demanding than passively watching videos.' }
+            ],
+            'Technology': [
+                { t: 'Inversion', d: 'Adding emphasis.', e: 'Not only does the internet provide instant research for essays, but it also distracts us easily.' },
+                { t: 'Third Conditional', d: 'Reflecting on past technological situations.', e: 'If I had remembered to charge my laptop, I wouldn\'t have missed the online lecture.' }
+            ],
+            'Travel': [
+                { t: 'Participle Clauses', d: 'Combining related ideas.', e: 'Having visited the historical museum on a school trip, I gained a deeper understanding of the subject.' },
+                { t: 'Wish / If Only', d: 'Expressing regrets or desires.', e: 'I wish we had more opportunities to go on international school trips.' }
+            ]
+        };
+
+        const generalGrammarPool = [
+            { t: 'Mixed Conditionals', d: 'Past condition, present result.', e: 'If I had revised harder last week, I would be much less stressed about today\'s exam.' },
+            { t: 'Modal Verbs of Deduction', d: 'Making logical guesses.', e: 'The principal must have been impressed by our student council presentation.' },
+            { t: 'Present Perfect Continuous', d: 'Ongoing past action into present.', e: 'I have been studying for my IGCSE exams since the beginning of January.' },
+            { t: 'Cleft Sentences', d: 'Focusing on a specific part of a sentence.', e: 'What I enjoy most about secondary school is the variety of clubs.' }
+        ];
+
+        // Format data & Expand features
+        const questionBank = baseRawData.map((d, index) => {
+            // Lexis Expansion
+            let baseVocab = [ { w: d[4].split('|')[0], d: d[4].split('|')[1] }, { w: d[5].split('|')[0], d: d[5].split('|')[1] } ];
+            let extraVocabList = topicLexis[d[2]] || [];
+            let extraVocab = [
+                { w: extraVocabList[index % extraVocabList.length].split('|')[0], d: extraVocabList[index % extraVocabList.length].split('|')[1] },
+                { w: extraVocabList[(index + 1) % extraVocabList.length].split('|')[0], d: extraVocabList[(index + 1) % extraVocabList.length].split('|')[1] }
+            ];
+            let combinedVocab = [...baseVocab, ...extraVocab].filter((v, i, a) => a.findIndex(t => (t.w === v.w)) === i);
+
+            // Add Chinese Translations
+            combinedVocab = combinedVocab.map(v => ({
+                ...v,
+                zh: zhTranslations[v.w] || "待翻译"
+            }));
+
+            // Phrase Expansion
+            let combinedPhrases = [...d[6].split('|'), generalPhrases[index % generalPhrases.length], generalPhrases[(index + 1) % generalPhrases.length]];
+
+            // Grammar Selection
+            let topicGrammars = grammarFeatures[d[2]] || generalGrammarPool;
+            let selectedGrammar = [ topicGrammars[index % topicGrammars.length], generalGrammarPool[index % generalGrammarPool.length] ];
+
+            return {
+                id: d[0],
+                part: `Part ${d[1]}`,
+                topic: d[2],
+                text: d[1] === 2 ? `${d[3]}:` : d[3],
+                paraphrase: generateParaphrase(d[3], d[1]),
+                v: combinedVocab,
+                ph: combinedPhrases,
+                gr: selectedGrammar,
+                b3: d[7], b5: d[8], b7: d[9],
+                opt1: d[10] || '', opt2: d[11] || '',
+                timeLimit: d[1] === 1 ? 60 : d[1] === 2 ? 120 : 180
+            };
+        });
 
         // Parse custom rubric markup for Band 7+
         function parseRubric(text) {
@@ -661,12 +488,11 @@
                 .replace(/\[v\](.*?)\[\/v\]/g, '<span class="hl-vocab" title="Lexis & Vocabulary">$1</span>');
         }
 
-        // Application State Managers
+        /* UI CONTROLLERS */
         let timerInstance = null;
         let timeLeft = 0;
         let isTimerRunning = false;
 
-        // DOM Selectors
         const listContainer = document.getElementById('question-list');
         const filterPart = document.getElementById('filter-part');
         const filterTopic = document.getElementById('filter-topic');
@@ -676,10 +502,12 @@
         const dPart = document.getElementById('display-part');
         const dTopic = document.getElementById('display-topic');
         const dText = document.getElementById('display-text');
+        const dParaphrase = document.getElementById('display-paraphrase');
         const dBullets = document.getElementById('display-bullets');
         const dModel = document.getElementById('display-model');
         const dPhrases = document.getElementById('display-phrases');
         const dVocab = document.getElementById('display-vocab');
+        const dGrammar = document.getElementById('display-grammar');
         const legend = document.getElementById('rubric-legend');
         
         const timerDisplay = document.getElementById('timer-display');
@@ -695,41 +523,33 @@
 
         function init() {
             renderList();
-            
             filterPart.addEventListener('change', renderList);
             filterTopic.addEventListener('change', renderList);
-            
             btnStart.addEventListener('click', toggleTimer);
-            btnStop.addEventListener('click', resetTimer);
+            btnStop.addEventListener('click', () => resetTimer(false));
             btnRandom.addEventListener('click', loadRandomPracticePrompt);
 
             btnPracticed.addEventListener('click', () => {
                 const activeId = activeWorkspace.getAttribute('data-active-id');
                 if(!activeId) return;
-
                 const progress = JSON.parse(localStorage.getItem('igcse_speaking_progress') || '{}');
                 const isPracticed = !progress[activeId]?.practiced;
-
                 progress[activeId] = { practiced: isPracticed, date: new Date().toISOString() };
                 localStorage.setItem('igcse_speaking_progress', JSON.stringify(progress));
-
                 updatePracticedIcon(isPracticed);
             });
 
             bandBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     bandBtns.forEach(b => {
-                        b.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                        b.classList.remove('bg-blue-600', 'text-white', 'shadow-sm', 'active');
                         b.classList.add('text-slate-600');
-                        b.classList.remove('active');
                     });
                     e.currentTarget.classList.remove('text-slate-600');
                     e.currentTarget.classList.add('bg-blue-600', 'text-white', 'shadow-sm', 'active');
 
                     const modelTabBtn = document.querySelector('[data-target="tab-model"]');
-                    if(modelTabBtn && !modelTabBtn.classList.contains('active')) {
-                        switchTab(modelTabBtn);
-                    }
+                    if(modelTabBtn && !modelTabBtn.classList.contains('active')) switchTab(modelTabBtn);
 
                     const band = e.currentTarget.dataset.band;
                     const activeId = activeWorkspace.getAttribute('data-active-id');
@@ -742,48 +562,99 @@
                         else if (band === '7+') content = `"${parseRubric(activeQ.b7)}"`;
                         
                         dModel.innerHTML = content;
-
                         if (band === '7+') legend.classList.remove('hidden');
                         else legend.classList.add('hidden');
                     }
                 });
             });
 
-            dPhrases.addEventListener('click', (e) => {
-                if(e.target.closest('.copy-phrase')) {
-                    const btn = e.target.closest('.copy-phrase');
+            // Text-to-Speech click integrations
+            dText.addEventListener('click', () => readTextOutLoud(dText.textContent));
+            dModel.addEventListener('click', () => readTextOutLoud(dModel.textContent));
+            document.getElementById('paraphrase-container').addEventListener('click', () => readTextOutLoud(dParaphrase.textContent));
+
+            // Global delegated listener for generic TTS sections and copy buttons
+            document.body.addEventListener('click', (e) => {
+                const copyBtn = e.target.closest('.copy-phrase');
+                if (copyBtn) {
+                    e.stopPropagation(); // Prevent TTS from triggering when copying
                     const phrase = e.target.closest('.group').querySelector('span').textContent;
-                    
                     const textArea = document.createElement("textarea");
                     textArea.value = phrase;
                     document.body.appendChild(textArea);
                     textArea.select();
                     try {
                         document.execCommand('copy');
-                        const originalIcon = btn.innerHTML;
-                        btn.innerHTML = '<i class="fa-solid fa-check text-emerald-500 text-xs"></i>';
-                        setTimeout(() => btn.innerHTML = originalIcon, 1500);
-                    } catch (err) {
-                        console.error('Copy failed', err);
-                    }
+                        const originalIcon = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-500 text-xs"></i>';
+                        setTimeout(() => copyBtn.innerHTML = originalIcon, 1500);
+                    } catch (err) { console.error('Copy failed', err); }
                     document.body.removeChild(textArea);
+                    return;
+                }
+
+                const ttsTrigger = e.target.closest('.tts-trigger');
+                if (ttsTrigger) {
+                    const text = ttsTrigger.getAttribute('data-text');
+                    const isLexis = ttsTrigger.getAttribute('data-is-lexis') === 'true';
+                    if (text) readTextOutLoud(text, isLexis);
                 }
             });
 
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => switchTab(e.currentTarget));
-            });
+            tabBtns.forEach(btn => btn.addEventListener('click', (e) => switchTab(e.currentTarget)));
+        }
+
+        let lexisVoice = null;
+
+        // Personalized Text-To-Speech function
+        function readTextOutLoud(text, isLexis = false) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                
+                // PAD the text to prevent Microsoft TTS clipping/cutoff issues
+                // Strip leading/trailing quotes and add visual/audio padding strings
+                const cleanText = text.replace(/^["']+|["']+$/g, '');
+                const paddedText = " " + cleanText + " ... ";
+                
+                const utterance = new SpeechSynthesisUtterance(paddedText);
+                // Personalized constraint: Always slow down speech to 85%
+                utterance.rate = 0.85; 
+                utterance.lang = 'en-US'; // Force English pronunciation for Multilingual voices
+
+                // Target Microsoft Online Multilingual voices explicitly
+                const voices = window.speechSynthesis.getVoices();
+                const allowedNames = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
+                
+                const availablePremiumVoices = voices.filter(voice => {
+                    return allowedNames.some(name => voice.name.includes(name));
+                });
+
+                // If premium voices are found, assign based on section
+                if (availablePremiumVoices.length > 0) {
+                    if (isLexis) {
+                        // Lock in a consistent, random premium voice for the Lexis section
+                        if (!lexisVoice) {
+                            lexisVoice = availablePremiumVoices[Math.floor(Math.random() * availablePremiumVoices.length)];
+                        }
+                        utterance.voice = lexisVoice;
+                    } else {
+                        // Pick a new random voice from the list for everything else
+                        const randomVoice = availablePremiumVoices[Math.floor(Math.random() * availablePremiumVoices.length)];
+                        utterance.voice = randomVoice;
+                    }
+                }
+
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         function renderList() {
             const fPart = filterPart.value;
             const fTopic = filterTopic.value;
-            
             listContainer.innerHTML = '';
             
             const filtered = questionBank.filter(q => {
-                return (fPart === 'all' || q.part === fPart) && 
-                       (fTopic === 'all' || q.topic === fTopic);
+                return (fPart === 'all' || q.part === fPart) && (fTopic === 'all' || q.topic === fTopic);
             });
 
             qCount.textContent = filtered.length;
@@ -832,6 +703,7 @@
             dPart.textContent = q.part;
             dTopic.textContent = q.topic;
             dText.textContent = q.text;
+            dParaphrase.textContent = q.paraphrase;
 
             const progress = JSON.parse(localStorage.getItem('igcse_speaking_progress') || '{}');
             updatePracticedIcon(progress[q.id]?.practiced);
@@ -854,12 +726,14 @@
             dPhrases.innerHTML = '';
             q.ph.forEach(p => {
                 dPhrases.innerHTML += `
-                    <div class="bg-slate-50 p-2.5 rounded border border-slate-100 flex items-start gap-2 group hover:border-emerald-200 transition-colors">
-                        <i class="fa-solid fa-quote-left text-emerald-400 mt-1 text-[10px]"></i>
-                        <span class="text-[14px] font-semibold text-slate-700 flex-1">${p}</span>
-                        <button class="copy-phrase opacity-0 group-hover:opacity-100 text-slate-400 hover:text-emerald-600 transition-all cursor-pointer" title="Copy phrase">
-                            <i class="fa-regular fa-copy text-sm"></i>
-                        </button>
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex items-start gap-4 group hover:border-emerald-200 transition-colors cursor-pointer tts-trigger" title="Click to listen" data-text="${p}">
+                        <i class="fa-solid fa-quote-left text-emerald-400 mt-2 text-[20px]"></i>
+                        <span class="text-[28px] font-semibold text-slate-700 flex-1 pr-2 leading-tight break-words">${p}</span>
+                        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-all flex-col justify-center">
+                            <button class="copy-phrase text-[11px] font-bold uppercase text-emerald-500 hover:text-emerald-700 cursor-pointer bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded mt-1" title="Copy phrase">
+                                Copy
+                            </button>
+                        </div>
                     </div>
                 `;
             });
@@ -867,9 +741,28 @@
             dVocab.innerHTML = '';
             q.v.forEach(v => {
                 dVocab.innerHTML += `
-                    <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
-                        <div class="font-bold text-green-700 text-[14px] mb-0.5">${v.w}</div>
-                        <div class="text-[13px] text-slate-500 leading-snug">${v.d}</div>
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 shadow-sm hover:border-green-200 transition-colors group relative cursor-pointer tts-trigger" title="Click to listen" data-text="${v.w}. ${v.zh}. ${v.d}" data-is-lexis="true">
+                        <div class="font-bold text-green-700 text-[28px] mb-3 pr-12 leading-tight break-words">
+                            <i class="fa-solid fa-spell-check text-green-400 mr-2 text-[20px]"></i> 
+                            <span>${v.w}</span>
+                            <span class="inline-block mt-2 sm:mt-0 sm:ml-3 text-emerald-700 text-[20px] font-medium bg-green-100 px-3 py-1 rounded-md shadow-sm border border-green-200 align-middle">${v.zh}</span>
+                        </div>
+                        <div class="text-[26px] text-slate-600 leading-snug pr-12 break-words">${v.d}</div>
+                    </div>
+                `;
+            });
+
+            dGrammar.innerHTML = '';
+            q.gr.forEach(g => {
+                dGrammar.innerHTML += `
+                    <div class="bg-slate-50 p-5 rounded-lg border border-slate-100 shadow-sm group relative cursor-pointer hover:border-indigo-200 transition-colors tts-trigger" title="Click to listen" data-text="${g.t}. ${g.d}. Example: ${g.e}">
+                        <div class="font-bold text-indigo-700 text-[15px] mb-1.5 flex items-center gap-2">
+                            <i class="fa-solid fa-diagram-project text-indigo-400"></i> ${g.t}
+                        </div>
+                        <div class="text-[13px] text-slate-500 mb-3">${g.d}</div>
+                        <div class="bg-indigo-50 border-l-4 border-indigo-400 p-3 rounded-r text-[14px] text-indigo-900 italic font-medium">
+                            "${g.e}"
+                        </div>
                     </div>
                 `;
             });
@@ -946,14 +839,13 @@
             isTimerRunning = false;
             btnStart.innerHTML = '<i class="fa-solid fa-play bg-slate-100 p-2 rounded-full hover:bg-emerald-50 text-xs w-8 h-8 flex items-center justify-center"></i>';
             
-            if (overrideTime) {
+            if (overrideTime !== false) {
                 timeLeft = overrideTime;
             } else {
                 const activeId = activeWorkspace.getAttribute('data-active-id');
-                const activeQ = rawData.find(q => q[0] === activeId);
+                const activeQ = questionBank.find(q => q.id === activeId);
                 if(activeQ) {
-                    const timeMap = { 1: 60, 2: 120, 3: 180 };
-                    timeLeft = timeMap[activeQ[1]];
+                    timeLeft = activeQ.timeLimit;
                 }
             }
             updateTimerDisplay();
@@ -962,10 +854,8 @@
         function loadRandomPracticePrompt() {
             const fPart = filterPart.value;
             const fTopic = filterTopic.value;
-            
             const eligibleMatches = questionBank.filter(q => {
-                return (fPart === 'all' || q.part === fPart) && 
-                       (fTopic === 'all' || q.topic === fTopic);
+                return (fPart === 'all' || q.part === fPart) && (fTopic === 'all' || q.topic === fTopic);
             });
 
             if (eligibleMatches.length > 0) {
@@ -975,6 +865,7 @@
             }
         }
 
+        // Fire initialization on load
         init();
     </script>
 </body>
