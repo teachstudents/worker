@@ -67,42 +67,78 @@
 
         #test-view { display: none; }
         
+        /* Unified Header Styles */
         .unified-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: var(--dark);
             color: white;
-            padding: 12px 20px;
+            padding: 8px 12px;          /* reduced padding */
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;       /* smaller gap under header */
             flex-wrap: wrap;
-            gap: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            position: sticky;
-            top: 10px;
-            z-index: 100;
-        }
-        .header-info {
-            display: flex;
-            gap: 20px;
-            font-size: 15px;
-        }
-        .header-info span { font-weight: bold; color: #ecf0f1; }
-        .header-controls {
-            display: flex;
             gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            position: sticky;
+            top: 8px;
+            z-index: 100;
+            height: 56px;              /* fixed compact height */
+            min-height: 56px;
+            overflow: hidden;          /* prevent header from growing */
         }
 
-        .action-btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; color: white; font-size: 13px; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        /* make the info text smaller and tighter */
+        .header-info {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;           /* reduced font-size */
+            align-items: center;
+        }
+        .header-info span { 
+            font-weight: 600; 
+            color: #ecf0f1; 
+            font-size: 13px;
+        }
+
+        /* smaller buttons group */
+        .header-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        /* compact action buttons */
+        .action-btn {
+            padding: 6px 10px;         /* reduced */
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;           /* slightly smaller */
+            font-weight: bold;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
         .btn-play { background: var(--accent); }
         .btn-play.playing { background: #e67e22; }
         .btn-back { background: #7f8c8d; } 
         .btn-transcript { background: #9b59b6; } 
         .btn-answers { background: #e74c3c; } 
-        .btn-check { background: var(--success); font-size: 15px; padding: 10px 25px; margin-top: 10px; width: 100%; box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3); }
+        .btn-print { background: #16a085; }
+        
+        /* keep the big submit button separate (with original colours/shadows) */
+        .action-btn.btn-check {
+            font-size: 15px;
+            padding: 10px 22px;
+            width: 100%;
+            margin-top: 10px;
+            background: var(--success); 
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+        }
         .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
         .test-content-wrapper {
@@ -168,6 +204,38 @@
             .question-row { flex-direction: column; align-items: flex-start; }
             .answer-input { width: 100%; box-sizing: border-box; }
         }
+
+        @media print {
+            body { background: white; color: black; }
+            .unified-header { 
+                position: static; 
+                background: transparent; 
+                color: black; 
+                box-shadow: none; 
+                height: auto; 
+                min-height: auto; 
+                padding: 0;
+                margin-bottom: 20px;
+            }
+            .header-info { color: black; }
+            .header-info span { color: black; }
+            #display-score { display: none; }
+            .header-controls, .btn-check, #feedback-area, #transcript-box, #answer-key-box { display: none !important; }
+            .test-content-wrapper { box-shadow: none; padding: 0; }
+            .test-title-display { color: black; border-bottom: 2px solid black; }
+            .answer-input { 
+                border: none; 
+                border-bottom: 1px solid black; 
+                border-radius: 0; 
+                background: transparent !important;
+                color: black !important;
+                padding: 0 5px;
+            }
+            .answer-input::placeholder { color: transparent; }
+            .question-block { page-break-inside: avoid; border-bottom: none; margin-bottom: 15px; }
+            .mcq-options, .matching-legend { background: transparent; border: 1px solid #ccc; color: black; }
+            .question-label { color: black; }
+        }
     </style>
 </head>
 <body>
@@ -191,6 +259,7 @@
                 <button class="action-btn btn-back" onclick="showMenu()">← Back to Menu</button>
                 <button class="action-btn btn-play" id="btn-play" onclick="toggleTTS()">▶ Play Audio</button>
                 <button class="action-btn btn-play" onclick="stopTTS(); setTimeout(toggleTTS, 100);">↺ Repeat</button>
+                <button class="action-btn btn-print" onclick="window.print()">🖨️ Print</button>
                 <button class="action-btn btn-transcript" id="btn-transcript" onclick="toggleSection('transcript-box', 'btn-transcript', 'Transcript')">▼ Show Transcript</button>
                 <button class="action-btn btn-answers" id="btn-answers" onclick="toggleSection('answer-key-box', 'btn-answers', 'Answer Key')">▶ Show Answer Key</button>
             </div>
@@ -225,7 +294,7 @@
 const testsData = [
     {
         id: 1, title: "1. Sunshine Holidays",
-        transcript: `AGENT: Good morning, Sunshine Holidays. How can I help you? \nCUSTOMER: Oh, hello. I'm looking to book a holiday to Malta. \nAGENT: Great, we have some excellent packages for Malta. Can I take your name first, please? \nCUSTOMER: Yes, it's Aaron Smith. \nAGENT: Is that A-R-O-N? \nCUSTOMER: Actually, it's double A, R, O, N. \nAGENT: Got it. And do you have a contact number? \nCUSTOMER: Yes, let me see... it's 078 433... wait a minute, I just got a new phone. Sorry, it's 078 432 219. \nAGENT: 078 432 219. Excellent. Now, when are you looking to travel? \nCUSTOMER: Well, I originally wanted to go on the 15th of July, but unfortunately my boss won't give me the time off then, so I'll have to leave on the 22nd. \nAGENT: The 22nd of July. That's a Saturday. And how much are you willing to spend per person? \nCUSTOMER: I saw a promotional package online for £450, but I'm willing to upgrade. My absolute maximum is £500. \nAGENT: We can definitely find something under £500. Do you have any special requirements for the hotel room? Some of our places offer a daily cleaning service. \nCUSTOMER: I probably won't need that. But I do like to sit outside in the evenings, so what I really need is a balcony. \nAGENT: A balcony. No problem. Now, would you like to book any excursions while you're there? We offer a guided bushwalk, or a boat trip to the caves. \nCUSTOMER: Oh, I think I'd prefer the boat trip to the bushwalk. \nAGENT: Excellent choice. So, that specific package includes your flight, the hotel, and insurance. \nCUSTOMER: That sounds great. Does it include meals? \nAGENT: No, I'm afraid not, but it does include the insurance. \nCUSTOMER: That's fine. What are the next steps? \nAGENT: To secure the booking, you'll need to give us a deposit by next Tuesday. \nCUSTOMER: A deposit, sure. How should I pay? Can I use my credit card? \nAGENT: If you've got cash, that's best. We've found that our card machine sometimes breaks. \nCUSTOMER: Cash is fine. I'll bring it into the branch. \nAGENT: Fantastic. Finally, for our records, how did you hear about us? Normally people see our website, but did a friend recommend us? \nCUSTOMER: Normally you'd expect me to say I saw it on the internet, but actually, I heard an advert on the radio.`,
+        transcript: `AGENT: Good morning, Sunshine Holidays. How can I help you? \nCUSTOMER: Oh, hello. I'm looking to book a holiday to Malta. \nAGENT: Great, we have some excellent packages for Malta. Can I take your name first, please? \nCUSTOMER: Yes, it's Aaron Smith. \nAGENT: Is that A-R-O-N? \nCUSTOMER: Actually, it's double A, R, O, N. \nAGENT: Got it. And do you have a contact number? \nCUSTOMER: Yes, let me see... it's 078 433... wait a minute, I just got a new phone. Sorry, it's 078 432 219. \nAGENT: 078 432 219. Excellent. Now, when are you looking to travel? \nCUSTOMER: Well, I originally wanted to go on the 15th of July, but unfortunately my boss won't give me the time off then, so I'll have to leave on the 22nd. \nAGENT: The 22nd of July. That's a Saturday. And how much are you willing to spend per person? \nCUSTOMER: I saw a promotional package online for £450, but I'm willing to upgrade. My absolute maximum is £500. \nAGENT: We can definitely find something under £500. Do you have any special requirements for the hotel room? Some of our places offer a daily cleaning service. \nCUSTOMER: I probably won't need that. But I do like to sit outside in the evenings, so what I really need is a balcony. \nAGENT: A balcony. No problem. Now, would you like to book any excursions while youre there? We offer a guided bushwalk, or a boat trip to the caves. \nCUSTOMER: Oh, I think I'd prefer the boat trip to the bushwalk. \nAGENT: Excellent choice. So, that specific package includes your flight, the hotel, and insurance. \nCUSTOMER: That sounds great. Does it include meals? \nAGENT: No, I'm afraid not, but it does include the insurance. \nCUSTOMER: That's fine. What are the next steps? \nAGENT: To secure the booking, you'll need to give us a deposit by next Tuesday. \nCUSTOMER: A deposit, sure. How should I pay? Can I use my credit card? \nAGENT: If you've got cash, that's best. We've found that our card machine sometimes breaks. \nCUSTOMER: Cash is fine. I'll bring it into the branch. \nAGENT: Fantastic. Finally, for our records, how did you hear about us? Normally people see our website, but did a friend recommend us? \nCUSTOMER: Normally you'd expect me to say I saw it on the internet, but actually, I heard an advert on the radio.`,
         answers: {1:"Aaron", 2:"078 432 219", 3:"22nd", 4:"500", 5:"balcony", 6:"boat trip", 7:"insurance", 8:"deposit", 9:"cash", 10:"radio"},
         questions: [
             {id:1, label:"1. Name: ______ Smith"}, {id:2, label:"2. Contact Number: ______"}, {id:3, label:"3. Preferred Departure Date: ______"},
