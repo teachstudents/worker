@@ -1298,16 +1298,20 @@ function togglePartTTS(partIndex) {
             hasPrimedTTS = true;
         }
         stopTTS();
+        
+        window.speechSynthesis.resume();
+        
         currentPlayingPart = partIndex;
         isPlaying = true;
-        setTimeout(() => playTTSQueue(partIndex, 0), 50);
+        setTimeout(() => playTTSQueue(partIndex, 0), 250);
     }
 }
 
 // --- stop playback, cancel speechSynthesis and clear highlights ---
 function stopTTS() {
-    window.speechSynthesis.cancel();
     isPlaying = false; 
+    window.speechSynthesis.resume(); 
+    window.speechSynthesis.cancel();
     document.querySelectorAll('.btn-play').forEach(btn => {
         btn.innerText = '▶ Play Audio';
         btn.classList.remove('playing');
@@ -1338,23 +1342,34 @@ function playTTSQueue(partIndex, lineIndex) {
         activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    if (voices.length === 0) {
+        voices = window.speechSynthesis.getVoices();
+    }
+    
+    window.speechSynthesis.resume();
+
     window.currentUtterance = new SpeechSynthesisUtterance(item.text);
-    window.currentUtterance.lang = 'en-US'; // Force strict English language tag
     
     const selectedVoice = getVoiceForSpeaker(item.speaker, currentTest.id);
     if (selectedVoice) {
         window.currentUtterance.voice = selectedVoice;
+        window.currentUtterance.lang = selectedVoice.lang; 
+    } else {
+        window.currentUtterance.lang = 'en-US'; 
     }
     
     window.currentUtterance.rate = 0.85; 
+    window.currentUtterance.volume = 1;
 
     window.currentUtterance.onend = () => {
         if (isPlaying && currentPlayingPart === partIndex) {
-            playTTSQueue(partIndex, lineIndex + 1);
+            setTimeout(() => playTTSQueue(partIndex, lineIndex + 1), 250); 
         }
     };
-
     window.currentUtterance.onerror = (e) => {
+        if (e.error === 'canceled' || e.error === 'interrupted') {
+            return;
+        }
         console.warn("Speech Synthesis skipped a line or errored:", e);
         if (isPlaying && currentPlayingPart === partIndex) {
             setTimeout(() => playTTSQueue(partIndex, lineIndex + 1), 100);
