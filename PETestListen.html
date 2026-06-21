@@ -1196,7 +1196,12 @@ function toggleGlobalSection(sectionId, btn, labelName) {
 function preparePartTTS(text, partIndex) {
     const container = document.getElementById(`transcript-content-${partIndex}`);
     container.innerHTML = '';
-    const lines = text.trim().split('\n');
+    
+    // FIX: Force inline speakers (e.g. " DAVID:") onto their own new lines.
+    // This regex looks for 1 or more spaces, followed by an ALL CAPS speaker name, followed by a colon.
+    let formattedText = text.replace(/\s+([A-Z][A-Z0-9\s]*):/g, '\n$1:');
+    
+    const lines = formattedText.trim().split('\n');
     
     speechQueues[partIndex] = [];
     
@@ -1204,12 +1209,15 @@ function preparePartTTS(text, partIndex) {
 
     lines.forEach((line, index) => {
         if (!line.trim()) return;
-        let speaker = "NARRATOR";
+        let displaySpeaker = "NARRATOR";
+        let voiceSpeaker = "NARRATOR";
         let lineText = line;
 
         if (line.includes(':')) {
             const parts = line.split(':');
-            speaker = parts[0].trim();
+            displaySpeaker = parts[0].trim();
+            // Remove question number prefixes for voice matching (e.g., "1. CATHY" -> "CATHY")
+            voiceSpeaker = displaySpeaker.replace(/^\d+\.\s*/, '');
             lineText = parts.slice(1).join(':').trim();
         }
 
@@ -1217,7 +1225,7 @@ function preparePartTTS(text, partIndex) {
         const lineDiv = document.createElement('div');
         lineDiv.className = 'transcript-line';
         lineDiv.id = lineId;
-        lineDiv.innerHTML = `<span class="speaker-name">${speaker}:</span> ${lineText}`;
+        lineDiv.innerHTML = `<span class="speaker-name">${displaySpeaker}:</span> ${lineText}`;
         container.appendChild(lineDiv);
 
         let modifiedText = lineText.replace(/£([0-9.,]+)/g, "$1 pounds");
@@ -1233,7 +1241,7 @@ function preparePartTTS(text, partIndex) {
         });
 
         speechQueues[partIndex].push({
-            speaker: speaker,
+            speaker: voiceSpeaker,
             text: modifiedText,
             lineId: lineId
         });
