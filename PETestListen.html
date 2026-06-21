@@ -973,6 +973,7 @@ let currentPlayingPart = -1;
 let isPlaying = false;
 let currentScore = 0;
 let hasPrimedTTS = false;
+let assignedVoices = {}; // Tracks which voice belongs to which speaker
 window.currentUtterance = null; 
 
 const menuDiv = document.getElementById('test-grid');
@@ -1076,6 +1077,7 @@ function parseTranscriptParts(transcript) {
 function loadTest(index) {
     currentTest = testsData[index];
     currentScore = 0;
+    assignedVoices = {}; // Reset voice assignments for the new test
     
     const studentName = studentNameInput.value.trim() || "Guest Student";
     document.getElementById('display-student').innerHTML = `Student: <span>${studentName}</span>`;
@@ -1238,54 +1240,98 @@ function preparePartTTS(text, partIndex) {
     });
 }
 
-// --- choose a voice for a given speaker name (tries preferred names then falls back) ---
+// --- choose a voice for a given speaker name ensuring distinct voices for different characters ---
 function getVoiceForSpeaker(speakerName, testId) {
-    let isMale = true;
-    const femaleNames = ['WOMAN', 'GIRL', 'SARAH', 'CATHERINE', 'ELLA', 'ANGELA', 'MARIA', 'CATHY', 'ELENA', 'JULIA', 'MUM', 'AMANDA', 'NATASHA', 'CLAIRE', 'LINDA', 'CARLA', 'LUCY', 'JENNY', 'CLARA', 'ANNE', 'MARTHA', 'JULIE', 'LAURA', 'AMY', 'CHLOE'];
-    if (femaleNames.some(name => speakerName.toUpperCase().includes(name))) {
-        isMale = false;
-    }
-
-    const config = TEST_VOICE_CONFIG[testId];
-    let requestedVoiceName = config ? config[speakerName] : null;
-
-    if (requestedVoiceName && ['Ava', 'Emma', 'Vivienne', 'Seraphina'].includes(requestedVoiceName)) {
-        isMale = false;
+    // 1. If we already assigned a voice to this character in this test, reuse it
+    if (assignedVoices[speakerName]) {
+        return assignedVoices[speakerName];
     }
 
     if (!voices || voices.length === 0) return null;
 
-    const preferredVoices = ['Remy', 'Giuseppe', 'Vivienne', 'Florian', 'Seraphina', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
+    // 2. Determine Gender based on name/keywords
+    let isMale = true;
+    const femaleKeywords = ['WOMAN', 'GIRL', 'MUM', 'MOTHER', 'SISTER', 'WIFE', 'FEMALE', 'AUNT'];
+    const maleKeywords = ['MAN', 'BOY', 'DAD', 'FATHER', 'BROTHER', 'HUSBAND', 'MALE', 'UNCLE'];
+    const femaleCharacterNames = ['SARAH', 'CATHERINE', 'ELLA', 'ANGELA', 'MARIA', 'CATHY', 'ELENA', 'JULIA', 'AMANDA', 'NATASHA', 'CLAIRE', 'LINDA', 'CARLA', 'LUCY', 'JENNY', 'CLARA', 'ANNE', 'MARTHA', 'JULIE', 'LAURA', 'AMY', 'CHLOE', 'LISA', 'GEMMA', 'MELANIE'];
     
-    // Try to find a precise name match first
-    const msMales = ["Microsoft Ryan", "Microsoft Guy", "Microsoft Christopher", ...preferredVoices.filter(n=>['Remy','Giuseppe','Florian','Brian','Andrew','William'].includes(n))];
-    const msFemales = ["Microsoft Jenny", "Microsoft Aria", "Microsoft Sonia", ...preferredVoices.filter(n=>['Vivienne','Seraphina','Emma','Ava'].includes(n))];
+    let upperSpeaker = speakerName.toUpperCase();
     
-    const listToSearch = isMale ? msMales : msFemales;
-    
-    if (requestedVoiceName) {
-         let exactMatch = voices.find(v => v.name.includes(requestedVoiceName) && (v.name.includes("Online") || v.name.includes("Multilingual")));
-         if (exactMatch) return exactMatch;
-         exactMatch = voices.find(v => v.name.includes(requestedVoiceName));
-         if (exactMatch) return exactMatch;
+    if (femaleKeywords.some(kw => upperSpeaker.includes(kw)) || femaleCharacterNames.some(name => upperSpeaker.includes(name))) {
+        isMale = false;
+    } else if (maleKeywords.some(kw => upperSpeaker.includes(kw))) {
+        isMale = true;
+    } else {
+        // Fallback to test config if name is ambiguous (e.g., 'INTERVIEWER' or specific names)
+        const config = TEST_VOICE_CONFIG[testId];
+        if (config && config[speakerName]) {
+            const requestedVoice = config[speakerName];
+            if (['Ava', 'Emma', 'Vivienne', 'Seraphina', 'Jenny', 'Aria', 'Sonia'].includes(requestedVoice)) {
+                isMale = false;
+            }
+        }
     }
 
-    for (let name of listToSearch) {
-         let exactMatch = voices.find(v => v.name.includes(name) && (v.name.includes("Online") || v.name.includes("Multilingual")));
-         if(exactMatch) return exactMatch;
+    // 3. Priority lists for high-quality Edge Multilingual/Online voices
+    const maleVoiceNames = ['Brian', 'Andrew', 'William', 'Remy', 'Florian', 'Giuseppe', 'Ryan', 'Guy', 'Christopher'];
+    const femaleVoiceNames = ['Emma', 'Ava', 'Vivienne', 'Seraphina', 'Jenny', 'Aria', 'Sonia'];
+    const targetNames = isMale ? maleVoiceNames : femaleVoiceNames;
+
+    // See which voices are already taken by other speakers in this test
+    const usedVoiceNames = Object.values(assignedVoices).map(v => v.name);
+
+    let selectedVoice = null;
+
+    // Helper to find the best quality unused voice
+    const findVoice = (nameToFind) => {
+        let candidates = voices.filter(v => v.name.includes(nameToFind));
+        // Sort to prefer high-quality "Multilingual" or "Online (Natural)" voices
+        candidates.sort((a, b) => {
+            const aHQ = (a.name.includes("Multilingual") || a.name.includes("Online") || a.name.includes("Natural")) ? 1 : 0;
+            const bHQ = (b.name.includes("Multilingual") || b.name.includes("Online") || b.name.includes("Natural")) ? 1 : 0;
+            return bHQ - aHQ;
+        });
+        
+        // Try to find an unused voice to prevent two characters sounding exactly the same
+        let unused = candidates.find(c => !usedVoiceNames.includes(c.name));
+        if (unused) return unused;
+        
+        // Absolute fallback: if all variations of this name are used, return the best one anyway
+        if (candidates.length > 0) return candidates[0];
+        
+        return null;
+    };
+
+    // 4. Try explicit preferred voice from the config first
+    const config = TEST_VOICE_CONFIG[testId];
+    let preferredVoiceName = config ? config[speakerName] : null;
+    if (preferredVoiceName) {
+        selectedVoice = findVoice(preferredVoiceName);
+    }
+
+    // 5. If no config preference or it wasn't found, pick the first unused high-quality voice of the correct gender
+    if (!selectedVoice) {
+        for (let name of targetNames) {
+            selectedVoice = findVoice(name);
+            if (selectedVoice && !usedVoiceNames.includes(selectedVoice.name)) {
+                break; // Found an unused one!
+            }
+        }
+    }
+
+    // 6. Absolute last resort fallback (e.g., non-Edge browsers)
+    if (!selectedVoice) {
+        let fallbackCandidates = voices.filter(v => isMale ? (v.name.includes("Male") || v.name.includes("David")) : (v.name.includes("Female") || v.name.includes("Zira")));
+        let unusedFallback = fallbackCandidates.find(c => !usedVoiceNames.includes(c.name));
+        selectedVoice = unusedFallback || fallbackCandidates[0] || voices[0];
+    }
+
+    // 7. Save this assignment so the character's voice stays consistent
+    if (selectedVoice) {
+        assignedVoices[speakerName] = selectedVoice;
     }
     
-    for (let name of listToSearch) {
-         let exactMatch = voices.find(v => v.name.includes(name));
-         if(exactMatch) return exactMatch;
-    }
-    
-    // Fallback based on implied gender if available
-    if (isMale) {
-        return voices.find(v => v.name.includes("Male") || v.name.includes("David") || v.name.includes("Brian") || v.name.includes("Guy")) || voices[0];
-    } else {
-        return voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Emma") || v.name.includes("Girl")) || voices[0];
-    }
+    return selectedVoice;
 }
 
 // --- toggle playback (start or stop) ---
