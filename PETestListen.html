@@ -161,7 +161,7 @@
         .question-controls { flex: 1.2; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
         
         .mcq-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-        .yes-no-group { display: flex; gap: 10px; width: 100%; }
+        .yes-no-group { display: flex; gap: 15px; justify-content: flex-start; }
         
         .option-btn { 
             padding: 10px 14px; border: 2px solid #bdc3c7; border-radius: 8px; cursor: pointer; 
@@ -173,7 +173,7 @@
         .option-btn.incorrect { border-color: var(--error) !important; background: #fadbd8 !important; color: #c0392b !important; font-weight: bold; text-decoration: line-through; }
         .option-btn:disabled { cursor: default; }
         
-        .yes-no-btn { text-align: center; justify-content: center; flex: 1; font-weight: bold; font-size: 15px; }
+        .yes-no-btn { text-align: center; justify-content: center; flex: none; font-weight: bold; font-size: 16px; width: 44px; height: 44px; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; }
         
         .answer-input-container { display: flex; align-items: center; gap: 10px; width: 100%; }
         .answer-input { padding: 10px 14px; border: 2px solid #ccc; border-radius: 8px; flex: 1; font-size: 15px; transition: 0.2s; }
@@ -972,6 +972,7 @@ let speechQueues = [[], [], [], []];
 let currentPlayingPart = -1;
 let isPlaying = false;
 let currentScore = 0;
+let hasPrimedTTS = false;
 window.currentUtterance = null; 
 
 const menuDiv = document.getElementById('test-grid');
@@ -1129,8 +1130,8 @@ function loadTest(index) {
                 if (q.options) {
                     if (q.options.length === 2 && q.options[0].includes("YES")) {
                         html += `<div class="yes-no-group">
-                            <button class="option-btn yes-no-btn" data-id="${q.id}" data-val="A" onclick="selectOption(this, '${q.id}')">YES</button>
-                            <button class="option-btn yes-no-btn" data-id="${q.id}" data-val="B" onclick="selectOption(this, '${q.id}')">NO</button>
+                            <button class="option-btn yes-no-btn" data-id="${q.id}" data-val="A" onclick="selectOption(this, '${q.id}')" title="YES">Y</button>
+                            <button class="option-btn yes-no-btn" data-id="${q.id}" data-val="B" onclick="selectOption(this, '${q.id}')" title="NO">N</button>
                         </div>`;
                     } else {
                         html += `<div class="mcq-group">`;
@@ -1219,9 +1220,9 @@ function preparePartTTS(text, partIndex) {
 
         let modifiedText = lineText.replace(/£([0-9.,]+)/g, "$1 pounds");
 
-        modifiedText = modifiedText.replace(/\b(0\d{2}\s\d{3}\s\d{3})\b/g, match => {
-            return match.split('').map(char => /\d/.test(char) ? numToWord[char] + ',' : char).join(' ');
-        });
+        // Process text for phone numbers (intelligent digit spacing for TTS)
+        // regex finds typical IELTS phone number formats
+        modifiedText = modifiedText.replace(/(0\d{2}\s\d{3}\s\d{3})/g, match => match.split('').join(' '));
 
         modifiedText = modifiedText.replace(/01252, double 8, 492/g, "zero one two five two, double eight, four nine two");
 
@@ -1237,6 +1238,7 @@ function preparePartTTS(text, partIndex) {
     });
 }
 
+// --- choose a voice for a given speaker name (tries preferred names then falls back) ---
 function getVoiceForSpeaker(speakerName, testId) {
     let isMale = true;
     const femaleNames = ['WOMAN', 'GIRL', 'SARAH', 'CATHERINE', 'ELLA', 'ANGELA', 'MARIA', 'CATHY', 'ELENA', 'JULIA', 'MUM', 'AMANDA', 'NATASHA', 'CLAIRE', 'LINDA', 'CARLA', 'LUCY', 'JENNY', 'CLARA', 'ANNE', 'MARTHA', 'JULIE', 'LAURA', 'AMY', 'CHLOE'];
@@ -1255,6 +1257,7 @@ function getVoiceForSpeaker(speakerName, testId) {
 
     const preferredVoices = ['Remy', 'Giuseppe', 'Vivienne', 'Florian', 'Seraphina', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
     
+    // Try to find a precise name match first
     const msMales = ["Microsoft Ryan", "Microsoft Guy", "Microsoft Christopher", ...preferredVoices.filter(n=>['Remy','Giuseppe','Florian','Brian','Andrew','William'].includes(n))];
     const msFemales = ["Microsoft Jenny", "Microsoft Aria", "Microsoft Sonia", ...preferredVoices.filter(n=>['Vivienne','Seraphina','Emma','Ava'].includes(n))];
     
@@ -1277,23 +1280,34 @@ function getVoiceForSpeaker(speakerName, testId) {
          if(exactMatch) return exactMatch;
     }
     
-    return voices[0];
+    // Fallback based on implied gender if available
+    if (isMale) {
+        return voices.find(v => v.name.includes("Male") || v.name.includes("David") || v.name.includes("Brian") || v.name.includes("Guy")) || voices[0];
+    } else {
+        return voices.find(v => v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Emma") || v.name.includes("Girl")) || voices[0];
+    }
 }
 
+// --- toggle playback (start or stop) ---
 function togglePartTTS(partIndex) {
     if (isPlaying && currentPlayingPart === partIndex) {
         stopTTS();
     } else {
+        if (!hasPrimedTTS) {
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+            hasPrimedTTS = true;
+        }
         stopTTS();
         currentPlayingPart = partIndex;
         isPlaying = true;
-        setTimeout(() => playTTSQueue(partIndex, 0), 100);
+        setTimeout(() => playTTSQueue(partIndex, 0), 50);
     }
 }
 
+// --- stop playback, cancel speechSynthesis and clear highlights ---
 function stopTTS() {
-    isPlaying = false; 
     window.speechSynthesis.cancel();
+    isPlaying = false; 
     document.querySelectorAll('.btn-play').forEach(btn => {
         btn.innerText = '▶ Play Audio';
         btn.classList.remove('playing');
@@ -1302,6 +1316,7 @@ function stopTTS() {
     currentPlayingPart = -1;
 }
 
+// --- play queued items one-by-one, highlight the active transcript line ---
 function playTTSQueue(partIndex, lineIndex) {
     if (!isPlaying || currentPlayingPart !== partIndex || lineIndex >= speechQueues[partIndex].length) {
         stopTTS();
@@ -1324,7 +1339,7 @@ function playTTSQueue(partIndex, lineIndex) {
     }
 
     window.currentUtterance = new SpeechSynthesisUtterance(item.text);
-    window.currentUtterance.lang = 'en-US'; 
+    window.currentUtterance.lang = 'en-US'; // Force strict English language tag
     
     const selectedVoice = getVoiceForSpeaker(item.speaker, currentTest.id);
     if (selectedVoice) {
@@ -1340,6 +1355,7 @@ function playTTSQueue(partIndex, lineIndex) {
     };
 
     window.currentUtterance.onerror = (e) => {
+        console.warn("Speech Synthesis skipped a line or errored:", e);
         if (isPlaying && currentPlayingPart === partIndex) {
             setTimeout(() => playTTSQueue(partIndex, lineIndex + 1), 100);
         }
