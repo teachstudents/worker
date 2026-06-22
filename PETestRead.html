@@ -178,8 +178,8 @@
                 <span id="current-student-name" class="text-sm text-blue-600 font-bold uppercase tracking-wider"></span>
             </div>
             <div class="flex items-center space-x-4">
-                <button id="audio-toggle" onclick="toggleAudio()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path></svg>
+                <button id="audio-toggle" onclick="toggleStoryAudio()" class="text-gray-400 hover:text-blue-600 transition-colors" title="Read Story Aloud">
+                    <svg id="tts-icon" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path></svg>
                 </button>
                 <div class="bg-gray-100 border border-gray-200 rounded-full px-4 py-2 text-base font-bold">
                     <span class="text-gray-500">Errors:</span> <span id="current-test-errors" class="text-red-500">0</span>
@@ -214,12 +214,7 @@
         <div class="flex-1 overflow-y-auto p-4 sm:p-8 max-w-5xl mx-auto w-full">
             <div class="bg-white border border-gray-200 rounded-2xl p-8 sm:p-12 shadow-sm text-center mb-6">
                 <h3 class="text-4xl font-black text-blue-600 mb-4">Great Job!</h3>
-                <p class="text-gray-600 text-lg mb-8 font-medium">You have completed the story. Listen to it read aloud or review your grammar.</p>
-                
-                <button onclick="playTTS()" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 text-lg rounded-full shadow-lg transform transition-all active:scale-95">
-                    <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                    Play Story (Audio)
-                </button>
+                <p class="text-gray-600 text-lg font-medium">You have completed the story. Review your grammar below.</p>
             </div>
 
             <div id="mistakes-container" class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm hidden">
@@ -641,7 +636,6 @@
         currentAnswers: [],
         currentMistakes: [], 
         completedBlanks: 0,
-        audioEnabled: true,
         errorsThisSession: 0
     };
 
@@ -649,7 +643,7 @@
     let audioInitialized = false;
 
     async function initAudio() {
-        if (audioInitialized || !appState.audioEnabled) return;
+        if (audioInitialized) return;
         try {
             await Tone.start();
             synthCorrect = new Tone.PolySynth(Tone.Synth, {
@@ -671,7 +665,7 @@
     }
 
     function playSound(type) {
-        if (!appState.audioEnabled || !audioInitialized) return;
+        if (!audioInitialized) return;
         if (type === 'correct' && synthCorrect) {
             synthCorrect.triggerAttackRelease(["C5", "E5"], "16n");
         } else if (type === 'wrong' && synthWrong) {
@@ -679,34 +673,28 @@
         }
     }
 
-    function toggleAudio() {
-        appState.audioEnabled = !appState.audioEnabled;
-        const btn = document.getElementById('audio-toggle');
-        if(appState.audioEnabled) {
-            initAudio();
-            btn.classList.remove('text-red-400');
-            btn.classList.add('text-gray-400');
-            btn.innerHTML = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path></svg>`;
-        } else {
-            btn.classList.add('text-red-400');
-            btn.classList.remove('text-gray-400');
-            btn.innerHTML = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>`;
-        }
-    }
-
-    function playTTS() {
+    function toggleStoryAudio() {
         if (!('speechSynthesis' in window)) {
             showModal("Text-to-Speech is not supported in your browser.");
             return;
         }
-        speechSynthesis.cancel();
+        
+        const btnIcon = document.getElementById('tts-icon');
+
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+            // Reset to speaker icon
+            btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path>`;
+            return;
+        }
 
         const test = rawData.find(t => t.id === appState.currentTestId);
         
         let fullText = test.text;
         for (let i = 0; i < 6; i++) {
-            const correctWord = test.options[i][test.answers[i]];
-            fullText = fullText.replace(`{${i+1}}`, correctWord);
+            const currentAnswer = appState.currentAnswers[i];
+            const wordToRead = currentAnswer !== null ? currentAnswer : "blank";
+            fullText = fullText.replace(`{${i+1}}`, wordToRead);
         }
 
         const utterance = new SpeechSynthesisUtterance(fullText);
@@ -725,7 +713,15 @@
             utterance.voice = selectedVoice;
         }
 
+        utterance.onend = () => {
+            // Reset to speaker icon when finished
+            btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path>`;
+        };
+
         speechSynthesis.speak(utterance);
+        
+        // Change icon to a 'Stop' square while playing
+        btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>`;
     }
 
     if ('speechSynthesis' in window) {
