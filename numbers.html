@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fast Pass Number Academy</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Stable React 18 from CDNJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Load Stable Babel Standalone from CDNJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent all scrolling */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            touch-action: manipulation; /* Prevent double-tap to zoom */
+        }
+
+        .no-select {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-bounce-in {
+            animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-presets="react">
+        const { useState, useEffect, useCallback, useRef } = React;
+
+        const numberToWords = (num) => {
+            if (num === 200) return "two hundred";
+            const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+            const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+            if (num < 20) return ones[num];
+            if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? '-' + ones[num % 10] : '');
+            if (num < 200) {
+                const remainder = num - 100;
+                if (remainder === 0) return "one hundred";
+                if (remainder < 20) return "one hundred " + ones[remainder];
+                return "one hundred " + tens[Math.floor(remainder / 10)] + (remainder % 10 !== 0 ? '-' + ones[remainder % 10] : '');
+            }
+            return "";
+        };
+
+        const getRandomColorClass = () => {
+            const colors = ['text-red-500', 'text-blue-600', 'text-green-600', 'text-purple-600', 'text-orange-500', 'text-pink-600', 'text-teal-500'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        };
+
+        let audioCtx = null;
+        const playTone = (frequency, type, duration) => {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                if (!audioCtx) {
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch (e) { 
+                console.log("Audio not enabled yet or unsupported."); 
+            }
+        };
+
+        const playCorrectSound = () => { playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.2), 100); };
+        const playWrongSound = () => { playTone(300, 'sawtooth', 0.3); };
+        const playTickSound = () => { playTone(1000, 'square', 0.05); };
+        const playCheerSound = () => { playTone(400, 'sine', 0.2); setTimeout(() => playTone(600, 'sine', 0.2), 150); setTimeout(() => playTone(800, 'sine', 0.4), 300); };
+
+        const Icons = {
+            Sparkles: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>,
+            Home: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Star: () => <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+            Clock: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            Volume: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>,
+            Trophy: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+            Check: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+            XCircle: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        };
+
+        const App = () => {
+            const [gameState, setGameState] = useState('intro'); 
+            const [playerName, setPlayerName] = useState('');
+            const [voicesLoaded, setVoicesLoaded] = useState(false);
+
+            useEffect(() => {
+                const loadVoices = () => {
+                    window.speechSynthesis.getVoices();
+                    setVoicesLoaded(true);
+                };
+                loadVoices();
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }, []);
+
+            const speak = useCallback((text, times = 1) => {
+                window.speechSynthesis.cancel();
+                
+                const voices = window.speechSynthesis.getVoices();
+                const preferred = voices.find(v => v.name.includes('Emma')) || 
+                    voices.find(v => 
+                    v.name.toLowerCase().includes('microsoft') && 
+                    v.name.toLowerCase().includes('multilingual') && 
+                    v.name.toLowerCase().includes('english')
+                ) || voices.find(v => 
+                    v.name.toLowerCase().includes('microsoft') && 
+                    v.lang.startsWith('en')
+                );
+
+                for(let i=0; i < times; i++) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.85; 
+                    if (preferred) utterance.voice = preferred;
+                    window.speechSynthesis.speak(utterance);
+                }
+            }, []);
+
+            if (gameState === 'intro') {
+                return <IntroScreen setPlayerName={setPlayerName} setGameState={setGameState} speak={speak} />;
+            }
+
+            if (gameState === 'menu') {
+                return <MainMenu playerName={playerName} setGameState={setGameState} speak={speak} />;
+            }
+
+            return (
+                <GameEngine 
+                    gameState={gameState} 
+                    setGameState={setGameState} 
+                    playerName={playerName} 
+                    speak={speak} 
+                />
+            );
+        };
+
+        const IntroScreen = ({ setPlayerName, setGameState, speak }) => {
+            const [name, setName] = useState('');
+
+            const handleStart = () => {
+                if (name.trim()) {
+                    setPlayerName(name.trim());
+                    setGameState('menu');
+                    playTone(0, 'sine', 0.01);
+                    speak(`Welcome to the Number Academy, ${name}!`);
+                }
+            };
+
+            return (
+                <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-br from-blue-100 via-white to-purple-100 p-4">
+                    <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl p-8 text-center border-4 border-blue-400">
+                        <h1 className="text-4xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 mb-8 leading-tight">
+                            Number Academy!
+                        </h1>
+                        <div className="w-20 h-20 md:w-24 md:h-24 text-yellow-400 mx-auto animate-bounce mb-8">
+                            <Icons.Sparkles />
+                        </div>
+                        <p className="text-2xl md:text-4xl text-gray-700 font-bold mb-6">What is your name?</p>
+                        <input 
+                            type="text" 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleStart()}
+                            className="w-full text-center text-3xl md:text-5xl p-4 md:p-6 rounded-2xl border-4 border-gray-200 focus:border-blue-500 focus:ring-0 outline-none mb-8 transition-colors"
+                            placeholder="Name..."
+                            autoFocus
+                        />
+                        <button 
+                            onClick={handleStart}
+                            className="w-full bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white text-3xl md:text-5xl font-extrabold py-4 md:py-6 rounded-2xl shadow-xl transform active:scale-95 transition-all no-select"
+                        >
+                            START!
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const MainMenu = ({ playerName, setGameState, speak }) => {
+            const menuItems = [
+                { id: 'learn-all', title: "Learn 1-200", desc: "Auto-play All", color: "from-blue-400 to-blue-600" },
+                { id: 'learn-evens', title: "Even Numbers", desc: "2, 4, 6, 8...", color: "from-cyan-400 to-cyan-600" },
+                { id: 'learn-odds', title: "Odd Numbers", desc: "1, 3, 5, 7...", color: "from-teal-400 to-teal-600" },
+                { id: 'learn-3s', title: "Count by 3s", desc: "3, 6, 9, 12...", color: "from-indigo-400 to-indigo-600" },
+                { id: 'game1', title: "Read & Pick Text", desc: "See #, Pick Word", color: "from-purple-400 to-purple-600" },
+                { id: 'game2', title: "Listen & Pick #", desc: "Hear, Pick Number", color: "from-orange-400 to-orange-600" },
+                { id: 'game3', title: "Listen & Pick Text", desc: "Hear, Pick Word", color: "from-pink-400 to-pink-600" },
+                { id: 'game4', title: "Count Objects", desc: "Grouped by 5s", color: "from-red-400 to-red-600" }
+            ];
+
+            return (
+                <div className="flex flex-col items-center h-screen w-full bg-slate-100 p-2 overflow-hidden">
+                    <h2 className="text-3xl md:text-5xl font-extrabold text-gray-800 my-4 text-center truncate w-full px-4">
+                        Let's go, <span className="text-blue-600">{playerName}</span>!
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 w-full h-full max-w-7xl pb-4 px-2">
+                        {menuItems.map(item => (
+                            <button 
+                                key={item.id}
+                                onClick={() => {
+                                    setGameState(item.id);
+                                    speak(`Starting ${item.title}`);
+                                }}
+                                className={`bg-gradient-to-r ${item.color} text-white p-2 md:p-4 rounded-3xl shadow-lg transform active:scale-95 hover:-translate-y-1 transition-all flex flex-col items-center justify-center no-select`}
+                            >
+                                <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black mb-1 text-center leading-tight">{item.title}</span>
+                                <span className="text-sm sm:text-base md:text-xl font-semibold opacity-90">{item.desc}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const GameEngine = ({ gameState, setGameState, playerName, speak }) => {
+            if (gameState.startsWith('learn')) {
+                return <LearningPhase 
+                    gameMode={gameState}
+                    setGameState={setGameState} 
+                    speak={speak} 
+                />;
+            }
+
+            return (
+                <QuizMode 
+                    gameType={gameState} 
+                    setGameState={setGameState} 
+                    playerName={playerName} 
+                    speak={speak} 
+                />
+            );
+        };
+
+        const LearningPhase = ({ gameMode, setGameState, speak }) => {
+            const [currentNum, setCurrentNum] = useState(() => {
+                if (gameMode === 'learn-evens') return 2;
+                if (gameMode === 'learn-odds') return 1;
+                if (gameMode === 'learn-3s') return 3;
+                return 1;
+            });
+            const [colorClass, setColorClass] = useState(getRandomColorClass());
+            const [timeLeft, setTimeLeft] = useState(3.5);
+
+            useEffect(() => {
+                const numText = numberToWords(currentNum);
+                speak(numText);
+            }, [currentNum, speak]);
+
+            useEffect(() => {
+                const timerId = setInterval(() => {
+                    setTimeLeft(prev => {
+                        if (prev <= 0) return 0;
+                        return Math.max(0, prev - 0.1);
+                    });
+                }, 100);
+                return () => clearInterval(timerId);
+            }, []);
+
+            useEffect(() => {
+                if (timeLeft <= 0) {
+                    let nextNum;
+                    if (gameMode === 'learn-evens') nextNum = currentNum + 2;
+                    else if (gameMode === 'learn-odds') nextNum = currentNum + 2;
+                    else if (gameMode === 'learn-3s') nextNum = currentNum + 3;
+                    else nextNum = currentNum + 1;
+
+                    if (nextNum > 200) {
+                        speak("You finished all the numbers! Great job!");
+                        setGameState('menu');
+                    } else {
+                        setCurrentNum(nextNum);
+                        setColorClass(getRandomColorClass());
+                        setTimeLeft(3.5); 
+                    }
+                }
+            }, [timeLeft, currentNum, gameMode, setGameState, speak]);
+
+            const numText = numberToWords(currentNum);
+
+            return (
+                <div className="flex flex-col h-screen w-full bg-white overflow-hidden relative">
+                    <div className="w-full h-8 md:h-10 bg-gray-200 relative overflow-hidden shadow-inner absolute top-0 left-0 z-10 flex-shrink-0">
+                        <div 
+                            className="h-full bg-blue-500 transition-all duration-100 ease-linear flex items-center px-4"
+                            style={{ width: `${(timeLeft / 3.5) * 100}%` }}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 md:w-8 md:h-8 text-white opacity-80"><Icons.Clock /></div>
+                                <span className="text-white font-bold text-sm md:text-xl">{Math.ceil(timeLeft)}s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onClick={() => setGameState('menu')} className="absolute top-12 md:top-16 left-2 md:left-4 p-2 md:p-3 bg-gray-200 rounded-full hover:bg-gray-300 z-50 w-12 h-12 md:w-16 md:h-16 text-gray-700">
+                        <Icons.Home />
+                    </button>
+
+                    {/* Highly optimized font sizing to prevent screen clipping */}
+                    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-full px-4 pt-10">
+                        <div className="text-center w-full flex flex-col items-center">
+                            <h1 className={`text-[30vw] md:text-[25vw] lg:text-[20vw] font-black leading-none ${colorClass} drop-shadow-2xl no-select text-center`}>
+                                {currentNum}
+                            </h1>
+                            <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-gray-800 mt-4 leading-tight text-center break-words max-w-4xl no-select">
+                                {numText}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const QuizMode = ({ gameType, setGameState, playerName, speak }) => {
+            const TOTAL_QUESTIONS = 10;
+            const TOTAL_ROUNDS = 10;
+            const TIMER_SECONDS = 5;
+
+            const [qIndex, setQIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [currentRound, setCurrentRound] = useState(1);
+            const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+            const [questionData, setQuestionData] = useState(null);
+            const [status, setStatus] = useState('playing'); 
+            const [showConfetti, setShowConfetti] = useState(false);
+            const [praiseText, setPraiseText] = useState('');
+            const [isWaitingForAudio, setIsWaitingForAudio] = useState(false);
+            
+            const statusRef = useRef(status);
+            const audioWaitTimeoutRef = useRef(null);
+
+            useEffect(() => {
+                statusRef.current = status;
+            }, [status]);
+
+            useEffect(() => {
+                return () => clearTimeout(audioWaitTimeoutRef.current);
+            }, []);
+
+            const generateQuestion = useCallback(() => {
+                let targetNum;
+                let options = [];
+                
+                if (gameType === 'game4') {
+                    targetNum = Math.floor(Math.random() * 30) + 1;
+                    options = [targetNum];
+                    while (options.length < 4) {
+                        let wrong = Math.floor(Math.random() * 30) + 1;
+                        if (!options.includes(wrong)) options.push(wrong);
+                    }
+                } else {
+                    targetNum = Math.floor(Math.random() * 200) + 1;
+                    options = [targetNum];
+                    while (options.length < 4) {
+                        let wrong = Math.floor(Math.random() * 200) + 1;
+                        if (!options.includes(wrong)) options.push(wrong);
+                    }
+                }
+
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+                
+                setQuestionData({ targetNum, options });
+                setTimeLeft(TIMER_SECONDS);
+                setStatus('playing');
+                setShowConfetti(false);
+
+                if (gameType === 'game2' || gameType === 'game3') {
+                    speak(numberToWords(targetNum), 2);
+                    setIsWaitingForAudio(true);
+                    clearTimeout(audioWaitTimeoutRef.current);
+                    
+                    audioWaitTimeoutRef.current = setTimeout(() => {
+                        setIsWaitingForAudio(false);
+                    }, 5000); 
+                } else {
+                    setIsWaitingForAudio(false);
+                }
+            }, [gameType, speak]);
+
+            useEffect(() => {
+                generateQuestion();
+            }, [qIndex, currentRound, generateQuestion]);
+
+            useEffect(() => {
+                if (!questionData || isWaitingForAudio) return; 
+
+                const timerId = setInterval(() => {
+                    setTimeLeft(prev => {
+                        if (prev <= 0) return 0;
+                        const next = Math.max(0, prev - 0.1); 
+                        if (statusRef.current === 'playing' && Math.ceil(prev) !== Math.ceil(next) && next <= 3 && next > 0) {
+                            playTickSound();
+                        }
+                        return next;
+                    });
+                }, 100);
+
+                return () => clearInterval(timerId);
+            }, [questionData, isWaitingForAudio]);
+
+            useEffect(() => {
+                if (timeLeft <= 0 && questionData) {
+                    let delay = 500; 
+                    
+                    if (status === 'playing') {
+                        setStatus('wrong');
+                        playWrongSound();
+                        speak("Time is up!");
+                        delay = 1500; 
+                    }
+                    
+                    const timeoutId = setTimeout(() => {
+                        if (qIndex + 1 >= TOTAL_QUESTIONS) {
+                            setStatus('finished');
+                            playCheerSound();
+                            const isGameOver = currentRound >= TOTAL_ROUNDS;
+                            if (isGameOver) {
+                                speak(`Epic Finish, ${playerName}. Great job!`);
+                            } else {
+                                speak(`Round ${currentRound} clear! Great job!`);
+                            }
+                        } else {
+                            setQIndex(prev => prev + 1);
+                        }
+                    }, delay);
+                    
+                    return () => clearTimeout(timeoutId); 
+                }
+            }, [timeLeft]); 
+
+            const handleAnswer = (selectedNum) => {
+                if (status !== 'playing') return; 
+                
+                clearTimeout(audioWaitTimeoutRef.current);
+                setIsWaitingForAudio(false);
+
+                if (selectedNum === questionData.targetNum) {
+                    setStatus('correct');
+                    setScore(s => s + 1);
+                    playCorrectSound();
+                    setShowConfetti(true);
+                    
+                    const praises = ["Amazing", "Incredible", "You got it", "Super fast", "Wow", "Excellent"];
+                    const praise = `${praises[Math.floor(Math.random() * praises.length)]} ${playerName}!`;
+                    setPraiseText(praise);
+                    speak(praise); 
+                } else {
+                    setStatus('wrong');
+                    playWrongSound();
+                    speak(`Oops! The correct answer was ${numberToWords(questionData.targetNum)}.`);
+                }
+            };
+
+            if (!questionData && status !== 'finished') return null;
+
+            if (status === 'finished') {
+                const isGameOver = currentRound >= TOTAL_ROUNDS;
+                return (
+                    <div className="flex flex-col items-center justify-center h-screen w-full bg-yellow-100 p-4">
+                        <div className="w-24 h-24 md:w-40 md:h-40 text-yellow-500 mb-4 animate-bounce"><Icons.Trophy /></div>
+                        <h1 className="text-3xl md:text-6xl font-black text-gray-800 mb-2 text-center">
+                            {isGameOver ? `EPIC FINISH, ${playerName}!` : `ROUND ${currentRound} CLEAR!`}
+                        </h1>
+                        <p className="text-2xl md:text-4xl font-bold text-gray-700 mb-8">Score: {score} / {TOTAL_QUESTIONS}</p>
+                        
+                        <div className="flex flex-col w-full max-w-md gap-4">
+                            {!isGameOver ? (
+                                <button 
+                                    onClick={() => { 
+                                        setScore(0); 
+                                        setQIndex(0); 
+                                        setCurrentRound(r => r + 1); 
+                                        setStatus('playing'); 
+                                        speak(`Round ${currentRound + 1}, let's go!`);
+                                    }} 
+                                    className="w-full bg-green-500 text-white text-2xl md:text-3xl font-bold py-4 md:py-6 px-4 rounded-3xl shadow-xl active:scale-95 no-select truncate"
+                                >
+                                    Advance to Round {currentRound + 1}
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={() => { 
+                                        setScore(0); 
+                                        setQIndex(0); 
+                                        setCurrentRound(1); 
+                                        setStatus('playing'); 
+                                        speak(`Round 1, let's go!`);
+                                    }} 
+                                    className="w-full bg-purple-500 text-white text-2xl md:text-3xl font-bold py-4 md:py-6 px-4 rounded-3xl shadow-xl active:scale-95 no-select truncate"
+                                >
+                                    Play Again
+                                </button>
+                            )}
+                            <button onClick={() => setGameState('menu')} className="w-full bg-blue-600 text-white text-2xl md:text-3xl font-bold py-4 md:py-6 px-4 rounded-3xl shadow-xl active:scale-95 no-select">
+                                Main Menu
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex flex-col h-screen w-full bg-slate-50 overflow-hidden relative">
+                    {showConfetti && <ConfettiOverlay />}
+                    
+                    {status === 'correct' && (
+                        <div className="absolute top-1/4 left-0 w-full z-50 flex flex-col items-center animate-bounce-in px-4">
+                            <div className="bg-green-500 text-white text-3xl md:text-6xl font-black px-8 md:px-12 py-4 md:py-6 rounded-full shadow-2xl border-4 md:border-8 border-white flex items-center gap-2 md:gap-4 text-center max-w-full truncate">
+                                <div className="w-10 h-10 md:w-16 md:h-16 flex-shrink-0"><Icons.Check /></div>
+                                <span className="truncate">{praiseText}</span>
+                            </div>
+                        </div>
+                    )}
+                    {status === 'wrong' && (
+                        <div className="absolute top-1/4 left-0 w-full z-50 flex flex-col items-center animate-pulse px-4">
+                            <div className="bg-red-500 text-white text-4xl md:text-7xl font-black px-8 md:px-12 py-4 md:py-6 rounded-full shadow-2xl border-4 md:border-8 border-white flex items-center gap-2 md:gap-4">
+                                <div className="w-10 h-10 md:w-16 md:h-16 flex-shrink-0"><Icons.XCircle /></div>
+                                Oops!
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-between items-center w-full p-2 bg-white shadow-sm z-10 flex-shrink-0">
+                        <button onClick={() => setGameState('menu')} className="p-2 bg-gray-100 rounded-full text-gray-600 w-10 h-10 md:w-12 md:h-12 flex-shrink-0 flex items-center justify-center">
+                            <Icons.Home />
+                        </button>
+                        <div className="flex items-center justify-around flex-1 px-1 md:px-2 gap-1 md:gap-4 min-w-0">
+                            <span className="text-[10px] sm:text-sm md:text-xl font-bold text-purple-700 bg-purple-100 px-2 md:px-4 py-1.5 md:py-2 rounded-lg truncate border border-purple-200">
+                                Rnd {currentRound}/{TOTAL_ROUNDS}
+                            </span>
+                            <span className="flex items-center text-[10px] sm:text-sm md:text-xl font-bold text-gray-700 bg-gray-100 px-2 md:px-4 py-1.5 md:py-2 rounded-lg border border-gray-200">
+                                <div className="w-3 h-3 md:w-5 md:h-5 mr-1"><Icons.Clock/></div>{Math.ceil(timeLeft)}s
+                            </span>
+                            <span className="flex items-center text-[10px] sm:text-sm md:text-xl font-bold text-blue-700 bg-blue-100 px-2 md:px-4 py-1.5 md:py-2 rounded-lg border border-blue-200">
+                                <div className="text-yellow-500 w-3 h-3 md:w-5 md:h-5 mr-1 flex-shrink-0"><Icons.Star/></div>{score}
+                            </span>
+                        </div>
+                        <div className="text-[10px] sm:text-sm md:text-xl font-bold text-gray-500 flex-shrink-0 bg-gray-100 px-2 py-1.5 md:py-2 rounded-lg border border-gray-200">
+                            {TOTAL_QUESTIONS - qIndex} Left
+                        </div>
+                    </div>
+
+                    <div className="w-full h-6 md:h-8 bg-gray-200 relative overflow-hidden shadow-inner flex-shrink-0">
+                        {isWaitingForAudio ? (
+                            <div className="h-full bg-blue-400 transition-all duration-100 ease-linear flex items-center justify-center px-4 w-full animate-pulse">
+                                <span className="text-white font-bold text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
+                                    <div className="w-4 h-4 md:w-5 md:h-5"><Icons.Volume /></div> Listen...
+                                </span>
+                            </div>
+                        ) : (
+                            <div 
+                                className={`h-full ${timeLeft > 2 ? 'bg-green-500' : 'bg-red-500'} transition-all duration-100 ease-linear flex items-center px-2 md:px-4`}
+                                style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }}
+                            >
+                                <div className="w-4 h-4 md:w-6 md:h-6 text-white opacity-80"><Icons.Clock /></div>
+                            </div>
+                        )}
+                    </div>
+
+                    {}
+                    {gameType !== 'game2' && gameType !== 'game3' && (
+                        <div className="flex-1 flex flex-col items-center justify-center w-full px-2 relative max-w-full overflow-hidden">
+                            <QuestionContent 
+                                gameType={gameType} 
+                                targetNum={questionData.targetNum}
+                                speak={speak}
+                            />
+                        </div>
+                    )}
+
+                    {/* Optimized Answer Buttons container to ensure text doesn't overflow */}
+                    <div className={`w-full px-2 pb-3 bg-gray-100 flex-shrink-0 ${gameType === 'game2' || gameType === 'game3' ? 'flex-1 flex flex-col justify-center bg-slate-50' : 'pt-3 border-t-4 border-gray-200'}`}>
+                        <div className={`flex flex-row justify-between w-full gap-2 max-w-7xl mx-auto ${gameType === 'game2' || gameType === 'game3' ? 'h-48 md:h-64 lg:h-80' : 'h-28 sm:h-36 md:h-48'}`}>
+                            {questionData.options.map((opt, i) => {
+                                const isTextMode = gameType === 'game1' || gameType === 'game3';
+                                const displayText = isTextMode ? numberToWords(opt) : opt;
+                                const bgColors = ['bg-pink-500', 'bg-blue-500', 'bg-purple-500', 'bg-orange-500'];
+                                
+                                return (
+                                    <button 
+                                        key={i}
+                                        onClick={() => handleAnswer(opt)}
+                                        disabled={status !== 'playing'}
+                                        // flex-1 and min-w-0 forces the flexbox to wrap text instead of blowing out the button width
+                                        className={`flex-1 min-w-0 flex items-center justify-center ${bgColors[i % bgColors.length]} text-white rounded-2xl md:rounded-3xl shadow-[0_6px_0_rgb(0,0,0,0.2)] md:shadow-[0_8px_0_rgb(0,0,0,0.2)] active:shadow-none active:translate-y-1.5 md:active:translate-y-2 transition-all p-1 md:p-2 overflow-hidden no-select`}
+                                    >
+                                        {/* Break-words and standard Tailwind sizes fix the long text overflow issues safely */}
+                                        <span className={`${isTextMode ? 'text-sm sm:text-xl md:text-3xl lg:text-4xl leading-none break-words' : 'text-3xl sm:text-5xl md:text-6xl lg:text-7xl'} font-black text-center drop-shadow-md px-1`}>
+                                            {displayText}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const QuestionContent = ({ gameType, targetNum, speak }) => {
+            if (gameType === 'game1') {
+                const color = getRandomColorClass();
+                return (
+                    // Safe viewport sizes so large numbers don't push off screen
+                    <h2 className={`text-[30vw] sm:text-[25vw] md:text-[20vw] font-black ${color} drop-shadow-2xl leading-none no-select text-center w-full`}>
+                        {targetNum}
+                    </h2>
+                );
+            }
+
+            if (gameType === 'game4') {
+                return <ObjectCounter targetNum={targetNum} />;
+            }
+
+            return null;
+        };
+
+        const ObjectCounter = ({ targetNum }) => {
+            const emojis = ['🍎', '⭐️', '🎈', '🚀', '🐶', '🏀'];
+            const emoji = useRef(emojis[Math.floor(Math.random() * emojis.length)]).current;
+            
+            const items = Array.from({ length: targetNum });
+            const groups = [];
+            for (let i = 0; i < items.length; i += 5) {
+                groups.push(items.slice(i, i + 5));
+            }
+
+            return (
+                <div className="flex flex-wrap gap-2 md:gap-4 items-center justify-center p-2 w-full h-full overflow-hidden content-center">
+                    {groups.map((group, rIdx) => (
+                        <div key={rIdx} className="flex gap-1 md:gap-2 p-2 md:p-3 bg-white rounded-xl md:rounded-2xl shadow-md border-2 border-gray-200 shrink-0">
+                            {group.map((_, iIdx) => (
+                                <span key={iIdx} className="text-3xl md:text-4xl lg:text-5xl filter drop-shadow-sm no-select leading-none">
+                                    {emoji}
+                                </span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        const ConfettiOverlay = () => {
+            const pieces = Array.from({ length: 80 });
+            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+
+            return (
+                <div className="absolute inset-0 z-40 pointer-events-none overflow-hidden">
+                    {pieces.map((_, i) => {
+                        const left = Math.random() * 100;
+                        const animDuration = 1.5 + Math.random() * 2;
+                        const delay = Math.random() * 0.2;
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const size = 15 + Math.random() * 25;
+
+                        return (
+                            <div 
+                                key={i}
+                                className="absolute top-[-10%] rounded-full opacity-90"
+                                style={{
+                                    left: `${left}%`,
+                                    width: `${size}px`,
+                                    height: `${size}px`,
+                                    backgroundColor: color,
+                                    animation: `fall ${animDuration}s linear ${delay}s forwards`,
+                                }}
+                            />
+                        );
+                    })}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
