@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive IELTS Speaking Dashboard based on Collins Speaking for IELTS">
+  <title>IELTS Speaking Practice Dashboard</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #7c3aed;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --warning: #f97316;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s ease;
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+    header p { opacity: 0.9; font-size: 0.95rem; }
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav button {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    nav button:hover, nav button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    .section { display: none; animation: fadeIn 0.4s ease; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .card h2 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--primary-dark); }
+    .card h3 { font-size: 1.1rem; margin: 1rem 0 0.5rem; }
+    .grid { display: grid; gap: 1rem; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    
+    .flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+    .flip-card {
+      perspective: 1000px;
+      height: 120px;
+      cursor: pointer;
+    }
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+    .flip-front, .flip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .flip-front { background: var(--surface); border: 1px solid var(--border); }
+    .flip-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+    
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 100px;
+      margin: 0.5rem 0;
+      transition: background 0.2s;
+    }
+    .drop-zone.drag-over { background: #eff6ff; border-color: var(--primary); }
+    .draggable {
+      display: inline-block;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 0.4rem 0.8rem;
+      margin: 0.25rem;
+      border-radius: 6px;
+      cursor: grab;
+      user-select: none;
+    }
+    .draggable:active { cursor: grabbing; }
+    
+    .timer-display {
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-align: center;
+      margin: 1rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: #eff6ff; }
+    
+    .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 0.5rem 0; }
+    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
+    
+    .feedback { padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem; display: none; }
+    .feedback.success { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+    .feedback.warning { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+    
+    .audio-placeholder {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--primary-dark);
+      transition: background 0.2s;
+    }
+    .audio-placeholder:hover {
+      background: #eff6ff;
+    }
+    
+    .recorder-ui { text-align: center; padding: 1rem; background: #f1f5f9; border-radius: 8px; margin: 1rem 0; }
+    .rec-status { font-weight: 500; margin-bottom: 0.5rem; }
+    .rec-controls { display: flex; justify-content: center; gap: 0.5rem; }
+    
+    footer {
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      header h1 { font-size: 1.5rem; }
+      .card { padding: 1rem; }
+      nav { padding: 0.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IELTS Speaking Practice</h1>
+    <p>Interactive exercises for Units 1–3</p>
+  </header>
+
+  <nav aria-label="Dashboard Navigation">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="unit1">Unit 1: People & Relationships</button>
+    <button class="tab-btn" data-tab="unit2">Unit 2: A Healthy Body</button>
+    <button class="tab-btn" data-tab="unit3">Unit 3: Studies & Work</button>
+    <button class="tab-btn" data-tab="practice">Practice</button>
+  </nav>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section id="overview" class="section active">
+      <div class="card">
+        <h2>🎯 Test Format & Assessment Criteria</h2>
+        <div class="grid grid-2">
+          <div>
+            <h3>IELTS Speaking Structure</h3>
+            <ul>
+              <li><strong>Part 1 (4–5 mins):</strong> Introductions & familiar topics</li>
+              <li><strong>Part 2 (3–4 mins):</strong> Individual long turn (1 min prep, 1–2 min talk)</li>
+              <li><strong>Part 3 (4–5 mins):</strong> Two-way discussion on abstract issues</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Scoring Dimensions</h3>
+            <p>Examiners award equal weight to:</p>
+            <ul>
+              <li>Fluency & Coherence</li>
+              <li>Lexical Resource</li>
+              <li>Grammatical Range & Accuracy</li>
+              <li>Pronunciation & Intelligibility</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📊 CEFR ↔ IELTS Equivalencies</h2>
+        <div class="grid grid-3">
+          <div class="card" style="margin:0; border:1px solid var(--border); background:#f8fafc;">
+            <h3>B1 (Independent)</h3>
+            <p>Band 4–5</p>
+          </div>
+          <div class="card" style="margin:0; border:1px solid var(--border); background:#f8fafc;">
+            <h3>B2 (Upper Int.)</h3>
+            <p>Band 5–6.5</p>
+          </div>
+          <div class="card" style="margin:0; border:1px solid var(--border); background:#f8fafc;">
+            <h3>C1 (Advanced)</h3>
+            <p>Band 7–8</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🧠 7 Steps to Truly "Know" a Word</h2>
+        <ol>
+          <li>Part of speech & derivations</li>
+          <li>Register (slang, formal, old-fashioned)</li>
+          <li>Connotations (slim vs. skinny)</li>
+          <li>Pronunciation & stress pattern</li>
+          <li>Grammar patterns & prepositions</li>
+          <li>Collocations & fixed phrases</li>
+          <li>Contextual usage in IELTS prompts</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- UNIT 1 -->
+    <section id="unit1" class="section">
+      <div class="card">
+        <h2>👥 Vocabulary: Character & Personality</h2>
+        <h3>Interactive Sorting: Positive vs. Negative Traits</h3>
+        <p>Drag words into the correct category. (Touch-friendly)</p>
+        <div id="vocab-source" class="drop-zone" style="background:#f1f5f9;">
+          <span class="draggable" draggable="true">ambitious</span>
+          <span class="draggable" draggable="true">blunt</span>
+          <span class="draggable" draggable="true">clever</span>
+          <span class="draggable" draggable="true">impatient</span>
+          <span class="draggable" draggable="true">open-minded</span>
+          <span class="draggable" draggable="true">nosy</span>
+          <span class="draggable" draggable="true">reliable</span>
+          <span class="draggable" draggable="true">stingy</span>
+        </div>
+        <div class="grid grid-2">
+          <div class="drop-zone" id="positive-zone">
+            <h4>✅ Positive Traits</h4>
+          </div>
+          <div class="drop-zone" id="negative-zone">
+            <h4>⚠️ Negative Traits</h4>
+          </div>
+        </div>
+        <button class="btn" onclick="checkSort()">Check Answers</button>
+        <div id="sort-feedback" class="feedback"></div>
+      </div>
+
+      <div class="card">
+        <h2>🔗 Phrasal Verbs & Relationships</h2>
+        <h3>Match the Definition</h3>
+        <div id="match-container" class="grid grid-2">
+          <div id="match-left">
+            <p class="match-item" data-match="get_on">get on with</p>
+            <p class="match-item" data-match="look_up">look up to</p>
+            <p class="match-item" data-match="fall_out">fall out with</p>
+            <p class="match-item" data-match="grow_apart">grow apart from</p>
+          </div>
+          <div id="match-right">
+            <p class="match-def" data-def="fall_out">argue and stop being friendly</p>
+            <p class="match-def" data-def="get_on">have a good relationship</p>
+            <p class="match-def" data-def="grow_apart">gradually become less close</p>
+            <p class="match-def" data-def="look_up">respect someone deeply</p>
+          </div>
+        </div>
+        <button class="btn" onclick="resetMatch()">Reset Matching</button>
+        <div id="match-feedback" class="feedback"></div>
+      </div>
+
+      <div class="card">
+        <h2>🗣️ Pronunciation: Weak vs. Strong Prepositions</h2>
+        <p>Native speakers use weak forms in connected speech. Use strong forms only for emphasis, before pauses, or at sentence ends.</p>
+        <div class="audio-placeholder" onclick="playAudio('weak-forms')">
+          <span id="text-weak-forms">Track 04: Weak Forms Practice (Simulated at 85% speed)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📝 Practice Q&A: Family Matters</h2>
+        <div class="grid grid-2">
+          <div>
+            <h3>Part 1 Prompts</h3>
+            <ul>
+              <li>Tell me something about your family.</li>
+              <li>What do you like doing most with your family?</li>
+              <li>Who are you close to in your family?</li>
+              <li>In what way is your family important to you?</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Part 2 Task Card</h3>
+            <p>Describe a close friend from high school. Say: how long you've known them, how you met, what kind of person they are, and why you like them.</p>
+            
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+              <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Model Answer (3-Minute Full Response):</h4>
+              <p style="font-size: 0.85rem; font-style: italic; margin-bottom: 1rem; line-height: 1.5; max-height: 150px; overflow-y: auto; padding-right: 0.5rem; color: #334155;">
+                "I’d like to talk about my close friend, Daniel, someone I’ve known for almost fifteen years. We first met when we were in middle school. At that time, we were both quite ambitious and joined the same English club, so we naturally spent a lot of time together. What really brought us closer was a group project where we had to design a small magazine. I remember staying up late at his house, drinking cheap soda, and laughing at our terrible drawings. Since then, we’ve stayed in touch and our friendship has grown stronger year by year.
+                <br><br>
+                In terms of personality, Daniel is honestly one of the most reliable people I’ve ever met. If he promises to do something, he will definitely follow through. He’s also extremely hard‑working; even when we were teenagers, he was the kind of person who would finish his homework before playing games. At the same time, he’s very open‑minded, which makes him easy to talk to. I can share any idea with him—even strange or unpopular ones—and he never judges me. Actually, he’s the opposite of judgemental; he listens first and gives thoughtful advice later.
+                <br><br>
+                Another thing I appreciate is that he’s quite outgoing and sociable. I’m more introverted, so he often encourages me to meet new people or try new activities. Sometimes he can be a bit nosy, especially when he thinks I’m hiding something or feeling stressed, but I know it comes from a place of care. He’s also surprisingly creative. Whenever we work on a project together, he comes up with clever ideas that I would never think of.
+                <br><br>
+                Of course, he isn’t perfect. He can be blunt at times, and occasionally impatient, especially when things move too slowly. And he’s definitely a little stingy—he hates spending money on anything unnecessary. But honestly, these flaws make him more human, and sometimes they even make our conversations funnier.
+                <br><br>
+                I like him mainly because he’s self‑assured without being arrogant. He knows who he is and what he wants, and that confidence inspires me. Whenever I face a difficult decision, he’s the first person I call. He gives honest advice, supports me when I fail, and celebrates with me when things go well. Over the years, he has become more than just a friend; he’s someone I truly trust and admire.
+                <br><br>
+                So overall, Daniel is a close friend I deeply value, not only because of his personality, but because of the long history and shared experiences that connect us."
+              </p>
+              <div class="audio-placeholder" style="background: var(--primary); color: white; border-color: var(--primary);" onclick="playAudio('daniel-model')" id="btn-daniel-audio">
+                Listen at 85% Speed
+              </div>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+              <button class="btn-outline" onclick="startTimer(240, 'unit1-timer')">Part 2 Timer (4 Mins)</button>
+              <div id="unit1-timer" class="timer-display">04:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UNIT 2 -->
+    <section id="unit2" class="section">
+      <div class="card">
+        <h2>💪 Collocation Builder: Health & Fitness</h2>
+        <h3>Gap-Fill Exercise</h3>
+        <div id="gapfill-container">
+          <p>1. The best way to <input type="text" data-answer="keep" placeholder="verb" class="gap-input" style="padding:4px; width:70px; border:1px solid #ccc; border-radius:4px;"> fit is to raise your heart rate.</p>
+          <p>2. Parents should <input type="text" data-answer="set" placeholder="verb" class="gap-input" style="padding:4px; width:70px; border:1px solid #ccc; border-radius:4px;"> a good example to children.</p>
+          <p>3. Schools can teach children about eating a <input type="text" data-answer="balanced" placeholder="adj" class="gap-input" style="padding:4px; width:70px; border:1px solid #ccc; border-radius:4px;"> diet.</p>
+          <p>4. Even if you don't smoke, <input type="text" data-answer="passive" placeholder="adj" class="gap-input" style="padding:4px; width:70px; border:1px solid #ccc; border-radius:4px;"> smoking can harm your health.</p>
+        </div>
+        <button class="btn" style="margin-top:1rem;" onclick="checkGaps()">Check Answers</button>
+        <div id="gap-feedback" class="feedback"></div>
+      </div>
+
+      <div class="card">
+        <h2>🎭 Expressing Enthusiasm & Opinions</h2>
+        <h3>Intonation & Body Language Guide</h3>
+        <ul>
+          <li><strong>Voice:</strong> Emphasize stressed syllables, vary pitch dramatically.</li>
+          <li><strong>Body:</strong> Sit forward, maintain eye contact, use expressive gestures.</li>
+          <li><strong>Phrases:</strong> "It was breathtaking!", "The crowd went wild!", "I'm highly sceptical of the idea that..."</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>⏱️ Part 2 Note-Taking Drill</h2>
+        <p>Practice translating full thoughts into IELTS shorthand. Omit articles/auxiliaries, use symbols (+, w., yrs).</p>
+        <div class="grid grid-2">
+          <div>
+            <h4>Original</h4>
+            <p>"The tennis match was the final, so the atmosphere was electric."</p>
+            <p>"The player hit the ball right down the line and served for the match."</p>
+          </div>
+          <div>
+            <h4>Your Shorthand</h4>
+            <textarea id="shorthand-input" placeholder="Type your notes here..." style="width:100%; height:80px; padding:0.5rem; border:1px solid var(--border); border-radius:8px;"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UNIT 3 -->
+    <section id="unit3" class="section">
+      <div class="card">
+        <h2>🎓 Speculation & Conditionals</h2>
+        <h3>Stem Builder Practice</h3>
+        <select id="spec-stem" style="padding:0.5rem; margin-bottom:0.5rem; width:100%; border:1px solid var(--border); border-radius:8px;">
+          <option value="">Choose a speculation stem...</option>
+          <option value="I imagine the job would involve">I imagine the job would involve...</option>
+          <option value="I'd hazard a guess that">I'd hazard a guess that...</option>
+          <option value="It is highly likely that">It is highly likely that...</option>
+          <option value="I suspect that">I suspect that...</option>
+        </select>
+        <input type="text" id="spec-input" placeholder="Complete the sentence..." style="padding:0.5rem; width:100%; border:1px solid var(--border); border-radius:8px; margin-bottom:0.5rem;">
+        <button class="btn" onclick="addSpecSentence()">Add to Practice Log</button>
+        <ul id="spec-log" style="margin-top:1rem; padding-left:1.2rem;"></ul>
+      </div>
+
+      <div class="card">
+        <h2>🔊 Word Stress Rules</h2>
+        <div class="grid grid-3">
+          <div>
+            <h4>Rule 1: Nouns/Adj</h4>
+            <p>Stress on <strong>first</strong> syllable: <strong>lea</strong>der, <strong>des</strong>ert, <strong>bor</strong>ing</p>
+          </div>
+          <div>
+            <h4>Rule 2: Noun/Verb Shift</h4>
+            <p>Noun: <strong>pro</strong>gress → Verb: pro<strong>gress</strong></p>
+          </div>
+          <div>
+            <h4>Rule 3: -tion/-sion</h4>
+            <p>Penultimate stress: pro<strong>duc</strong>tion, re<strong>cog</strong>nition</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📝 Answer Length Strategy: The "Goldilocks" Rule</h2>
+        <div class="grid grid-3">
+          <div style="text-align:center; padding:1rem; border:2px solid var(--danger); border-radius:8px;">
+            <h4 style="color:var(--danger)">Too Short</h4>
+            <p>"I work."</p>
+            <p>Does not demonstrate range.</p>
+          </div>
+          <div style="text-align:center; padding:1rem; border:2px solid var(--warning); border-radius:8px;">
+            <h4 style="color:var(--warning)">Too Long</h4>
+            <p>2-min monologue on Part 1</p>
+            <p>Derails topic & sounds memorized.</p>
+          </div>
+          <div style="text-align:center; padding:1rem; border:2px solid var(--success); border-radius:8px;">
+            <h4 style="color:var(--success)">Just Right</h4>
+            <p>Direct answer + reason/example</p>
+            <p>"I chose it because French was my best subject..."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🧩 Simplified: Phrasal Verbs & Nouns</h2>
+        <p>Master these essential verb-noun combinations for your secondary school context. Match the phrasal verb to its logical noun.</p>
+        
+        <div id="phrasal-match-container" class="grid grid-2" style="margin-bottom: 1.5rem;">
+          <div id="phrasal-match-left">
+            <p class="verb-item" data-match="homework">catch up on</p>
+            <p class="verb-item" data-match="assignment">hand in</p>
+            <p class="verb-item" data-match="teacher">look up to</p>
+            <p class="verb-item" data-match="sport">take up</p>
+          </div>
+          <div id="phrasal-match-right">
+            <p class="noun-def" data-def="teacher">a teacher</p>
+            <p class="noun-def" data-def="assignment">an assignment</p>
+            <p class="noun-def" data-def="homework">homework</p>
+            <p class="noun-def" data-def="sport">a new sport</p>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap: 1rem; align-items:center;">
+          <button class="btn-outline" onclick="resetVerbMatch()">Reset Matching</button>
+          <div class="audio-placeholder" onclick="playAudio('phrasal-verbs')" style="margin:0; flex-grow: 1;">
+            <span id="text-phrasal-verbs">Listen to Context (85% speed)</span>
+          </div>
+        </div>
+        <div id="phrasal-match-feedback" class="feedback"></div>
+      </div>
+    </section>
+
+    <!-- PRACTICE SIMULATOR -->
+    <section id="practice" class="section">
+      <div class="card">
+        <h2>🎤 IELTS Speaking Practice Simulator</h2>
+        
+        <div style="margin-bottom: 1.5rem; text-align: center;">
+          <h3>⏱️ Official IELTS Timers</h3>
+          <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+            <button class="btn-outline" onclick="startTimer(240, 'main-timer')">Part 1 (4 Mins)</button>
+            <button class="btn-outline" onclick="startTimer(60, 'main-timer')">Part 2 Prep (1 Min)</button>
+            <button class="btn-outline" onclick="startTimer(240, 'main-timer')">Part 2 (4 Mins)</button>
+            <button class="btn-outline" style="border-color: var(--danger); color: var(--danger);" onclick="stopTimer('main-timer')">Reset</button>
+          </div>
+          <div id="main-timer" class="timer-display">00:00</div>
+        </div>
+
+        <div class="recorder-ui">
+          <p class="rec-status" id="rec-status">Ready to Record</p>
+          <div class="rec-controls">
+            <button class="btn" id="start-rec" onclick="toggleRecording()">⏺ Start</button>
+            <button class="btn-outline" id="stop-rec" onclick="toggleRecording()" disabled>⏹ Stop</button>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="rec-progress"></div></div>
+          <audio id="playback" controls style="width:100%; margin-top:0.5rem; display:none;"></audio>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📋 Self-Assessment Rubric (Band 5–7 Focus)</h2>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse: collapse; margin-top:1rem; min-width:600px;">
+            <thead>
+              <tr style="background:#f1f5f9; border-bottom:2px solid var(--border);">
+                <th style="padding:0.75rem; text-align:left;">Criterion</th>
+                <th style="padding:0.75rem; text-align:left;">Band 5</th>
+                <th style="padding:0.75rem; text-align:left;">Band 6</th>
+                <th style="padding:0.75rem; text-align:left;">Band 7</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.75rem; font-weight:bold;">Fluency</td>
+                <td style="padding:0.75rem;">Frequent hesitation</td>
+                <td style="padding:0.75rem;">Some hesitation, but flows</td>
+                <td style="padding:0.75rem;">Sustained, minimal hesitation</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.75rem; font-weight:bold;">Vocabulary</td>
+                <td style="padding:0.75rem;">Basic, some errors</td>
+                <td style="padding:0.75rem;">Adequate range, collocations</td>
+                <td style="padding:0.75rem;">Precise, idiomatic, register-aware</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.75rem; font-weight:bold;">Grammar</td>
+                <td style="padding:0.75rem;">Simple structures only</td>
+                <td style="padding:0.75rem;">Mix of simple/complex</td>
+                <td style="padding:0.75rem;">Flexible complex forms, accurate</td>
+              </tr>
+              <tr>
+                <td style="padding:0.75rem; font-weight:bold;">Pronunciation</td>
+                <td style="padding:0.75rem;">Strain on listener</td>
+                <td style="padding:0.75rem;">Clear, some L1 influence</td>
+                <td style="padding:0.75rem;">Natural stress/intonation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn-outline" style="margin-top:1.5rem;" onclick="alert('Progress saved to local storage. Continue practicing daily for optimal gains.')">Save Progress</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>IELTS Speaking Practice Dashboard</p>
+  </footer>
+
+  <script>
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Drag & Drop Sorting
+    let draggedItem = null;
+    document.querySelectorAll('.draggable').forEach(item => {
+      item.addEventListener('dragstart', e => {
+        draggedItem = e.target;
+        e.target.style.opacity = '0.5';
+      });
+      item.addEventListener('dragend', e => {
+        e.target.style.opacity = '1';
+        draggedItem = null;
+      });
+      item.addEventListener('touchstart', e => { draggedItem = e.target; });
+      item.addEventListener('touchend', e => {
+        const dropZones = document.querySelectorAll('.drop-zone');
+        for(let z of dropZones) {
+          const rect = z.getBoundingClientRect();
+          if(e.changedTouches[0].clientX >= rect.left && e.changedTouches[0].clientX <= rect.right &&
+             e.changedTouches[0].clientY >= rect.top && e.changedTouches[0].clientY <= rect.bottom) {
+            z.appendChild(draggedItem);
+            draggedItem = null;
+          }
+        }
+      });
+    });
+    
+    ['positive-zone', 'negative-zone'].forEach(id => {
+      const zone = document.getElementById(id);
+      zone.addEventListener('dragover', e => e.preventDefault());
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        if(draggedItem) zone.appendChild(draggedItem);
+      });
+    });
+
+    function checkSort() {
+      const pos = document.getElementById('positive-zone');
+      const neg = document.getElementById('negative-zone');
+      const posWords = ['ambitious', 'clever', 'open-minded', 'reliable'];
+      const negWords = ['blunt', 'impatient', 'nosy', 'stingy'];
+      
+      let correct = true;
+      pos.querySelectorAll('.draggable').forEach(el => {
+        if(!posWords.includes(el.textContent)) correct = false;
+      });
+      neg.querySelectorAll('.draggable').forEach(el => {
+        if(!negWords.includes(el.textContent)) correct = false;
+      });
+
+      const fb = document.getElementById('sort-feedback');
+      fb.style.display = 'block';
+      fb.className = 'feedback ' + (correct ? 'success' : 'warning');
+      fb.textContent = correct ? '✅ Correct! Well done.' : '⚠️ Review placement. Try again.';
+    }
+
+    // Matching Game
+    let selectedMatch = null;
+    document.querySelectorAll('.match-item').forEach(item => {
+      item.style.padding = '0.5rem';
+      item.style.border = '1px solid var(--border)';
+      item.style.borderRadius = '4px';
+      item.style.cursor = 'pointer';
+      item.style.marginBottom = '0.5rem';
+      
+      item.addEventListener('click', () => {
+        if(selectedMatch) selectedMatch.style.background = 'transparent';
+        selectedMatch = item;
+        item.style.background = '#dbeafe';
+      });
+    });
+    
+    document.querySelectorAll('.match-def').forEach(def => {
+      def.style.padding = '0.5rem';
+      def.style.border = '1px solid var(--border)';
+      def.style.borderRadius = '4px';
+      def.style.cursor = 'pointer';
+      def.style.marginBottom = '0.5rem';
+      
+      def.addEventListener('click', () => {
+        if(selectedMatch) {
+          const isCorrect = selectedMatch.dataset.match === def.dataset.def;
+          if(isCorrect) {
+            selectedMatch.style.background = '#d1fae5';
+            def.style.background = '#d1fae5';
+            selectedMatch = null;
+            const fb = document.getElementById('match-feedback');
+            fb.style.display = 'block';
+            fb.className = 'feedback success';
+            fb.textContent = '✅ Matched correctly!';
+            setTimeout(() => { fb.style.display = 'none'; }, 2000);
+          } else {
+            const fb = document.getElementById('match-feedback');
+            fb.style.display = 'block';
+            fb.className = 'feedback warning';
+            fb.textContent = '⚠️ Try again.';
+            setTimeout(() => { fb.style.display = 'none'; }, 2000);
+          }
+        }
+      });
+    });
+    
+    function resetMatch() {
+      document.querySelectorAll('.match-item, .match-def').forEach(el => el.style.background = 'transparent');
+      selectedMatch = null;
+      document.getElementById('match-feedback').style.display = 'none';
+    }
+
+    // Phrasal Verb & Noun Matching Game
+    let selectedVerbMatch = null;
+    document.querySelectorAll('.verb-item').forEach(item => {
+      item.style.padding = '0.5rem';
+      item.style.border = '1px solid var(--border)';
+      item.style.borderRadius = '4px';
+      item.style.cursor = 'pointer';
+      item.style.marginBottom = '0.5rem';
+      
+      item.addEventListener('click', () => {
+        if(selectedVerbMatch) selectedVerbMatch.style.background = 'transparent';
+        selectedVerbMatch = item;
+        item.style.background = '#dbeafe';
+      });
+    });
+    
+    document.querySelectorAll('.noun-def').forEach(def => {
+      def.style.padding = '0.5rem';
+      def.style.border = '1px solid var(--border)';
+      def.style.borderRadius = '4px';
+      def.style.cursor = 'pointer';
+      def.style.marginBottom = '0.5rem';
+      
+      def.addEventListener('click', () => {
+        if(selectedVerbMatch) {
+          const isCorrect = selectedVerbMatch.dataset.match === def.dataset.def;
+          if(isCorrect) {
+            selectedVerbMatch.style.background = '#d1fae5';
+            def.style.background = '#d1fae5';
+            selectedVerbMatch = null;
+            const fb = document.getElementById('phrasal-match-feedback');
+            fb.style.display = 'block';
+            fb.className = 'feedback success';
+            fb.textContent = '✅ Matched correctly!';
+            setTimeout(() => { fb.style.display = 'none'; }, 2000);
+          } else {
+            const fb = document.getElementById('phrasal-match-feedback');
+            fb.style.display = 'block';
+            fb.className = 'feedback warning';
+            fb.textContent = '⚠️ Try again.';
+            setTimeout(() => { fb.style.display = 'none'; }, 2000);
+          }
+        }
+      });
+    });
+    
+    function resetVerbMatch() {
+      document.querySelectorAll('.verb-item, .noun-def').forEach(el => el.style.background = 'transparent');
+      selectedVerbMatch = null;
+      document.getElementById('phrasal-match-feedback').style.display = 'none';
+    }
+
+    // Gap Fill
+    function checkGaps() {
+      let correctCount = 0;
+      document.querySelectorAll('.gap-input').forEach(inp => {
+        if(inp.value.trim().toLowerCase() === inp.dataset.answer.toLowerCase()) {
+          inp.style.borderColor = 'var(--success)';
+          inp.style.backgroundColor = '#d1fae5';
+          correctCount++;
+        } else {
+          inp.style.borderColor = 'var(--danger)';
+          inp.style.backgroundColor = '#fee2e2';
+        }
+      });
+      const fb = document.getElementById('gap-feedback');
+      fb.style.display = 'block';
+      fb.className = 'feedback ' + (correctCount === 4 ? 'success' : 'warning');
+      fb.textContent = correctCount === 4 ? '✅ All correct!' : `⚠️ ${4-correctCount} incorrect. Try again.`;
+    }
+
+    // Timer Logic
+    let activeTimers = {};
+    
+    function startTimer(seconds, displayId) {
+      if(activeTimers[displayId]) clearInterval(activeTimers[displayId]);
+      let remaining = seconds;
+      const display = document.getElementById(displayId);
+      display.style.color = 'var(--text)';
+      
+      const updateDisplay = () => {
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        display.textContent = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      };
+      
+      updateDisplay(); // Set immediately so there's no 1 second lag
+      
+      activeTimers[displayId] = setInterval(() => {
+        remaining--;
+        updateDisplay();
+        if(remaining <= 0) {
+          clearInterval(activeTimers[displayId]);
+          display.textContent = "Time's up! Begin speaking.";
+          display.style.color = 'var(--danger)';
+        }
+      }, 1000);
+    }
+
+    function stopTimer(displayId) {
+      if(activeTimers[displayId]) clearInterval(activeTimers[displayId]);
+      const display = document.getElementById(displayId);
+      display.style.color = 'var(--text)';
+      display.textContent = "00:00";
+    }
+
+    // Speculation Builder
+    function addSpecSentence() {
+      const stem = document.getElementById('spec-stem').value;
+      const input = document.getElementById('spec-input').value.trim();
+      if(!stem || !input) return alert('Please select a stem and complete the sentence.');
+      const li = document.createElement('li');
+      li.textContent = `${stem} ${input}.`;
+      li.style.marginBottom = '0.5rem';
+      document.getElementById('spec-log').appendChild(li);
+      document.getElementById('spec-input').value = '';
+      document.getElementById('spec-stem').value = '';
+    }
+
+    // Audio Placeholder (Updated with 85% speech and secondary school example)
+    function playAudio(id) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        
+        const msg = new SpeechSynthesisUtterance();
+        let btnElement = null;
+        let originalText = "";
+        
+        if (id === 'daniel-model') {
+          msg.text = "I’d like to talk about my close friend, Daniel, someone I’ve known for almost fifteen years. We first met when we were in middle school. At that time, we were both quite ambitious and joined the same English club, so we naturally spent a lot of time together. What really brought us closer was a group project where we had to design a small magazine. I remember staying up late at his house, drinking cheap soda, and laughing at our terrible drawings. Since then, we’ve stayed in touch and our friendship has grown stronger year by year. In terms of personality, Daniel is honestly one of the most reliable people I’ve ever met. If he promises to do something, he will definitely follow through. He’s also extremely hard‑working; even when we were teenagers, he was the kind of person who would finish his homework before playing games. At the same time, he’s very open‑minded, which makes him easy to talk to. I can share any idea with him—even strange or unpopular ones—and he never judges me. Actually, he’s the opposite of judgemental; he listens first and gives thoughtful advice later. Another thing I appreciate is that he’s quite outgoing and sociable. I’m more introverted, so he often encourages me to meet new people or try new activities. Sometimes he can be a bit nosy, especially when he thinks I’m hiding something or feeling stressed, but I know it comes from a place of care. He’s also surprisingly creative. Whenever we work on a project together, he comes up with clever ideas that I would never think of. Of course, he isn’t perfect. He can be blunt at times, and occasionally impatient, especially when things move too slowly. And he’s definitely a little stingy—he hates spending money on anything unnecessary. But honestly, these flaws make him more human, and sometimes they even make our conversations funnier. I like him mainly because he’s self‑assured without being arrogant. He knows who he is and what he wants, and that confidence inspires me. Whenever I face a difficult decision, he’s the first person I call. He gives honest advice, supports me when I fail, and celebrates with me when things go well. Over the years, he has become more than just a friend; he’s someone I truly trust and admire. So overall, Daniel is a close friend I deeply value, not only because of his personality, but because of the long history and shared experiences that connect us.";
+          btnElement = document.getElementById('btn-daniel-audio');
+          if (btnElement) {
+            originalText = btnElement.textContent;
+            btnElement.textContent = 'Playing Model Answer...';
+          }
+        } else if (id === 'phrasal-verbs') {
+          // Custom secondary-school related example for phrasal verbs & nouns
+          msg.text = "If I fall behind in math, I have to catch up on my homework before I can hand in my assignment. I really look up to my math teacher, so I try to take up new challenges.";
+          btnElement = document.getElementById('text-phrasal-verbs');
+        } else {
+          // Custom secondary-school related example tailored to the weak-forms context
+          msg.text = "In high school, I usually go to the library to study from three to four. We met at the tennis court, and I have known him for three years.";
+          btnElement = document.getElementById('text-weak-forms');
+        }
+        
+        // Locked at exactly 85% speed per persistent user preference
+        msg.rate = 0.85;
+        
+        window.speechSynthesis.speak(msg);
+        
+        if (btnElement && !originalText) {
+          originalText = btnElement.textContent;
+          btnElement.textContent = 'Playing simulated audio track...';
+        }
+        
+        msg.onend = function() {
+          if (btnElement) {
+            btnElement.textContent = originalText;
+          }
+        }
+      } else {
+        alert(`🔊 Audio Track Placeholder: In production, this loads ${id}.mp3 via Web Audio API.`);
+      }
+    }
+
+    // MediaRecorder
+    let mediaRecorder = null;
+    let chunks = [];
+    let recording = false;
+    async function toggleRecording() {
+      const status = document.getElementById('rec-status');
+      const startBtn = document.getElementById('start-rec');
+      const stopBtn = document.getElementById('stop-rec');
+      const playback = document.getElementById('playback');
+      
+      if(!recording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          chunks = [];
+          mediaRecorder.ondataavailable = e => chunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+            playback.src = url;
+            playback.style.display = 'block';
+            document.querySelectorAll('.rec-controls button')[0].disabled = false;
+            document.querySelectorAll('.rec-controls button')[1].disabled = true;
+            status.textContent = 'Recording saved. Play back & self-assess.';
+            status.style.color = 'var(--success)';
+          };
+          mediaRecorder.start();
+          recording = true;
+          status.textContent = '🔴 Recording...';
+          status.style.color = 'var(--danger)';
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        } catch(err) {
+          status.textContent = '⚠️ Microphone access required.';
+          status.style.color = 'var(--warning)';
+        }
+      } else {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(t => t.stop());
+        recording = false;
+      }
+    }
+
+    // LocalStorage Progress
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('ielts_dashboard_progress', JSON.stringify({
+        lastVisit: new Date().toISOString(),
+        specSentences: document.getElementById('spec-log').children.length,
+        recordingsSaved: document.getElementById('playback').src ? 1 : 0
+      }));
+    });
+  </script>
+</body>
+</html>
