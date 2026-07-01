@@ -26,7 +26,6 @@
             margin: 0;
             padding: 0;
             overflow: hidden; /* Force no scrolling on body to fit single screen */
-            /* Default fallback background */
             background-color: #1a202c; 
         }
 
@@ -54,31 +53,25 @@
         }
 
         .glass-panel-agree {
-            background: rgba(16, 185, 129, 0.15); /* Emerald tint */
+            background: rgba(16, 185, 129, 0.12);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .glass-panel-disagree {
-            background: rgba(225, 29, 72, 0.15); /* Rose tint */
+            background: rgba(225, 29, 72, 0.12);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(225, 29, 72, 0.3);
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -91,169 +84,209 @@
                 zh: "在朋友圈或小红书上发布日常生活，让我们变得只在乎“点赞”，而忽略了体验真实的生活。你同意还是不同意？",
                 agreeText: "You must argue that social media creates a fake reality. We spend more time staging photos and checking for validation than actually enjoying the moment with friends.",
                 disagreeText: "You must argue that sharing our lives builds connection. It allows us to keep in touch with distant friends and family, and looking back at digital memories brings real joy.",
-                vocab: ["Validation (认同感)", "Staged (刻意安排的)", "Genuine (真实的)", "Narcissism (自恋)", "Superficial (肤浅的)", "Algorithm (算法)", "FOMO (错失恐惧症)", "Self-esteem (自尊)", "Document (记录)", "Alienation (疏离)"]
+                agreeVocab: ["Validation (认同感)", "Staged (刻意安排的)", "Narcissism (自恋)", "Superficial (肤浅的)", "Alienation (疏离)", "Illusion (错觉)", "Addictive (上瘾的)", "Peer pressure (同伴压力)", "Inauthentic (不真实的)", "Craving (渴望)"],
+                disagreeVocab: ["Genuine (真实的)", "Document (记录)", "Connection (联系)", "Self-esteem (自尊)", "Community (社区)", "Milestones (里程碑)", "Bonding (情感连结)", "Expression (表达)", "Interaction (互动)", "Positivity (积极性)"]
             },
             {
                 en: "In the natural world, looking beautiful to attract a partner is more important than blending in to hide from predators. Do you agree or disagree?",
                 zh: "在自然界中，为了吸引配偶而展现出美丽的外表，比为了躲避捕食者而隐藏自己更重要。你同意还是不同意？",
                 agreeText: "You must argue that passing on genes is the ultimate goal of biology. Animals like peacocks risk their lives with bright colors because attracting a mate is the only way a species survives.",
                 disagreeText: "You must argue that survival must come first. If an animal is eaten by a predator because its bright colors gave it away, it cannot reproduce at all. Camouflage is essential.",
-                vocab: ["Reproduction (繁殖)", "Evolution (进化)", "Predator (捕食者)", "Camouflage (伪装)", "Plumage (羽毛)", "Natural selection (自然选择)", "Survival (生存)", "Conspicuous (显眼的)", "Offspring (后代)", "Instinct (本能)"]
+                agreeVocab: ["Reproduction (繁殖)", "Plumage (羽毛)", "Conspicuous (显眼的)", "Offspring (后代)", "Courtship (求偶)", "Mating (交配)", "Attraction (吸引)", "Evolution (进化)", "Display (展示)", "Fitness (适应性)"],
+                disagreeVocab: ["Predator (捕食者)", "Camouflage (伪装)", "Survival (生存)", "Instinct (本能)", "Conceal (隐藏)", "Stealth (隐身)", "Defense (防御)", "Vulnerable (脆弱的)", "Environment (环境)", "Adaptation (适应)"]
             },
             {
                 en: "Genetically Modified (GM / 转基因) foods are too dangerous for the environment and our health, and we should stop producing them. Do you agree or disagree?",
                 zh: "转基因食品对环境和我们的健康太危险，我们应该停止生产。你同意还是不同意？",
                 agreeText: "You must argue that messing with nature is dangerous. GM crops can create 'superweeds', reduce biodiversity, and we do not know the long-term health effects on humans.",
                 disagreeText: "You must argue that GM foods save lives. They produce higher yields, resist diseases, and can contain extra vitamins, which is necessary to feed a growing global population.",
-                vocab: ["Biodiversity (生物多样性)", "Yield (产量)", "Pesticide (杀虫剂)", "Genetic modification (基因改造)", "Superweed (超级杂草)", "Starvation (饥荒)", "Biotechnology (生物技术)", "Ecosystem (生态系统)", "Resistant (具有抵抗力的)", "Nutritious (有营养的)"]
+                agreeVocab: ["Biodiversity (生物多样性)", "Superweed (超级杂草)", "Unknown (未知的)", "Contamination (污染)", "Hazard (危险)", "Unnatural (不自然的)", "Long-term (长期的)", "Ecosystem (生态系统)", "Mutation (突变)", "Interference (干预)"],
+                disagreeVocab: ["Yield (产量)", "Resistance (抵抗力)", "Nutritious (有营养的)", "Starvation (饥荒)", "Efficient (高效的)", "Biotechnology (生物技术)", "Food security (粮食安全)", "Pest-control (防虫害)", "Affordable (可负担的)", "Innovation (创新)"]
             },
             {
                 en: "To invent the best new technologies, human engineers should perfectly copy nature instead of creating completely artificial materials in a lab. Do you agree or disagree?",
                 zh: "为了发明最好的新技术，人类工程师应该完美地模仿自然，而不是在实验室里创造完全人造的材料。你同意还是不同意？",
                 agreeText: "You must argue that nature has spent millions of years solving our problems. Give examples: engineers studied the thorny devil lizard's skin to design machines that collect water, and high-speed trains mimic the kingfisher bird.",
-                disagreeText: "You must disagree by arguing that nature is just a starting point. Use the 'BioSteel' example: we had to use biotechnology to put spider genes into goat milk to mass-produce fibers. Artificial materials like Kevlar save lives in ways nature cannot.",
-                vocab: ["Biomimicry (仿生学)", "Synthetic (合成的)", "Innovation (创新)", "Artificial (人造的)", "Optimization (优化)", "Fiber (纤维)", "Efficient (高效的)", "Manufacture (制造)", "Inspiration (灵感)", "Aerodynamic (空气动力学的)"]
+                disagreeText: "You must disagree by arguing that nature is just a starting point. Use the 'BioSteel' example: we had to use biotechnology to put spider genes into goat milk to mass-produce fibers. Artificial materials like Kevlar save lives.",
+                agreeVocab: ["Biomimicry (仿生学)", "Evolution (进化)", "Inspiration (灵感)", "Sustainable (可持续的)", "Optimization (优化)", "Flawless (完美无瑕的)", "Blueprint (蓝图)", "Ecosystem (生态)", "Harmony (和谐)", "Time-tested (历经考验的)"],
+                disagreeVocab: ["Synthetic (合成的)", "Artificial (人造的)", "Manufacture (制造)", "Mass-produce (量产)", "Fiber (纤维)", "Enhancement (增强)", "Limitless (无限制的)", "Biotechnology (生物技术)", "Manipulation (操控)", "Breakthrough (突破)"]
             },
             {
                 en: "Ancient humans explored the dangerous oceans and migrated around the world simply because they had a 'restless gene', not because they needed food or resources. Do you agree or disagree?",
                 zh: "远古人类探索危险的海洋并在世界各地迁徙，仅仅是因为他们有“不安分的基因”，而不是因为他们需要食物或资源。你同意还是不同意？",
                 agreeText: "You must agree by citing the DRD4-7R 'explorer's gene.' Explain that this gene variant pushes humans to take risks. Ancient Polynesian sailors' DNA gave them a psychological need to sail into the unknown.",
                 disagreeText: "You must disagree by arguing that migration was driven by survival. Humans crossed to the Americas following herds of animals for food. Polynesians used complex navigation and lucky weather patterns, not just a biological urge.",
-                vocab: ["Migration (迁徙)", "Dopamine (多巴胺)", "Novelty (新奇)", "Instinct (本能)", "Navigation (航海术)", "Overcrowding (过度拥挤)", "Urge (冲动)", "Prehistoric (史前的)", "Uncharted (未知的)", "Variant (变体)"]
+                agreeVocab: ["Dopamine (多巴胺)", "Novelty (新奇)", "Instinct (本能)", "Urge (冲动)", "Restless (不安分的)", "Curiosity (好奇心)", "Genetics (遗传学)", "Exploration (探索)", "Compulsion (强迫)", "Hardwired (天生的)"],
+                disagreeVocab: ["Migration (迁徙)", "Navigation (航海术)", "Overcrowding (过度拥挤)", "Survival (生存)", "Climate (气候)", "Necessity (必然性)", "Resources (资源)", "Adaptation (适应)", "Strategy (策略)", "Starvation (饥饿)"]
             },
             {
                 en: "Virtual currencies like Bitcoin are a dangerous form of gambling and will never replace real, government-backed money. Do you agree or disagree?",
                 zh: "像比特币这样的虚拟货币是一种危险的赌博形式，永远不会取代真正的、由政府支持的货币。你同意还是不同意？",
                 agreeText: "You must agree by pointing out the extreme volatility of crypto. Real money is stable because the government backs it. Bitcoin is highly risky and triggers the brain's dopamine reward system like a casino.",
                 disagreeText: "You must disagree by arguing that money has always evolved. Blockchain technology allows for speedy, borderless transactions with low fees, empowering people in developing nations without access to stable banks.",
-                vocab: ["Volatility (波动性)", "Blockchain (区块链)", "Decentralized (去中心化的)", "Transaction fee (交易费)", "Government-backed (政府支持的)", "Asset (资产)", "Gamble (赌博)", "Empower (赋能)", "Speculation (投机)", "Inflation (通货膨胀)"]
+                agreeVocab: ["Volatility (波动性)", "Gamble (赌博)", "Speculation (投机)", "Bubble (泡沫)", "Unregulated (缺乏监管的)", "Risky (高风险的)", "Crash (崩盘)", "Illusion (幻觉)", "Unstable (不稳定的)", "Ponzi (庞氏骗局)"],
+                disagreeVocab: ["Blockchain (区块链)", "Decentralized (去中心化)", "Empower (赋能)", "Borderless (无国界的)", "Efficient (高效的)", "Future (未来)", "Transparent (透明的)", "Low-fee (低手续费)", "Accessible (易获取的)", "Revolution (革命)"]
             },
             {
                 en: "The anonymity (being nameless) of the internet has turned teenagers into a cruel and aggressive crowd, leading to toxic cyberbullying. Do you agree or disagree?",
                 zh: "互联网的匿名性使青少年变成了一群残酷且具攻击性的人，导致了恶性的网络欺凌。你同意还是不同意？",
                 agreeText: "You must agree by arguing that the internet removes natural compassion. Anonymous people easily abandon morals, allowing impulsive and toxic 'herd behavior' without real-world consequences.",
                 disagreeText: "You must disagree by citing evolutionary anthropology. Human brains are naturally wired to collaborate. If we pause and work together online, humans can easily use group action to shut down bullies and protect victims.",
-                vocab: ["Anonymity (匿名性)", "Cyberbullying (网络暴力)", "Compassion (同情心)", "Conformity (从众)", "Herd behavior (羊群效应)", "Impulsive (冲动的)", "Consequence (后果)", "Empathy (共情)", "Accountability (责任心)", "Troll (网络喷子)"]
+                agreeVocab: ["Anonymity (匿名性)", "Cyberbullying (网络暴力)", "Herd behavior (羊群效应)", "Impulsive (冲动的)", "Toxic (有害的)", "Shield (盾牌)", "Cowardice (懦弱)", "Harassment (骚扰)", "Consequence-free (免责的)", "Vicious (恶毒的)"],
+                disagreeVocab: ["Compassion (同情心)", "Empathy (共情)", "Collaboration (合作)", "Accountability (责任心)", "Support (支持)", "Community (社区)", "Uplift (鼓舞)", "Solidarity (团结)", "Defense (防御)", "Reinforcement (强化)"]
             },
             {
                 en: "Modern science, like DNA and poison testing, is now so advanced that it can solve any historical mystery with 100% certainty. Do you agree or disagree?",
                 zh: "现代科学，如DNA和毒物测试，现在已经非常先进，能够以100%的确定性解开任何历史谜团。你同意还是不同意？",
                 agreeText: "You must agree by citing modern toxicology. Modern mass spectrometry can detect invisible drops of poison. Physical arsenic in Emperor Napoleon's hair is hard biological proof that science doesn't lie.",
                 disagreeText: "You must disagree by arguing that scientific data without historical context is meaningless. Historians discovered Napoleon's green wallpaper contained arsenic released by hot weather. The scientific evidence cannot prove political murder.",
-                vocab: ["Toxicology (毒理学)", "Mass spectrometry (质谱分析法)", "Inconclusive (非决定性的)", "Proof (证据)", "Context (背景/语境)", "Arsenic (砒霜/砷)", "Detection (检测)", "Certainty (确定性)", "Investigation (调查)", "Forensic (法医学的)"]
+                agreeVocab: ["Toxicology (毒理学)", "Spectrometry (质谱分析)", "Certainty (确定性)", "Proof (证据)", "Objective (客观的)", "Undeniable (不可否认的)", "Precision (精确性)", "Biological (生物的)", "Fact-based (事实为基础)", "Traces (痕迹)"],
+                disagreeVocab: ["Context (背景)", "Inconclusive (无定论的)", "Circumstantial (间接的)", "Interpretation (解释)", "Nuance (细微差别)", "Complexity (复杂性)", "Misleading (误导的)", "Coincidence (巧合)", "Historical (历史的)", "Subjective (主观的)"]
             },
             {
                 en: "It is better to explore ancient historical sites using 3D Virtual Reality at home than to travel there in person and risk destroying the real monuments with mass tourism. Do you agree or disagree?",
                 zh: "在家里通过3D虚拟现实探索古代历史遗迹，比亲自去那里旅游并冒着被大众旅游破坏的风险要好。你同意还是不同意？",
                 agreeText: "You must argue that mass tourism is destroying our history. Use Rani ki Vav as evidence. By using complex 3D laser scanning, we protect the real stones from being destroyed by careless tourists.",
                 disagreeText: "You must argue that virtual reality cannot replace human experience. Looking at a screen does not let you feel the fresh air or connect with culture. Regular people need to travel to truly appreciate history.",
-                vocab: ["Virtual reality (虚拟现实)", "Monument (纪念碑)", "Mass tourism (大众旅游)", "Immortalize (使不朽)", "Laser scanning (激光扫描)", "Firsthand (第一手的)", "Heritage (遗产)", "Degradation (破坏)", "Authentic (真实的)", "Immersive (沉浸式的)"]
+                agreeVocab: ["Degradation (破坏)", "Mass tourism (大众旅游)", "Immortalize (使不朽)", "Preservation (保护)", "Fragile (脆弱的)", "Erosion (侵蚀)", "Digital clone (数字克隆)", "Conservation (保育)", "Careless (粗心的)", "Sustainable (可持续)"],
+                disagreeVocab: ["Authentic (真实的)", "Firsthand (亲身的)", "Immersive (沉浸式的)", "Atmosphere (氛围)", "Tangible (可触摸的)", "Experience (体验)", "Connection (连结)", "Culture (文化)", "Senses (感官)", "Irreplaceable (不可替代)"]
             },
             {
                 en: "To live a long, healthy life to 100 years old, having good genes from your parents is much more important than your daily diet and lifestyle. Do you agree or disagree?",
                 zh: "要健康长寿到100岁，拥有父母的优良基因比你日常的饮食和生活方式重要得多。你同意还是不同意？",
                 agreeText: "You must argue that DNA is the ultimate key to aging. Cite genetic research in Calabria and the Laron people. 'Longevity genes' protect people from cancer and diabetes regardless of diet. Biology beats lifestyle!",
                 disagreeText: "You must argue that your daily habits control your lifespan. Use the Okinawans as evidence. Their longevity comes from a plant-based diet, strong social networks, and staying active. Choosing to eat healthy guarantees a longer life.",
-                vocab: ["Longevity (长寿)", "Centenarian (百岁老人)", "Genetics (遗传学)", "Lifestyle (生活方式)", "Calorie restriction (限制卡路里)", "Biology (生物学)", "Chronic disease (慢性病)", "Determinism (决定论)", "Metabolism (新陈代谢)", "Life expectancy (预期寿命)"]
+                agreeVocab: ["Genetics (遗传学)", "Centenarian (百岁老人)", "Metabolism (新陈代谢)", "Biology (生物学)", "Determinism (决定论)", "Inherited (遗传的)", "Predisposition (体质倾向)", "Protection (保护)", "Destiny (命运)", "Invincible (无敌的)"],
+                disagreeVocab: ["Lifestyle (生活方式)", "Calorie restriction (限制卡路里)", "Habit (习惯)", "Vitality (活力)", "Proactive (积极主动的)", "Diet (饮食)", "Exercise (锻炼)", "Longevity (长寿)", "Discipline (自律)", "Well-being (健康)"]
             },
             {
                 en: "Upgrading our smartphones and laptops every single year is a selfish consumer habit that is destroying the planet with toxic 'e-waste'. Do you agree or disagree?",
                 zh: "每年升级我们的智能手机和笔记本电脑是一种自私的消费习惯，正在用有毒的“电子垃圾”摧毁地球。你同意还是不同意？",
                 agreeText: "You must argue that fast-paced tech consumption is an environmental disaster. Throwing away 'obsolete technology' creates hazardous e-waste often shipped to developing nations, poisoning the local environment.",
                 disagreeText: "You must argue that upgrading technology is necessary for green innovation. Newer smartphones and laptops are far more energy-efficient. Instead of blaming teenagers, we should force tech companies to build better recycling programs.",
-                vocab: ["E-waste (电子垃圾)", "Obsolescence (过时/淘汰)", "Toxic (有毒的)", "Recycling (回收)", "Consumption (消费)", "Energy-efficient (节能的)", "Hazard (危险)", "Innovation (创新)", "Sustainability (可持续性)", "Disposal (处理)"]
+                agreeVocab: ["E-waste (电子垃圾)", "Obsolescence (淘汰)", "Toxic (有毒的)", "Hazard (危险)", "Disposal (处理)", "Selfish (自私的)", "Consumerism (消费主义)", "Pollution (污染)", "Landfill (垃圾填埋场)", "Unnecessary (不必要的)"],
+                disagreeVocab: ["Innovation (创新)", "Energy-efficient (节能的)", "Recycling (回收)", "Upcycling (升级改造)", "Advancement (进步)", "Green tech (绿色科技)", "Optimization (优化)", "Progress (发展)", "Productivity (生产力)", "Eco-friendly (环保)"]
             },
             {
                 en: "Governments should stop spending billions of dollars trying to colonize Mars, and instead spend that money fixing climate change here on Earth. Do you agree or disagree?",
                 zh: "政府应该停止花费数十亿美元试图殖民火星，而是把这些钱用来解决地球上的气候变化问题。你同意还是不同意？",
                 agreeText: "You must argue an 'Earth-First' perspective. Earth is our only home, currently suffering from severe climate change. Spending money to explore a dead planet like Mars is a waste of resources.",
                 disagreeText: "You must argue that space exploration is ultimate human survival. Use the threat of meteorites and asteroids as evidence. Going to space is our ultimate insurance policy if Earth is ever destroyed.",
-                vocab: ["Colonize (殖民)", "Climate change (气候变化)", "Asteroid (小行星)", "Extinction (灭绝)", "Earth-first (地球优先)", "Insurance policy (保险策略)", "Resource (资源)", "Catastrophe (灾难)", "Biosphere (生物圈)", "Interplanetary (星际的)"]
+                agreeVocab: ["Earth-first (地球优先)", "Biosphere (生物圈)", "Conservation (保护)", "Urgent (紧急的)", "Pragmatic (务实的)", "Climate crisis (气候危机)", "Responsibility (责任)", "Healing (治愈)", "Resources (资源)", "Neglect (忽视)"],
+                disagreeVocab: ["Colonize (殖民)", "Extinction (灭绝)", "Asteroid (小行星)", "Insurance (保险策略)", "Interplanetary (星际的)", "Survival (生存)", "Frontier (前沿)", "Catastrophe (灾难)", "Backup (备份)", "Exploration (探索)"]
             },
             {
                 en: "To become an elite champion athlete like Su Yiming (苏翊鸣) or Quan Hongchan (全红婵), having the right natural 'sports genes' is much more important than just training hard every day. Do you agree or disagree?",
                 zh: "要成为像苏翊鸣或全红婵这样的顶尖运动冠军，拥有天生的“运动基因”比每天刻苦训练重要得多。你同意还是不同意？",
-                agreeText: "You must argue that biology is destiny. Point out that scientists have found specific DNA markers that give some athletes a massive advantage—like fast-twitch muscles. No matter how hard an average person trains, they cannot beat perfect genes.",
-                disagreeText: "You must argue that hard work beats talent. Point out that genetics only provide a 'baseline.' To become a true champion, you need relentless psychological discipline, the ability to perform under extreme pressure, and thousands of hours of training.",
-                vocab: ["Genetics (基因)", "Discipline (纪律)", "Fast-twitch muscle (快肌纤维)", "Baseline (基线/起点)", "Psychology (心理学)", "Pressure (压力)", "Elite (精英)", "Advantage (优势)", "Repetitive (重复的)", "Talent (天赋)"]
+                agreeText: "You must argue that biology is destiny. Point out that specific DNA markers give some athletes a massive advantage—like fast-twitch muscles. No matter how hard an average person trains, they cannot beat perfect genes.",
+                disagreeText: "You must argue that hard work beats talent. Genetics only provide a 'baseline.' To become a true champion, you need relentless psychological discipline, the ability to perform under extreme pressure, and thousands of hours of training.",
+                agreeVocab: ["Genetics (基因)", "Fast-twitch (快肌纤维)", "Baseline (基线)", "Innate (天生的)", "Predisposition (倾向)", "Talent (天赋)", "Biology (生物学)", "Advantage (优势)", "Limit (极限)", "Destiny (命运)"],
+                disagreeVocab: ["Discipline (纪律)", "Psychology (心理学)", "Repetitive (重复的)", "Tenacity (坚韧)", "Resilience (韧性)", "Effort (努力)", "Dedication (奉献)", "Mindset (心态)", "Overcome (克服)", "Training (训练)"]
             },
             {
                 en: "Because of beauty filters on apps like Douyin and Xiaohongshu, teenagers today care too much about achieving 'perfect' physical beauty rather than developing a good personality. Do you agree or disagree?",
                 zh: "由于抖音和小红书等应用上的美颜滤镜，如今的青少年过于在乎追求“完美”的外表，而忽略了培养良好的内在性格。你同意还是不同意？",
-                agreeText: "You must argue that society has created toxic, impossible beauty standards. Point out that digital filters and cosmetic surgery make teenagers feel insecure. We judge people based on subjective fashion trends rather than actual character.",
-                disagreeText: "You must argue that caring about beauty is a natural instinct. Human brains are hardwired to look for clear skin and facial symmetry because it signals good health. Furthermore, treating the skin as a canvas is a proud way to express cultural identity.",
-                vocab: ["Filter (滤镜)", "Toxic (有害的)", "Insecurity (不安全感)", "Symmetry (对称)", "Evolutionary (进化的)", "Subjective (主观的)", "Superficial (肤浅的)", "Authentic (真实的)", "Appearance (外貌)", "Standard (标准)"]
+                agreeText: "You must argue that society has created toxic, impossible beauty standards. Digital filters and cosmetic surgery make teenagers feel insecure. We judge people based on subjective fashion trends rather than actual character.",
+                disagreeText: "You must argue that caring about beauty is a natural instinct. Human brains are hardwired to look for facial symmetry because it signals good health. Treating the skin as a canvas is a proud way to express cultural identity.",
+                agreeVocab: ["Filter (滤镜)", "Toxic (有害的)", "Insecurity (不安全感)", "Superficial (肤浅的)", "Unrealistic (不切实际的)", "Distortion (扭曲)", "Vanity (虚荣)", "Comparison (比较)", "Fake (虚假的)", "Obsession (痴迷)"],
+                disagreeVocab: ["Symmetry (对称)", "Evolutionary (进化的)", "Instinct (本能)", "Canvas (画布)", "Expression (表达)", "Aesthetic (审美)", "Biology (生物学)", "Creativity (创造力)", "Confidence (自信)", "Artistry (艺术性)"]
             },
             {
                 en: "It is better to keep endangered animals (like giant pandas or snow leopards) safe in modern city zoos rather than leaving them in the wild where their habitats are being destroyed. Do you agree or disagree?",
                 zh: "把濒危动物（如大熊猫或雪豹）安全地养在现代城市动物园里，比把它们留在栖息地正遭到破坏的野外要好。你同意还是不同意？",
                 agreeText: "You must argue that the wild is no longer safe due to human development and climate change. Zoos provide emergency medical care, guaranteed food, and safe breeding programs to ensure these species do not go extinct.",
                 disagreeText: "You must argue that animals belong in nature. Keeping wild animals confined destroys their natural hunting instincts. Instead of building better cages, we must focus on saving pristine natural habitats and stopping illegal poaching.",
-                vocab: ["Extinct (灭绝的)", "Habitat (栖息地)", "Poaching (偷猎)", "Breeding program (繁殖计划)", "Confinement (监禁)", "Pristine (原始的)", "Conservation (保护)", "Instinct (本能)", "Sanctuary (避难所)", "Biodiversity (生物多样性)"]
+                agreeVocab: ["Extinct (灭绝的)", "Breeding (繁殖计划)", "Sanctuary (避难所)", "Veterinary (兽医的)", "Protection (保护)", "Conservation (保育)", "Safety (安全)", "Supervision (监督)", "Survival (生存)", "Rescue (救援)"],
+                disagreeVocab: ["Habitat (栖息地)", "Confinement (监禁)", "Poaching (偷猎)", "Pristine (原始的)", "Instinct (本能)", "Freedom (自由)", "Cruel (残忍的)", "Natural (自然的)", "Ecosystem (生态圈)", "Territory (领地)"]
             },
             {
                 en: "Governments should completely forbid people from living or building tourist resorts near dangerous places like active volcanoes or earthquake zones, even if the scenery is beautiful. Do you agree or disagree?",
                 zh: "政府应该全面禁止人们在活火山或地震带等危险地区居住或建造旅游度假村，即使那里的风景很美。你同意还是不同意？",
                 agreeText: "You must argue that human safety comes first. Natural disasters are impossible to predict perfectly. Letting tourists climb summits that could explode at any minute is irresponsible and puts rescue workers' lives at risk.",
                 disagreeText: "You must argue that humans can adapt. Millions have deeply rooted cultural connections to these mountains. Instead of forcing people to leave, we should invest in better predictive technology and earthquake-proof architecture.",
-                vocab: ["Volcano (火山)", "Earthquake zone (地震带)", "Eruption (爆发)", "Irresponsible (不负责任的)", "Adapt (适应)", "Harmony (和谐)", "Architecture (建筑)", "Predictive (预测的)", "Sacred (神圣的)", "Disaster (灾难)"]
+                agreeVocab: ["Irresponsible (不负责任)", "Eruption (爆发)", "Disaster (灾难)", "Evacuation (疏散)", "Hazard (危险)", "Fatal (致命的)", "Unpredictable (不可预测)", "Danger (危险)", "Prohibition (禁止)", "Precaution (预防)"],
+                disagreeVocab: ["Adapt (适应)", "Harmony (和谐)", "Architecture (建筑)", "Predictive (预测的)", "Resilience (恢复力)", "Culture (文化)", "Heritage (遗产)", "Connection (连结)", "Technology (科技)", "Coexistence (共存)"]
             },
             {
                 en: "Mass tourism to beautiful coastal places (like Sanya or global islands) does more damage to the local environment than the economic money it brings in. Do you agree or disagree?",
                 zh: "大量游客涌入美丽的沿海地区（如三亚或全球各地的岛屿），对当地环境造成的破坏大于其带来的经济收益。你同意还是不同意？",
                 agreeText: "You must argue that the search for the 'perfect beach' is destroying the planet. Mass tourism brings plastic waste and pollution that kills fragile marine life like coral reefs. We are ruining the beautiful places we travel to see.",
                 disagreeText: "You must argue that eco-tourism is the key to survival for many island communities. When managed properly, the money brought in by tourists provides jobs and funds the conservation projects needed to protect the oceans.",
-                vocab: ["Mass tourism (大众旅游)", "Coral reef (珊瑚礁)", "Overcrowding (过度拥挤)", "Eco-tourism (生态旅游)", "Economy (经济)", "Livelihood (生计)", "Fragile (脆弱的)", "Plastic waste (塑料垃圾)", "Ecosystem (生态系统)", "Preservation (保护)"]
+                agreeVocab: ["Mass tourism (大众旅游)", "Coral reef (珊瑚礁)", "Overcrowding (过度拥挤)", "Plastic waste (塑料垃圾)", "Fragile (脆弱的)", "Exploitation (剥削)", "Pollution (污染)", "Damage (破坏)", "Unsustainable (不可持续)", "Degradation (退化)"],
+                disagreeVocab: ["Eco-tourism (生态旅游)", "Economy (经济)", "Livelihood (生计)", "Preservation (保护)", "Fund (资助)", "Conservation (保育)", "Employment (就业)", "Development (发展)", "Awareness (意识)", "Prosperity (繁荣)"]
             },
             {
                 en: "Relying on caffeine (like milk tea or coffee) to stay awake and study late for high school exams is a dangerous addiction that students should completely avoid. Do you agree or disagree?",
                 zh: "依靠咖啡因（如奶茶或咖啡）来保持清醒和熬夜准备高中考试是一种危险的上瘾行为，学生应该完全避免。你同意还是不同意？",
                 agreeText: "You must argue that caffeine is a drug that disrupts natural sleep cycles and tricks our nervous system. Relying on a chemical stimulant to handle school pressure leads to chronic fatigue and anxiety.",
                 disagreeText: "You must argue that caffeine is a helpful tool when used in moderation. It improves focus, eases stress, and increases short-term memory. Plus, going out for coffee or milk tea is an important social ritual for teenagers.",
-                vocab: ["Caffeine (咖啡因)", "Addiction (上瘾)", "Stimulant (兴奋剂)", "Sleep cycle (睡眠周期)", "Fatigue (疲劳)", "Moderation (适度)", "Focus (专注力)", "Ritual (仪式)", "Anxiety (焦虑)", "Nervous system (神经系统)"]
+                agreeVocab: ["Addiction (上瘾)", "Stimulant (兴奋剂)", "Fatigue (疲劳)", "Anxiety (焦虑)", "Disruption (扰乱)", "Dependency (依赖)", "Insomnia (失眠)", "Artificial (人造的)", "Crash (崩溃)", "Unhealthy (不健康的)"],
+                disagreeVocab: ["Moderation (适度)", "Focus (专注)", "Ritual (仪式)", "Alertness (警觉)", "Productivity (生产力)", "Energy (能量)", "Comfort (舒适)", "Routine (日常)", "Cognitive (认知的)", "Harmless (无害的)"]
             },
             {
                 en: "To fight climate change, developing nations should be forced to stop using all fossil fuels (like coal and oil) immediately, even if it slows down their economic growth. Do you agree or disagree?",
                 zh: "为了应对气候变化，发展中国家应该被强制立即停止使用所有化石燃料（如煤和石油），即使这会减缓它们的经济增长。你同意还是不同意？",
                 agreeText: "You must argue that the climate crisis is an absolute emergency. We must aggressively switch to renewable energy immediately. If we destroy the atmosphere, having a strong economy won't matter.",
                 disagreeText: "You must argue for a 'just transition.' An immediate ban would leave millions without basic electricity or jobs. We need a gradual timeline that allows cities to build green infrastructure without punishing the working class.",
-                vocab: ["Fossil fuel (化石燃料)", "Carbon emission (碳排放)", "Renewable energy (可再生能源)", "Infrastructure (基础设施)", "Just transition (公正转型)", "Economy (经济)", "Wind/Solar power (风能/太阳能)", "Emergency (紧急情况)", "Drastic (激烈的)", "Phasing out (逐步淘汰)"]
+                agreeVocab: ["Emergency (紧急情况)", "Carbon emission (碳排放)", "Drastic (激烈的)", "Phasing out (逐步淘汰)", "Renewable (可再生的)", "Crisis (危机)", "Immediate (立即的)", "Obligation (义务)", "Survival (生存)", "Catastrophe (灾难)"],
+                disagreeVocab: ["Just transition (公正转型)", "Infrastructure (基础设施)", "Gradual (渐进的)", "Livelihood (生计)", "Feasible (可行的)", "Economic shock (经济冲击)", "Reality (现实)", "Poverty (贫困)", "Development (发展)", "Balance (平衡)"]
             },
             {
                 en: "Spending billions of dollars on massive epic engineering projects (like the Grand Canal or mega-highways through forests) is justified because they connect the country, even if they damage nature. Do you agree or disagree?",
                 zh: "斥资数十亿美元建设宏大的工程项目（如大运河或穿过森林的超级公路）是合理的，因为它们连接了国家，即使这会破坏自然。你同意还是不同意？",
                 agreeText: "You must argue that epic infrastructure is necessary for human progress. Mega-projects provide easier transportation, create jobs, boost the economy, and unite distant, isolated regions of a massive country.",
                 disagreeText: "You must argue that these projects destroy pristine environments and displace local communities. We should not prioritize concrete and money over preserving our ancient, natural landscapes.",
-                vocab: ["Infrastructure (基础设施)", "Mega-project (巨型工程)", "Displacement (流离失所)", "Transportation (交通)", "Pristine (原始的)", "Connect (连接)", "Environmental impact (环境影响)", "Boost (促进)", "Logistics (物流)", "Destruction (破坏)"]
+                agreeVocab: ["Infrastructure (基础设施)", "Connect (连接)", "Boost (促进)", "Logistics (物流)", "Integration (一体化)", "Modernization (现代化)", "Progress (进步)", "Efficiency (效率)", "Prosperity (繁荣)", "Unity (团结)"],
+                disagreeVocab: ["Displacement (流离失所)", "Pristine (原始的)", "Destruction (破坏)", "Ecological (生态的)", "Disruption (扰乱)", "Habitat loss (栖息地丧失)", "Intervention (干预)", "Irreversible (不可逆的)", "Deforestation (砍伐森林)", "Conservation (保护)"]
             },
             {
                 en: "In the near future, using Virtual Reality (VR) headsets in the classroom will be a much better way to learn history and science than taking real-world field trips. Do you agree or disagree?",
                 zh: "在不久的将来，在课堂上使用虚拟现实（VR）头显来学习历史和科学，将比现实世界中的实地考察更好。你同意还是不同意？",
                 agreeText: "You must argue that VR is limitless. It allows students to safely travel anywhere instantly and for free. It provides 'embodied cognition' which makes complicated subjects much easier to remember.",
                 disagreeText: "You must argue that VR is just another isolating screen that causes side effects like dizziness. It lacks the real, tactile human experience—you cannot feel the wind or truly connect with classmates wearing a headset.",
-                vocab: ["Embodied cognition (具身认知)", "Isolate (孤立)", "Tactile (触觉的)", "Immersion (沉浸)", "Limitless (无限的)", "Dizziness (头晕)", "Distraction (分心)", "Firsthand (第一手的)", "Interactive (互动的)", "Accessible (易获取的)"]
+                agreeVocab: ["Embodied cognition (具身认知)", "Limitless (无限的)", "Accessible (易获取的)", "Immersion (沉浸)", "Interactive (互动的)", "Safe (安全的)", "Cost-effective (高性价比)", "Instantaneous (瞬间的)", "Engaging (引人入胜)", "Visualization (可视化)"],
+                disagreeVocab: ["Isolate (孤立)", "Tactile (触觉的)", "Firsthand (第一手的)", "Dizziness (头晕)", "Detached (脱节的)", "Artificial (人造的)", "Screen-time (屏幕时间)", "Disconnected (脱节的)", "Authentic (真实的)", "Socialization (社交)"]
             },
             {
                 en: "Because the teenage brain is still developing and naturally impulsive, high school students should not be harshly punished for taking reckless risks or making bad choices. Do you agree or disagree?",
                 zh: "由于青少年的大脑仍在发育且天生容易冲动，因此不应因为高中生冒失的冒险或做出错误的选择而对他们进行严厉的惩罚。你同意还是不同意？",
                 agreeText: "You must argue using neuroscience. The prefrontal cortex is not fully developed, meaning teenagers naturally value peer approval more than risks. We need empathy and guidance, not harsh punishment.",
                 disagreeText: "You must argue for personal responsibility. Even if the brain is developing, teenagers understand right and wrong. Blaming bad behavior purely on biology gives an excuse to avoid accountability.",
-                vocab: ["Prefrontal cortex (前额叶皮层)", "Impulsive (冲动的)", "Consequence (后果)", "Empathy (共情)", "Accountability (责任心)", "Peer approval (同伴认同)", "Reckless (鲁莽的)", "Development (发育)", "Excuse (借口)", "Logic (逻辑)"]
+                agreeVocab: ["Prefrontal cortex (前额叶)", "Impulsive (冲动的)", "Empathy (共情)", "Development (发育)", "Vulnerable (脆弱的)", "Biology (生物学)", "Forgiveness (宽恕)", "Guidance (引导)", "Maturation (成熟)", "Under construction (建设中)"],
+                disagreeVocab: ["Accountability (责任心)", "Consequence (后果)", "Logic (逻辑)", "Responsibility (责任)", "Excuse (借口)", "Choice (选择)", "Morality (道德)", "Discipline (纪律)", "Independence (独立)", "Expectation (期望)"]
             },
             {
                 en: "Great art (like Van Gogh's paintings) comes directly from personal suffering and mental struggle; therefore, an artist must suffer to create a true masterpiece. Do you agree or disagree?",
                 zh: "伟大的艺术（如梵高的画作）直接源于个人的痛苦和精神挣扎；因此，艺术家必须经历痛苦才能创作出真正的杰作。你同意还是不同意？",
                 agreeText: "You must agree by using Van Gogh as evidence. His intense, chaotic brushstrokes reflect profound psychological turmoil. Classic art requires deep emotional trauma to connect with the human condition.",
                 disagreeText: "You must disagree by pointing out that suffering is not a requirement for genius. Great artists also use joy, technical mastery, and optical science. Art is about creative innovation, not just being depressed.",
-                vocab: ["Masterpiece (杰作)", "Psychological turmoil (心理动荡)", "Chaos (混乱)", "Innovation (创新)", "Mastery (精通)", "Emotion (情感)", "Struggle (挣扎)", "Creative (有创造力的)", "Stroke (笔触)", "Trauma (创伤)"]
+                agreeVocab: ["Psychological turmoil (心理动荡)", "Trauma (创伤)", "Chaos (混乱)", "Emotion (情感)", "Profound (深刻的)", "Anguish (痛苦)", "Authenticity (真实性)", "Catharsis (宣泄)", "Torment (折磨)", "Masterpiece (杰作)"],
+                disagreeVocab: ["Mastery (精通)", "Innovation (创新)", "Joy (喜悦)", "Technique (技巧)", "Visionary (有远见的)", "Practice (练习)", "Creativity (创造力)", "Inspiration (灵感)", "Skill (技能)", "Imagination (想象力)"]
             },
             {
                 en: "Exploring the extreme, dangerous depths of our own oceans is more important for human survival than spending billions of dollars on space exploration and colonizing Mars. Do you agree or disagree?",
                 zh: "探索我们自己海洋的极端危险深处，比花费数十亿美元进行太空探索和殖民火星对人类的生存更重要。你同意还是不同意？",
-                agreeText: "You must argue an 'Earth-First' perspective. Earth's deep oceans are full of undiscovered biodiversity that could hold the cure for human diseases. We must protect our own fragile planet before trying to fly to a dead rock in space.",
+                agreeText: "You must argue an 'Earth-First' perspective. Earth's deep oceans are full of undiscovered biodiversity that could hold the cure for human diseases. We must protect our own fragile planet before flying to a dead rock in space.",
                 disagreeText: "You must argue that space exploration is humanity's ultimate insurance policy. As seen with dinosaurs, catastrophic asteroid impacts are a real threat. We must develop technologies to survive if Earth is ever destroyed.",
-                vocab: ["Biodiversity (生物多样性)", "Cure (疗法/解药)", "Extinction (灭绝)", "Asteroid (小行星)", "Fragile (脆弱的)", "Zero gravity (失重)", "Survive (生存)", "Prioritize (优先考虑)", "Unknown (未知的)", "Deep sea (深海)"]
+                agreeVocab: ["Biodiversity (生物多样性)", "Cure (疗法)", "Fragile (脆弱的)", "Deep sea (深海)", "Pragmatic (务实的)", "Unexplored (未探索的)", "Ecosystem (生态系统)", "Conservation (保护)", "Tangible (切实的)", "Immediate (眼前的)"],
+                disagreeVocab: ["Asteroid (小行星)", "Extinction (灭绝)", "Survive (生存)", "Zero gravity (失重)", "Frontier (前沿)", "Destiny (命运)", "Insurance (保险)", "Limitless (无极限的)", "Expansion (扩张)", "Interstellar (星际的)"]
             }
+        ];
+
+        const AGREE_PHRASES = [
+            { en: "We firmly believe that...", zh: "我们坚信..." },
+            { en: "The evidence clearly indicates...", zh: "证据清楚地表明..." },
+            { en: "From a scientific/historical perspective...", zh: "从科学/历史角度来看..." },
+            { en: "A prime example of this is...", zh: "一个典型的例子是..." },
+            { en: "Ultimately, the benefits far outweigh the drawbacks.", zh: "归根结底，利大于弊。" }
+        ];
+
+        const DISAGREE_PHRASES = [
+            { en: "The opposing team fails to consider...", zh: "对方未能考虑到..." },
+            { en: "While that may be true in theory, in reality...", zh: "理论上可能如此，但在现实中..." },
+            { en: "The fundamental flaw in this argument is...", zh: "这个论点的根本缺陷在于..." },
+            { en: "We cannot ignore the human/economic cost of...", zh: "我们不能忽视...成本" },
+            { en: "A more realistic and practical solution would be...", zh: "更现实的解决方案是..." }
         ];
 
         const { useState, useEffect, useRef } = React;
@@ -264,12 +297,14 @@
             const [students, setStudents] = useState([]);
             const [newStudentName, setNewStudentName] = useState("");
             
-            // Hint State
+            // UI Toggle State
             const [showAgreeHint, setShowAgreeHint] = useState(false);
             const [showDisagreeHint, setShowDisagreeHint] = useState(false);
+            const [showAgreePhrases, setShowAgreePhrases] = useState(false);
+            const [showDisagreePhrases, setShowDisagreePhrases] = useState(false);
             
             // Timer State
-            const [timerDuration, setTimerDuration] = useState(300); // Default 5 mins in seconds
+            const [timerDuration, setTimerDuration] = useState(300);
             const [timeLeft, setTimeLeft] = useState(300);
             const [timerActive, setTimerActive] = useState(false);
             const timerRef = useRef(null);
@@ -279,21 +314,22 @@
             // Handle Topic Navigation
             const nextTopic = () => {
                 setTopicIndex((prev) => (prev + 1) % DEBATE_TOPICS.length);
-                setShowAgreeHint(false);
-                setShowDisagreeHint(false);
+                resetToggles();
             };
             const prevTopic = () => {
                 setTopicIndex((prev) => (prev - 1 + DEBATE_TOPICS.length) % DEBATE_TOPICS.length);
-                setShowAgreeHint(false);
-                setShowDisagreeHint(false);
+                resetToggles();
+            };
+
+            const resetToggles = () => {
+                setShowAgreeHint(false); setShowDisagreeHint(false);
+                setShowAgreePhrases(false); setShowDisagreePhrases(false);
             };
 
             // Timer Effects
             useEffect(() => {
                 if (timerActive && timeLeft > 0) {
-                    timerRef.current = setInterval(() => {
-                        setTimeLeft((prev) => prev - 1);
-                    }, 1000);
+                    timerRef.current = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
                 } else if (timeLeft === 0) {
                     setTimerActive(false);
                     clearInterval(timerRef.current);
@@ -308,15 +344,6 @@
                 setTimerActive(false);
             };
 
-            const toggleTimer = () => {
-                if (timeLeft > 0) setTimerActive(!timerActive);
-            };
-
-            const resetTimer = () => {
-                setTimeLeft(timerDuration);
-                setTimerActive(false);
-            };
-
             const formatTime = (seconds) => {
                 const m = Math.floor(seconds / 60).toString().padStart(2, '0');
                 const s = (seconds % 60).toString().padStart(2, '0');
@@ -324,22 +351,15 @@
             };
 
             const timerProgress = ((timerDuration - timeLeft) / timerDuration) * 100;
-            
-            // Dynamic timer color based on time left
             let progressColor = 'bg-blue-400';
             if (timeLeft <= 60) progressColor = 'bg-red-500';
             else if (timeLeft <= 180) progressColor = 'bg-yellow-400';
 
+            // Student Roster Logic
             const addStudent = (e) => {
                 e.preventDefault();
                 if (newStudentName.trim() === "") return;
-                
-                const newStudent = {
-                    id: Date.now().toString(),
-                    name: newStudentName.trim(),
-                    side: 'unassigned'
-                };
-                setStudents([...students, newStudent]);
+                setStudents([...students, { id: Date.now().toString(), name: newStudentName.trim(), side: 'unassigned' }]);
                 setNewStudentName("");
             };
 
@@ -347,319 +367,277 @@
                 setStudents(students.map(s => s.id === id ? { ...s, side } : s));
             };
 
-            const removeStudent = (id) => {
-                setStudents(students.filter(s => s.id !== id));
-            };
-
             const agreeStudents = students.filter(s => s.side === 'agree');
             const disagreeStudents = students.filter(s => s.side === 'disagree');
             const unassignedStudents = students.filter(s => s.side === 'unassigned');
 
-            const [showPhraseBank, setShowPhraseBank] = useState(false);
-
-            const phraseBank = [
-                { en: "I completely agree with this point because...", zh: "我完全同意这一观点，因为..." },
-                { en: "That is a fair point, but we must also consider...", zh: "那是一个合理的观点，但我们还必须考虑到..." },
-                { en: "According to the reading material, the evidence shows...", zh: "根据阅读材料，证据表明..." },
-                { en: "On the other hand, my opponent fails to realize...", zh: "另一方面，我的对手没有意识到..." },
-                { en: "My partner made an excellent point earlier...", zh: "我的队友早些时候提出了一个很好的观点..." },
-                { en: "To sum up our main argument, it is clear that...", zh: "总结我们的主要论点，很明显..." }
-            ];
-
             return (
-                <div className="bg-animated text-white h-screen p-2 md:p-4 flex flex-col font-sans overflow-hidden">
+                <div className="bg-animated text-white h-screen p-2 flex flex-col font-sans overflow-hidden">
                     
-                    {/* Header: Topic Selection (Shrinks as needed) */}
-                    <header className="glass-panel rounded-xl p-3 md:p-4 mb-3 relative z-10 text-center max-w-[1400px] mx-auto w-full flex-shrink-0 flex items-center justify-between">
+                    {/* TOP HEADER: Prompts (Fixed Height to prevent jumping) */}
+                    <header className="glass-panel rounded-xl px-4 py-2 mb-2 relative z-10 w-full flex-shrink-0 flex items-center justify-between mx-auto h-[130px] md:h-[150px] lg:h-[180px]">
                         <button onClick={prevTopic} className="p-2 hover:bg-white/20 rounded-full transition-colors flex-shrink-0">
-                            <i className="ph ph-caret-left text-3xl md:text-4xl"></i>
+                            <i className="ph ph-caret-left text-3xl"></i>
                         </button>
                         
-                        <div className="flex-1 px-4 max-h-[30vh] overflow-y-auto">
-                            {}
-                            <p className="text-[1.4rem] md:text-[1.8rem] lg:text-[2rem] font-bold leading-tight mb-3 text-white shadow-sm">"{currentTopic.en}"</p>
-                            {}
-                            <p className="text-[1.1rem] md:text-[1.2rem] lg:text-[1.4rem] text-gray-300 font-medium leading-snug">{currentTopic.zh}</p>
+                        <div className="flex-1 px-4 flex flex-col justify-center h-full overflow-y-auto custom-scrollbar text-center">
+                            {/* Adjusted Font Size: -20% from the previous +50% increase */}
+                            <p className="text-[1.1rem] md:text-[1.4rem] lg:text-[1.6rem] font-bold leading-tight mb-2 text-white shadow-sm">
+                                "{currentTopic.en}"
+                            </p>
+                            <p className="text-[0.95rem] md:text-[1.1rem] lg:text-[1.2rem] text-gray-300 font-medium leading-snug">
+                                {currentTopic.zh}
+                            </p>
                         </div>
                         
                         <button onClick={nextTopic} className="p-2 hover:bg-white/20 rounded-full transition-colors flex-shrink-0">
-                            <i className="ph ph-caret-right text-3xl md:text-4xl"></i>
+                            <i className="ph ph-caret-right text-3xl"></i>
                         </button>
                     </header>
 
-                    {/* Main Arena Layout (Takes remaining space, flex-grow) */}
-                    <main className="flex-grow flex flex-col md:flex-row gap-3 max-w-[1400px] mx-auto w-full min-h-0">
+                    {/* MAIN ARENA COLUMNS */}
+                    <main className="flex-grow flex gap-2 w-full min-h-0 mx-auto">
                         
-                        {/* Left Side: Agree */}
-                        <div className="flex-1 flex flex-col gap-2 min-h-0">
-                            <div className="glass-panel-agree rounded-xl p-4 md:p-5 flex-grow flex flex-col shadow-lg shadow-emerald-900/20 min-h-0">
-                                <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/20 flex-shrink-0">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-emerald-500 p-1.5 rounded-lg"><i className="ph ph-thumbs-up text-lg text-white"></i></div>
-                                        <h2 className="text-xl font-bold text-emerald-300">Team Agree</h2>
-                                    </div>
-                                    <span className="bg-emerald-500/20 text-emerald-200 text-xs px-2 py-1 rounded-full">{agreeStudents.length} Debaters</span>
-                                </div>
+                        {/* LEFT COLUMN: Team Agree */}
+                        <div className="flex-1 flex flex-col min-h-0">
+                            <div className="glass-panel-agree rounded-xl p-3 flex-grow flex flex-col shadow-lg min-h-0 overflow-y-auto custom-scrollbar">
                                 
-                                {/* Hint Toggle & Phrase Bank Area */}
-                                <div className="flex flex-col gap-2 mb-3 flex-shrink-0">
-                                    <button 
-                                        onClick={() => setShowAgreeHint(!showAgreeHint)} 
-                                        className="w-full bg-emerald-600/40 hover:bg-emerald-500/50 text-emerald-100 text-sm py-2 rounded-lg border border-emerald-500/30 transition-colors flex justify-center items-center gap-2 font-semibold shadow-md"
-                                    >
-                                        <i className={`ph ${showAgreeHint ? 'ph-eye-slash' : 'ph-eye'} text-lg`}></i>
-                                        {showAgreeHint ? 'Hide Argument (隐藏论点)' : 'Show Argument (显示论点)'}
-                                    </button>
-
-                                    {showAgreeHint && (
-                                        <div className="bg-black/50 rounded-lg p-3 border border-emerald-500/50 max-h-[20vh] overflow-y-auto animate-fade-in shadow-inner">
-                                            {}
-                                            <p className="text-[20px] md:text-[22px] text-emerald-100 leading-relaxed font-medium">{currentTopic.agreeText}</p>
-                                        </div>
-                                    )}
-
-                                    {}
-                                    <div className="bg-emerald-900/30 rounded-lg p-3 border border-emerald-500/20 leading-relaxed">
-                                        <ul className="text-emerald-100/90 list-disc pl-5 mb-2 space-y-1 text-[18px] md:text-[20px]">
-                                            <li>I strongly agree because... (我强烈同意...)</li>
-                                            <li>The evidence clearly shows... (证据清楚表明...)</li>
-                                        </ul>
-                                        <p className="text-emerald-200/80 mt-2 text-[18px] md:text-[20px] border-b border-emerald-500/30 pb-2">
-                                            <span className="font-semibold text-emerald-300">Keywords:</span> Absolutely, Evidence, Essential, Benefit, Significant
-                                        </p>
-                                        
-                                        {/* Topic specific Vocabulary */}
-                                        <div className="mt-2">
-                                            <p className="font-bold text-emerald-300 mb-1 text-[16px] md:text-[18px]">Topic Vocabulary (核心词汇):</p>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {currentTopic.vocab.map((v, i) => (
-                                                    <span key={i} className="bg-emerald-800/60 text-emerald-100 px-2 py-1 rounded text-sm border border-emerald-500/30">
-                                                        {v}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
+                                {/* Title and Student List at the Top */}
+                                <div className="flex flex-col mb-3 pb-2 border-b border-white/20 flex-shrink-0">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="bg-emerald-500 p-1.5 rounded-lg"><i className="ph ph-thumbs-up text-xl text-white"></i></div>
+                                        <h2 className="text-xl md:text-2xl font-bold text-emerald-300">Team Agree</h2>
+                                        <span className="ml-auto bg-emerald-500/20 text-emerald-200 text-xs px-2 py-0.5 rounded-full">{agreeStudents.length}</span>
+                                    </div>
+                                    
+                                    {/* Assigned Team Members directly under title */}
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {agreeStudents.length === 0 && <span className="text-emerald-200/50 text-xs italic">No debaters assigned</span>}
+                                        {agreeStudents.map(student => (
+                                            <span key={student.id} className="bg-emerald-500/30 border border-emerald-500/40 text-emerald-100 px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                                                <i className="ph ph-user text-emerald-300"></i> {student.name}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="flex-grow overflow-y-auto pr-1 space-y-2">
-                                    {agreeStudents.map(student => (
-                                        <div key={student.id} className="bg-emerald-500/20 rounded-lg p-2 flex justify-between items-center border border-emerald-500/30 transition-all hover:bg-emerald-500/30">
-                                            <span className="font-medium text-sm text-emerald-50">{student.name}</span>
-                                            <button onClick={() => assignSide(student.id, 'unassigned')} className="text-emerald-300 hover:text-white p-1">
-                                                <i className="ph ph-x-circle text-lg"></i>
-                                            </button>
-                                        </div>
-                                    ))}
-                                    {agreeStudents.length === 0 && <p className="text-emerald-200/50 text-xs italic text-center py-2">Awaiting debaters...</p>}
+                                {/* Actions: Side-by-Side Buttons */}
+                                <div className="flex gap-2 mb-3 flex-shrink-0">
+                                    <button 
+                                        onClick={() => {setShowAgreeHint(!showAgreeHint); setShowAgreePhrases(false);}} 
+                                        className="flex-1 bg-emerald-600/40 hover:bg-emerald-500/50 text-emerald-100 text-[13px] py-1.5 rounded border border-emerald-500/30 transition-colors flex justify-center items-center gap-1 font-semibold"
+                                    >
+                                        <i className={`ph ${showAgreeHint ? 'ph-eye-slash' : 'ph-eye'}`}></i>
+                                        {showAgreeHint ? 'Hide Argument' : 'Show Argument'}
+                                    </button>
+                                    <button 
+                                        onClick={() => {setShowAgreePhrases(!showAgreePhrases); setShowAgreeHint(false);}} 
+                                        className="flex-1 bg-teal-600/40 hover:bg-teal-500/50 text-teal-100 text-[13px] py-1.5 rounded border border-teal-500/30 transition-colors flex justify-center items-center gap-1 font-semibold"
+                                    >
+                                        <i className={`ph ${showAgreePhrases ? 'ph-chat-teardrop-slash' : 'ph-chat-teardrop-text'}`}></i>
+                                        {showAgreePhrases ? 'Hide Phrases' : 'Agree Phrases'}
+                                    </button>
+                                </div>
+
+                                {/* Hidden Display Area */}
+                                {showAgreeHint && (
+                                    <div className="bg-black/50 rounded-lg p-3 border border-emerald-500/50 mb-3 animate-fade-in shadow-inner text-emerald-100 text-[15px] leading-relaxed flex-shrink-0">
+                                        {currentTopic.agreeText}
+                                    </div>
+                                )}
+                                {showAgreePhrases && (
+                                    <div className="bg-black/50 rounded-lg p-2.5 border border-teal-500/50 mb-3 animate-fade-in shadow-inner flex flex-col gap-1.5 flex-shrink-0">
+                                        {AGREE_PHRASES.map((phrase, idx) => (
+                                            <div key={idx} className="text-[13px] leading-tight">
+                                                <span className="text-teal-300 font-bold mr-1">▶</span>
+                                                <span className="text-teal-100">{phrase.en}</span> <span className="text-teal-200/70 text-[11px]">({phrase.zh})</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Topic Vocabulary Tags (10 words) */}
+                                <div className="mt-auto border-t border-white/10 pt-2 flex-shrink-0">
+                                    <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2 block">Pro Vocabulary (10)</span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {currentTopic.agreeVocab.map((word, idx) => (
+                                            <span key={idx} className="bg-black/30 border border-emerald-500/20 text-emerald-100/90 text-[11px] px-2 py-1 rounded-md shadow-sm">
+                                                {word}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Center: Controls & Timers */}
-                        <div className="w-full md:w-[320px] lg:w-[360px] flex flex-col gap-3 order-first md:order-none flex-shrink-0 min-h-0">
+                        {/* CENTER COLUMN: Timer & Split Roster */}
+                        <div className="w-full md:w-[280px] lg:w-[350px] flex-shrink-0 flex flex-col gap-2 min-h-0">
                             
-                            {/* Timer Block (Removed "Debate Clock" title to save space) */}
-                            <div className="glass-panel rounded-xl p-4 text-center flex flex-col items-center flex-shrink-0">
-                                
-                                {/* Progress Bar */}
-                                <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden mb-4 border border-white/10">
+                            {/* Compact Timer Module */}
+                            <div className="glass-panel p-3 rounded-xl flex flex-col items-center flex-shrink-0">
+                                <div className="w-full bg-gray-800 rounded-full h-2 mb-2 overflow-hidden shadow-inner">
                                     <div 
                                         className={`h-full ${progressColor} transition-all duration-1000 ease-linear rounded-full`}
                                         style={{ width: `${timerProgress}%` }}
                                     ></div>
                                 </div>
 
-                                {/* Digital Clock Display */}
-                                <div className={`text-5xl md:text-6xl font-mono font-bold mb-4 tracking-tighter tabular-nums ${timeLeft <= 60 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+                                <div className={`text-4xl md:text-5xl font-mono font-bold mb-2 tracking-tighter tabular-nums ${timeLeft <= 60 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
                                     {formatTime(timeLeft)}
                                 </div>
 
-                                {/* Time Presets */}
-                                <div className="flex gap-2 mb-4 w-full justify-center">
+                                <div className="flex gap-1 w-full justify-center mb-2">
                                     {[5, 10, 15].map(mins => (
                                         <button 
-                                            key={mins}
-                                            onClick={() => setTimer(mins)}
-                                            className="flex-1 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-medium transition-colors"
+                                            key={mins} onClick={() => setTimer(mins)}
+                                            className="flex-1 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-medium transition-colors"
                                         >
                                             {mins} Min
                                         </button>
                                     ))}
                                 </div>
 
-                                {/* Timer Controls */}
-                                <div className="flex gap-2 w-full">
+                                <div className="flex gap-1 w-full">
                                     <button 
-                                        onClick={toggleTimer}
-                                        className={`flex-1 py-1.5 rounded-lg font-bold flex items-center justify-center gap-1 transition-all text-xs ${timerActive ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
+                                        onClick={() => timeLeft > 0 && setTimerActive(!timerActive)}
+                                        className={`flex-1 py-1.5 rounded font-bold flex items-center justify-center gap-1 transition-all text-xs ${timerActive ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
                                     >
-                                        <i className={`ph-fill ${timerActive ? 'ph-pause' : 'ph-play'} text-base`}></i>
-                                        {timerActive ? 'PAUSE' : 'START'}
+                                        <i className={`ph-fill ${timerActive ? 'ph-pause' : 'ph-play'} text-sm`}></i> {timerActive ? 'PAUSE' : 'START'}
                                     </button>
                                     <button 
-                                        onClick={resetTimer}
-                                        className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/50 border border-white/20 transition-all flex items-center justify-center"
-                                        title="Reset Timer"
+                                        onClick={() => {setTimeLeft(timerDuration); setTimerActive(false);}}
+                                        className="px-2 py-1.5 rounded bg-white/10 hover:bg-red-500/50 border border-white/20 transition-all flex justify-center items-center"
                                     >
-                                        <i className="ph ph-arrow-counter-clockwise text-base"></i>
+                                        <i className="ph ph-arrow-counter-clockwise text-sm"></i>
                                     </button>
                                 </div>
-
-                                {/* Phrase Bank Launch Button */}
-                                <button 
-                                    onClick={() => setShowPhraseBank(true)}
-                                    className="mt-4 w-full py-2.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white font-semibold text-sm border border-indigo-400/50 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/30"
-                                >
-                                    <i className="ph ph-chat-teardrop-text text-lg"></i>
-                                    Debate Phrase Bank (辩论词库)
-                                </button>
                             </div>
 
-                            {/* Roster Management Block (Removed "Add Debaters" title) */}
-                            <div className="glass-panel rounded-xl p-4 flex flex-col min-h-0 flex-grow">
-                                <form onSubmit={addStudent} className="flex gap-2 mb-3 flex-shrink-0">
+                            {/* Center Split Roster View */}
+                            <div className="glass-panel rounded-xl p-3 flex flex-col flex-grow min-h-0">
+                                <form onSubmit={addStudent} className="flex gap-1 mb-2 flex-shrink-0">
                                     <input 
-                                        type="text" 
-                                        value={newStudentName}
-                                        onChange={(e) => setNewStudentName(e.target.value)}
-                                        placeholder="Student Name..." 
-                                        className="flex-1 bg-black/30 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors"
+                                        type="text" value={newStudentName} onChange={(e) => setNewStudentName(e.target.value)}
+                                        placeholder="Add Student..." 
+                                        className="flex-1 bg-black/30 border border-white/20 rounded px-2 py-1 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
                                     />
-                                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-bold transition-colors">
-                                        <i className="ph ph-plus text-base"></i>
-                                    </button>
+                                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-white"><i className="ph ph-plus"></i></button>
                                 </form>
 
-                                <div className="flex-grow overflow-y-auto pr-1 space-y-2">
-                                    {unassignedStudents.map(student => (
-                                        <div key={student.id} className="bg-white/10 rounded-lg p-2 border border-white/10 flex flex-col gap-2">
-                                            <div className="flex justify-between items-center w-full px-1">
-                                                <span className="font-semibold text-sm">{student.name}</span>
-                                                <button onClick={() => removeStudent(student.id)} className="text-gray-400 hover:text-red-400 transition-colors p-0.5">
-                                                    <i className="ph ph-trash text-base"></i>
-                                                </button>
-                                            </div>
-                                            <div className="flex gap-1.5 w-full">
-                                                <button 
-                                                    onClick={() => assignSide(student.id, 'agree')}
-                                                    className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-500/30 text-[10px] py-1.5 rounded transition-colors uppercase font-bold"
-                                                >
-                                                    Agree
-                                                </button>
-                                                <button 
-                                                    onClick={() => assignSide(student.id, 'disagree')}
-                                                    className="flex-1 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 text-[10px] py-1.5 rounded transition-colors uppercase font-bold"
-                                                >
-                                                    Disagree
-                                                </button>
-                                            </div>
+                                <div className="flex-grow flex flex-col min-h-0">
+                                    {/* Unassigned Area */}
+                                    {unassignedStudents.length > 0 && (
+                                        <div className="mb-2 max-h-[80px] overflow-y-auto custom-scrollbar space-y-1 pr-1 flex-shrink-0">
+                                            {unassignedStudents.map(student => (
+                                                <div key={student.id} className="bg-white/10 rounded p-1 border border-white/10 flex justify-between items-center">
+                                                    <span className="font-semibold text-[10px] truncate max-w-[70px]">{student.name}</span>
+                                                    <div className="flex gap-0.5">
+                                                        <button onClick={() => assignSide(student.id, 'agree')} className="bg-emerald-500/30 text-emerald-200 text-[9px] px-1.5 py-0.5 rounded">Ag</button>
+                                                        <button onClick={() => assignSide(student.id, 'disagree')} className="bg-rose-500/30 text-rose-200 text-[9px] px-1.5 py-0.5 rounded">Dis</button>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                    {unassignedStudents.length === 0 && <p className="text-gray-400 text-xs italic text-center py-2">No unassigned students.</p>}
+                                    )}
+
+                                    {/* Split Columns in Center panel */}
+                                    <div className="flex-grow flex border-t border-white/10 pt-2 overflow-y-auto custom-scrollbar">
+                                        <div className="flex-1 border-r border-white/10 pr-1 flex flex-col gap-1">
+                                            <span className="text-[9px] text-emerald-400/80 font-bold text-center uppercase tracking-wider mb-0.5">Agree List</span>
+                                            {agreeStudents.map(s => (
+                                                <div key={s.id} className="bg-emerald-500/10 rounded p-1 flex justify-between items-center group cursor-pointer" onClick={() => assignSide(s.id, 'unassigned')} title="Remove">
+                                                    <span className="text-[10px] text-emerald-100 truncate">{s.name}</span>
+                                                    <i className="ph ph-x text-[10px] text-white/30 group-hover:text-white"></i>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="flex-1 pl-1 flex flex-col gap-1">
+                                            <span className="text-[9px] text-rose-400/80 font-bold text-center uppercase tracking-wider mb-0.5">Disagree List</span>
+                                            {disagreeStudents.map(s => (
+                                                <div key={s.id} className="bg-rose-500/10 rounded p-1 flex justify-between items-center group cursor-pointer" onClick={() => assignSide(s.id, 'unassigned')} title="Remove">
+                                                    <span className="text-[10px] text-rose-100 truncate">{s.name}</span>
+                                                    <i className="ph ph-x text-[10px] text-white/30 group-hover:text-white"></i>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Side: Disagree */}
-                        <div className="flex-1 flex flex-col gap-2 min-h-0">
-                            <div className="glass-panel-disagree rounded-xl p-4 md:p-5 flex-grow flex flex-col shadow-lg shadow-rose-900/20 min-h-0">
-                                <div className="flex items-center justify-between mb-3 pb-3 border-b border-white/20 flex-shrink-0">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-rose-500 p-1.5 rounded-lg"><i className="ph ph-thumbs-down text-lg text-white"></i></div>
-                                        <h2 className="text-xl font-bold text-rose-300">Team Disagree</h2>
-                                    </div>
-                                    <span className="bg-rose-500/20 text-rose-200 text-xs px-2 py-1 rounded-full">{disagreeStudents.length} Debaters</span>
-                                </div>
+                        {/* RIGHT COLUMN: Team Disagree */}
+                        <div className="flex-1 flex flex-col min-h-0">
+                            <div className="glass-panel-disagree rounded-xl p-3 flex-grow flex flex-col shadow-lg min-h-0 overflow-y-auto custom-scrollbar">
                                 
-                                {/* Hint Toggle & Phrase Bank Area */}
-                                <div className="flex flex-col gap-2 mb-3 flex-shrink-0">
-                                    <button 
-                                        onClick={() => setShowDisagreeHint(!showDisagreeHint)} 
-                                        className="w-full bg-rose-600/40 hover:bg-rose-500/50 text-rose-100 text-sm py-2 rounded-lg border border-rose-500/30 transition-colors flex justify-center items-center gap-2 font-semibold shadow-md"
-                                    >
-                                        <i className={`ph ${showDisagreeHint ? 'ph-eye-slash' : 'ph-eye'} text-lg`}></i>
-                                        {showDisagreeHint ? 'Hide Argument (隐藏论点)' : 'Show Argument (显示论点)'}
-                                    </button>
-
-                                    {showDisagreeHint && (
-                                        <div className="bg-black/50 rounded-lg p-3 border border-rose-500/50 max-h-[20vh] overflow-y-auto animate-fade-in shadow-inner">
-                                            {}
-                                            <p className="text-[20px] md:text-[22px] text-rose-100 leading-relaxed font-medium">{currentTopic.disagreeText}</p>
-                                        </div>
-                                    )}
-
-                                    {}
-                                    <div className="bg-rose-900/30 rounded-lg p-3 border border-rose-500/20 leading-relaxed">
-                                        <ul className="text-rose-100/90 list-disc pl-5 mb-2 space-y-1 text-[18px] md:text-[20px]">
-                                            <li>I have to disagree because... (我不同意因为...)</li>
-                                            <li>While that may be true, however... (虽然可能是真的，但是...)</li>
-                                        </ul>
-                                        <p className="text-rose-200/80 mt-2 text-[18px] md:text-[20px] border-b border-rose-500/30 pb-2">
-                                            <span className="font-semibold text-rose-300">Keywords:</span> However, Alternative, Drawback, Instead, Unnecessary
-                                        </p>
-                                        
-                                        {/* Topic specific Vocabulary */}
-                                        <div className="mt-2">
-                                            <p className="font-bold text-rose-300 mb-1 text-[16px] md:text-[18px]">Topic Vocabulary (核心词汇):</p>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {currentTopic.vocab.map((v, i) => (
-                                                    <span key={i} className="bg-rose-800/60 text-rose-100 px-2 py-1 rounded text-sm border border-rose-500/30">
-                                                        {v}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
+                                {/* Title and Student List at the Top */}
+                                <div className="flex flex-col mb-3 pb-2 border-b border-white/20 flex-shrink-0">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="bg-rose-500 p-1.5 rounded-lg"><i className="ph ph-thumbs-down text-xl text-white"></i></div>
+                                        <h2 className="text-xl md:text-2xl font-bold text-rose-300">Team Disagree</h2>
+                                        <span className="ml-auto bg-rose-500/20 text-rose-200 text-xs px-2 py-0.5 rounded-full">{disagreeStudents.length}</span>
+                                    </div>
+                                    
+                                    {/* Assigned Team Members directly under title */}
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {disagreeStudents.length === 0 && <span className="text-rose-200/50 text-xs italic">No debaters assigned</span>}
+                                        {disagreeStudents.map(student => (
+                                            <span key={student.id} className="bg-rose-500/30 border border-rose-500/40 text-rose-100 px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                                                <i className="ph ph-user text-rose-300"></i> {student.name}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="flex-grow overflow-y-auto pr-1 space-y-2">
-                                    {disagreeStudents.map(student => (
-                                        <div key={student.id} className="bg-rose-500/20 rounded-lg p-2 flex justify-between items-center border border-rose-500/30 transition-all hover:bg-rose-500/30">
-                                            <span className="font-medium text-sm text-rose-50">{student.name}</span>
-                                            <button onClick={() => assignSide(student.id, 'unassigned')} className="text-rose-300 hover:text-white p-1">
-                                                <i className="ph ph-x-circle text-lg"></i>
-                                            </button>
-                                        </div>
-                                    ))}
-                                    {disagreeStudents.length === 0 && <p className="text-rose-200/50 text-xs italic text-center py-2">Awaiting debaters...</p>}
+                                {/* Actions: Side-by-Side Buttons */}
+                                <div className="flex gap-2 mb-3 flex-shrink-0">
+                                    <button 
+                                        onClick={() => {setShowDisagreeHint(!showDisagreeHint); setShowDisagreePhrases(false);}} 
+                                        className="flex-1 bg-rose-600/40 hover:bg-rose-500/50 text-rose-100 text-[13px] py-1.5 rounded border border-rose-500/30 transition-colors flex justify-center items-center gap-1 font-semibold"
+                                    >
+                                        <i className={`ph ${showDisagreeHint ? 'ph-eye-slash' : 'ph-eye'}`}></i>
+                                        {showDisagreeHint ? 'Hide Argument' : 'Show Argument'}
+                                    </button>
+                                    <button 
+                                        onClick={() => {setShowDisagreePhrases(!showDisagreePhrases); setShowDisagreeHint(false);}} 
+                                        className="flex-1 bg-pink-600/40 hover:bg-pink-500/50 text-pink-100 text-[13px] py-1.5 rounded border border-pink-500/30 transition-colors flex justify-center items-center gap-1 font-semibold"
+                                    >
+                                        <i className={`ph ${showDisagreePhrases ? 'ph-chat-teardrop-slash' : 'ph-chat-teardrop-text'}`}></i>
+                                        {showDisagreePhrases ? 'Hide Phrases' : 'Disagree Phrases'}
+                                    </button>
+                                </div>
+
+                                {/* Hidden Display Area */}
+                                {showDisagreeHint && (
+                                    <div className="bg-black/50 rounded-lg p-3 border border-rose-500/50 mb-3 animate-fade-in shadow-inner text-rose-100 text-[15px] leading-relaxed flex-shrink-0">
+                                        {currentTopic.disagreeText}
+                                    </div>
+                                )}
+                                {showDisagreePhrases && (
+                                    <div className="bg-black/50 rounded-lg p-2.5 border border-pink-500/50 mb-3 animate-fade-in shadow-inner flex flex-col gap-1.5 flex-shrink-0">
+                                        {DISAGREE_PHRASES.map((phrase, idx) => (
+                                            <div key={idx} className="text-[13px] leading-tight">
+                                                <span className="text-pink-300 font-bold mr-1">▶</span>
+                                                <span className="text-pink-100">{phrase.en}</span> <span className="text-pink-200/70 text-[11px]">({phrase.zh})</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Topic Vocabulary Tags (10 words) */}
+                                <div className="mt-auto border-t border-white/10 pt-2 flex-shrink-0">
+                                    <span className="text-rose-400 text-xs font-bold uppercase tracking-wider mb-2 block">Con Vocabulary (10)</span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {currentTopic.disagreeVocab.map((word, idx) => (
+                                            <span key={idx} className="bg-black/30 border border-rose-500/20 text-rose-100/90 text-[11px] px-2 py-1 rounded-md shadow-sm">
+                                                {word}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                     </main>
-
-                    {/* Phrase Bank Modal Overlay */}
-                    {showPhraseBank && (
-                        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                            <div className="bg-slate-800 border border-indigo-500/30 rounded-2xl p-6 max-w-2xl w-full shadow-2xl flex flex-col max-h-[85vh]">
-                                <div className="flex justify-between items-center mb-4 flex-shrink-0 border-b border-white/10 pb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-indigo-500 p-2 rounded-lg"><i className="ph ph-translate text-xl text-white"></i></div>
-                                        <h2 className="text-2xl font-bold text-white">Debate Phrase Bank</h2>
-                                    </div>
-                                    <button onClick={() => setShowPhraseBank(false)} className="text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full">
-                                        <i className="ph ph-x text-xl"></i>
-                                    </button>
-                                </div>
-                                
-                                <div className="overflow-y-auto flex-grow space-y-3 pr-2">
-                                    {phraseBank.map((phrase, idx) => (
-                                        <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
-                                            <p className="text-indigo-300 font-semibold text-lg mb-1">{phrase.en}</p>
-                                            <p className="text-gray-400 text-sm">{phrase.zh}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                                
-                                <div className="mt-4 pt-4 border-t border-white/10 text-center flex-shrink-0">
-                                    <button onClick={() => setShowPhraseBank(false)} className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition-colors">
-                                        Close (关闭)
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             );
         };
