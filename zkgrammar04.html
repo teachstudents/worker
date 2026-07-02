@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZhongKao English Grammar Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            overflow-y: scroll;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Coin Animation Styles */
+        .coin-anim {
+            position: fixed;
+            font-size: 24px;
+            z-index: 100;
+            pointer-events: none;
+            animation: flyToScore 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes flyToScore {
+            0% { 
+                transform: translate(0, 0) scale(1); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(var(--tx), var(--ty)) scale(0.5); 
+                opacity: 0; 
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- STANDARD SETS (A2/B1 Level) ---
+        const generateSet = (setId, theme) => {
+            return [
+                { id: 1, rule: "Present Continuous", correct: "C", 
+                  question: `— What is the ${theme} team doing?\n— They _________ a new project right now.`,
+                  options: { A: "start", B: "started", C: "are starting", D: "were starting" },
+                  explanation: "The question asks about an action happening right now.",
+                  studentExample: "I am studying for my exams right now." },
+                { id: 2, rule: "Passive Voice (Past)", correct: "B", 
+                  question: `The new ${theme} facility _________ last year.`,
+                  options: { A: "builds", B: "was built", C: "built", D: "is built" },
+                  explanation: "'Last year' indicates past time. The facility receives the action.",
+                  studentExample: "My locker was cleaned out last week." },
+                { id: 3, rule: "First Conditional", correct: "A", 
+                  question: `If we _________ hard, the ${theme} event will be a success.`,
+                  options: { A: "work", B: "worked", C: "will work", D: "have worked" },
+                  explanation: "The 'If-clause' uses the present tense for a real future possibility.",
+                  studentExample: "If I finish my homework, I will play games." },
+                { id: 4, rule: "Present Perfect", correct: "D", 
+                  question: `She _________ three books on ${theme} since Monday.`,
+                  options: { A: "reads", B: "read", C: "is reading", D: "has read" },
+                  explanation: "'Since Monday' shows an action continuing from the past to the present.",
+                  studentExample: "I have known my best friend since 7th grade." },
+                { id: 5, rule: "Possessive Pronoun", correct: "B", 
+                  question: `Mary loves ${theme} and _________ favorite class is history.`,
+                  options: { A: "his", B: "her", C: "your", D: "their" },
+                  explanation: "'Mary' is female singular, so use 'her'.",
+                  studentExample: "Sarah left her backpack in the cafeteria." },
+                { id: 6, rule: "Indefinite Pronoun", correct: "C", 
+                  question: `Is there _________ interesting in today's ${theme} magazine?`,
+                  options: { A: "everything", B: "nothing", C: "anything", D: "something" },
+                  explanation: "Use 'anything' in question forms when asking if a thing exists.",
+                  studentExample: "Is there anything good for lunch today?" },
+                { id: 7, rule: "Object Clause", correct: "C", 
+                  question: `— Do you know _________ the ${theme} club meets?\n— In Room 204.`,
+                  options: { A: "what", B: "that", C: "where", D: "if" },
+                  explanation: "The answer is a place ('In Room 204'), so we use 'where'.",
+                  studentExample: "Do you know where the gym is?" },
+                { id: 8, rule: "Object Clause (Time)", correct: "B", 
+                  question: `Can you tell me _________ the ${theme} presentation will begin?`,
+                  options: { A: "that", B: "when", C: "if", D: "what" },
+                  explanation: "The context of the question implies asking about time.",
+                  studentExample: "Can you tell me when the bell will ring?" },
+                { id: 9, rule: "Prepositions", correct: "A", 
+                  question: `The big ${theme} conference is _________ October 15th.`,
+                  options: { A: "on", B: "in", C: "at", D: "for" },
+                  explanation: "Use 'on' for specific dates and days.",
+                  studentExample: "My birthday party is on Friday." },
+                { id: 10, rule: "Comparative Adjectives", correct: "B", 
+                  question: `— Which is _________ for you: ${theme} or art?\n— It depends.`,
+                  options: { A: "good", B: "better", C: "best", D: "the best" },
+                  explanation: "Comparing exactly two items.",
+                  studentExample: "Which subject is harder: math or physics?" },
+                { id: 11, rule: "Conjunctions", correct: "D", 
+                  question: `I want to join the ${theme} club, _________ I don't have enough time.`,
+                  options: { A: "so", B: "or", C: "and", D: "but" },
+                  explanation: "'But' shows a contrast between wanting to join and not having time.",
+                  studentExample: "I wanted to sleep in, but I had early practice." },
+                { id: 12, rule: "Articles", correct: "A", 
+                  question: `He is _________ honest boy who loves studying ${theme}.`,
+                  options: { A: "an", B: "a", C: "the", D: "/" },
+                  explanation: "'Honest' starts with a vowel sound (silent H), so use 'an'.",
+                  studentExample: "It is an honor to be the class president." }
+            ];
+        };
+
+        // --- INTERMEDIATE SETS (B1 Level) ---
+        const generateIntermediateSet = (setId, theme) => {
+            return [
+                { id: 1, rule: "Present Continuous", correct: "C", 
+                  question: `— Why is the ${theme} club so busy?\n— They _________ a school-wide exhibition.`,
+                  options: { A: "organize", B: "organized", C: "are organizing", D: "were organizing" },
+                  explanation: "The question refers to an action actively happening around the present time.",
+                  studentExample: "I am organizing my notes for the final exam." },
+                { id: 2, rule: "Passive Voice (Past)", correct: "B", 
+                  question: `The ancient ${theme} artifacts _________ by scientists last month.`,
+                  options: { A: "discover", B: "were discovered", C: "discovered", D: "are discovered" },
+                  explanation: "'Last month' requires the past tense, and artifacts receive the action (passive).",
+                  studentExample: "The old science lab was renovated last summer." },
+                { id: 3, rule: "First Conditional", correct: "A", 
+                  question: `If the teacher _________ us, we will participate in the ${theme} competition.`,
+                  options: { A: "encourages", B: "encouraged", C: "will encourage", D: "have encouraged" },
+                  explanation: "First conditional 'If-clauses' use the simple present tense for likely future scenarios.",
+                  studentExample: "If the principal approves it, we will host a talent show." },
+                { id: 4, rule: "Present Perfect", correct: "D", 
+                  question: `He _________ three documentaries about ${theme} since the term started.`,
+                  options: { A: "watches", B: "watched", C: "is watching", D: "has watched" },
+                  explanation: "The word 'since' connects an action starting in the past to the present.",
+                  studentExample: "I have written three essays since the semester began." },
+                { id: 5, rule: "Possessive Pronoun", correct: "A", 
+                  question: `Julia brought her ${theme} project, but Tom forgot _________.`,
+                  options: { A: "his", B: "hers", C: "yours", D: "theirs" },
+                  explanation: "Refers back to 'Tom' (male), needing the absolute possessive form 'his'.",
+                  studentExample: "Tom forgot his gym uniform, so he had to sit out." },
+                { id: 6, rule: "Indefinite Pronoun", correct: "C", 
+                  question: `Did the speaker say _________ important about ${theme} during the assembly?`,
+                  options: { A: "everything", B: "nothing", C: "anything", D: "something" },
+                  explanation: "Use 'anything' in question forms when asking if a thing exists or occurred.",
+                  studentExample: "Did Mr. Smith announce anything important in homeroom?" },
+                { id: 7, rule: "Object Clause", correct: "C", 
+                  question: `— Can you remember _________ the ${theme} museum is located?\n— On Main Street.`,
+                  options: { A: "what", B: "that", C: "where", D: "if" },
+                  explanation: "The response is a location ('On Main Street'), so use 'where'.",
+                  studentExample: "Do you know where the counseling office is?" },
+                { id: 8, rule: "Object Clause (Time)", correct: "B", 
+                  question: `Please let us know _________ the ${theme} field trip will begin.`,
+                  options: { A: "that", B: "when", C: "if", D: "what" },
+                  explanation: "The context implies inquiring about the starting time.",
+                  studentExample: "Can you tell me when the pep rally will begin?" },
+                { id: 9, rule: "Prepositions", correct: "A", 
+                  question: `The next ${theme} seminar is scheduled _________ Thursday morning.`,
+                  options: { A: "on", B: "in", C: "at", D: "for" },
+                  explanation: "Use 'on' for specific days, even when attached to parts of the day.",
+                  studentExample: "My college interview is on Thursday morning." },
+                { id: 10, rule: "Comparative Adjectives", correct: "B", 
+                  question: `Many students think learning ${theme} is _________ than memorizing dates.`,
+                  options: { A: "interesting", B: "more interesting", C: "most interesting", D: "the most interesting" },
+                  explanation: "The word 'than' signals a comparison, and 'interesting' requires 'more'.",
+                  studentExample: "Playing a sport is more interesting than just running on a track." },
+                { id: 11, rule: "Conjunctions", correct: "D", 
+                  question: `We prepared well for the ${theme} debate, _________ we still felt quite nervous.`,
+                  options: { A: "so", B: "or", C: "and", D: "but" },
+                  explanation: "'But' shows a contrast between preparing well and still feeling nervous.",
+                  studentExample: "We studied for hours, but we still felt anxious about the test." },
+                { id: 12, rule: "Articles", correct: "A", 
+                  question: `Attending a ${theme} workshop is _________ excellent way to learn new skills.`,
+                  options: { A: "an", B: "a", C: "the", D: "/" },
+                  explanation: "'Excellent' begins with a vowel sound, requiring 'an'.",
+                  studentExample: "Getting accepted into that summer program is an excellent opportunity." }
+            ];
+        };
+
+        // --- ADVANCED SETS (B2 Level) ---
+        const generateAdvancedSet = (setId, theme) => {
+            return [
+                { id: 1, rule: "Present Continuous", correct: "C",
+                  question: `— What is the ${theme} committee currently debating?\n— They _________ the implications of the new policy.`,
+                  options: { A: "analyze", B: "analyzed", C: "are analyzing", D: "were analyzing" },
+                  explanation: "The question refers to an ongoing debate at the current moment.",
+                  studentExample: "I am currently preparing my university applications." },
+                { id: 2, rule: "Passive Voice (Past)", correct: "B",
+                  question: `The controversial ${theme} theory _________ by scholars in the late 1990s.`,
+                  options: { A: "proposes", B: "was proposed", C: "proposed", D: "is proposed" },
+                  explanation: "'In the late 1990s' requires past tense, and the theory receives the action.",
+                  studentExample: "The new school dress code was introduced last semester." },
+                { id: 3, rule: "First Conditional", correct: "A",
+                  question: `Provided the research team _________ adequate funding, the ${theme} study will proceed as scheduled.`,
+                  options: { A: "secures", B: "secured", C: "will secure", D: "have secured" },
+                  explanation: "In first conditional sentences, the condition clause uses the present tense to refer to future possibilities.",
+                  studentExample: "If I pass the advanced exam, I will apply for the scholarship." },
+                { id: 4, rule: "Present Perfect", correct: "D",
+                  question: `The professor _________ several groundbreaking articles on ${theme} since the decade began.`,
+                  options: { A: "publishes", B: "published", C: "is publishing", D: "has published" },
+                  explanation: "'Since' indicates an action starting in the past and continuing to the present.",
+                  studentExample: "I have volunteered at the local library since my freshman year." },
+                { id: 5, rule: "Possessive Pronoun", correct: "B",
+                  question: `The lead researcher defended her methodology, asserting that the data was entirely _________.`,
+                  options: { A: "his", B: "hers", C: "yours", D: "theirs" },
+                  explanation: "Refers back to 'her', needing the absolute possessive form 'hers'.",
+                  studentExample: "My sister bought a new laptop, so the old one is hers." },
+                { id: 6, rule: "Indefinite Pronoun", correct: "C",
+                  question: `Despite rigorous analysis, they couldn't find _________ conclusive in the ${theme} report.`,
+                  options: { A: "everything", B: "nothing", C: "anything", D: "something" },
+                  explanation: "In negative sentences ('couldn't find'), 'anything' is used.",
+                  studentExample: "I couldn't find anything relevant for my research paper." },
+                { id: 7, rule: "Object Clause", correct: "C",
+                  question: `— Has the board determined _________ the next ${theme} summit will take place?\n— In Geneva.`,
+                  options: { A: "what", B: "that", C: "where", D: "whether" },
+                  explanation: "The response is a location, so the clause must begin with 'where'.",
+                  studentExample: "Do you know where the graduation ceremony will be held?" },
+                { id: 8, rule: "Object Clause (Time)", correct: "B",
+                  question: `We are yet to ascertain _________ the revised ${theme} guidelines will be implemented.`,
+                  options: { A: "that", B: "when", C: "if", D: "what" },
+                  explanation: "The context implies inquiring about the timeframe of implementation.",
+                  studentExample: "Can you confirm when the final grades will be posted?" },
+                { id: 9, rule: "Prepositions", correct: "A",
+                  question: `The seminal paper on ${theme} will be published _________ Monday morning.`,
+                  options: { A: "on", B: "in", C: "at", D: "for" },
+                  explanation: "Use 'on' for specific days, even when accompanied by parts of the day.",
+                  studentExample: "My final presentation is on Wednesday afternoon." },
+                { id: 10, rule: "Comparative Adjectives", correct: "B",
+                  question: `Recent ${theme} models are significantly _________ at predicting fluctuations than previous ones.`,
+                  options: { A: "good", B: "better", C: "best", D: "the best" },
+                  explanation: "The word 'than' signals a comparison between two generations of models.",
+                  studentExample: "This study guide is significantly better than the old textbook." },
+                { id: 11, rule: "Conjunctions", correct: "D",
+                  question: `The ${theme} initiative was highly ambitious, _________ it ultimately failed due to lack of resources.`,
+                  options: { A: "so", B: "or", C: "and", D: "but" },
+                  explanation: "'But' introduces a contrast between the ambitious goal and the ultimate failure.",
+                  studentExample: "The test was challenging, but I managed to finish it on time." },
+                { id: 12, rule: "Articles", correct: "A",
+                  question: `Implementing such a complex ${theme} strategy is _________ unprecedented challenge.`,
+                  options: { A: "an", B: "a", C: "the", D: "/" },
+                  explanation: "'Unprecedented' begins with a vowel sound, requiring 'an'.",
+                  studentExample: "Graduating with honors is an incredible achievement." }
+            ];
+        };
+
+        const allSets = [
+            generateSet(1, "Science"),
+            generateSet(2, "Culture"),
+            generateSet(3, "Environment"),
+            generateSet(4, "Technology"),
+            generateSet(5, "Health"),
+            generateSet(6, "Space"),
+            generateSet(7, "Robotics"),
+            generateSet(8, "Ocean"),
+            generateSet(9, "Literature"),
+            generateSet(10, "Sports"),
+            generateIntermediateSet(11, "Geography"),
+            generateIntermediateSet(12, "History"),
+            generateIntermediateSet(13, "Music"),
+            generateIntermediateSet(14, "Drama"),
+            generateIntermediateSet(15, "Coding"),
+            generateAdvancedSet(16, "Psychology"),
+            generateAdvancedSet(17, "Economics"),
+            generateAdvancedSet(18, "Global Affairs"),
+            generateAdvancedSet(19, "Architecture"),
+            generateAdvancedSet(20, "Bioethics")
+        ];
+
+        const App = () => {
+            const [appState, setAppState] = useState('start'); // 'start', 'quiz', 'result'
+            const [selectedSetIndex, setSelectedSetIndex] = useState(0);
+            const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [isSpeaking, setIsSpeaking] = useState(false);
+            const [coins, setCoins] = useState([]);
+            const [mistakes, setMistakes] = useState([]);
+            const [completedSets, setCompletedSets] = useState({}); // Track completion: { setIndex: {score, mistakes} }
+            
+            const scoreRef = useRef(null);
+            const preferredVoices = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
+
+            // Initialize Voices
+            useEffect(() => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.getVoices();
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        window.speechSynthesis.getVoices();
+                    };
+                }
+            }, []);
+
+            const qData = allSets[selectedSetIndex];
+            const q = qData ? qData[currentQuestionIndex] : null;
+
+            const speakText = (text, isCorrectFeedback = false) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); 
+                    
+                    const readableText = isCorrectFeedback ? text : text.replace(/_________/g, 'blank');
+                    const utterance = new SpeechSynthesisUtterance(readableText);
+                    
+                    // 85% rate for questions, normal rate for "Correct!"
+                    utterance.rate = isCorrectFeedback ? 1.0 : 0.85; 
+                    
+                    // Voice Selection Logic
+                    const availableVoices = window.speechSynthesis.getVoices();
+                    const matchedVoices = availableVoices.filter(v => 
+                        preferredVoices.some(pv => v.name.includes(pv))
+                    );
+
+                    if (matchedVoices.length > 0) {
+                        const randomVoice = matchedVoices[Math.floor(Math.random() * matchedVoices.length)];
+                        utterance.voice = randomVoice;
+                        
+                        utterance.onstart = () => !isCorrectFeedback && setIsSpeaking(true);
+                        utterance.onend = () => !isCorrectFeedback && setIsSpeaking(false);
+                        utterance.onerror = () => !isCorrectFeedback && setIsSpeaking(false);
+                        
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        if (!isCorrectFeedback) {
+                            alert("Audio is restricted to specific Microsoft Multilingual voices (e.g., Giuseppe, Remy). Please open this page in Microsoft Edge to hear the audio.");
+                        }
+                    }
+                }
+            };
+
+            const handleStart = (index) => {
+                setSelectedSetIndex(index);
+                setAppState('quiz');
+                setScore(0);
+                setCurrentQuestionIndex(0);
+                setSelectedAnswer(null);
+                setMistakes([]);
+            };
+
+            const triggerCoinAnimation = (startX, startY) => {
+                if (!scoreRef.current) return;
+                const scoreRect = scoreRef.current.getBoundingClientRect();
+                const targetX = scoreRect.left + (scoreRect.width / 2);
+                const targetY = scoreRect.top + (scoreRect.height / 2);
+
+                const tx = targetX - startX;
+                const ty = targetY - startY;
+
+                const newCoin = { id: Date.now(), x: startX, y: startY, tx, ty };
+                setCoins(prev => [...prev, newCoin]);
+
+                setTimeout(() => {
+                    setCoins(prev => prev.filter(c => c.id !== newCoin.id));
+                }, 800);
+            };
+
+            const handleAnswerSelect = (key, event) => {
+                if (selectedAnswer) return; 
+                setSelectedAnswer(key);
+
+                if (key === q.correct) {
+                    setScore(score + 1);
+                    speakText("Correct!", true);
+                    
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const startX = rect.left + rect.width / 2;
+                    const startY = rect.top + rect.height / 2;
+                    triggerCoinAnimation(startX, startY);
+                } else {
+                    setMistakes(prev => [...prev, {
+                        qNum: currentQuestionIndex + 1,
+                        question: q.question,
+                        rule: q.rule,
+                        wrongAns: q.options[key],
+                        correctAns: q.options[q.correct],
+                        explanation: q.explanation
+                    }]);
+                }
+            };
+
+            const handleNextQuestion = () => {
+                window.speechSynthesis.cancel(); 
+                if (currentQuestionIndex < qData.length - 1) {
+                    setCurrentQuestionIndex(currentQuestionIndex + 1);
+                    setSelectedAnswer(null);
+                } else {
+                    // Mark set as completed before navigating to results
+                    setCompletedSets(prev => ({
+                        ...prev, 
+                        [selectedSetIndex]: { score: score, mistakes: mistakes.length }
+                    }));
+                    setAppState('result');
+                }
+            };
+
+            const renderStartScreen = () => (
+                <div className="flex flex-col items-center justify-center min-h-[90vh] fade-in px-4 py-8">
+                    <div className="w-full max-w-2xl text-center mb-8">
+                        <div className="text-blue-600 text-5xl mb-3">
+                            <i className="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h1 className="text-3xl font-bold text-gray-800">Select Practice Set</h1>
+                        <p className="text-gray-500 mt-2">20 authentic grammar tests • Built-in audio support</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl w-full">
+                        {allSets.map((_, i) => {
+                            const isIntermediate = i >= 10 && i < 15;
+                            const isAdvanced = i >= 15;
+                            const isComplete = completedSets[i] !== undefined;
+                            
+                            let borderColor = 'border-blue-100 hover:border-blue-500';
+                            let textColor = 'text-blue-500';
+                            if (isComplete) {
+                                borderColor = 'border-green-400 bg-green-50';
+                                textColor = 'text-green-700';
+                            } else if (isAdvanced) {
+                                borderColor = 'border-purple-200 hover:border-purple-500';
+                                textColor = 'text-purple-600';
+                            } else if (isIntermediate) {
+                                borderColor = 'border-teal-200 hover:border-teal-500';
+                                textColor = 'text-teal-600';
+                            }
+
+                            return (
+                                <button 
+                                    key={i}
+                                    onClick={() => handleStart(i)}
+                                    className={`relative bg-white border-2 hover:shadow-lg rounded-xl p-5 flex flex-col items-center transition transform hover:-translate-y-1 ${borderColor}`}
+                                >
+                                    {isComplete && (
+                                        <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs shadow-sm">
+                                            <i className="fa-solid fa-check"></i>
+                                        </div>
+                                    )}
+                                    {isAdvanced && !isComplete && (
+                                        <div className="absolute top-2 right-2 text-purple-400 text-xs font-bold">
+                                            B2
+                                        </div>
+                                    )}
+                                    {isIntermediate && !isComplete && (
+                                        <div className="absolute top-2 right-2 text-teal-500 text-xs font-bold">
+                                            B1
+                                        </div>
+                                    )}
+                                    
+                                    <span className={`font-bold text-xl mb-1 ${textColor}`}>
+                                        Set {i + 1}
+                                    </span>
+                                    
+                                    {isComplete ? (
+                                        <span className="text-sm font-semibold text-green-600 mt-1">{completedSets[i].score}/12 Correct</span>
+                                    ) : (
+                                        <span className="text-sm text-gray-500 mt-1">
+                                            {isAdvanced ? 'Advanced Grammar' : (isIntermediate ? 'Intermediate Grammar' : '12 Questions')}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+
+            const renderResultScreen = () => {
+                const percentage = (score / qData.length) * 100;
+                let message, icon, color;
+                
+                if (percentage >= 90) { message = "Excellent! ZhongKao ready!"; icon = "fa-trophy"; color = "text-yellow-500"; }
+                else if (percentage >= 70) { message = "Great job! A little more practice."; icon = "fa-star"; color = "text-blue-500"; }
+                else { message = "Keep studying! Review your mistakes below."; icon = "fa-book-open"; color = "text-indigo-500"; }
+
+                return (
+                    <div className="max-w-3xl mx-auto py-8 px-4 fade-in">
+                        <div className="bg-white p-6 rounded-2xl shadow-md text-center mb-6 border-t-4 border-blue-500">
+                            <div className={`text-5xl mb-2 ${color}`}><i className={`fa-solid ${icon}`}></i></div>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-1">Set Complete!</h2>
+                            <p className="text-lg text-gray-600 mb-4">Score: <span className="font-bold text-blue-600">{score}</span> / {qData.length}</p>
+                            
+                            <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+                                <div className="bg-blue-600 h-3 rounded-full" style={{ width: `${percentage}%` }}></div>
+                            </div>
+                            <p className="font-semibold text-gray-700">{message}</p>
+                            
+                            <button onClick={() => setAppState('start')} className="mt-5 bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold py-3 px-8 rounded-xl transition shadow-md">
+                                <i className="fa-solid fa-list mr-2"></i> Return to Menu
+                            </button>
+                        </div>
+
+                        {mistakes.length > 0 && (
+                            <div className="bg-white p-6 rounded-2xl shadow-md">
+                                <h3 className="text-xl font-bold text-red-600 mb-4 border-b pb-2">
+                                    <i className="fa-solid fa-triangle-exclamation mr-2"></i>Mistakes Review ({mistakes.length})
+                                </h3>
+                                <div className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                                    {mistakes.map((m, i) => (
+                                        <div key={i} className="bg-red-50 p-4 rounded-xl border border-red-100">
+                                            <p className="text-sm font-bold text-gray-500 mb-1">Q{m.qNum} - {m.rule}</p>
+                                            <p className="text-gray-800 font-medium mb-2 whitespace-pre-line leading-snug">{m.question}</p>
+                                            <div className="flex flex-col sm:flex-row sm:gap-4 text-sm mt-2">
+                                                <div className="text-red-700"><i className="fa-solid fa-xmark mr-1"></i> You chose: <strong>{m.wrongAns}</strong></div>
+                                                <div className="text-green-700"><i className="fa-solid fa-check mr-1"></i> Correct: <strong>{m.correctAns}</strong></div>
+                                            </div>
+                                            <p className="text-xs text-gray-600 mt-2 bg-white p-2 rounded border"><i className="fa-solid fa-lightbulb text-yellow-500 mr-1"></i> {m.explanation}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {mistakes.length === 0 && (
+                            <div className="bg-green-50 text-green-700 p-4 rounded-xl text-center border border-green-200">
+                                <i className="fa-solid fa-check-double mr-2"></i> Flawless run! No mistakes to review.
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            const renderQuizScreen = () => {
+                const progressPercentage = ((currentQuestionIndex) / qData.length) * 100;
+                const isIntermediate = selectedSetIndex >= 10 && selectedSetIndex < 15;
+                const isAdvanced = selectedSetIndex >= 15;
+                const setLevelText = isAdvanced ? 'B2 Advanced Set' : (isIntermediate ? 'B1 Intermediate Set' : 'Practice Set');
+                
+                return (
+                    <div className="max-w-4xl mx-auto pt-6 px-6 md:px-10 fade-in pb-12">
+                        {/* Header Area with Score Breakdown */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                            <div className="flex items-center gap-4">
+                                <button 
+                                    onClick={() => setAppState('start')}
+                                    className="bg-white border-2 border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition h-10 w-10 rounded-full flex justify-center items-center shadow-sm"
+                                    title="Return to Menu"
+                                >
+                                    <i className="fa-solid fa-house"></i>
+                                </button>
+                                <div>
+                                    <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-0.5">
+                                        {setLevelText} {selectedSetIndex + 1}
+                                    </h2>
+                                    <p className="text-lg font-bold text-gray-700">Question {currentQuestionIndex + 1} / {qData.length}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                {/* Correct / Incorrect Tracker */}
+                                <div ref={scoreRef} className="flex gap-4 text-base font-bold bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm relative z-10 w-full md:w-auto justify-center">
+                                    <div className="text-green-600 flex items-center gap-2" title="Correct">
+                                        <i className="fa-solid fa-check-circle"></i> {score}
+                                    </div>
+                                    <div className="w-px bg-gray-300"></div>
+                                    <div className="text-red-500 flex items-center gap-2" title="Incorrect">
+                                        <i className="fa-solid fa-times-circle"></i> {mistakes.length}
+                                    </div>
+                                </div>
+                                
+                                {selectedAnswer && (
+                                    <button 
+                                        onClick={handleNextQuestion}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white text-base font-bold py-2.5 px-6 rounded-full shadow-md transition animate-pulse shrink-0"
+                                    >
+                                        Next <i className="fa-solid fa-arrow-right ml-2"></i>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+                            <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progressPercentage}%` }}></div>
+                        </div>
+
+                        {/* Question Card */}
+                        <div className="bg-white rounded-3xl shadow-lg p-8 md:p-10 mb-6 relative">
+                            <div className="flex justify-between items-start mb-8 gap-6">
+                                <div className="text-2xl md:text-3xl font-medium text-gray-800 whitespace-pre-line leading-relaxed">
+                                    {q.question}
+                                </div>
+                                <button 
+                                    onClick={() => speakText(q.question)}
+                                    className={`shrink-0 h-12 w-12 rounded-full flex items-center justify-center transition-colors shadow-sm border ${isSpeaking ? 'bg-blue-100 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border-gray-200'}`}
+                                >
+                                    <i className={`fa-solid text-xl ${isSpeaking ? 'fa-volume-up fa-beat-fade' : 'fa-volume-up'}`}></i>
+                                </button>
+                            </div>
+
+                            {/* Options */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {Object.entries(q.options).map(([key, value]) => {
+                                    let btnClass = "border-2 text-left px-6 py-4 md:py-5 rounded-xl text-lg md:text-xl font-medium transition-all duration-200 focus:outline-none ";
+                                    
+                                    if (!selectedAnswer) {
+                                        btnClass += "border-gray-100 hover:border-blue-400 hover:bg-blue-50 text-gray-700 cursor-pointer shadow-sm hover:shadow";
+                                    } else {
+                                        btnClass += "cursor-default ";
+                                        if (key === q.correct) {
+                                            btnClass += "border-green-500 bg-green-50 text-green-700 shadow-md";
+                                        } else if (key === selectedAnswer && key !== q.correct) {
+                                            btnClass += "border-red-500 bg-red-50 text-red-700 opacity-70";
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50";
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={key} 
+                                            onClick={(e) => handleAnswerSelect(key, e)}
+                                            className={btnClass}
+                                            disabled={selectedAnswer !== null}
+                                        >
+                                            <span className="inline-block w-8 font-bold text-gray-400">{key}.</span> {value}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Feedback Section */}
+                        {selectedAnswer && (
+                            <div className={`rounded-2xl shadow-lg p-6 fade-in ${selectedAnswer === q.correct ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                                <div className="flex items-center gap-3 mb-3">
+                                    {selectedAnswer === q.correct ? (
+                                        <i className="fa-solid fa-circle-check text-2xl md:text-3xl text-green-600"></i>
+                                    ) : (
+                                        <i className="fa-solid fa-circle-xmark text-2xl md:text-3xl text-red-600"></i>
+                                    )}
+                                    <h3 className={`text-xl md:text-2xl font-bold ${selectedAnswer === q.correct ? 'text-green-800' : 'text-red-800'}`}>
+                                        {selectedAnswer === q.correct ? 'Correct!' : `Incorrect. Answer: ${q.correct}`}
+                                    </h3>
+                                </div>
+                                
+                                <div className="bg-white p-5 rounded-xl text-gray-800 text-base md:text-lg border border-gray-100 shadow-sm">
+                                    <p className="mb-3"><strong>Rule ({q.rule}):</strong> {q.explanation}</p>
+                                    <p className="italic text-gray-600 border-l-4 border-indigo-300 pl-3"><span className="font-semibold text-indigo-500">Student Example:</span> "{q.studentExample}"</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Coin Animations Rendering */}
+                        {coins.map(coin => (
+                            <div 
+                                key={coin.id} 
+                                className="coin-anim text-green-500 drop-shadow-md font-bold"
+                                style={{ 
+                                    left: `${coin.x}px`, 
+                                    top: `${coin.y}px`, 
+                                    '--tx': `${coin.tx}px`, 
+                                    '--ty': `${coin.ty}px` 
+                                }}
+                            >
+                                <i className="fa-solid fa-check-circle"></i> +1
+                            </div>
+                        ))}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="min-h-screen pb-10">
+                    {appState === 'start' && renderStartScreen()}
+                    {appState === 'quiz' && renderQuizScreen()}
+                    {appState === 'result' && renderResultScreen()}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

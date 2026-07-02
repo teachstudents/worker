@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice 14 - Beijing Zhongkao Advanced</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --secondary: #283593;
+            --success: #2e7d32;
+            --error: #c62828;
+            --warning: #ef6c00;
+            --light: #e8eaf6;
+            --dark: #0a1929;
+            --gray: #455a64;
+            --border: #9fa8da;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #263238;
+            background-color: #eceff1;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: visible;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #ffcc80;
+        }
+        
+        .score-display {
+            font-weight: bold;
+        }
+        
+        .difficulty-badge {
+            background: #ff5722;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .format-badge {
+            background: #1976d2;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .start-screen h2 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .difficulty-warning {
+            background: #fff3e0;
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #e65100;
+        }
+        
+        .format-info {
+            background: #e3f2fd;
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0d47a1;
+        }
+        
+        .name-input-group {
+            margin: 30px 0;
+        }
+        
+        .name-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .start-btn:hover {
+            background: #1a237e;
+        }
+        
+        .start-btn:disabled {
+            background: #90a4ae;
+            cursor: not-allowed;
+        }
+        
+        .instructions {
+            background: var(--light);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* Two-Column Layout for Test Content */
+        .test-layout {
+            display: none;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .test-layout.active {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            animation: fadeIn 0.4s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Left Column: Passage Text */
+        .passage-column {
+            padding-right: 15px;
+            border-right: 1px solid var(--border);
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        
+        .passage-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .passage-text {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .passage-text p {
+            margin-bottom: 15px;
+        }
+        
+        /* Right Column: Questions */
+        .questions-column {
+            padding-left: 15px;
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .question-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .skill-tag {
+            background: #c5cae9;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .option-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-btn:hover {
+            background: #f5f5f5;
+            border-color: var(--secondary);
+        }
+        
+        .option-btn.correct {
+            background: #c8e6c9;
+            border-color: var(--success);
+            color: #1b5e20;
+            font-weight: 500;
+        }
+        
+        .option-btn.incorrect {
+            background: #ffcdd2;
+            border-color: var(--error);
+            color: #b71c1c;
+            font-weight: 500;
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .option-btn.correct .option-letter {
+            background: var(--success);
+        }
+        
+        .option-btn.incorrect .option-letter {
+            background: var(--error);
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #c8e6c9;
+            border: 1px solid var(--success);
+            color: #1b5e20;
+        }
+        
+        .feedback.incorrect {
+            background: #ffcdd2;
+            border: 1px solid var(--error);
+            color: #b71c1c;
+        }
+        
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+        
+        /* Navigation */
+        .navigation {
+            padding: 15px 25px;
+            background: var(--light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev {
+            background: #78909c;
+            color: white;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            background: #1a237e;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .passage-indicator {
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+        
+        .results-screen.active {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 25px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        
+        .results-header {
+            margin-bottom: 30px;
+        }
+        
+        .results-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .results-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .meta-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+        
+        .skills-summary {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .skills-summary h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: var(--light);
+        }
+        
+        .skill-item.missed {
+            background: #ffebee;
+            border-left: 4px solid var(--error);
+        }
+        
+        .skill-item.mastered {
+            border-left: 4px solid var(--success);
+        }
+        
+        .export-section {
+            margin: 35px 0;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-wechat {
+            background: #07c160;
+            color: white;
+        }
+        
+        .btn-email {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn-lms {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-download {
+            background: #5e35b1;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(200px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .test-layout.active {
+                grid-template-columns: 1fr;
+            }
+            
+            .passage-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+                max-height: none;
+            }
+            
+            .questions-column {
+                padding-left: 0;
+                max-height: none;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .header-stats {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .passage-text {
+                padding: 20px 15px;
+                font-size: 1rem;
+            }
+            
+            .question-box {
+                padding: 12px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .export-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                Reading Practice 14
+                <span class="difficulty-badge">ADVANCED</span>
+                <span class="format-badge">BEIJING FORMAT</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span>⏱️</span>
+                    <span class="timer" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span>✅</span>
+                    <span class="score-display" id="score-display">0/14</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <h2>Welcome to Reading Practice 14</h2>
+            <p class="difficulty-warning">⚠️ <strong>Advanced Difficulty Level</strong><br>
+            This practice test features longer passages, complex vocabulary, and challenging question types. Recommended for students who have completed Practices 01-13.</p>
+            
+            <div class="format-info">
+                📍 <strong>Beijing Zhongkao Format</strong><br>
+                • 4 Passages (A-D) instead of 5<br>
+                • 14 Questions total (not 20)<br>
+                • 26-30 points for reading section<br>
+                • More emphasis on reading expression skills<br>
+                • Estimated time: 35-40 minutes
+            </div>
+            
+            <div class="name-input-group">
+                <label for="tester-name">Your Name (Pinyin or English only)</label>
+                <input type="text" id="tester-name" class="name-input" placeholder="e.g., Li Xiaoming or Emily Wang">
+                <div class="error-message" id="name-error">Please use Pinyin or English characters only. Chinese characters are not accepted.</div>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Test Instructions:</strong></p>
+                <ul>
+                    <li>Read each passage carefully before answering questions</li>
+                    <li>Select the best answer for each question</li>
+                    <li>You will receive immediate feedback after each answer</li>
+                    <li>The test has 14 questions across 4 passages (Beijing format)</li>
+                    <li>Estimated time: 35-40 minutes</li>
+                    <li>Passages contain complex sentence structures and advanced vocabulary</li>
+                </ul>
+            </div>
+            
+            <button class="start-btn" id="start-btn">Start Test</button>
+        </div>
+        
+        <!-- Test Layout: Two Columns -->
+        <div class="test-layout" id="test-layout">
+            <!-- Left Column: Passage Text -->
+            <div class="passage-column">
+                <!-- Passage A: Beijing's Green Olympics Legacy -->
+                <div class="passage-section active" data-passage="1">
+                    <h2 class="passage-title">Passage A: Beijing's Green Olympics Legacy</h2>
+                    <div class="passage-text">
+                        <p>The 2008 Beijing Olympics introduced the concept of a "Green Olympics," emphasizing environmental sustainability alongside athletic excellence. This legacy continues to influence urban development and environmental policies in Beijing today.</p>
+                        <p><strong>🌱 Environmental Innovations:</strong> For the Olympics, Beijing implemented numerous green initiatives: expanding public transportation, using renewable energy in venues, improving air quality monitoring, and creating extensive green spaces. Many of these projects became permanent features of the city.</p>
+                        <p><strong>🏙️ Urban Transformation:</strong> The Olympics accelerated Beijing's transformation into a more sustainable city. Old industrial areas were redeveloped with environmental standards. New districts incorporated green building designs. Public awareness of environmental issues increased significantly.</p>
+                        <p><strong>🔄 Long-term Impact:</strong> Post-Olympics, Beijing continued environmental efforts. The city set ambitious targets for carbon reduction, expanded its subway system, and promoted electric vehicles. These efforts contributed to measurable improvements in air quality over the following decade.</p>
+                        <p><strong>🌍 Global Influence:</strong> Beijing's Green Olympics model influenced other host cities worldwide. The integration of environmental considerations into major event planning became a standard practice, demonstrating how large-scale projects can advance sustainability goals.</p>
+                        <p><strong>💭 Lessons for Future Development:</strong> The Olympic experience showed that environmental protection and economic development can complement each other. Sustainable urban planning requires long-term vision, technological innovation, and public participation—principles that continue to guide Beijing's development.</p>
+                        <p><em>Key Vocabulary: sustainability, initiatives, transformation, measurable, integration, complement</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage B: Traditional Chinese Calligraphy -->
+                <div class="passage-section" data-passage="2">
+                    <h2 class="passage-title">Passage B: The Art of Chinese Calligraphy in Modern Life</h2>
+                    <div class="passage-text">
+                        <p>Chinese calligraphy, with its history spanning thousands of years, remains a vital cultural practice that connects tradition with contemporary life. This ancient art form continues to inspire and educate people of all ages.</p>
+                        <p><strong>✍️ Cultural Significance:</strong> Calligraphy is more than beautiful writing—it embodies Chinese philosophical concepts of balance, harmony, and self-cultivation. Each stroke reflects the writer's mental state and artistic expression. Mastering calligraphy requires patience, discipline, and deep understanding of Chinese characters.</p>
+                        <p><strong>🎨 Modern Applications:</strong> Today, calligraphy appears in diverse contexts: logo design, architectural elements, digital fonts, and contemporary art. Artists blend traditional techniques with modern materials and themes, keeping the art form relevant for new generations.</p>
+                        <p><strong>🧠 Educational Benefits:</strong> Learning calligraphy develops fine motor skills, concentration, and aesthetic appreciation. Research suggests it may support cognitive development and emotional regulation. Many schools incorporate calligraphy into curricula to strengthen cultural identity and artistic skills.</p>
+                        <p><strong>🤝 Community Connections:</strong> Calligraphy clubs and workshops bring together people across ages and backgrounds. These gatherings preserve cultural knowledge while fostering social bonds. International interest in calligraphy also promotes cross-cultural understanding.</p>
+                        <p><strong>💡 Preserving Tradition While Embracing Change:</strong> The enduring appeal of calligraphy lies in its adaptability. While honoring traditional methods, practitioners explore innovative expressions. This balance between preservation and evolution ensures calligraphy remains a living art form for future generations.</p>
+                        <p><em>Key Vocabulary: embodies, cultivation, aesthetic, regulation, adaptability, evolution</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage C: Scientific Thinking Skills -->
+                <div class="passage-section" data-passage="3">
+                    <h2 class="passage-title">Passage C: Developing Scientific Thinking in Everyday Life</h2>
+                    <div class="passage-text">
+                        <p>Scientific thinking—the ability to ask questions, gather evidence, and draw logical conclusions—is valuable far beyond laboratory settings. These skills help individuals navigate complex information and make informed decisions in daily life.</p>
+                        <p><strong>🔍 Core Components:</strong> Scientific thinking involves curiosity about how things work, skepticism toward unverified claims, systematic observation, and willingness to revise beliefs based on evidence. These habits of mind support critical thinking across all domains.</p>
+                        <p><strong>📱 Digital Age Applications:</strong> In an era of abundant information, scientific thinking helps evaluate online content. Questions like "What is the source?", "What evidence supports this?", and "Are there alternative explanations?" enable people to distinguish reliable information from misinformation.</p>
+                        <p><strong>🏫 Educational Approaches:</strong> Effective science education emphasizes inquiry-based learning rather than memorization. Students design experiments, analyze data, and communicate findings. This process develops not only scientific knowledge but also problem-solving and collaboration skills.</p>
+                        <p><strong>🌍 Societal Benefits:</strong> A scientifically literate population can better address complex challenges like climate change, public health, and technological ethics. When citizens understand scientific methods, they can participate more meaningfully in democratic decision-making about science-related policies.</p>
+                        <p><strong>💭 Lifelong Practice:</strong> Scientific thinking is not innate but developed through practice. Everyone can strengthen these skills by questioning assumptions, seeking diverse perspectives, and remaining open to new evidence. These habits support personal growth and contribute to a more informed society.</p>
+                        <p><em>Key Vocabulary: skepticism, systematic, inquiry-based, literate, assumptions, perspectives</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage D: Building Healthy Friendships -->
+                <div class="passage-section" data-passage="4">
+                    <h2 class="passage-title">Passage D: The Foundations of Healthy Friendships</h2>
+                    <div class="passage-text">
+                        <p>Friendships play a crucial role in emotional well-being and personal development throughout life. Understanding what makes friendships healthy helps young people build supportive relationships that enhance their lives.</p>
+                        <p><strong>🤝 Essential Qualities:</strong> Healthy friendships are characterized by mutual respect, trust, honesty, and support. Friends listen to each other, celebrate successes, and offer comfort during difficulties. These relationships allow individuals to be authentic while growing together.</p>
+                        <p><strong>💬 Communication Skills:</strong> Effective communication strengthens friendships. This includes expressing feelings clearly, listening actively, resolving conflicts respectfully, and setting appropriate boundaries. These skills develop over time through practice and reflection.</p>
+                        <p><strong>⚖️ Balance and Independence:</strong> Healthy friendships balance togetherness with individuality. Friends support each other's interests and goals while maintaining their own identities. This balance prevents dependency and promotes mutual growth.</p>
+                        <p><strong>🌱 Navigating Challenges:</strong> All friendships face difficulties. Addressing misunderstandings promptly, apologizing sincerely, and learning from conflicts strengthen relationships. Sometimes friendships naturally evolve or end, which is a normal part of life.</p>
+                        <p><strong>🌟 Long-term Value:</strong> Research shows that strong friendships contribute to mental health, stress resilience, and even physical health. Investing in quality relationships yields benefits throughout life. The skills learned in friendships—empathy, communication, compromise—transfer to family, work, and community relationships.</p>
+                        <p><em>Key Vocabulary: characterized, authenticity, boundaries, dependency, resilience, compromise</em></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Questions -->
+            <div class="questions-column">
+                <!-- Questions for Passage A -->
+                <div class="questions-section active" data-passage="1">
+                    <div class="question-box" id="qbox-1">
+                        <div class="question-meta">
+                            <span>Q1</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what concept did the 2008 Beijing Olympics introduce?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(1, 'A', this)">
+                                <span class="option-letter">A</span> "Fast Olympics"
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'B', this)">
+                                <span class="option-letter">B</span> "Green Olympics" emphasizing environmental sustainability
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'C', this)">
+                                <span class="option-letter">C</span> "Digital Olympics"
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'D', this)">
+                                <span class="option-letter">D</span> "Traditional Olympics"
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-1"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-2">
+                        <div class="question-meta">
+                            <span>Q2</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "sustainability" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(2, 'A', this)">
+                                <span class="option-letter">A</span> using resources quickly without planning
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'B', this)">
+                                <span class="option-letter">B</span> meeting present needs without compromising future generations' ability to meet their needs
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'C', this)">
+                                <span class="option-letter">C</span> focusing only on short-term economic growth
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'D', this)">
+                                <span class="option-letter">D</span> avoiding all development to protect nature
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-2"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-3">
+                        <div class="question-meta">
+                            <span>Q3</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can be inferred about Beijing's environmental efforts after the Olympics?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(3, 'A', this)">
+                                <span class="option-letter">A</span> Beijing stopped all environmental programs after the Olympics
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'B', this)">
+                                <span class="option-letter">B</span> Beijing continued and expanded environmental efforts, leading to measurable improvements
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'C', this)">
+                                <span class="option-letter">C</span> Environmental efforts were only for the Olympic event
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'D', this)">
+                                <span class="option-letter">D</span> Beijing's efforts had no impact on air quality
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-3"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-4">
+                        <div class="question-meta">
+                            <span>Q4</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(4, 'A', this)">
+                                <span class="option-letter">A</span> To criticize the Beijing Olympics
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'B', this)">
+                                <span class="option-letter">B</span> To explain how Beijing's Green Olympics created a lasting legacy of environmental sustainability
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'C', this)">
+                                <span class="option-letter">C</span> To argue that Olympics should never be held in large cities
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'D', this)">
+                                <span class="option-letter">D</span> To promote tourism in Beijing
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-4"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage B -->
+                <div class="questions-section" data-passage="2">
+                    <div class="question-box" id="qbox-5">
+                        <div class="question-meta">
+                            <span>Q5</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what does calligraphy embody?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(5, 'A', this)">
+                                <span class="option-letter">A</span> Only artistic skill
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'B', this)">
+                                <span class="option-letter">B</span> Chinese philosophical concepts of balance, harmony, and self-cultivation
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'C', this)">
+                                <span class="option-letter">C</span> Only historical knowledge
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'D', this)">
+                                <span class="option-letter">D</span> Only modern technology
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-5"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-6">
+                        <div class="question-meta">
+                            <span>Q6</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can we infer about calligraphy's role in education from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(6, 'A', this)">
+                                <span class="option-letter">A</span> Calligraphy has no educational value
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'B', this)">
+                                <span class="option-letter">B</span> Learning calligraphy develops fine motor skills, concentration, and aesthetic appreciation
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'C', this)">
+                                <span class="option-letter">C</span> Only professional artists should learn calligraphy
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'D', this)">
+                                <span class="option-letter">D</span> Calligraphy replaces other school subjects
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-6"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-7">
+                        <div class="question-meta">
+                            <span>Q7</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "adaptability" most probably means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(7, 'A', this)">
+                                <span class="option-letter">A</span> inability to change
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'B', this)">
+                                <span class="option-letter">B</span> ability to adjust to new conditions while maintaining core values
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'C', this)">
+                                <span class="option-letter">C</span> complete rejection of tradition
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'D', this)">
+                                <span class="option-letter">D</span> following rules without question
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-7"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-8">
+                        <div class="question-meta">
+                            <span>Q8</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message about Chinese calligraphy?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(8, 'A', this)">
+                                <span class="option-letter">A</span> Calligraphy is only for historical study
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'B', this)">
+                                <span class="option-letter">B</span> Chinese calligraphy remains a vital, adaptable art form that connects tradition with modern life while providing cultural and educational benefits
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'C', this)">
+                                <span class="option-letter">C</span> Calligraphy should only be practiced in traditional ways
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'D', this)">
+                                <span class="option-letter">D</span> Calligraphy has no place in contemporary society
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage C -->
+                <div class="questions-section" data-passage="3">
+                    <div class="question-box" id="qbox-9">
+                        <div class="question-meta">
+                            <span>Q9</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is one component of scientific thinking?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(9, 'A', this)">
+                                <span class="option-letter">A</span> Accepting all information without question
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'B', this)">
+                                <span class="option-letter">B</span> Skepticism toward unverified claims and systematic observation
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'C', this)">
+                                <span class="option-letter">C</span> Avoiding all disagreement
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'D', this)">
+                                <span class="option-letter">D</span> Memorizing facts without understanding
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-9"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-10">
+                        <div class="question-meta">
+                            <span>Q10</span>
+                            <span class="skill-tag">Reference</span>
+                        </div>
+                        <p class="question-text">In paragraph 3, what does "these skills" refer to?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(10, 'A', this)">
+                                <span class="option-letter">A</span> only laboratory techniques
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'B', this)">
+                                <span class="option-letter">B</span> scientific thinking skills: asking questions, gathering evidence, drawing logical conclusions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'C', this)">
+                                <span class="option-letter">C</span> only digital technology skills
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'D', this)">
+                                <span class="option-letter">D</span> only memorization skills
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-10"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-11">
+                        <div class="question-meta">
+                            <span>Q11</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, why might scientific thinking be important for citizens in a democracy?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(11, 'A', this)">
+                                <span class="option-letter">A</span> Because it helps them avoid all political discussions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'B', this)">
+                                <span class="option-letter">B</span> Because it enables them to participate more meaningfully in decisions about science-related policies
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'C', this)">
+                                <span class="option-letter">C</span> Because it guarantees they will always be right
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'D', this)">
+                                <span class="option-letter">D</span> Because it eliminates the need for voting
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-11"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-12">
+                        <div class="question-meta">
+                            <span>Q12</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(12, 'A', this)">
+                                <span class="option-letter">A</span> To argue that only scientists need scientific thinking
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'B', this)">
+                                <span class="option-letter">B</span> To explain how scientific thinking skills are valuable beyond laboratories and help individuals navigate information and contribute to society
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'C', this)">
+                                <span class="option-letter">C</span> To criticize modern education methods
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'D', this)">
+                                <span class="option-letter">D</span> To promote specific scientific products
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-12"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage D -->
+                <div class="questions-section" data-passage="4">
+                    <div class="question-box" id="qbox-13">
+                        <div class="question-meta">
+                            <span>Q13</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what characterizes healthy friendships?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(13, 'A', this)">
+                                <span class="option-letter">A</span> Competition and jealousy
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'B', this)">
+                                <span class="option-letter">B</span> Mutual respect, trust, honesty, and support
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'C', this)">
+                                <span class="option-letter">C</span> Complete agreement on all topics
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'D', this)">
+                                <span class="option-letter">D</span> Avoiding all conflicts
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-13"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-14">
+                        <div class="question-meta">
+                            <span>Q14</span>
+                            <span class="skill-tag">Author's Purpose</span>
+                        </div>
+                        <p class="question-text">What is the writer's main purpose in writing this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(14, 'A', this)">
+                                <span class="option-letter">A</span> To argue that friendships are unimportant
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'B', this)">
+                                <span class="option-letter">B</span> To explain the qualities of healthy friendships and their benefits for well-being and personal development
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'C', this)">
+                                <span class="option-letter">C</span> To criticize young people's friendship choices
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'D', this)">
+                                <span class="option-letter">D</span> To promote specific friendship apps
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-14"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation" id="navigation">
+            <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← Previous</button>
+            <span class="passage-indicator" id="passage-indicator">Passage A of 4</span>
+            <button class="nav-btn next" onclick="nextSection()" id="next-btn">Next →</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="results-screen" id="results-screen">
+            <div class="results-header">
+                <h2>Test Completed!</h2>
+                <p>Here are your results for Reading Practice 14 (Beijing Advanced)</p>
+            </div>
+            
+            <div class="score-circle" id="final-score">0/14</div>
+            
+            <div class="results-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Tester Name</div>
+                    <div class="meta-value" id="result-name">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Date & Time</div>
+                    <div class="meta-value" id="result-datetime">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Time Taken</div>
+                    <div class="meta-value" id="result-duration">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Accuracy</div>
+                    <div class="meta-value" id="result-accuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="skills-summary">
+                <h3>Reading Skills Analysis</h3>
+                <div id="skills-breakdown">
+                    <!-- Skills breakdown inserted by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <h3>Share Your Results</h3>
+                <div class="export-buttons">
+                    <button class="export-btn btn-wechat" onclick="copyForWeChat()">
+                        💬 Copy for WeChat
+                    </button>
+                    <button class="export-btn btn-email" onclick="emailResults()">
+                        📧 Email Results
+                    </button>
+                    <button class="export-btn btn-lms" onclick="downloadForLMS()">
+                        📤 Download for LMS
+                    </button>
+                    <button class="export-btn btn-download" onclick="downloadPDF()">
+                        📄 Save as PDF
+                    </button>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartTest()" style="margin-top: 20px;">
+                🔄 Take Another Practice Test
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Results copied to clipboard!</div>
+    
+    <script>
+        // Answer Key with Advanced vocabulary explanations - Beijing Format (14 questions)
+        const answers = {
+            1: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "The 2008 Beijing Olympics introduced the concept of a \'Green Olympics,\' emphasizing environmental sustainability alongside athletic excellence."<br><br>❌ A, C, D: These concepts are not mentioned in the passage.',
+                skill: 'Detail Comprehension'
+            },
+            2: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Sustainability" in environmental context means meeting present needs without compromising future generations\' ability to meet their needs—balancing development with environmental protection.<br><br>❌ A: Opposite of sustainability.<br>❌ C: Sustainability considers long-term, not just short-term.<br>❌ D: Sustainability allows development with environmental consideration.',
+                skill: 'Vocabulary in Context'
+            },
+            3: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states: "Post-Olympics, Beijing continued environmental efforts... These efforts contributed to measurable improvements in air quality over the following decade."<br><br>❌ A: Directly contradicted by passage.<br>❌ C: Efforts became permanent features.<br>❌ D: Passage mentions "measurable improvements."',
+                skill: 'Inference'
+            },
+            4: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage covers Green Olympics concept, environmental innovations, urban transformation, long-term impact, global influence, and lessons—comprehensive explanation of Beijing\'s environmental legacy.<br><br>❌ A: Passage presents Olympics positively.<br>❌ C: Not discussed.<br>❌ D: Tourism isn\'t the focus.',
+                skill: 'Main Idea'
+            },
+            5: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "Calligraphy is more than beautiful writing—it embodies Chinese philosophical concepts of balance, harmony, and self-cultivation."<br><br>❌ A: Calligraphy embodies more than just artistic skill.<br>❌ C: It\'s not only historical.<br>❌ D: Not focused on technology.',
+                skill: 'Detail Comprehension'
+            },
+            6: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states: "Learning calligraphy develops fine motor skills, concentration, and aesthetic appreciation. Research suggests it may support cognitive development and emotional regulation."<br><br>❌ A: Directly contradicted by passage.<br>❌ C: Schools incorporate it for all students.<br>❌ D: It complements other subjects.',
+                skill: 'Inference'
+            },
+            7: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: "The enduring appeal of calligraphy lies in its adaptability. While honoring traditional methods, practitioners explore innovative expressions"—adaptability means ability to adjust to new conditions while maintaining core values.<br><br>❌ A: Opposite meaning.<br>❌ C: Adaptability balances tradition and innovation.<br>❌ D: Adaptability involves thoughtful change.',
+                skill: 'Vocabulary in Context'
+            },
+            8: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage covers cultural significance, modern applications, educational benefits, community connections, and balance between tradition and innovation—comprehensive message about calligraphy\'s enduring relevance.<br><br>❌ A: Calligraphy is presented as living art.<br>❌ C: Passage encourages innovative expressions.<br>❌ D: Passage shows calligraphy\'s contemporary relevance.',
+                skill: 'Main Idea'
+            },
+            9: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 2 states scientific thinking involves "curiosity about how things work, skepticism toward unverified claims, systematic observation, and willingness to revise beliefs based on evidence."<br><br>❌ A: Opposite of skepticism.<br>❌ C: Scientific thinking welcomes disagreement with evidence.<br>❌ D: Emphasizes understanding over memorization.',
+                skill: 'Detail Comprehension'
+            },
+            10: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Opening sentence: "Scientific thinking—the ability to ask questions, gather evidence, and draw logical conclusions—is valuable far beyond laboratory settings. These skills help individuals..." — "these skills" refers to scientific thinking abilities just defined.<br><br>❌ A, C, D: Too narrow; refers to core scientific thinking skills.',
+                skill: 'Reference'
+            },
+            11: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states: "When citizens understand scientific methods, they can participate more meaningfully in democratic decision-making about science-related policies."<br><br>❌ A: Scientific thinking encourages engagement, not avoidance.<br>❌ C: Science acknowledges uncertainty.<br>❌ D: Voting remains essential.',
+                skill: 'Inference'
+            },
+            12: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage explains scientific thinking components, digital age applications, educational approaches, societal benefits, and lifelong practice—comprehensive message about scientific thinking\'s value beyond laboratories.<br><br>❌ A: Passage states these skills help everyone.<br>❌ C: Passage supports inquiry-based education.<br>❌ D: No products promoted.',
+                skill: 'Main Idea'
+            },
+            13: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 2 states: "Healthy friendships are characterized by mutual respect, trust, honesty, and support."<br><br>❌ A: These qualities harm friendships.<br>❌ C: Healthy friendships allow disagreement.<br>❌ D: Conflicts addressed respectfully strengthen friendships.',
+                skill: 'Detail Comprehension'
+            },
+            14: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage explains essential qualities, communication skills, balance, navigating challenges, and long-term value of friendships—comprehensive, informative approach to understanding healthy relationships.<br><br>❌ A: Passage emphasizes friendship importance.<br>❌ C: Tone is supportive, not critical.<br>❌ D: No apps promoted.',
+                skill: 'Author\'s Purpose'
+            }
+        };
+
+        const questionToPassage = {
+            1:1, 2:1, 3:1, 4:1,
+            5:2, 6:2, 7:2, 8:2,
+            9:3, 10:3, 11:3, 12:3,
+            13:4, 14:4
+        };
+
+        let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval, testerName = '', testStartTime, testEndTime;
+
+        const startScreen = document.getElementById('start-screen'), testLayout = document.getElementById('test-layout'), resultsScreen = document.getElementById('results-screen'), nameInput = document.getElementById('tester-name'), nameError = document.getElementById('name-error'), startBtn = document.getElementById('start-btn'), timerDisplay = document.getElementById('timer'), scoreDisplay = document.getElementById('score-display'), passageIndicator = document.getElementById('passage-indicator'), toast = document.getElementById('toast');
+
+        document.addEventListener('DOMContentLoaded', () => { startBtn.addEventListener('click', startTest); nameInput.addEventListener('input', validateName); });
+
+        function validateName() {
+            const name = nameInput.value.trim();
+            const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\uf900-\ufaff\u3300-\u33ff\ufe30-\ufe4f\uf900-\ufaff\u{2f800}-\u{2fa1f}]/u.test(name);
+            if (hasChinese) { nameError.classList.add('show'); startBtn.disabled = true; } else { nameError.classList.remove('show'); startBtn.disabled = name === ''; }
+        }
+
+        function startTest() {
+            testerName = nameInput.value.trim() || 'Anonymous';
+            testStartTime = new Date();
+            startScreen.style.display = 'none';
+            testLayout.classList.add('active');
+            document.querySelector(`[data-passage="1"]`).classList.add('active');
+            document.querySelector(`.questions-section[data-passage="1"]`).classList.add('active');
+            startTimer();
+            updateHeader();
+        }
+
+        function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${mins}:${secs}`; }, 1000); }
+
+        function checkAnswer(questionNum, selected, btn) {
+            if (answered[questionNum]) return;
+            answered[questionNum] = selected;
+            const feedback = document.getElementById(`feedback-${questionNum}`);
+            const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); feedback.innerHTML = `<div class="feedback-title">✅ Correct!</div>${answers[questionNum].explanation}`; } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); feedback.innerHTML = `<div class="feedback-title">❌ Incorrect</div>${answers[questionNum].explanation}`; allBtns.forEach(b => { if (b.textContent.trim().startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+            feedback.style.display = 'block';
+            updateScoreDisplay();
+            checkPassageComplete();
+        }
+
+        function checkPassageComplete() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 14; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (allAnswered && currentSection < 4) { document.getElementById('next-btn').textContent = 'Next Passage →'; }
+        }
+
+        function nextSection() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 14; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (!allAnswered) { alert(`Please answer all ${currentPassageQuestions.length} questions in this passage before continuing.`); return; }
+            if (Object.keys(answered).length === 14) { showResults(); return; }
+            if (currentSection < 4) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection++;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('prev-btn').disabled = false;
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 1) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection--;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('next-btn').textContent = 'Next →';
+                if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function updateHeader() { 
+            const passageLabels = ['A', 'B', 'C', 'D'];
+            passageIndicator.textContent = `Passage ${passageLabels[currentSection - 1]} of 4`; 
+            updateScoreDisplay(); 
+        }
+        function updateScoreDisplay() { scoreDisplay.textContent = `${score}/${Object.keys(answered).length}`; }
+
+        function showResults() {
+            testEndTime = new Date();
+            clearInterval(timerInterval);
+            testLayout.classList.remove('active');
+            document.getElementById('navigation').style.display = 'none';
+            resultsScreen.classList.add('active');
+            document.getElementById('result-name').textContent = testerName;
+            document.getElementById('result-datetime').textContent = testEndTime.toLocaleString();
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            document.getElementById('result-duration').textContent = `${durationMins}m ${durationSecs.toString().padStart(2, '0')}s`;
+            document.getElementById('final-score').textContent = `${score}/14`;
+            document.getElementById('result-accuracy').textContent = `${Math.round((score / 14) * 100)}%`;
+            generateSkillsBreakdown();
+        }
+
+        function generateSkillsBreakdown() {
+            const skillsBreakdown = document.getElementById('skills-breakdown');
+            skillsBreakdown.innerHTML = '';
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) {
+                const skill = answers[q].skill;
+                if (!skillGroups[skill]) { skillGroups[skill] = { total: 0, correct: 0, questions: [] }; }
+                skillGroups[skill].total++;
+                if (answered[q] === answers[q].correct) { skillGroups[skill].correct++; } else { skillGroups[skill].questions.push(q); }
+            }
+            Object.entries(skillGroups).forEach(([skill, data]) => {
+                const isMastered = data.correct === data.total;
+                const skillItem = document.createElement('div');
+                skillItem.className = `skill-item ${isMastered ? 'mastered' : 'missed'}`;
+                let missedInfo = '';
+                if (!isMastered && data.questions.length > 0) { missedInfo = `<br><small style="color: #b71c1c">Missed: Q${data.questions.join(', Q')}</small>`; }
+                skillItem.innerHTML = `<div><strong>${skill}</strong><div style="font-size: 0.9rem; color: #616161">${data.correct}/${data.total} correct</div>${missedInfo}</div><div style="font-weight: bold; color: ${isMastered ? '#2e7d32' : '#c62828'}">${isMastered ? '✓ Mastered' : '⚠ Review'}</div>`;
+                skillsBreakdown.appendChild(skillItem);
+            });
+        }
+
+        function copyForWeChat() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 14) * 100);
+            let text = `📚 Reading Practice 14 Results (BEIJING ADVANCED)\n\n👤 Name: ${testerName}\n📅 Date: ${testEndTime.toLocaleDateString()}\n⏱️ Time: ${durationMins}m ${durationSecs}s\n✅ Score: ${score}/14 (${accuracy}%)\n\n📊 Skills Review:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { const status = data.correct === data.total ? '✓' : '⚠'; text += `${status} ${skill}: ${data.correct}/${data.total}\n`; });
+            text += `\n💡 Focus on skills marked with ⚠ for improvement.`;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); showToast('Results copied! Paste in WeChat to share.'); } catch (err) { alert('Please manually copy these results:\n\n' + text); }
+            document.body.removeChild(textArea);
+        }
+
+        function emailResults() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 14) * 100);
+            let emailBody = `Reading Practice 14 Results (BEIJING ADVANCED)\n\nStudent: ${testerName}\nDate Completed: ${testEndTime.toLocaleString()}\nTime Taken: ${durationMins} minutes, ${durationSecs} seconds\nScore: ${score} out of 14 questions (${accuracy}% accuracy)\n\nDetailed Results:\n----------------\n`;
+            for (let q = 1; q <= 14; q++) { const isCorrect = answered[q] === answers[q].correct; emailBody += `Q${q} [${answers[q].skill}]: ${isCorrect ? '✓ Correct' : '✗ Incorrect'}\n`; }
+            emailBody += `\nSkills Analysis:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { emailBody += `- ${skill}: ${data.correct}/${data.total} correct\n`; });
+            const subject = encodeURIComponent(`Reading Practice 14 Results - ${testerName}`);
+            const body = encodeURIComponent(emailBody);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function downloadForLMS() {
+            const resultsData = { testName: "Reading Practice 14 - Beijing Advanced", studentName: testerName, completedAt: testEndTime.toISOString(), durationSeconds: timerSeconds, totalQuestions: 14, correctAnswers: score, accuracyPercent: Math.round((score / 14) * 100), questionResults: [], skillsAnalysis: {} };
+            for (let q = 1; q <= 14; q++) { resultsData.questionResults.push({ questionNumber: q, skill: answers[q].skill, selectedAnswer: answered[q], correctAnswer: answers[q].correct, isCorrect: answered[q] === answers[q].correct }); }
+            const skillGroups = {};
+            for (let q = 1; q <= 14; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) { skillGroups[skill] = { totalQuestions: 0, correctAnswers: 0, missedQuestions: [] }; } skillGroups[skill].totalQuestions++; if (answered[q] === answers[q].correct) { skillGroups[skill].correctAnswers++; } else { skillGroups[skill].missedQuestions.push(q); } }
+            resultsData.skillsAnalysis = skillGroups;
+            const dataStr = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resultsData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `reading_practice_14_beijing_advanced_${testerName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Results downloaded for LMS upload!');
+        }
+
+        function downloadPDF() { alert(`PDF generation requires additional libraries. For this demo:\n\n1. Copy your results using the "Copy for WeChat" button\n2. Paste into a document\n3. Save as PDF using your browser's print function (Ctrl+P → Save as PDF)\n\nIn a production version, this would generate a professional PDF report automatically.`); }
+        function showToast(message) { toast.textContent = message; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+
+        function restartTest() {
+            currentSection = 1; score = 0; answered = {}; timerSeconds = 0; testerName = '';
+            nameInput.value = ''; nameError.classList.remove('show'); startBtn.disabled = true;
+            document.getElementById('next-btn').textContent = 'Next →'; document.getElementById('prev-btn').disabled = true;
+            const passageLabels = ['A', 'B', 'C', 'D'];
+            passageIndicator.textContent = `Passage ${passageLabels[0]} of 4`;
+            document.querySelectorAll('.feedback').forEach(fb => { fb.style.display = 'none'; fb.classList.remove('correct', 'incorrect'); });
+            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('correct', 'incorrect'); btn.disabled = false; });
+            resultsScreen.classList.remove('active'); startScreen.style.display = 'block';
+            timerDisplay.textContent = '00:00'; scoreDisplay.textContent = '0/14';
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>

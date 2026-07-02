@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Unit 5: Food Journeys</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        /* --- CORE LAYOUT --- */
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #fff1f2; /* Rose-50 */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            position: relative;
+            padding: 1rem;
+            z-index: 10;
+        }
+
+        /* --- FLOATING EMOJIS BACKGROUND --- */
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.15;
+            animation: floatUp linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- UI COMPONENTS --- */
+        .btn-3d {
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.25);
+            transform: translateY(0);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0);
+        }
+        
+        .fade-in { animation: fadeUp 0.3s ease-out forwards; width: 100%; height: 100%; display: flex; flex-direction: column; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Shimmer Effect */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-effect {
+            background: linear-gradient(90deg, #e11d48 25%, #fb7185 50%, #e11d48 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+            border-color: #9f1239 !important;
+            color: white !important;
+        }
+
+        /* --- SPECIFIC ELEMENTS --- */
+        .vocab-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+            border: 2px solid #f43f5e;
+            transition: all 0.2s ease;
+        }
+        .vocab-card:hover {
+            border-color: #be123c;
+            background-color: #fff1f2;
+            transform: translateY(-2px);
+        }
+        .vocab-card:active {
+            transform: scale(0.98);
+        }
+
+        .gap-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 8rem; 
+            border-bottom: 3px solid #e11d48;
+            padding: 0 8px;
+            margin: 0 4px;
+            color: #881337;
+            font-weight: 700;
+            background: #ffe4e6;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            height: 1.5em;
+            vertical-align: bottom;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 1.15rem; 
+        }
+        .gap-slot.filled { background: #be123c; color: white; border-bottom: 3px solid #881337; }
+        .gap-slot.wrong { animation: shake 0.4s; background: #fecaca !important; border-color: #dc2626 !important; }
+
+        .highlight-word {
+            transition: background-color 0.1s, color 0.1s;
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+        .highlight-word.active {
+            background-color: #facc15; 
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mcq-option-large {
+            font-size: 1.4rem; 
+            padding: 0.5rem 1rem; 
+            border: 3px solid #e2e8f0; 
+            border-radius: 1rem;
+            transition: all 0.2s;
+            text-align: left;
+            background: white;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .mcq-option-large:hover { border-color: #f43f5e; background: #fff1f2; }
+        .mcq-option-large.correct { background-color: #fecdd3; border-color: #e11d48; }
+        .mcq-option-large.wrong { background-color: #fecaca; border-color: #dc2626; }
+
+        .tf-btn {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 4px solid #e2e8f0;
+            background: white;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .tf-btn:hover { border-color: #94a3b8; background: #f8fafc; }
+        .tf-btn.correct { background: #ffe4e6; border-color: #e11d48; color: #881337; }
+        .tf-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #7f1d1d; }
+
+        .word-bank-item {
+            font-size: 1.1rem; 
+            padding: 0.5rem 1rem; 
+        }
+        .word-bank-item.selected {
+            background-color: #e11d48;
+            color: white;
+            border-color: #9f1239;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .word-bank-item.used {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transform: scale(0.95);
+        }
+
+        #praise-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+        #praise-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #e11d48;
+            text-shadow: 0 4px 0 white, 0 8px 10px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.95);
+            padding: 2rem 3rem;
+            border-radius: 2rem;
+            border: 6px solid #e11d48;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .speaking-question-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 1rem;
+        }
+        .speaking-question-card:active {
+            transform: scale(0.98);
+            background-color: #fff1f2;
+        }
+        .speaking-question-text {
+            font-size: 1.25rem; 
+            line-height: 1.35;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .chat-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+        .chat-bubble:hover {
+            transform: scale(1.02);
+            border-color: rgba(0,0,0,0.1);
+        }
+        .chat-bubble.active {
+            border-color: #e11d48;
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+        }
+        .chat-left {
+            align-self: flex-start;
+            background-color: #ffffff;
+            border-bottom-left-radius: 0;
+            border: 1px solid #e2e8f0;
+        }
+        .chat-right {
+            align-self: flex-end;
+            background-color: #ffe4e6;
+            border-bottom-right-radius: 0;
+            border: 1px solid #fda4af;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .menu-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 2px solid #cbd5e1;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
+        }
+        .menu-item:hover {
+            border-color: #f43f5e;
+            background: #fff1f2;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .menu-item i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #be123c;
+        }
+        .menu-item span {
+            font-weight: 700;
+            color: #334155;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+        .recording-pulse {
+            animation: pulse-red 2s infinite;
+            background-color: #ffe4e6 !important;
+            border-color: #e11d48 !important;
+            color: #881337 !important;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="bg-[#881337] text-white p-2 shadow-lg z-20 flex-none h-16 border-b-4 border-rose-500">
+        <div class="max-w-7xl mx-auto flex justify-between items-center h-full w-full px-2">
+            
+            <div class="flex gap-4 items-center">
+                <button onclick="showMenu()" class="text-white hover:text-rose-300 transition" title="Main Menu">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="h-6 w-px bg-rose-800"></div>
+                <button onclick="resetProgress()" class="text-rose-200 hover:text-white transition" title="New Session">
+                    <i class="fas fa-redo text-xl"></i>
+                </button>
+                <button onclick="toggleAudio()" id="audio-btn" class="text-rose-400 hover:text-rose-200 transition" title="Toggle Auto-Play">
+                    <i class="fas fa-volume-up text-xl"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center flex-1 mx-4">
+                <div class="w-full max-w-sm h-3 bg-rose-900 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-rose-400 w-0 transition-all duration-500 shadow-[0_0_10px_rgba(251,113,133,0.5)]"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div id="header-actions"></div>
+                <div class="bg-rose-950 px-3 py-1 rounded-lg text-xl font-mono border border-rose-700 min-w-[60px] text-center">
+                    <span id="score-val" class="text-rose-400 font-bold">0</span>
+                </div>
+                
+                <button id="prev-btn" class="bg-rose-800 hover:bg-rose-700 text-white w-10 h-10 rounded-lg flex items-center justify-center disabled:opacity-30 transition btn-3d">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                </button>
+                <button id="next-btn" class="bg-amber-500 hover:bg-amber-400 text-rose-950 px-4 h-10 rounded-lg font-bold flex items-center gap-2 btn-3d text-sm transition shadow-amber-900/50">
+                    NEXT <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Floating Emojis Background -->
+    <div id="bg-emojis" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <div id="praise-overlay" class="pop-in">
+        <div id="praise-text">Correct!</div>
+    </div>
+
+    <main id="app-content" class="bg-transparent relative w-full h-full">
+        <!-- Injected here -->
+    </main>
+
+    <script>
+        /* --- BACKGROUND EMOJIS INITIALIZATION --- */
+        function initFloatingEmojis() {
+            const container = document.getElementById('bg-emojis');
+            container.innerHTML = '';
+            const emojis = ['🍔', '🌍', '🥗', '📸', '🍕', '🍜', '🍯', '🥘'];
+            for(let i=0; i<15; i++) {
+                let el = document.createElement('div');
+                el.className = 'floating-emoji';
+                el.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.animationDelay = Math.random() * 15 + 's';
+                el.style.animationDuration = 10 + Math.random() * 15 + 's';
+                el.style.fontSize = 1.5 + Math.random() * 2 + 'rem';
+                container.appendChild(el);
+            }
+        }
+        initFloatingEmojis();
+
+        /* --- STATE --- */
+        const defaultState = { page: 0, score: 0, audioEnabled: true };
+        let state = JSON.parse(localStorage.getItem('unit5_food_v2')) || defaultState;
+
+        function saveState() { localStorage.setItem('unit5_food_v2', JSON.stringify(state)); }
+        function resetProgress() { if(confirm("Start a New Session?")) { state = { ...defaultState }; saveState(); location.reload(); } }
+        
+        function startUnit() { 
+            state.page = 1; 
+            saveState(); 
+            render(); 
+        }
+
+        function toggleAudio() { 
+            state.audioEnabled = !state.audioEnabled; 
+            saveState(); 
+            updateAudioIcon(); 
+            stopAudio(); 
+        }
+        
+        function updateAudioIcon() {
+            const btn = document.getElementById('audio-btn');
+            if(btn) btn.innerHTML = state.audioEnabled ? '<i class="fas fa-volume-up text-xl"></i>' : '<i class="fas fa-volume-mute text-xl text-gray-500"></i>';
+        }
+
+        function showMenu() {
+            state.page = -1; // Menu State
+            saveState();
+            render();
+        }
+
+        function goToPage(p) {
+            state.page = p;
+            saveState();
+            render();
+        }
+
+        /* --- DATA --- */
+        const debates = [
+            {
+                title: "Traditional vs. Modern Diets",
+                script: [
+                    { speaker: "Emma", text: "The Inuit hunt seals because it's their tradition, but wouldn't it be easier for them to just import food from the grocery store?", align: "left", voice: "Emma" },
+                    { speaker: "Andrew", text: "Importing food to remote Greenland is extremely expensive. Plus, hunting is an essential part of their culture and survival lifestyle.", align: "right", voice: "Andrew" },
+                    { speaker: "Emma", text: "But as the climate warms, the sea ice is melting earlier. They might be forced to change their diets soon anyway.", align: "left", voice: "Emma" },
+                    { speaker: "Andrew", text: "That's true. It's a chain reaction. A changing environment directly forces a culture to change how they get their ingredients.", align: "right", voice: "Andrew" }
+                ],
+                q1: { text: "Who mentions that importing food is expensive?", ans: true, exp: "Andrew argues that it's too costly for remote areas." },
+                q2: { text: "Who brings up the issue of melting sea ice?", ans: true, exp: "Emma notes the changing climate affects the Inuit." }
+            },
+            {
+                title: "Ugly Food vs. Fancy Food",
+                script: [
+                    { speaker: "Student A", text: "Food blogs should only show beautiful, perfect meals. It inspires people to cook and try new recipes.", align: "left", voice: "Emma" },
+                    { speaker: "Student B", text: "I love the 'Someone Ate This' blog! Seeing ugly or failed meals makes cooking feel more approachable and funny.", align: "right", voice: "Brian" },
+                    { speaker: "Student A", text: "But if I see an ugly dish, I put up a mental wall. I don't want to try it because it looks gross.", align: "left", voice: "Emma" },
+                    { speaker: "Student B", text: "That's the point of the blog! It's a shared human experience. We all mess up in the kitchen sometimes.", align: "right", voice: "Brian" }
+                ],
+                q1: { text: "Does Student A prefer pictures of failed meals?", ans: false, exp: "No, Student A thinks food should look perfect and beautiful." },
+                q2: { text: "Does Student B think funny food blogs are relatable?", ans: true, exp: "Yes, Student B thinks it shows a shared human experience." }
+            },
+            {
+                title: "Stovetop Travel vs. Real Travel",
+                script: [
+                    { speaker: "Ava", text: "Sasha Martin says cooking is like travel. But honestly, cooking a meal from France isn't the same as actually going to Paris.", align: "left", voice: "Ava" },
+                    { speaker: "Andrew", text: "Of course it's not exactly the same, but 'stovetop travel' is faster, cheaper, and lets anyone experience a new culture from their own kitchen!", align: "right", voice: "Andrew" },
+                    { speaker: "Ava", text: "I'd rather save my money and travel for real to get the authentic taste of the fresh ingredients.", align: "left", voice: "Ava" },
+                    { speaker: "Andrew", text: "Not everyone can afford plane tickets. Sharing a recipe is a great bridge to connect global neighbors.", align: "right", voice: "Andrew" }
+                ],
+                q1: { text: "Does Ava think cooking a recipe is just as good as traveling?", ans: false, exp: "No, Ava prefers real travel to get authentic tastes." },
+                q2: { text: "Does Andrew view cooking as a cheap way to explore cultures?", ans: true, exp: "Yes, he calls it a fast and cheap bridge." }
+            }
+        ];
+
+        const speakingModules = [
+            {
+                id: 1,
+                title: "Explore the Theme (Pages 81-83)",
+                source: "Introduction",
+                questions: [
+                    { text: "Look at the photo on Page 81 showing hyacinth beans. Why do you think the photographer took this image?", voice: "Emma" },
+                    { text: "What do people usually do with typical dishes in your community? Are they shared with family?", voice: "Andrew" },
+                    { text: "What would you take a photograph of to show typical food in your country?", voice: "Emma" },
+                    { text: "Which dish or food pictured in the unit looks the most appealing to you?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Reading 1: A Global Food Journey",
+                source: "Pages 84-88",
+                questions: [
+                    { text: "In Crete, the Moschonas family eats snails. Why are they considered a good food source?", voice: "Andrew" },
+                    { text: "Stella prepares 'kalitsounia'. What ingredients does she use to make them?", voice: "Emma" },
+                    { text: "Rate the dishes from the reading (kalitsounia, snails, avronies) from 1 to 3. Give reasons for your rating.", voice: "Ava" },
+                    { text: "Matthieu Paley felt 'right at home' at the dinner. Why do shared meals bring people together?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Video: Images of Greenland",
+                source: "Pages 89-90",
+                questions: [
+                    { text: "The Inuit live in a harsh, remote, snowy environment. How does this landscape affect their daily lifestyle and diet?", voice: "Emma" },
+                    { text: "If you had to hunt for your own food every day to survive, what skills would you need to learn?", voice: "Ava" },
+                    { text: "Do you think remote cultures will eventually change their diets because of the internet and modern grocery stores?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 4,
+                title: "Reading 2: Cooking the World",
+                source: "Pages 91-94",
+                questions: [
+                    { text: "Sasha Martin calls cooking a meal from another country 'stovetop travel.' Do you agree that food can transport you to another place?", voice: "Andrew" },
+                    { text: "Martin says that food is a 'bridge' that stops us from thinking other cultures are weird. Have you ever judged a food before trying it?", voice: "Emma" },
+                    { text: "Adam Roberts started 'The Amateur Gourmet' when he needed a break from law school. What do you do for a break when studying?", voice: "Emma" },
+                    { text: "If you were to start your own food blog or TikTok account, what would your theme be?", voice: "Brian" }
+                ]
+            },
+            {
+                id: 6,
+                title: "End of Unit Review (Scaffolded)",
+                source: "Page 100",
+                questions: [
+                    { text: "Level 1 (Recall): What does it mean when a food blog becomes 'popular' on the internet?", voice: "Emma" },
+                    { text: "Level 2 (Application): Use the words 'ingredient' and 'prepare' to describe how to make your favorite sandwich.", voice: "Andrew" },
+                    { text: "Level 3 (Evaluation): Which is more important for a restaurant to be successful: how the food tastes, or how the food looks in photos?", voice: "Emma" },
+                    { text: "Level 4 (Creation): Invent a new, unique dish combining ingredients from two completely different cultures.", voice: "Brian" }
+                ]
+            }
+        ];
+
+        const specialLessons = {
+            1: {
+                title: "Writing Skill: Giving Reasons",
+                content: `
+                    <div class="space-y-4">
+                        <div class="bg-rose-50 p-4 rounded-xl border border-rose-200">
+                            <h4 class="font-bold text-rose-800 mb-2">Using "So" and "Because"</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-base text-slate-700">
+                                <li><strong>Because:</strong> Introduces the reason or cause. <br><em>"Many teenagers travel <strong>because</strong> they want to try new dishes."</em></li>
+                                <li><strong>So:</strong> Introduces the result (effect) and uses a comma. <br><em>"Many teenagers want to try new dishes<strong>, so</strong> they travel."</em></li>
+                            </ul>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-xl border-2 border-amber-200">
+                            <h4 class="font-bold text-amber-800 mb-2">Paraphrasing Synonyms</h4>
+                            <p class="text-slate-700 mb-2">Avoid repeating words in your writing by using synonyms.</p>
+                            <ul class="list-disc pl-5 text-sm text-slate-600">
+                                <li>Picture $\\rightarrow$ Photo, Image</li>
+                                <li>Make food $\\rightarrow$ Prepare food, Cook</li>
+                                <li>Tasty $\\rightarrow$ Delicious, Flavorful</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        const vocabulary = [
+            { word: "Typical", emoji: "🍽️", def: "Having the usual features of a group or thing.", sent: "Pizza is a typical food for teenagers.", persona: "Explore" },
+            { word: "Culture", emoji: "🌍", def: "The habits, traditions, and beliefs of a group.", sent: "Our diet shapes our culture.", persona: "Explore" },
+            { word: "Prepare", emoji: "🔪", def: "To make food ready to eat.", sent: "Stella prepares dough to make pies.", persona: "Reading 1" },
+            { word: "Fresh", emoji: "🥬", def: "Recently made or produced; not canned.", sent: "The family eats fresh wild herbs.", persona: "Reading 1" },
+            { word: "Pick", emoji: "🍓", def: "To remove a fruit or plant from where it grows.", sent: "We pick fresh tomatoes from the garden.", persona: "Reading 1" },
+            { word: "Taste", emoji: "👅", def: "The flavor of a food in your mouth.", sent: "The wild vegetable has a bitter taste.", persona: "Reading 1" },
+            { word: "Ingredient", emoji: "🧂", def: "A food used to make a particular dish.", sent: "Salt and pepper are common ingredients.", persona: "Reading 2" },
+            { word: "Recipe", emoji: "📖", def: "A set of instructions for making food.", sent: "I found a great recipe for cookies online.", persona: "Reading 2" },
+            { word: "Respect", emoji: "🤝", def: "To show that you appreciate something.", sent: "We should respect the food traditions of others.", persona: "Reading 2" },
+            { word: "Popular", emoji: "⭐", def: "Liked by a lot of people.", sent: "Her food blog became very popular.", persona: "Reading 2" }
+        ];
+
+        const lectures = {
+            1: {
+                title: "🌍 Reading 1: A Global Food Journey",
+                text: "In 2014, French photographer Matthieu Paley set out to explore the world of food. His travels took him through jungles, over mountains, and beneath the sea. He went on the journey to explore how our environment affects the food we eat and how our diet shapes our culture. Paley shared his experiences in a visual food diary called We Are What We Eat. Paley saw how food plays an important role in people's lives all over the world. In Greenland, he went seal hunting with the Inuit to catch food for dinner. He gathered honey from trees with the Hazda people of Tanzania. And in Malaysian Borneo, he went diving to catch sea urchins and octopuses. In Crete, the largest island in Greece, Paley enjoyed a typical Mediterranean family meal. April 2014: I am at the Moschonas home for their Saturday family gathering. Everyone was working in the fields this afternoon and there is a pile of fresh wild herbs on the table. The family welcomes me and the conversation is loud and lively. I feel right at home. 'Now we make kalitsounia,' says Stella. These are small fried pies filled with wild herbs called horta. In Crete, April has been a time to pick horta for thousands of years. Stella prepares dough on the table. She cuts it into small squares and wraps the herbs. Then she fries the little pies in olive oil. Someone takes a large bucket of snails from the freezer. They eat snails all year round. They are probably the oldest food eaten by humans. Snails may also be the easiest to catch because you just go for a walk, turn over some rocks, and there they are. 'And they are full of omega-3. No fat on that meat either,' Stella says. She prepares the snails with a thick sauce. She offers me a kalitsounia hot out of the pan. 'Tell me about the horta,' I ask. 'What did you pick today?' Leaning over the table, Stella says with a smile, 'Oh, there are over 20 types of herbs out there if you know where to find them, and I know them all by name.' My plate is filled with snails. On the table, there are also beans, small fried fish, and another vegetable. It looks like tiny asparagus and has a bitter taste. Manolis sits next to me. He points at the dish. 'This one is medicine. He says, Eat a ton of it.' I try it. 'We call these avronies—only in this season,' he says. 'You are a lucky man.'",
+                gaps: { 
+                    parts: ["In 2014, French photographer Matthieu Paley set out to explore the world of food. He went on the journey to explore how our [1] affects the food we eat and how our diet shapes our [2]. In Crete, he enjoyed a typical Mediterranean family meal. Stella [3] dough on the table to make kalitsounia. She also served [4], which are full of omega-3."],
+                    ans: ["environment", "culture", "prepares", "snails"],
+                    bank: ["environment", "culture", "prepares", "snails", "television", "hunts", "pizza"] 
+                }
+            },
+            2: {
+                title: "💻 Reading 2: Cooking the World",
+                text: "Award-winning food writer Sasha Martin started her popular Global Table Adventure blog in 2010. Her plan was simple: to prepare a meal from every country in the world. Over the next four years, she cooked over 650 dishes from 195 countries. In this interview, Martin describes her experience of cooking the world. Interviewer: Was cooking the world a way to travel without leaving home? Martin: That's right. I think the idea that exploration is for everyone is really important. There are so many people who dream of travel, but I think that you really can go on adventures without leaving home. With food, if you have the right ingredients, you can create the flavor of another place. It's like armchair travel, but it's faster and easier. I call it stovetop travel. Interviewer: What did you hope to teach your daughter by cooking the world? Martin: I wanted her to feel that she had a place in the world where she belonged. But I also feel it's important for children to grow up knowing people from other countries. They're global neighbors. I call them neighbors because the world is so small now. I remember going on Facebook in its early days. I noticed there were people from different parts of the world commenting on posts, even arguing with each other. I feel that in that environment, young people need to be able to respect and understand each other. Interviewer: So food is a great way to create that common ground. Martin: Yes, I wanted to share recipes that were bridges to other cultures. A lot of celebrity TV chefs tend to choose the most shocking recipes, but I think you need a bridge first. Then people won't put up a wall in their mind about that culture. They won't just think, 'Gross, those people eat such weird things.' The Rise of the Food Blogger: In July 1997, there was only one food blog on the internet. Today, there are over 2 million. That first blog, Chow Hound, was an online discussion board for sharing ideas about eating in New York. Today, food bloggers cover a wide variety of topics. Some examples: When Adam Roberts was in law school, he needed a break from studying. He decided to teach himself how to cook. Roberts started a blog to keep a record of his learning adventure and share it with other people. Eventually, his blog, The Amateur Gourmet, led to a new career in cooking. In May of 2012, two friends wanted to make each other laugh, so they created a blog for sharing pictures of ugly food. Other people began to send in their own photos of weird looking food. By 2014, Someone Ate This was one of the internet's most popular food blogs. A history student named Angier decided to share her love for history and cooking. On her websites, Kitchen Historic and Food Roots, readers can find dishes from the 13th century all the way to the 1980s.",
+                gaps: {
+                    parts: ["Sasha Martin started a blog to [1] a meal from every country. She calls this [2] travel. She wanted to share recipes that were [3] to other cultures. Today, food bloggers cover a wide [4] of topics, from ugly food to historical recipes."],
+                    ans: ["prepare", "stovetop", "bridges", "variety"],
+                    bank: ["prepare", "stovetop", "bridges", "variety", "airplane", "walls", "throw"]
+                }
+            }
+        };
+
+        const allQuestions = [
+            // READING 1 (1-10)
+            { type: 'mcq', q: "Who is Matthieu Paley?", opts: ["A celebrity chef", "A French photographer", "A teenager from Greece", "A food blogger"], ans: 1 },
+            { type: 'mcq', q: "What is 'We Are What We Eat'?", opts: ["A restaurant", "A visual food diary", "A diet plan", "A TV show"], ans: 1 },
+            { type: 'mcq', q: "Where did Paley go seal hunting?", opts: ["Crete", "Tanzania", "Greenland", "Borneo"], ans: 2 },
+            { type: 'mcq', q: "What do the Hazda people of Tanzania gather?", opts: ["Sea urchins", "Snails", "Honey from trees", "Wild herbs"], ans: 2 },
+            { type: 'mcq', q: "What are 'Kalitsounia'?", opts: ["Small fried pies", "Sea urchins", "A type of fish", "A sweet dessert"], ans: 0 },
+            { type: 'mcq', q: "What is the oldest food eaten by humans according to the text?", opts: ["Apples", "Fried fish", "Snails", "Honey"], ans: 2 },
+            { type: 'mcq', q: "Why does Stella say snails are healthy?", opts: ["High in sugar", "Full of omega-3 and no fat", "Lots of vitamins", "Good for teeth"], ans: 1 },
+            { type: 'mcq', q: "In the sentence 'They eat snails all year round', what does 'they' refer to?", opts: ["The tourists", "The snails", "The family / Cretans", "The herbs"], ans: 2 },
+            { type: 'mcq', q: "According to the video, why do the Inuit eat a lot of fish and meat?", opts: ["They don't like vegetables", "It is too cold for crops to grow", "Meat is cheaper", "Fish is easier to cook"], ans: 1 },
+            { type: 'mcq', q: "According to the video, what shaped the traditional Inuit diet?", opts: ["Television shows", "The climate and environment", "Foreign visitors", "Modern supermarkets"], ans: 1 },
+
+            // READING 2 (11-20)
+            { type: 'mcq', q: "Who started the Global Table Adventure blog?", opts: ["Adam Roberts", "Sasha Martin", "Angier", "Matthieu Paley"], ans: 1 },
+            { type: 'mcq', q: "What does Sasha mean by 'stovetop travel'?", opts: ["Eating on a plane", "Cooking meals from around the world at home", "Watching travel shows", "Buying expensive pans"], ans: 1 },
+            { type: 'mcq', q: "Why did Sasha share recipes from other cultures?", opts: ["To become rich", "To build bridges and foster respect", "To win a cooking contest", "To make people angry"], ans: 1 },
+            { type: 'mcq', q: "When was the first food blog created?", opts: ["1980", "July 1997", "2010", "2014"], ans: 1 },
+            { type: 'mcq', q: "What was 'Someone Ate This' about?", opts: ["Fine dining", "Pictures of ugly or weird food", "Historical recipes", "Cooking for kids"], ans: 1 },
+            { type: 'mcq', q: "What did Adam Roberts start out as before his blog 'The Amateur Gourmet'?", opts: ["A professional chef", "A law student", "A photographer", "A historian"], ans: 1 },
+            { type: 'mcq', q: "Which grammar word introduces a reason or cause?", opts: ["But", "And", "Because", "So"], ans: 2 },
+            { type: 'mcq', q: "Which grammar word introduces a result or effect?", opts: ["Because", "So", "However", "Although"], ans: 1 },
+            { type: 'mcq', q: "What is a good synonym to use for 'picture' in your writing?", opts: ["Recipe", "Image or photo", "Taste", "Culture"], ans: 1 },
+            { type: 'mcq', q: "What does 'Kitchen Historic' feature?", opts: ["Modern recipes", "Dishes from the 13th century to the 1980s", "Restaurant reviews", "Baking tips"], ans: 1 }
+        ];
+
+        /* --- AUDIO SYSTEM --- */
+        let voices = [];
+        const synth = window.speechSynthesis;
+
+        function loadVoices() { voices = synth.getVoices(); }
+        synth.onvoiceschanged = loadVoices;
+        setTimeout(loadVoices, 500);
+
+        function speak(text, highlightCallback, preferredName) {
+            if(!state.audioEnabled) return;
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            
+            // SPEED REQUIREMENT: 100% / 1.0x Speed (Explicit User Override)
+            u.rate = 1.0; 
+            
+            let selectedVoice = null;
+            
+            // Prioritize Microsoft Emma Online Multilingual English
+            if (preferredName === 'Emma' || preferredName === 'Ava') {
+                selectedVoice = voices.find(v => v.name.includes("Microsoft") && v.name.includes("Emma") && v.name.includes("Multilingual"));
+                if(!selectedVoice) selectedVoice = voices.find(v => v.name.includes("Emma"));
+            } else if (preferredName) {
+                selectedVoice = voices.find(v => v.name.includes(preferredName));
+            }
+
+            // Fallback to Microsoft Multilingual Online English general
+            if(!selectedVoice) selectedVoice = voices.find(v => v.name === "Microsoft Multilingual Online English");
+            
+            // Final fallback list
+            if (!selectedVoice) {
+                 const allowedNames = ["Andrew", "Emma", "Brian", "Google US English", "Samantha"];
+                 for (const name of allowedNames) {
+                      selectedVoice = voices.find(v => v.name.includes(name));
+                      if (selectedVoice) break;
+                 }
+            }
+            if (selectedVoice) u.voice = selectedVoice;
+
+            if (highlightCallback) {
+                u.onboundary = (event) => { if (event.name === 'word') highlightCallback(event.charIndex); };
+            }
+            synth.speak(u);
+        }
+        function stopAudio() { synth.cancel(); }
+
+        /* --- MEDIA RECORDER --- */
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.controls = true;
+                    
+                    const container = document.getElementById('audio-preview-container');
+                    container.innerHTML = '';
+                    container.appendChild(audio);
+                    
+                    const downloadBtn = document.getElementById('download-audio-btn');
+                    downloadBtn.href = audioUrl;
+                    downloadBtn.download = `unit5_food_summary_${new Date().toISOString().slice(0,10)}.wav`;
+                    downloadBtn.style.display = 'inline-flex';
+                });
+                mediaRecorder.start();
+                document.getElementById('mic-btn').classList.add('recording-pulse');
+                document.getElementById('mic-status').textContent = "Recording...";
+            } catch (err) {
+                alert("Error accessing microphone: " + err);
+            }
+        }
+
+        function stopRecording() {
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                document.getElementById('mic-btn').classList.remove('recording-pulse');
+                document.getElementById('mic-status').textContent = "Tap mic to record";
+            }
+        }
+
+        /* --- ROUTER --- */
+        const container = document.getElementById('app-content');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const scoreDisplay = document.getElementById('score-val');
+        const progressEl = document.getElementById('progress-bar');
+        const headerActions = document.getElementById('header-actions');
+        const praiseOverlay = document.getElementById('praise-overlay');
+
+        function render() {
+            container.innerHTML = '';
+            headerActions.innerHTML = ''; 
+            praiseOverlay.style.display = 'none';
+            stopAudio();
+            scoreDisplay.textContent = state.score;
+            updateAudioIcon();
+            
+            const totalPages = 52; 
+            const pct = (state.page / totalPages) * 100;
+            progressEl.style.width = `${pct}%`;
+
+            if(state.page === -1) {
+                progressEl.style.width = '0%';
+                prevBtn.style.visibility = 'hidden';
+                nextBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+                nextBtn.style.visibility = 'visible';
+            }
+
+            prevBtn.disabled = state.page <= 0;
+            prevBtn.onclick = () => { if(state.page > 0) { state.page--; saveState(); render(); }};
+            nextBtn.onclick = () => { if(state.page < totalPages) { state.page++; saveState(); render(); }};
+
+            // Routing Logic
+            if(state.page === -1) renderMenu();
+            else if(state.page === 0) renderHome();
+            else if(state.page === 1) renderWarmup(); 
+            else if(state.page === 2) renderSpeakingModule(0); 
+            
+            // READING 1 BLOCK
+            else if(state.page >= 3 && state.page <= 8) renderVocab(state.page - 3); 
+            else if(state.page === 9) renderScriptView(1, 'Emma'); 
+            else if(state.page === 10) renderGapFill(1); 
+            else if(state.page === 11) renderSpeakingModule(1); 
+            
+            // VIDEO BLOCK
+            else if(state.page === 12) renderSpeakingModule(2); 
+            
+            // READING 2 BLOCK
+            else if(state.page >= 13 && state.page <= 16) renderVocab(state.page - 7); 
+            else if(state.page === 17) renderScriptView(2, 'Andrew'); 
+            else if(state.page === 18) renderGapFill(2); 
+            else if(state.page === 19) renderSpeakingModule(3); 
+            
+            // SYNTHESIS, DEBATES, HOTS, TEST PREP
+            else if(state.page === 20) renderDebate(0); 
+            else if(state.page === 21) renderDebate(1); 
+            else if(state.page === 22) renderDebate(2); 
+            else if(state.page === 23) renderTestPrep();
+            else if(state.page === 24) renderHOTS();
+            
+            // WRITING
+            else if(state.page === 25) renderSpecialLesson(1); 
+            else if(state.page === 26) renderInteractiveWriting(); 
+            
+            // AUDIO & REFLECTION
+            else if(state.page === 27) renderAudioRecorder(); 
+            else if(state.page === 28) renderExitTicket();
+            
+            // END OF UNIT REVIEW (Scaffolded)
+            else if(state.page === 29) renderSpeakingModule(4); 
+            
+            // QUIZZES (20 Questions: 10 R1, 10 R2)
+            else if(state.page >= 30 && state.page <= 49) {
+                const qIndex = state.page - 30;
+                if(qIndex < allQuestions.length) {
+                    const q = allQuestions[qIndex];
+                    if(q.type === 'mcq') renderMCQSingle(q, qIndex);
+                    else renderTrueFalse(q, qIndex);
+                } else {
+                     renderFinalReflection();
+                }
+            }
+            
+            else if(state.page === 50) renderFinalReflection();
+            else if(state.page >= 51) renderFinish();
+        }
+
+        /* --- VIEWS --- */
+        function renderHome() {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center text-center flex-1">
+                    <div class="w-32 h-32 bg-rose-100 rounded-full flex items-center justify-center mb-6 shadow-inner mx-auto border-4 border-rose-300 relative z-10">
+                        <i class="fas fa-utensils text-6xl text-rose-600"></i>
+                    </div>
+                    <h1 class="text-5xl font-black text-rose-950 mb-4 tracking-tight relative z-10">Unit 5: Food Journeys 🍲</h1>
+                    <p class="text-2xl text-rose-800 mb-4 font-light relative z-10">Culture, Environment, and Our Diets</p>
+                    <div class="max-w-2xl mx-auto bg-white p-4 rounded-xl border border-rose-200 mb-8 shadow-sm relative z-10">
+                        <p class="font-bold text-slate-700">Essential Question:</p>
+                        <p class="text-slate-600">How does our environment affect the food we eat, and how does our diet shape our culture?</p>
+                    </div>
+                    <button onclick="startUnit()" class="bg-rose-600 text-white px-12 py-5 rounded-2xl text-xl font-bold shadow-xl hover:bg-rose-700 btn-3d transition border-b-4 border-rose-800 relative z-10">
+                        START UNIT 🚀
+                    </button>
+                </div>
+            `;
+            nextBtn.style.visibility = 'hidden';
+            prevBtn.style.visibility = 'hidden';
+        }
+
+        function renderMenu() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <h2 class="text-3xl font-black text-rose-950 mb-6 uppercase tracking-widest border-b-4 border-amber-400 pb-2">Unit 5 Menu</h2>
+                    <div class="w-full max-w-4xl overflow-y-auto">
+                        <div class="menu-grid">
+                            <div onclick="goToPage(0)" class="menu-item"><i class="fas fa-home text-amber-500"></i><span>Home</span></div>
+                            <div onclick="goToPage(3)" class="menu-item border-rose-400 bg-rose-50"><i class="fas fa-book-reader text-rose-700"></i><span>Reading 1</span></div>
+                            <div onclick="goToPage(13)" class="menu-item border-amber-400 bg-amber-50"><i class="fas fa-book-open text-amber-700"></i><span>Reading 2</span></div>
+                            <div onclick="goToPage(20)" class="menu-item"><i class="fas fa-comments text-orange-500"></i><span>Debates</span></div>
+                            <div onclick="goToPage(26)" class="menu-item"><i class="fas fa-pen-nib text-rose-600"></i><span>Writing</span></div>
+                            <div onclick="goToPage(30)" class="menu-item"><i class="fas fa-clipboard-check text-red-500"></i><span>Quiz</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWarmup() {
+            nextBtn.style.visibility = 'visible';
+            prevBtn.style.visibility = 'visible';
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 w-full p-4 relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 border-t-[8px] border-amber-400 w-full text-center max-w-4xl">
+                        <h2 class="text-xl font-bold mb-6 text-amber-700 uppercase tracking-widest">Part 1: Explore the Theme</h2>
+                        <p class="text-2xl font-bold text-slate-800 mb-6 leading-tight">
+                            "You are what you eat."
+                        </p>
+                        <div class="space-y-6 text-left">
+                            <div onclick="speak(this.innerText, null, 'Emma')" class="p-4 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 transition">
+                                <p class="font-bold text-slate-800"><i class="fas fa-school text-amber-500 mr-2"></i> Personal Connection</p>
+                                <p class="text-slate-600 mt-2">What is the most 'typical' meal that students eat in your school cafeteria? How does this represent your local culture?</p>
+                            </div>
+                            <div onclick="speak(this.innerText, null, 'Andrew')" class="p-4 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer hover:border-amber-400 transition">
+                                <p class="font-bold text-slate-800"><i class="fas fa-globe text-amber-500 mr-2"></i> Real World</p>
+                                <p class="text-slate-600 mt-2">Different environments produce different foods. How would your diet change if you lived near the ocean versus high up in the snowy mountains?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSpeakingModule(modIndex) {
+            const mod = speakingModules[modIndex];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-rose-100 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-rose-50 pb-4 flex-none">
+                            <span class="text-rose-500 font-bold tracking-widest text-sm block mb-1 uppercase">UNIT 5 DISCUSSION</span>
+                            <h2 class="text-3xl font-black text-rose-950 mb-2">${mod.title}</h2>
+                            <p class="text-slate-500 font-medium">Source: ${mod.source}</p>
+                        </div>
+                        <div class="flex flex-col gap-3 overflow-y-auto flex-1 pr-2">
+                            ${mod.questions.map((q, i) => `
+                                <div onclick="speak('${q.text.replace(/'/g, "\\'")}', null, '${q.voice}')" class="speaking-question-card p-4 rounded-xl border-2 border-slate-100 hover:border-amber-400 hover:bg-amber-50 transition cursor-pointer select-none bg-white shadow-sm">
+                                    <div class="flex gap-5">
+                                        <div class="flex-none pt-1">
+                                            <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 font-bold flex items-center justify-center text-lg border border-rose-200">${i+1}</div>
+                                        </div>
+                                        <p class="speaking-question-text leading-relaxed font-medium">${q.text}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDebate(idx) {
+            const debate = debates[idx];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-rose-100 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-rose-50 pb-4 flex-none text-center">
+                            <span class="text-amber-500 font-bold tracking-widest text-sm block mb-1 uppercase">INTERACTIVE ROLEPLAY ${idx+1}/${debates.length}</span>
+                            <h2 class="text-3xl font-black text-rose-950 mb-2">${debate.title}</h2>
+                            <p class="text-slate-500">Click each bubble to listen to the dialogue.</p>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto flex-1 px-4">
+                            ${debate.script.map((line) => `
+                                <div onclick="speak('${line.text.replace(/'/g, "\\'")}', null, '${line.voice}')" class="chat-bubble ${line.align === 'left' ? 'chat-left' : 'chat-right'}">
+                                    <div class="text-xs font-bold ${line.align === 'left' ? 'text-rose-600' : 'text-amber-600'} mb-1">${line.speaker}</div>
+                                    <p class="text-slate-800 text-lg leading-snug">${line.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <h4 class="font-bold text-slate-700 mb-2">Comprehension Check:</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="checkTF(true, ${debate.q1.ans}, '${debate.q1.exp.replace(/'/g, "\\'")}')" class="p-3 border rounded-lg hover:bg-rose-50 text-left text-sm font-bold text-slate-700">${debate.q1.text}</button>
+                                <button onclick="checkTF(true, ${debate.q2.ans}, '${debate.q2.exp.replace(/'/g, "\\'")}')" class="p-3 border rounded-lg hover:bg-rose-50 text-left text-sm font-bold text-slate-700">${debate.q2.text}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderTestPrep() {
+             container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-rose-100 mb-4 h-full">
+                        <div class="mb-6 border-b-2 border-rose-50 pb-4 flex-none">
+                            <span class="text-rose-500 font-bold tracking-widest text-sm block mb-1 uppercase">EXAM ALIGNMENT</span>
+                            <h2 class="text-3xl font-black text-rose-950 mb-2">IELTS & TOEFL Speaking</h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-6">
+                            <div class="p-4 bg-rose-50 rounded-xl border border-rose-200">
+                                <h3 class="font-bold text-rose-800 mb-2">IELTS Part 1 (Familiar Topics)</h3>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700">
+                                    <li>Do you enjoy trying new foods when you travel? (Why/Why not?)</li>
+                                    <li>Who usually cooks the meals in your household?</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-amber-50 rounded-xl border border-amber-200">
+                                <h3 class="font-bold text-amber-800 mb-2">IELTS Part 2 (Long Turn)</h3>
+                                <p class="text-slate-700 font-medium mb-2">Describe a special meal that you remember well. You should say:</p>
+                                <ul class="list-disc pl-5 space-y-1 text-slate-600 text-sm">
+                                    <li>Where you had this meal and who you were with</li>
+                                    <li>What exactly you ate</li>
+                                    <li>And explain why this meal was so memorable to you.</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-red-50 rounded-xl border border-red-200">
+                                <h3 class="font-bold text-red-800 mb-2">TOEFL Independent Speaking</h3>
+                                <p class="text-slate-700 italic">"Some people believe that cooking meals at home is better than eating at restaurants. Others believe eating out is a better use of time. Which do you agree with and why? Include details and examples."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHOTS() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-amber-100 mb-4 h-full">
+                        <div class="mb-6 border-b-2 border-amber-50 pb-4 flex-none">
+                            <span class="text-amber-600 font-bold tracking-widest text-sm block mb-1 uppercase">BLOOM'S TAXONOMY</span>
+                            <h2 class="text-3xl font-black text-amber-950 mb-2">Higher-Order Thinking</h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-4">
+                            <div onclick="speak(this.innerText, null, 'Emma')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 transition shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-search text-amber-500 mr-2"></i> Analyze</h3>
+                                <p class="text-slate-600 leading-relaxed">Explain how the harsh environment of Greenland forces the Inuit people to have a different diet than teenagers living in a warm city in California.</p>
+                            </div>
+                            <div onclick="speak(this.innerText, null, 'Andrew')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 transition shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-balance-scale text-amber-500 mr-2"></i> Evaluate</h3>
+                                <p class="text-slate-600 leading-relaxed">Which is more valuable: A blog that preserves historical recipes from the 13th century, or a viral TikTok page reviewing popular fast food? Justify your choice.</p>
+                            </div>
+                            <div onclick="speak(this.innerText, null, 'Emma')" class="p-5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 transition shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-2 text-xl"><i class="fas fa-lightbulb text-amber-500 mr-2"></i> Create</h3>
+                                <p class="text-slate-600 leading-relaxed">Design a menu for a "Global Table" event at your school. Choose three items (appetizer, main, dessert) from three different continents.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderInteractiveWriting() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-5xl flex flex-col border border-rose-100 h-full">
+                        <div class="mb-4 text-center">
+                            <h2 class="text-2xl font-black text-rose-900 mb-1">GRASPS Essay Builder</h2>
+                            <p class="text-slate-500 text-sm">Role: Blogger | Focus: Giving Reasons (So / Because)</p>
+                        </div>
+                        
+                        <div class="flex-1 overflow-y-auto space-y-4 px-2">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-rose-500 uppercase">1. Topic Sentence</label>
+                                <input type="text" id="write-topic" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-rose-500 outline-none" placeholder="e.g., There are many reasons why teenagers love sharing food photos online...">
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-rose-500 uppercase">2. Reason 1 (Use 'Because')</label>
+                                <input type="text" id="write-cause1" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-rose-500 outline-none" placeholder="e.g., Because teenagers want to show off their cooking skills...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-rose-500 uppercase">3. Effect 1 (Use 'So')</label>
+                                <input type="text" id="write-effect1" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-rose-500 outline-none" placeholder="e.g., ...so they post pictures of their new creations on TikTok.">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-rose-500 uppercase">4. Reason 2</label>
+                                <input type="text" id="write-cause2" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-rose-500 outline-none" placeholder="e.g., Another reason is to keep a visual diary...">
+                            </div>
+                            
+                            <button onclick="generateEssay()" class="w-full bg-rose-600 text-white py-3 rounded-xl font-bold hover:bg-rose-700 transition shadow-lg mt-4">
+                                Generate Paragraph
+                            </button>
+                            
+                            <div id="essay-output" class="hidden mt-6 p-6 bg-rose-50 rounded-xl border border-rose-200 text-slate-800 text-lg leading-relaxed font-serif"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateEssay() {
+            const topic = document.getElementById('write-topic').value;
+            const c1 = document.getElementById('write-cause1').value;
+            const e1 = document.getElementById('write-effect1').value;
+            const c2 = document.getElementById('write-cause2').value;
+            
+            if(!topic || !c1 || !e1) { alert("Please fill in the main fields."); return; }
+            
+            const final = `${topic} ${c1} ${e1} ${c2} Overall, sharing food photos connects us with friends globally.`;
+            const out = document.getElementById('essay-output');
+            out.innerText = final;
+            out.classList.remove('hidden');
+            out.classList.add('pop-in');
+        }
+
+        function renderSpecialLesson(id) {
+            const lesson = specialLessons[id];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-rose-100 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-rose-50 pb-4 flex-none">
+                            <h2 class="text-2xl font-black text-rose-950">${lesson.title}</h2>
+                        </div>
+                        <div class="overflow-y-auto flex-1 pr-2 text-slate-800">
+                            ${lesson.content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderExitTicket() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-10 w-full max-w-3xl flex flex-col border border-rose-100 text-center">
+                        <h2 class="text-3xl font-black text-rose-900 mb-6">Exit Ticket: Self-Reflection</h2>
+                        
+                        <div class="space-y-6 text-left w-full">
+                            <div class="bg-rose-50 p-5 rounded-xl border border-rose-200">
+                                <h3 class="font-bold text-rose-800 mb-2"><i class="fas fa-eye"></i> Process Reflection</h3>
+                                <p class="text-slate-700">"When reading about Sasha Martin's blog, did you notice how paraphrasing made her writing more interesting? How can you use synonyms in your own essays?"</p>
+                            </div>
+                            
+                            <div class="bg-amber-50 p-5 rounded-xl border border-amber-200">
+                                <h3 class="font-bold text-amber-800 mb-2"><i class="fas fa-brain"></i> Concept Transfer</h3>
+                                <p class="text-slate-700">"Sasha called food a 'bridge' to other cultures. Think about the international students at your school. Could sharing a meal help you build a bridge with them?"</p>
+                            </div>
+                        </div>
+                        <button onclick="nextBtn.click()" class="mt-8 bg-rose-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-rose-700 transition">Continue to Unit Review</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAudioRecorder() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-10 w-full max-w-3xl flex flex-col items-center border border-red-100 text-center">
+                        <h2 class="text-3xl font-black text-red-900 mb-2">Spoken Summary</h2>
+                        <p class="text-slate-600 mb-8 text-xl">Answer: "Why do you think people enjoy posting pictures of their food online?"</p>
+                        
+                        <div class="w-full h-48 bg-slate-100 rounded-2xl mb-8 flex items-center justify-center relative overflow-hidden">
+                            <button id="mic-btn" onmousedown="startRecording()" onmouseup="stopRecording()" onmouseleave="stopRecording()" ontouchstart="startRecording()" ontouchend="stopRecording()" class="w-24 h-24 rounded-full bg-red-600 text-white text-4xl flex items-center justify-center shadow-lg transition hover:scale-105 active:scale-95 cursor-pointer select-none -webkit-tap-highlight-color-transparent z-10">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <p id="mic-status" class="absolute bottom-4 text-slate-500 font-bold">Press and Hold to Record</p>
+                        </div>
+
+                        <div id="audio-preview-container" class="w-full mb-6 min-h-[54px]"></div>
+
+                        <a id="download-audio-btn" class="hidden bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-700 transition items-center gap-2 cursor-pointer">
+                            <i class="fas fa-download"></i> Download Recording
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVocab(idx) {
+            const v = vocabulary[idx];
+            let voiceName = idx % 2 === 0 ? "Emma" : "Andrew";
+            const textToSpeak = `${v.word}. ${v.def}. Example: ${v.sent}`;
+            const safeText = textToSpeak.replace(/'/g, "\\'");
+
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 justify-start relative z-10">
+                    <div onclick="speak('${safeText}', null, '${voiceName}')" class="vocab-card w-full max-w-6xl bg-white flex flex-col p-12 relative overflow-hidden h-full items-start text-left cursor-pointer hover:border-rose-400 transition hover:shadow-lg hover:bg-rose-50">
+                        <div class="flex-1 flex flex-col justify-start gap-8 pt-4 w-full">
+                            <div>
+                                <span class="block text-rose-600 text-lg font-bold tracking-widest mb-2">VOCABULARY</span>
+                                <h2 class="text-5xl font-black text-slate-800">${v.emoji} ${v.word.toLowerCase()}</h2>
+                            </div>
+                            <p class="text-5xl text-gray-700 leading-snug font-light">${v.def}</p>
+                            <div class="border-l-[8px] border-amber-400 pl-8 bg-white/50 p-6 rounded-r-xl w-full">
+                                <p class="text-3xl text-rose-900 italic font-medium leading-relaxed">"${v.sent}"</p>
+                                <p class="text-right text-amber-700 font-bold mt-4">— ${v.persona}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if(state.audioEnabled) setTimeout(() => speak(textToSpeak, null, voiceName), 500);
+        }
+
+        function renderScriptView(lecId, voiceName) {
+            const l = lectures[lecId];
+            const words = l.text.split(' ');
+            const playBtn = document.createElement('button');
+            playBtn.className = "bg-amber-500 hover:bg-amber-400 text-rose-900 w-10 h-10 rounded-full flex items-center justify-center transition shadow-lg font-bold";
+            playBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            playBtn.onclick = stopAudio;
+            headerActions.appendChild(playBtn);
+
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-rose-100">
+                        <h2 class="text-2xl text-rose-700 font-bold mb-4">${l.title}</h2>
+                        <div id="script-container" class="text-2xl leading-relaxed font-bold text-gray-800 flex-1 flex flex-wrap content-start justify-start text-left gap-x-2 gap-y-2 overflow-y-auto">
+                            ${words.map((w, i) => `<span class="highlight-word">${w} </span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if(state.audioEnabled) {
+                setTimeout(() => {
+                    speak(l.text, (charIdx) => {
+                        let runningTotal = 0;
+                        const spans = document.querySelectorAll('.highlight-word');
+                        spans.forEach(s => s.classList.remove('active'));
+                        for(let i=0; i<spans.length; i++) {
+                            const span = spans[i];
+                            const len = span.innerText.length;
+                            if (charIdx >= runningTotal && charIdx < runningTotal + len) {
+                                span.classList.add('active');
+                                span.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                                break;
+                            }
+                            runningTotal += len;
+                        }
+                    }, voiceName);
+                }, 500);
+            }
+        }
+
+        let selectedGapWord = null;
+        function renderGapFill(lecId) {
+            const l = lectures[lecId];
+            const parts = l.gaps.parts[0].split(/(\[\d\])/);
+            const bank = [...l.gaps.bank].sort(() => 0.5 - Math.random());
+            selectedGapWord = null;
+
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-2 relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-lg p-8 w-full max-w-6xl flex flex-col h-full border border-rose-100">
+                        <h2 class="text-xl text-rose-600 font-bold mb-2">Complete the Summary:</h2>
+                        <div class="bg-rose-50 p-8 rounded-2xl text-2xl leading-loose text-gray-800 mb-4 flex-1 flex flex-wrap content-start items-center border border-rose-200 font-medium text-left">
+                            <div class="text-left w-full">
+                                ${parts.map(p => p.match(/\[\d\]/) ? `<span class="gap-slot" id="gap-${p.replace(/\D/g,'')}" onclick="handleGapClick(this, ${lecId}, ${parseInt(p.replace(/\D/g,''))-1})"></span>` : p).join('')}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 justify-center mb-4 bg-slate-100 p-4 rounded-xl min-h-[80px] items-center">
+                            ${bank.map(w => `<button class="word-bank-item bg-white border border-slate-300 px-4 py-2 rounded-lg shadow-sm font-bold text-lg hover:bg-rose-50 hover:border-rose-400 transition" onclick="selectBankWord(this, '${w}')">${w}</button>`).join('')}
+                        </div>
+                        <p class="text-center text-slate-400 text-sm">Select a word, then tap a blank space.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectBankWord(btn, word) {
+            const isSelected = btn.classList.contains('selected');
+            document.querySelectorAll('.word-bank-item').forEach(b => b.classList.remove('selected'));
+            if (!isSelected) {
+                btn.classList.add('selected');
+                selectedGapWord = { word: word, el: btn };
+            } else { selectedGapWord = null; }
+        }
+
+        function handleGapClick(gapEl, lecId, ansIndex) {
+            if (!selectedGapWord || gapEl.classList.contains('filled')) return;
+            const correctWord = lectures[lecId].gaps.ans[ansIndex];
+            if (selectedGapWord.word === correctWord) {
+                gapEl.textContent = selectedGapWord.word;
+                gapEl.classList.add('filled', 'shimmer-effect');
+                selectedGapWord.el.classList.add('used');
+                selectedGapWord.el.classList.remove('selected');
+                selectedGapWord = null;
+                const totalGaps = lectures[lecId].gaps.ans.length;
+                const filledGaps = document.querySelectorAll('.gap-slot.filled').length;
+                if(filledGaps === totalGaps) {
+                    state.score += 20; saveState();
+                    scoreDisplay.textContent = state.score;
+                    showPraise("Perfect! 🎉");
+                }
+            } else {
+                gapEl.classList.add('wrong');
+                setTimeout(() => gapEl.classList.remove('wrong'), 500);
+            }
+        }
+
+        function renderMCQSingle(q, qIdx) {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4 relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-rose-100">
+                        <div class="mb-6 text-left w-full">
+                            <span class="text-rose-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (MCQ)</span>
+                            <p class="font-bold text-gray-800 text-2xl leading-tight text-left">${q.q}</p>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center gap-2">
+                            ${q.opts.map((o, oi) => `
+                                <button id="opt-${oi}" onclick="checkMCQSingle(${oi}, ${q.ans})" class="mcq-option-large">
+                                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center mr-4 text-xl border border-slate-300 shrink-0">
+                                        ${String.fromCharCode(65+oi)}
+                                    </div>
+                                    <span class="font-medium text-slate-700 text-left">${o}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMCQSingle(optIdx, correctIdx) {
+            const btn = document.getElementById(`opt-${optIdx}`);
+            const allOpts = document.querySelectorAll('.mcq-option-large');
+            if(btn.disabled) return; 
+
+            if(optIdx === correctIdx) {
+                btn.classList.add('correct');
+                state.score += 10;
+                showPraise("Correct! 🌟");
+            } else {
+                btn.classList.add('wrong');
+                btn.classList.add('shake');
+                document.getElementById(`opt-${correctIdx}`).classList.add('correct');
+            }
+            allOpts.forEach(b => b.disabled = true);
+            scoreDisplay.textContent = state.score; saveState();
+        }
+
+        function renderTrueFalse(q, qIdx) {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4 relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-rose-100">
+                        <div class="mb-6 text-left w-full">
+                            <span class="text-rose-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (TRUE/FALSE)</span>
+                            <p class="font-bold text-gray-800 text-3xl leading-tight text-left mb-8">${q.q}</p>
+                        </div>
+                        <div class="flex gap-6 justify-center mb-8">
+                            <button id="tf-true" onclick="checkTF(true, ${q.ans}, '${q.exp.replace(/'/g, "\\'")}')" class="tf-btn w-1/3">
+                                <i class="fas fa-check-circle text-4xl text-rose-500"></i> TRUE
+                            </button>
+                            <button id="tf-false" onclick="checkTF(false, ${q.ans}, '${q.exp.replace(/'/g, "\\'")}')" class="tf-btn w-1/3">
+                                <i class="fas fa-times-circle text-4xl text-red-500"></i> FALSE
+                            </button>
+                        </div>
+                        <div id="tf-feedback" class="hidden p-6 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                            <p class="text-xl text-slate-700 font-bold" id="tf-exp-text"></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkTF(choice, answer, explanation) {
+            const btnTrue = document.getElementById('tf-true');
+            const btnFalse = document.getElementById('tf-false');
+            if(btnTrue.disabled) return;
+
+            btnTrue.disabled = true;
+            btnFalse.disabled = true;
+
+            if(choice === answer) {
+                state.score += 10;
+                showPraise("Correct! 🌟");
+                if(choice) btnTrue.classList.add('correct'); else btnFalse.classList.add('correct');
+            } else {
+                if(choice) btnTrue.classList.add('wrong'); else btnFalse.classList.add('wrong');
+                if(answer) btnTrue.classList.add('correct'); else btnFalse.classList.add('correct');
+            }
+
+            const feed = document.getElementById('tf-feedback');
+            document.getElementById('tf-exp-text').textContent = "Note: " + explanation;
+            feed.classList.remove('hidden');
+            feed.classList.add('pop-in');
+
+            scoreDisplay.textContent = state.score; saveState();
+        }
+
+        function showPraise(text) {
+            const overlay = document.getElementById('praise-overlay');
+            const txt = document.getElementById('praise-text');
+            txt.textContent = text;
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+        }
+
+        function renderFinalReflection() {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4 relative z-10">
+                    <div class="bg-white rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-rose-100">
+                        <div class="mb-4 text-center">
+                            <span class="text-rose-500 font-bold tracking-widest text-sm block mb-2 uppercase">End of Unit Reflection</span>
+                            <h2 class="text-3xl font-black text-slate-800">Unit Review</h2>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-6 px-4 pb-4">
+                            
+                            <!-- Reflection 1 -->
+                            <div class="bg-rose-50 p-6 rounded-xl border border-rose-200">
+                                <h3 class="font-bold text-rose-900 mb-2 text-xl">1. Most Effective Solution</h3>
+                                <p class="text-slate-700 mb-3">Thinking about your school and friends, do you think posting food pictures online helps people appreciate other cultures more?</p>
+                                <textarea class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-rose-400" rows="3" placeholder="I think posting food pictures..."></textarea>
+                            </div>
+
+                            <!-- Reflection 2 -->
+                            <div class="bg-amber-50 p-6 rounded-xl border border-amber-200">
+                                <h3 class="font-bold text-amber-900 mb-2 text-xl">2. Using Synonyms</h3>
+                                <p class="text-slate-700 mb-3">Instead of using the word "tasty" every time, what are two other words you can use when writing about food?</p>
+                                <textarea class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-amber-400" rows="2" placeholder="Instead of tasty, I can use..."></textarea>
+                            </div>
+
+                            <!-- Vocab Checklist -->
+                            <div class="bg-rose-50 p-6 rounded-xl border border-rose-200">
+                                <h3 class="font-bold text-rose-900 mb-4 text-xl">3. Vocabulary Checklist</h3>
+                                <p class="text-slate-700 mb-4">Check off the words you can confidently use in a sentence.</p>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    ${vocabulary.map(v => `
+                                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-rose-100 rounded">
+                                            <input type="checkbox" class="w-5 h-5 text-rose-600 rounded">
+                                            <span class="text-slate-800 font-medium">${v.word}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFinish() {
+             container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 text-center p-4 relative z-10">
+                    <div class="bg-white p-16 rounded-[3rem] shadow-2xl max-w-2xl w-full border-4 border-amber-400">
+                        <div class="text-8xl mb-6">🏆</div>
+                        <h2 class="text-5xl font-black text-rose-900 mb-4">Unit Complete!</h2>
+                        <div class="my-8 py-6 bg-rose-50 rounded-3xl border-2 border-rose-100">
+                            <span class="text-7xl font-black text-amber-500">${state.score}</span>
+                        </div>
+                        <button onclick="resetProgress()" class="bg-rose-800 text-white px-8 py-4 rounded-xl font-bold text-xl hover:bg-rose-700 transition w-full shadow-lg">
+                            New Session 🔄
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if(state.page === 0) renderHome(); else render();
+        scoreDisplay.textContent = state.score;
+        updateAudioIcon();
+    </script>
+</body>
+</html>

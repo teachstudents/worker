@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debate Arena Platform</title>
+    
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Tailwind slate-900 */
+        }
+        /* Custom minimalist scrollbar to prevent layout shifting */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="text-slate-100 h-screen overflow-hidden flex flex-col">
+    <div id="root" class="h-full w-full"></div>
+
+    <script type="text/babel">
+        const topicsData = [
+            {
+                promptEn: "To become an elite champion athlete like Su Yiming or Quan Hongchan, having the right natural 'sports genes' is much more important than just training hard every day.",
+                promptZh: "要成为像苏翊鸣或全红婵这样的顶尖运动冠军，拥有天生的“运动基因”比每天刻苦训练重要得多。",
+                agreeArgument: "You must argue that biology is destiny. Point out that scientists have found specific DNA markers that give some athletes a massive advantage—like fast-twitch muscles for sprinting or the perfect body shape for swimming. No matter how hard an average person trains, they cannot beat someone with perfect sports genes.",
+                disagreeArgument: "You must argue that hard work beats talent. Point out that genetics only provide a 'baseline.' To become a true Olympic champion, you need relentless psychological discipline, the ability to perform under extreme pressure, and thousands of hours of repetitive training.",
+                agreeVocab: [
+                    { en: "Biology", zh: "生物学" }, { en: "Destiny", zh: "命运" }, { en: "DNA markers", zh: "DNA标记" }, { en: "Advantage", zh: "优势" }, { en: "Fast-twitch muscles", zh: "快肌" },
+                    { en: "Body shape", zh: "体型" }, { en: "Natural talent", zh: "天赋" }, { en: "Genetics", zh: "遗传学" }, { en: "Innate ability", zh: "天生能力" }, { en: "Unbeatable", zh: "不可战胜的" }
+                ],
+                disagreeVocab: [
+                    { en: "Hard work", zh: "刻苦工作" }, { en: "Baseline", zh: "基准线" }, { en: "Psychological", zh: "心理的" }, { en: "Discipline", zh: "纪律" }, { en: "Extreme pressure", zh: "极限压力" },
+                    { en: "Repetitive", zh: "重复的" }, { en: "Training", zh: "训练" }, { en: "Perseverance", zh: "毅力" }, { en: "Mindset", zh: "心态" }, { en: "Overcome", zh: "克服" }
+                ]
+            },
+            {
+                promptEn: "Because of beauty filters on apps like Douyin and Xiaohongshu, teenagers today care too much about achieving 'perfect' physical beauty rather than developing a good personality.",
+                promptZh: "由于抖音和小红书等应用上的美颜滤镜，如今的青少年过于在乎追求“完美”的外表，而忽略了培养良好的内在性格。",
+                agreeArgument: "You must argue that society has created toxic, impossible beauty standards. Point out that digital filters and cosmetic surgery make teenagers feel insecure about their natural appearance. We judge people based on subjective, changing fashion trends rather than their actual character.",
+                disagreeArgument: "You must argue that caring about beauty is a natural, biological instinct. Use the evolutionary biology text: human brains are hardwired to look for clear skin and facial symmetry because it signals good health. Furthermore, using makeup or tattoos is a proud, ancient way for humans to express their cultural identity.",
+                agreeVocab: [
+                    { en: "Toxic standards", zh: "有害的标准" }, { en: "Impossible", zh: "不可能的" }, { en: "Insecure", zh: "不安全的" }, { en: "Appearance", zh: "外貌" }, { en: "Subjective", zh: "主观的" },
+                    { en: "Fashion trends", zh: "时尚趋势" }, { en: "Character", zh: "性格" }, { en: "Superficial", zh: "肤浅的" }, { en: "Anxiety", zh: "焦虑" }, { en: "Obsession", zh: "痴迷" }
+                ],
+                disagreeVocab: [
+                    { en: "Biological instinct", zh: "生物本能" }, { en: "Evolutionary", zh: "进化的" }, { en: "Hardwired", zh: "天生的" }, { en: "Symmetry", zh: "对称" }, { en: "Health signals", zh: "健康信号" },
+                    { en: "Express identity", zh: "表达身份" }, { en: "Cultural", zh: "文化的" }, { en: "Confidence", zh: "自信" }, { en: "Aesthetics", zh: "美学" }, { en: "Empowerment", zh: "赋权" }
+                ]
+            },
+            {
+                promptEn: "It is better to keep endangered animals safe in modern city zoos rather than leaving them in the wild where their habitats are being destroyed.",
+                promptZh: "把濒危动物安全地养在现代城市动物园里，比把它们留在栖息地正遭到破坏的野外要好。",
+                agreeArgument: "You must argue that the wild is no longer safe due to human development and climate change. Zoos and rescue centers provide emergency medical care, guaranteed food, and safe breeding programs to ensure these species do not go extinct.",
+                disagreeArgument: "You must argue that animals belong in nature. Point out that keeping wild animals confined in small urban spaces destroys their natural hunting instincts. Instead of building better cages, we must focus on saving their pristine natural habitats in the wild and stopping illegal poaching.",
+                agreeVocab: [
+                    { en: "Endangered", zh: "濒危的" }, { en: "Sanctuary", zh: "庇护所" }, { en: "Emergency care", zh: "紧急护理" }, { en: "Guaranteed food", zh: "食物保障" }, { en: "Breeding program", zh: "繁殖计划" },
+                    { en: "Extinct", zh: "灭绝" }, { en: "Protection", zh: "保护" }, { en: "Veterinary", zh: "兽医的" }, { en: "Safe environment", zh: "安全环境" }, { en: "Survival rate", zh: "存活率" }
+                ],
+                disagreeVocab: [
+                    { en: "Confined", zh: "被限制的" }, { en: "Instincts", zh: "本能" }, { en: "Natural habitat", zh: "自然栖息地" }, { en: "Pristine", zh: "原始的" }, { en: "Poaching", zh: "偷猎" },
+                    { en: "Freedom", zh: "自由" }, { en: "Ecosystem", zh: "生态系统" }, { en: "Cruelty", zh: "残酷" }, { en: "Captivity", zh: "圈养" }, { en: "Conservation", zh: "环境保护" }
+                ]
+            },
+            {
+                promptEn: "Governments should completely forbid people from living or building tourist resorts near dangerous places like active volcanoes or earthquake zones.",
+                promptZh: "政府应该全面禁止人们在活火山或地震带等危险地区居住或建造旅游度假村。",
+                agreeArgument: "You must argue that human safety comes first. Natural disasters are incredibly destructive and impossible to predict with 100% accuracy. Letting tourists climb 'sacred summits' that could explode at any minute is irresponsible and puts rescue workers' lives at risk.",
+                disagreeArgument: "You must argue that humans can adapt to the violent earth. Millions of people have deeply rooted cultural and historical connections to these mountains. Instead of forcing people to leave, we should invest in better predictive technology and earthquake-proof architecture to live in harmony with nature.",
+                agreeVocab: [
+                    { en: "Safety first", zh: "安全第一" }, { en: "Destructive", zh: "破坏性的" }, { en: "Unpredictable", zh: "不可预测的" }, { en: "Irresponsible", zh: "不负责任的" }, { en: "Rescue risk", zh: "救援风险" },
+                    { en: "Evacuation", zh: "疏散" }, { en: "Hazard", zh: "危险" }, { en: "Catastrophe", zh: "灾难" }, { en: "Prevention", zh: "预防" }, { en: "Strict laws", zh: "严格法律" }
+                ],
+                disagreeVocab: [
+                    { en: "Adapt", zh: "适应" }, { en: "Cultural roots", zh: "文化根源" }, { en: "Historical", zh: "历史的" }, { en: "Predictive tech", zh: "预测技术" }, { en: "Earthquake-proof", zh: "抗震的" },
+                    { en: "Harmony", zh: "和谐" }, { en: "Resilience", zh: "韧性" }, { en: "Livelihood", zh: "生计" }, { en: "Engineering", zh: "工程学" }, { en: "Coexistence", zh: "共存" }
+                ]
+            },
+            {
+                promptEn: "Mass tourism to beautiful coastal places does more damage to the local environment than the economic money it brings in.",
+                promptZh: "大量游客涌入美丽的沿海地区，对当地环境造成的破坏大于其带来的经济收益。",
+                agreeArgument: "You must argue that the search for the 'perfect beach' is destroying the planet. Mass tourism brings plastic waste, overcrowding, and pollution that kills fragile marine life like coral reefs. We are ruining the exact beautiful places we travel so far to see.",
+                disagreeArgument: "You must argue that eco-tourism is the key to survival for many island communities. When managed properly, the money brought in by tourists provides jobs for locals and actually funds the conservation projects needed to protect the beaches and oceans.",
+                agreeVocab: [
+                    { en: "Mass tourism", zh: "大众旅游" }, { en: "Plastic waste", zh: "塑料垃圾" }, { en: "Overcrowding", zh: "过度拥挤" }, { en: "Pollution", zh: "污染" }, { en: "Fragile", zh: "脆弱的" },
+                    { en: "Marine life", zh: "海洋生物" }, { en: "Coral reefs", zh: "珊瑚礁" }, { en: "Degradation", zh: "退化" }, { en: "Exploitation", zh: "剥削" }, { en: "Irreversible", zh: "不可逆的" }
+                ],
+                disagreeVocab: [
+                    { en: "Eco-tourism", zh: "生态旅游" }, { en: "Economic benefit", zh: "经济效益" }, { en: "Jobs", zh: "工作机会" }, { en: "Conservation funds", zh: "保护资金" }, { en: "Managed properly", zh: "妥善管理" },
+                    { en: "Awareness", zh: "意识" }, { en: "Sustainable", zh: "可持续的" }, { en: "Community", zh: "社区" }, { en: "Investment", zh: "投资" }, { en: "Balance", zh: "平衡" }
+                ]
+            },
+            {
+                promptEn: "Relying on caffeine (like milk tea or coffee) to stay awake and study late for high school exams is a dangerous addiction that students should completely avoid.",
+                promptZh: "依靠咖啡因（如奶茶或咖啡）来保持清醒和熬夜准备高中考试是一种危险的上瘾行为，学生应该完全避免。",
+                agreeArgument: "You must argue that caffeine is a drug that we abuse. Point out that it disrupts our natural sleep cycles and tricks our nervous system into masking its exhaustion. Relying on a chemical stimulant to handle school pressure leads to chronic fatigue and anxiety.",
+                disagreeArgument: "You must argue that caffeine is a helpful, harmless tool when used in moderation. Point out that it improves focus, eases stress, and increases short-term memory for studying. Plus, going out for coffee or milk tea is an important social ritual for teenagers to relax with friends.",
+                agreeVocab: [
+                    { en: "Addiction", zh: "上瘾" }, { en: "Disrupt sleep", zh: "扰乱睡眠" }, { en: "Nervous system", zh: "神经系统" }, { en: "Exhaustion", zh: "疲惫" }, { en: "Chemical stimulant", zh: "化学兴奋剂" },
+                    { en: "Chronic fatigue", zh: "慢性疲劳" }, { en: "Anxiety", zh: "焦虑" }, { en: "Unhealthy", zh: "不健康的" }, { en: "Dependency", zh: "依赖性" }, { en: "Side effects", zh: "副作用" }
+                ],
+                disagreeVocab: [
+                    { en: "Moderation", zh: "适度" }, { en: "Improves focus", zh: "提高注意力" }, { en: "Relieves stress", zh: "缓解压力" }, { en: "Short-term memory", zh: "短期记忆" }, { en: "Social ritual", zh: "社交仪式" },
+                    { en: "Harmless tool", zh: "无害工具" }, { en: "Productivity", zh: "生产力" }, { en: "Alertness", zh: "警觉性" }, { en: "Relaxation", zh: "放松" }, { en: "Bonding", zh: "建立关系" }
+                ]
+            },
+            {
+                promptEn: "To fight climate change, developing nations should be forced to stop using all fossil fuels immediately, even if it slows down their economic growth.",
+                promptZh: "为了应对气候变化，发展中国家应该被强制立即停止使用所有化石燃料，即使这会减缓它们的经济增长。",
+                agreeArgument: "You must argue that the climate crisis is an absolute emergency. We must aggressively phase out carbon emissions and switch to renewable energy (solar, wind, wave power) immediately. If we destroy the atmosphere, having a strong economy won't matter.",
+                disagreeArgument: "You must argue for a 'just transition.' An immediate ban would be an economic disaster, leaving millions in developing nations without basic electricity or jobs. We need a gradual timeline that allows cities to build green infrastructure without punishing the working class.",
+                agreeVocab: [
+                    { en: "Emergency", zh: "紧急情况" }, { en: "Phase out", zh: "逐步淘汰" }, { en: "Carbon emissions", zh: "碳排放" }, { en: "Renewable energy", zh: "可再生能源" }, { en: "Atmosphere", zh: "大气层" },
+                    { en: "Aggressive action", zh: "果断行动" }, { en: "Global warming", zh: "全球变暖" }, { en: "Existential threat", zh: "生存威胁" }, { en: "Immediate ban", zh: "立即禁止" }, { en: "Priority", zh: "优先事项" }
+                ],
+                disagreeVocab: [
+                    { en: "Just transition", zh: "公正转型" }, { en: "Economic disaster", zh: "经济灾难" }, { en: "Basic electricity", zh: "基本电力" }, { en: "Gradual timeline", zh: "渐进时间表" }, { en: "Green infrastructure", zh: "绿色基础设施" },
+                    { en: "Working class", zh: "工人阶级" }, { en: "Development", zh: "发展" }, { en: "Unfair burden", zh: "不公平负担" }, { en: "Poverty", zh: "贫困" }, { en: "Compromise", zh: "妥协" }
+                ]
+            },
+            {
+                promptEn: "Spending billions of dollars on massive epic engineering projects (like the Grand Canal) is justified because they connect the country, even if they damage nature.",
+                promptZh: "斥资数十亿美元建设宏大的工程项目是合理的，因为它们连接了国家，即使这会破坏自然。",
+                agreeArgument: "You must argue that epic infrastructure is necessary for human progress. Mega-projects provide easier and more affordable transportation for people and goods. They create jobs, boost the economy, and unite distant, isolated regions of a massive country.",
+                disagreeArgument: "You must argue that these projects destroy pristine environments and displace local communities. We should not prioritize concrete and money over preserving our ancient, natural landscapes.",
+                agreeVocab: [
+                    { en: "Infrastructure", zh: "基础设施" }, { en: "Human progress", zh: "人类进步" }, { en: "Transportation", zh: "交通运输" }, { en: "Boost economy", zh: "提振经济" }, { en: "Unite regions", zh: "团结地区" },
+                    { en: "Job creation", zh: "创造就业" }, { en: "Efficiency", zh: "效率" }, { en: "Modernization", zh: "现代化" }, { en: "Connectivity", zh: "连通性" }, { en: "Long-term benefits", zh: "长期利益" }
+                ],
+                disagreeVocab: [
+                    { en: "Destroy environments", zh: "破坏环境" }, { en: "Displace communities", zh: "迫使社区搬迁" }, { en: "Prioritize money", zh: "把金钱置于优先" }, { en: "Preserve landscapes", zh: "保护景观" }, { en: "Ecological cost", zh: "生态成本" },
+                    { en: "Deforestation", zh: "森林砍伐" }, { en: "Short-sighted", zh: "目光短浅的" }, { en: "Habitat loss", zh: "栖息地丧失" }, { en: "Greed", zh: "贪婪" }, { en: "Irreversible damage", zh: "不可逆的破坏" }
+                ]
+            },
+            {
+                promptEn: "In the near future, using Virtual Reality (VR) headsets in the classroom will be a much better way to learn history and science than taking real-world field trips.",
+                promptZh: "在不久的将来，在课堂上使用虚拟现实（VR）头显来学习历史和科学，将比现实世界中的实地考察更好。",
+                agreeArgument: "You must argue that VR is limitless. It allows students to safely travel anywhere—from the bottom of the ocean to outer space—instantly and for free. It provides 'embodied cognition', which makes complicated subjects much easier to remember.",
+                disagreeArgument: "You must argue that VR is just another isolating digital screen. It can cause physical side effects like dizziness. More importantly, it lacks the real, tactile human experience—you cannot feel the wind or truly connect with classmates wearing a headset.",
+                agreeVocab: [
+                    { en: "Limitless", zh: "无限的" }, { en: "Safely travel", zh: "安全旅行" }, { en: "Instantly", zh: "瞬间地" }, { en: "Embodied cognition", zh: "具身认知" }, { en: "Immersive", zh: "沉浸式的" },
+                    { en: "Interactive", zh: "互动的" }, { en: "Cost-effective", zh: "性价比高的" }, { en: "Visualize", zh: "可视化" }, { en: "Accessible", zh: "易获取的" }, { en: "Innovation", zh: "创新" }
+                ],
+                disagreeVocab: [
+                    { en: "Isolating", zh: "孤立的" }, { en: "Digital screen", zh: "数字屏幕" }, { en: "Side effects", zh: "副作用" }, { en: "Dizziness", zh: "头晕" }, { en: "Tactile experience", zh: "触觉体验" },
+                    { en: "Human connection", zh: "人际连接" }, { en: "Authentic", zh: "真实的" }, { en: "Artificial", zh: "人造的" }, { en: "Social skills", zh: "社交技能" }, { en: "Real-world", zh: "现实世界的" }
+                ]
+            },
+            {
+                promptEn: "Because the teenage brain is still developing and naturally impulsive, high school students should not be harshly punished for taking reckless risks or making bad choices.",
+                promptZh: "由于青少年的大脑仍在发育且天生容易冲动，因此不应因为高中生冒失的冒险或做出错误的选择而对他们进行严厉的惩罚。",
+                agreeArgument: "You must argue using neuroscience. Point out that the prefrontal cortex (which controls logic) is not fully developed, meaning teenagers naturally value rewards and peer approval more than risks. We need empathy and guidance, not harsh punishment.",
+                disagreeArgument: "You must argue for personal responsibility. Even if the brain is developing, teenagers still understand the basic difference between right and wrong. Blaming bad behavior purely on biology gives students a free excuse to break rules.",
+                agreeVocab: [
+                    { en: "Neuroscience", zh: "神经科学" }, { en: "Prefrontal cortex", zh: "前额叶皮层" }, { en: "Impulsive", zh: "冲动的" }, { en: "Peer approval", zh: "同龄人的认可" }, { en: "Empathy", zh: "同理心" },
+                    { en: "Guidance", zh: "指导" }, { en: "Development", zh: "发育" }, { en: "Rehabilitation", zh: "康复/教养" }, { en: "Understanding", zh: "理解" }, { en: "Forgiveness", zh: "宽恕" }
+                ],
+                disagreeVocab: [
+                    { en: "Personal responsibility", zh: "个人责任" }, { en: "Right and wrong", zh: "是非对错" }, { en: "Excuse", zh: "借口" }, { en: "Accountability", zh: "责任心" }, { en: "Consequences", zh: "后果" },
+                    { en: "Discipline", zh: "纪律" }, { en: "Deterrent", zh: "威慑" }, { en: "Maturity", zh: "成熟" }, { en: "Standards", zh: "标准" }, { en: "Justice", zh: "公正" }
+                ]
+            },
+            {
+                promptEn: "Great art comes directly from personal suffering and mental struggle; therefore, an artist must suffer to create a true masterpiece.",
+                promptZh: "伟大的艺术直接源于个人的痛苦和精神挣扎；因此，艺术家必须经历痛苦才能创作出真正的杰作。",
+                agreeArgument: "You must agree using Van Gogh as evidence. Argue that his intense brushstrokes reflect his psychological turmoil. True classic art requires deep emotional trauma to connect with the human condition.",
+                disagreeArgument: "You must disagree by pointing out that suffering is not a requirement for genius. Great artists also use joy, technical mastery, and optical science (like Picasso). Art is about creative innovation, not just being depressed.",
+                agreeVocab: [
+                    { en: "Suffering", zh: "痛苦" }, { en: "Mental struggle", zh: "精神挣扎" }, { en: "Turmoil", zh: "动荡" }, { en: "Trauma", zh: "创伤" }, { en: "Human condition", zh: "人类生存状态" },
+                    { en: "Profound", zh: "深刻的" }, { en: "Authentic emotion", zh: "真实情感" }, { en: "Masterpiece", zh: "杰作" }, { en: "Passion", zh: "激情" }, { en: "Expression", zh: "表达" }
+                ],
+                disagreeVocab: [
+                    { en: "Joy", zh: "喜悦" }, { en: "Technical mastery", zh: "技术掌握" }, { en: "Optical science", zh: "光学科学" }, { en: "Creative innovation", zh: "创意创新" }, { en: "Imagination", zh: "想象力" },
+                    { en: "Genius", zh: "天才" }, { en: "Inspiration", zh: "灵感" }, { en: "Skill", zh: "技能" }, { en: "Observation", zh: "观察" }, { en: "Dedication", zh: "专注" }
+                ]
+            },
+            {
+                promptEn: "Exploring the extreme, dangerous depths of our own oceans is more important for human survival than spending billions of dollars on space exploration and colonizing Mars.",
+                promptZh: "探索我们自己海洋的极端危险深处，比花费数十亿美元进行太空探索和殖民火星对人类的生存更重要。",
+                agreeArgument: "You must argue an 'Earth-First' perspective. Earth's deep oceans are full of undiscovered biodiversity that could hold the cure for human diseases. We must protect and understand our own planet before flying to a dead rock.",
+                disagreeArgument: "You must argue that space exploration is humanity's ultimate insurance policy. Catastrophic asteroid impacts are a real threat. We must develop technologies to survive in zero gravity so humanity can survive if Earth is destroyed.",
+                agreeVocab: [
+                    { en: "Earth-First", zh: "地球优先" }, { en: "Biodiversity", zh: "生物多样性" }, { en: "Medical cures", zh: "医学疗法" }, { en: "Protect planet", zh: "保护星球" }, { en: "Ecosystems", zh: "生态系统" },
+                    { en: "Resources", zh: "资源" }, { en: "Immediate needs", zh: "迫切需求" }, { en: "Sustainability", zh: "可持续性" }, { en: "Exploration", zh: "探索" }, { en: "Marine depths", zh: "海洋深处" }
+                ],
+                disagreeVocab: [
+                    { en: "Insurance policy", zh: "保险单" }, { en: "Asteroid impacts", zh: "小行星撞击" }, { en: "Zero gravity", zh: "零重力" }, { en: "Colonization", zh: "殖民" }, { en: "Survival", zh: "生存" },
+                    { en: "Multi-planetary", zh: "多行星的" }, { en: "Future generation", zh: "后代" }, { en: "Technology leap", zh: "技术飞跃" }, { en: "Extinction", zh: "灭绝" }, { en: "Frontier", zh: "前沿" }
+                ]
+            },
+            {
+                promptEn: "Posting our daily lives on platforms like WeChat Moments or Xiaohongshu has made us care more about getting 'likes' than experiencing real life.",
+                promptZh: "在朋友圈或小红书上发布日常生活，让我们变得只在乎“点赞”，而忽略了体验真实的生活。",
+                agreeArgument: "Argue that social media turns life into a performance. We interrupt real moments just to take a perfect photo. Our self-worth becomes tied to virtual validation (likes) rather than genuine memories.",
+                disagreeArgument: "Argue that sharing life online connects us with distant friends and family. Taking photos is a modern way to preserve beautiful memories. 'Likes' are simply digital high-fives, not a replacement for real joy.",
+                agreeVocab: [
+                    { en: "Validation", zh: "认可/证实" }, { en: "Performance", zh: "表演" }, { en: "Self-worth", zh: "自我价值" }, { en: "Interrupt", zh: "打断" }, { en: "Superficial", zh: "肤浅的" },
+                    { en: "Addictive", zh: "使人上瘾的" }, { en: "Comparison", zh: "比较" }, { en: "Distraction", zh: "分心" }, { en: "Virtual", zh: "虚拟的" }, { en: "Illusion", zh: "错觉" }
+                ],
+                disagreeVocab: [
+                    { en: "Connection", zh: "联系" }, { en: "Preserve memories", zh: "保存记忆" }, { en: "Digital high-fives", zh: "数字击掌" }, { en: "Community", zh: "社区" }, { en: "Sharing joy", zh: "分享喜悦" },
+                    { en: "Communication", zh: "交流" }, { en: "Document", zh: "记录" }, { en: "Inspiration", zh: "灵感" }, { en: "Bonding", zh: "建立感情" }, { en: "Modern lifestyle", zh: "现代生活方式" }
+                ]
+            },
+            {
+                promptEn: "In the natural world, looking beautiful to attract a partner is more important than blending in to hide from predators.",
+                promptZh: "在自然界中，为了吸引配偶而展现出美丽的外表，比为了躲避捕食者而隐藏自己更重要。",
+                agreeArgument: "Argue that reproduction is the ultimate goal of evolution. Peacocks risk death with bright feathers because passing on their genes is worth the danger. Beauty guarantees the survival of the species' future.",
+                disagreeArgument: "Argue that survival must come first; you cannot mate if you are dead. Camouflage and stealth are the most crucial adaptations. Animals like the leaf-tailed gecko prove that hiding is the ultimate evolutionary success.",
+                agreeVocab: [
+                    { en: "Reproduction", zh: "繁殖" }, { en: "Evolution", zh: "进化" }, { en: "Passing genes", zh: "传递基因" }, { en: "Attraction", zh: "吸引力" }, { en: "Mating success", zh: "交配成功" },
+                    { en: "Vibrant", zh: "鲜艳的" }, { en: "Display", zh: "展示" }, { en: "Flamboyant", zh: "华丽的" }, { en: "Legacy", zh: "遗产" }, { en: "Courtship", zh: "求偶" }
+                ],
+                disagreeVocab: [
+                    { en: "Survival", zh: "生存" }, { en: "Camouflage", zh: "伪装" }, { en: "Stealth", zh: "隐蔽" }, { en: "Predators", zh: "捕食者" }, { en: "Adaptation", zh: "适应" },
+                    { en: "Concealment", zh: "隐藏" }, { en: "Self-defense", zh: "自卫" }, { en: "Blend in", zh: "融入" }, { en: "Practicality", zh: "实用性" }, { en: "Longevity", zh: "长寿" }
+                ]
+            },
+            {
+                promptEn: "Genetically Modified (GM) foods are too dangerous for the environment and our health, and we should stop producing them.",
+                promptZh: "转基因食品对环境和我们的健康太危险，我们应该停止生产。",
+                agreeArgument: "Argue that playing God with DNA is reckless. GM crops can create 'superweeds' and ruin natural ecosystems. Long-term health effects on humans are unknown, and we shouldn't treat our bodies like a science experiment.",
+                disagreeArgument: "Argue that GM foods are scientific miracles that prevent global starvation. They are engineered to survive droughts and resist pests without toxic chemical sprays. GM technology is essential to feed a growing population.",
+                agreeVocab: [
+                    { en: "Reckless", zh: "鲁莽的" }, { en: "Superweeds", zh: "超级杂草" }, { en: "Ecosystems", zh: "生态系统" }, { en: "Unknown effects", zh: "未知影响" }, { en: "Unnatural", zh: "不自然的" },
+                    { en: "Contamination", zh: "污染" }, { en: "Corporate control", zh: "企业控制" }, { en: "Health risks", zh: "健康风险" }, { en: "Precaution", zh: "预防" }, { en: "Organic", zh: "有机的" }
+                ],
+                disagreeVocab: [
+                    { en: "Scientific miracles", zh: "科学奇迹" }, { en: "Starvation", zh: "饥饿" }, { en: "Drought resistant", zh: "抗旱" }, { en: "Resist pests", zh: "抗虫害" }, { en: "Yields", zh: "产量" },
+                    { en: "Efficiency", zh: "效率" }, { en: "Food security", zh: "粮食安全" }, { en: "Innovation", zh: "创新" }, { en: "Nutritional value", zh: "营养价值" }, { en: "Sustainable", zh: "可持续的" }
+                ]
+            },
+            {
+                promptEn: "To invent the best new technologies, human engineers should perfectly copy nature instead of creating completely artificial materials in a lab.",
+                promptZh: "为了发明最好的新技术，人类工程师应该完美地模仿自然，而不是在实验室里创造完全人造的材料。",
+                agreeArgument: "Argue that nature has spent millions of years solving our problems. Give examples from the text: engineers studied the thorny devil lizard to design water machines, and high-speed trains mimic the kingfisher bird's beak.",
+                disagreeArgument: "Argue that nature is just a starting point, and humans must improve upon it synthetically. We use biotechnology (like spider genes in goat milk) to mass-produce super-fibers. Artificial materials like Kevlar save lives.",
+                agreeVocab: [
+                    { en: "Biomimicry", zh: "仿生学" }, { en: "Perfection", zh: "完美" }, { en: "Evolutionary design", zh: "进化设计" }, { en: "Efficiency", zh: "效率" }, { en: "Sustainable", zh: "可持续的" },
+                    { en: "Mimic", zh: "模仿" }, { en: "Blueprint", zh: "蓝图" }, { en: "Harmony", zh: "和谐" }, { en: "Flawless", zh: "无瑕的" }, { en: "Inspiration", zh: "灵感" }
+                ],
+                disagreeVocab: [
+                    { en: "Synthetic", zh: "合成的" }, { en: "Improvement", zh: "改进" }, { en: "Biotechnology", zh: "生物技术" }, { en: "Mass-produce", zh: "大规模生产" }, { en: "Artificial", zh: "人造的" },
+                    { en: "Innovation", zh: "创新" }, { en: "Beyond limits", zh: "超越极限" }, { en: "Kevlar", zh: "凯夫拉" }, { en: "Engineering", zh: "工程" }, { en: "Manipulation", zh: "操纵" }
+                ]
+            },
+            {
+                promptEn: "Ancient humans explored dangerous oceans and migrated around the world simply because they had a 'restless gene', not because they needed food or resources.",
+                promptZh: "远古人类探索危险的海洋并在世界各地迁徙，仅仅是因为他们有“不安分的基因”，而不是因为他们需要食物或资源。",
+                agreeArgument: "Cite the DRD4-7R 'explorer's gene.' Explain that this gene variant pushes humans to take risks and seek novelty. Ancient Polynesian sailors' DNA gave them a psychological need to sail into the unknown.",
+                disagreeArgument: "Argue that migration was driven by survival. Humans crossed ice bridges following herds of animals for food. Polynesians used complex navigation and weather patterns, not just a biological urge.",
+                agreeVocab: [
+                    { en: "Restless gene", zh: "不安分基因" }, { en: "Curiosity", zh: "好奇心" }, { en: "Risk-taking", zh: "冒险" }, { en: "Novelty", zh: "新奇" }, { en: "Psychological urge", zh: "心理冲动" },
+                    { en: "Wanderlust", zh: "漫游癖" }, { en: "Exploration", zh: "探索" }, { en: "Genetics", zh: "基因学" }, { en: "Dopamine", zh: "多巴胺" }, { en: "Unknown", zh: "未知" }
+                ],
+                disagreeVocab: [
+                    { en: "Survival", zh: "生存" }, { en: "Resources", zh: "资源" }, { en: "Food scarcity", zh: "食物短缺" }, { en: "Navigation skills", zh: "航海技能" }, { en: "Weather patterns", zh: "天气模式" },
+                    { en: "Necessity", zh: "必然性" }, { en: "Adaptation", zh: "适应" }, { en: "Migration", zh: "迁徙" }, { en: "Logic", zh: "逻辑" }, { en: "Environment", zh: "环境" }
+                ]
+            },
+            {
+                promptEn: "Virtual currencies like Bitcoin are a dangerous form of gambling and will never replace real, government-backed money.",
+                promptZh: "像比特币这样的虚拟货币是一种危险的赌博形式，永远不会取代真正的、由政府支持的货币。",
+                agreeArgument: "Point out the extreme volatility (price swings) of crypto. Real money is stable because the government backs it. Bitcoin triggers the brain's reward system, making it function like a casino rather than a reliable currency.",
+                disagreeArgument: "Argue that money always evolves. Virtual currency is the future because blockchain allows for speedy, borderless transactions with low fees. This empowers people in nations without stable banks.",
+                agreeVocab: [
+                    { en: "Volatility", zh: "波动性" }, { en: "Gambling", zh: "赌博" }, { en: "Government-backed", zh: "政府支持的" }, { en: "Unpredictable", zh: "不可预测的" }, { en: "Risky asset", zh: "风险资产" },
+                    { en: "Regulation", zh: "监管" }, { en: "Casino", zh: "赌场" }, { en: "Instability", zh: "不稳定性" }, { en: "Speculation", zh: "投机" }, { en: "Scams", zh: "骗局" }
+                ],
+                disagreeVocab: [
+                    { en: "Evolution", zh: "进化" }, { en: "Blockchain", zh: "区块链" }, { en: "Borderless", zh: "无国界的" }, { en: "Low fees", zh: "低费用" }, { en: "Empowering", zh: "赋权" },
+                    { en: "Decentralized", zh: "去中心化的" }, { en: "Future currency", zh: "未来货币" }, { en: "Financial freedom", zh: "财务自由" }, { en: "Innovation", zh: "创新" }, { en: "Speedy", zh: "快速的" }
+                ]
+            },
+            {
+                promptEn: "The anonymity of the internet has turned teenagers into a cruel and aggressive crowd, leading to toxic cyberbullying.",
+                promptZh: "互联网的匿名性使青少年变成了一群残酷且具攻击性的人，导致了恶性的网络欺凌。",
+                agreeArgument: "Argue that the internet removes natural compassion. Anonymous people abandon morals. This digital shield allows teenagers to conform to toxic 'herd behavior' and bully without facing real-world consequences.",
+                disagreeArgument: "Argue that human brains are wired to collaborate, not attack. The internet doesn't make us evil; we just fail to manage impulsivity. Humans can easily use group action online to shut down bullies and protect victims.",
+                agreeVocab: [
+                    { en: "Anonymity", zh: "匿名性" }, { en: "Cruel", zh: "残酷的" }, { en: "Cyberbullying", zh: "网络欺凌" }, { en: "Herd behavior", zh: "羊群行为" }, { en: "Digital shield", zh: "数字盾牌" },
+                    { en: "Consequences", zh: "后果" }, { en: "Toxic", zh: "有毒的" }, { en: "Mob mentality", zh: "暴民心理" }, { en: "Cowardice", zh: "懦弱" }, { en: "Harassment", zh: "骚扰" }
+                ],
+                disagreeVocab: [
+                    { en: "Collaborate", zh: "合作" }, { en: "Supportive", zh: "支持性的" }, { en: "Manage impulsivity", zh: "管理冲动" }, { en: "Protect victims", zh: "保护受害者" }, { en: "Online community", zh: "网络社区" },
+                    { en: "Empathy", zh: "同理心" }, { en: "Positive action", zh: "积极行动" }, { en: "Accountability", zh: "问责制" }, { en: "Connection", zh: "连接" }, { en: "Human nature", zh: "人性" }
+                ]
+            },
+            {
+                promptEn: "Modern science, like DNA and poison testing, is now so advanced that it can solve any historical mystery with 100% certainty.",
+                promptZh: "现代科学，如DNA和毒物测试，现在已经非常先进，能够以100%的确定性解开任何历史谜团。",
+                agreeArgument: "Cite modern toxicology. Mass spectrometry can detect invisible poison down to parts per trillion. Finding arsenic in Napoleon's hair is hard biological proof he was poisoned. Science doesn't lie.",
+                disagreeArgument: "Argue that scientific data without historical context is meaningless. Arsenic was in Napoleon's body, but historians found his green wallpaper released arsenic in hot weather. The scientific evidence is inconclusive.",
+                agreeVocab: [
+                    { en: "Certainty", zh: "确定性" }, { en: "Toxicology", zh: "毒理学" }, { en: "Biological proof", zh: "生物学证据" }, { en: "Objective", zh: "客观的" }, { en: "Infallible", zh: "无误的" },
+                    { en: "Data-driven", zh: "数据驱动的" }, { en: "Spectrometry", zh: "光谱测定" }, { en: "Accuracy", zh: "准确性" }, { en: "Evidence", zh: "证据" }, { en: "Fact", zh: "事实" }
+                ],
+                disagreeVocab: [
+                    { en: "Historical context", zh: "历史背景" }, { en: "Inconclusive", zh: "非决定性的" }, { en: "Meaningless data", zh: "无意义的数据" }, { en: "Interpretation", zh: "解释" }, { en: "Ambiguity", zh: "模棱两可" },
+                    { en: "Environmental factors", zh: "环境因素" }, { en: "Subjective", zh: "主观的" }, { en: "Limitations", zh: "局限性" }, { en: "Complexity", zh: "复杂性" }, { en: "Doubt", zh: "怀疑" }
+                ]
+            },
+            {
+                promptEn: "It is better to explore ancient historical sites using 3D Virtual Reality at home than to travel there in person and risk destroying the real monuments with mass tourism.",
+                promptZh: "在家里通过3D虚拟现实探索古代历史遗迹，比亲自去那里旅游并冒着被大众旅游破坏的风险要好。",
+                agreeArgument: "Argue that human foot traffic is ruining ancient sites. By using 3D laser scanning to create a 'perfect digital copy', we can make places virtually immortal and protect real stones from careless tourists.",
+                disagreeArgument: "Argue that virtual reality cannot replace human experience. 'Nothing compares with seeing it firsthand'. Looking at a screen doesn't let you feel fresh air, hear sounds, or connect with the culture.",
+                agreeVocab: [
+                    { en: "Preservation", zh: "保护" }, { en: "Digital copy", zh: "数字副本" }, { en: "Immortal", zh: "不朽的" }, { en: "Erosion", zh: "侵蚀" }, { en: "Foot traffic", zh: "客流量" },
+                    { en: "Laser scanning", zh: "激光扫描" }, { en: "Damage control", zh: "损害控制" }, { en: "Sustainable", zh: "可持续的" }, { en: "Archive", zh: "存档" }, { en: "Virtual safety", zh: "虚拟安全" }
+                ],
+                disagreeVocab: [
+                    { en: "Firsthand", zh: "第一手的" }, { en: "Authentic experience", zh: "真实体验" }, { en: "Atmosphere", zh: "氛围" }, { en: "Cultural connection", zh: "文化联系" }, { en: "Sensory", zh: "感官的" },
+                    { en: "Real-world", zh: "现实世界" }, { en: "Appreciation", zh: "欣赏" }, { en: "Irreplaceable", zh: "不可替代的" }, { en: "Pilgrimage", zh: "朝圣" }, { en: "Journey", zh: "旅程" }
+                ]
+            },
+            {
+                promptEn: "To live a long, healthy life to 100 years old, having good genes from your parents is much more important than your daily diet and lifestyle.",
+                promptZh: "要健康长寿到100岁，拥有父母的优良基因比你日常的饮食和生活方式重要得多。",
+                agreeArgument: "Argue that DNA is the key to aging. Scientists found 'longevity genes' in Italy that protect people from cancer, allowing them to eat heavily or avoid exercise while living long lives. Biology beats lifestyle!",
+                disagreeArgument: "Argue that daily habits control lifespan. The Okinawans' longevity comes from a plant-based diet, strong social networks, and staying active. Healthy choices guarantee a longer life even with 'bad genes'.",
+                agreeVocab: [
+                    { en: "Longevity genes", zh: "长寿基因" }, { en: "DNA", zh: "脱氧核糖核酸" }, { en: "Inheritance", zh: "遗传" }, { en: "Protection", zh: "保护" }, { en: "Biological advantage", zh: "生物学优势" },
+                    { en: "Predisposition", zh: "倾向" }, { en: "Cellular aging", zh: "细胞老化" }, { en: "Immunity", zh: "免疫力" }, { en: "Fate", zh: "命运" }, { en: "Hereditary", zh: "遗传的" }
+                ],
+                disagreeVocab: [
+                    { en: "Daily diet", zh: "日常饮食" }, { en: "Lifestyle", zh: "生活方式" }, { en: "Plant-based", zh: "以植物为基础的" }, { en: "Social networks", zh: "社交网络" }, { en: "Active", zh: "活跃的" },
+                    { en: "Healthy habits", zh: "健康习惯" }, { en: "Control", zh: "控制" }, { en: "Prevention", zh: "预防" }, { en: "Well-being", zh: "健康/福祉" }, { en: "Choices", zh: "选择" }
+                ]
+            },
+            {
+                promptEn: "Upgrading our smartphones and laptops every single year is a selfish consumer habit that is destroying the planet with toxic 'e-waste'.",
+                promptZh: "每年升级我们的智能手机和笔记本电脑是一种自私的消费习惯，正在用有毒的“电子垃圾”摧毁地球。",
+                agreeArgument: "Argue that fast-paced tech consumption is an environmental disaster. Throwing away old phones creates hazardous e-waste that poisons developing nations' water supplies. We must stop buying things we don't need.",
+                disagreeArgument: "Argue that upgrading technology drives human progress. Newer devices are far more energy-efficient. Instead of blaming teenagers, we should force tech companies to build better recycling programs.",
+                agreeVocab: [
+                    { en: "E-waste", zh: "电子垃圾" }, { en: "Selfish habit", zh: "自私的习惯" }, { en: "Toxic", zh: "有毒的" }, { en: "Hazardous", zh: "危险的" }, { en: "Environmental disaster", zh: "环境灾难" },
+                    { en: "Overconsumption", zh: "过度消费" }, { en: "Pollution", zh: "污染" }, { en: "Landfill", zh: "垃圾填埋场" }, { en: "Greed", zh: "贪婪" }, { en: "Unnecessary", zh: "不必要的" }
+                ],
+                disagreeVocab: [
+                    { en: "Innovation", zh: "创新" }, { en: "Energy-efficient", zh: "节能的" }, { en: "Progress", zh: "进步" }, { en: "Recycling programs", zh: "回收计划" }, { en: "Corporate responsibility", zh: "企业责任" },
+                    { en: "Technological leap", zh: "技术飞跃" }, { en: "Productivity", zh: "生产力" }, { en: "Economic driver", zh: "经济驱动力" }, { en: "Upgrades", zh: "升级" }, { en: "Solutions", zh: "解决方案" }
+                ]
+            },
+            {
+                promptEn: "Governments should stop spending billions of dollars trying to colonize Mars, and instead spend that money fixing climate change here on Earth.",
+                promptZh: "政府应该停止花费数十亿美元试图殖民火星，而是把这些钱用来解决地球上的气候变化问题。",
+                agreeArgument: "Argue an 'Earth-First' perspective. Earth is our only home. Spending massive money on a dead, barren planet is a waste of resources. We must invest in saving our own oceans and forests before it's too late.",
+                disagreeArgument: "Argue that space exploration is a matter of ultimate human survival. If we do not develop space tech to deflect asteroids or build colonies, humanity could be wiped out in a single day. It is an insurance policy.",
+                agreeVocab: [
+                    { en: "Earth-First", zh: "地球优先" }, { en: "Climate change", zh: "气候变化" }, { en: "Barren planet", zh: "贫瘠的星球" }, { en: "Waste of resources", zh: "浪费资源" }, { en: "Urgency", zh: "紧迫性" },
+                    { en: "Conservation", zh: "环境保护" }, { en: "Home", zh: "家园" }, { en: "Priorities", zh: "优先事项" }, { en: "Ecosystems", zh: "生态系统" }, { en: "Fix problems", zh: "解决问题" }
+                ],
+                disagreeVocab: [
+                    { en: "Colonize Mars", zh: "殖民火星" }, { en: "Ultimate survival", zh: "最终生存" }, { en: "Insurance policy", zh: "保险单" }, { en: "Extinction", zh: "灭绝" }, { en: "Space tech", zh: "太空技术" },
+                    { en: "Deflect asteroids", zh: "偏转小行星" }, { en: "Future vision", zh: "未来愿景" }, { en: "Expansion", zh: "扩张" }, { en: "Pioneer", zh: "先驱" }, { en: "Species survival", zh: "物种生存" }
+                ]
+            }
+        ];
+
+        const agreePhrases = [
+            { en: "I strongly agree with this statement because...", zh: "我强烈同意这个观点，因为..." },
+            { en: "The evidence clearly demonstrates that...", zh: "证据清楚地表明..." },
+            { en: "We must prioritize [A] over [B]...", zh: "我们必须优先考虑[A]而不是[B]..." },
+            { en: "It is an undeniable fact that...", zh: "不可否认的事实是..." },
+            { en: "If we look at the long-term benefits...", zh: "如果我们着眼于长期利益..." },
+            { en: "This perspective aligns perfectly with reality...", zh: "这个观点与现实完美契合..." },
+            { en: "Without a doubt, this is the most logical approach...", zh: "毫无疑问，这是最符合逻辑的方法..." }
+        ];
+
+        const disagreePhrases = [
+            { en: "I respectfully disagree with this position...", zh: "我恭敬地不同意这个立场..." },
+            { en: "That argument completely overlooks the fact that...", zh: "那个论点完全忽略了一个事实，即..." },
+            { en: "A much better alternative would be to...", zh: "一个好得多的替代方案是..." },
+            { en: "The negative consequences far outweigh the benefits...", zh: "负面后果远远超过了好处..." },
+            { en: "We should focus on addressing the root cause...", zh: "我们应该专注于解决根本原因..." },
+            { en: "History has shown us that this approach fails...", zh: "历史告诉我们这种方法会失败..." },
+            { en: "It is fundamentally flawed to assume that...", zh: "假设...是根本上错误的" }
+        ];
+
+        const TeamColumn = ({ side, students, topic }) => {
+            const isAgree = side === 'agree';
+            
+            const bgColor = isAgree ? 'bg-blue-600/10' : 'bg-rose-600/10';
+            const borderColor = isAgree ? 'border-blue-500' : 'border-rose-500';
+            const textColor = isAgree ? 'text-blue-400' : 'text-rose-400';
+            const title = isAgree ? 'TEAM AGREE (正方)' : 'TEAM DISAGREE (反方)';
+            
+            const vocabList = isAgree ? topic.agreeVocab : topic.disagreeVocab;
+            const argument = isAgree ? topic.agreeArgument : topic.disagreeArgument;
+            const phrases = isAgree ? agreePhrases : disagreePhrases;
+
+            const [showArg, setShowArg] = React.useState(false);
+            const [showPhrases, setShowPhrases] = React.useState(false);
+
+            return (
+                <div className={`flex flex-col h-full w-[28%] ${bgColor} border-t-4 ${borderColor} p-3 rounded-xl shadow-lg relative`}>
+                    <h2 className={`text-2xl font-bold ${textColor} text-center mb-1`}>{title}</h2>
+                    
+                    {/* Assigned Students Top Display */}
+                    <div className="flex flex-wrap gap-2 justify-center mb-2 min-h-[32px]">
+                        {students.map(s => (
+                            <span key={s.id} className="bg-slate-800 text-white px-3 py-1 text-sm rounded-full shadow border border-slate-600">
+                                {s.name}
+                            </span>
+                        ))}
+                        {students.length === 0 && <span className="text-slate-500 italic text-xs mt-1">No assigned debaters</span>}
+                    </div>
+
+                    {/* Action Buttons side-by-side (Tight Margin) */}
+                    <div className="flex space-x-2 mb-0">
+                        <button onClick={() => setShowArg(true)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded shadow text-xs font-bold transition">
+                            Show Argument (显示论点)
+                        </button>
+                        <button onClick={() => setShowPhrases(true)} className={`flex-1 ${isAgree ? 'bg-blue-700 hover:bg-blue-600' : 'bg-rose-700 hover:bg-rose-600'} text-white py-1.5 rounded shadow text-xs font-bold transition`}>
+                            {isAgree ? "Agree Phrases (短语)" : "Disagree Phrases (短语)"}
+                        </button>
+                    </div>
+
+                    {/* Enlarged Vocab section pushed higher */}
+                    <div className="flex-1 overflow-y-auto mt-0 pr-1 custom-scrollbar">
+                        <div className="flex flex-col space-y-1.5 pt-2">
+                            {vocabList.map((v, i) => (
+                                <div key={i} className="flex justify-between items-center bg-slate-800/80 p-2 rounded border border-slate-700/50">
+                                    <span className="text-lg font-bold text-slate-100">{v.en}</span>
+                                    {/* Chinese text updated to text-white for clarity */}
+                                    <span className="text-lg text-white ml-2 text-right">{v.zh}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Modals */}
+                    {showArg && (
+                        <div className="absolute inset-0 z-20 bg-slate-900/95 p-5 rounded-xl flex flex-col border-2 border-slate-600 shadow-2xl">
+                            <h3 className={`text-xl font-bold mb-3 ${textColor}`}>Your Argument Strategy</h3>
+                            <p className="text-2xl leading-relaxed text-slate-200 flex-1 overflow-y-auto custom-scrollbar">{argument}</p>
+                            <button onClick={() => setShowArg(false)} className="mt-3 bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold shadow-lg">Close</button>
+                        </div>
+                    )}
+
+                    {showPhrases && (
+                        <div className="absolute inset-0 z-20 bg-slate-900/95 p-5 rounded-xl flex flex-col border-2 border-slate-600 shadow-2xl">
+                            <h3 className={`text-xl font-bold mb-3 ${textColor}`}>Debate Phrase Bank</h3>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col space-y-2">
+                                {phrases.map((p, i) => (
+                                    <div key={i} className="bg-slate-800 p-3 rounded border border-slate-700">
+                                        <div className="text-slate-100 font-semibold text-lg">{p.en}</div>
+                                        <div className="text-white text-base mt-1">{p.zh}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => setShowPhrases(false)} className="mt-3 bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold shadow-lg">Close</button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [topicIndex, setTopicIndex] = React.useState(0);
+            const [timeLeft, setTimeLeft] = React.useState(600); 
+            const [timerTotal, setTimerTotal] = React.useState(600);
+            const [timerActive, setTimerActive] = React.useState(false);
+            const [students, setStudents] = React.useState([]);
+            const [newStudentName, setNewStudentName] = React.useState('');
+
+            const topic = topicsData[topicIndex];
+
+            React.useEffect(() => {
+                let interval = null;
+                if (timerActive && timeLeft > 0) {
+                    interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
+                } else if (timeLeft === 0) {
+                    setTimerActive(false);
+                }
+                return () => clearInterval(interval);
+            }, [timerActive, timeLeft]);
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const setTimer = (seconds) => {
+                setTimeLeft(seconds);
+                setTimerTotal(seconds);
+                setTimerActive(false);
+            };
+
+            const handleAddStudent = () => {
+                if (newStudentName.trim() === '') return;
+                setStudents([...students, { id: Date.now(), name: newStudentName.trim(), team: null }]);
+                setNewStudentName('');
+            };
+
+            const assignLastStudent = (team) => {
+                const unassigned = students.filter(s => s.team === null);
+                if (unassigned.length > 0) {
+                    const studentToAssign = unassigned[unassigned.length - 1];
+                    setStudents(students.map(s => s.id === studentToAssign.id ? { ...s, team } : s));
+                } else if (students.length > 0) {
+                    const lastStudent = students[students.length - 1];
+                    setStudents(students.map(s => s.id === lastStudent.id ? { ...s, team } : s));
+                }
+            };
+
+            const removeStudent = (id) => {
+                setStudents(students.filter(s => s.id !== id));
+            };
+
+            const timePercentage = timerTotal > 0 ? timeLeft / timerTotal : 0;
+            const redValue = Math.floor(60 * (1 - timePercentage)); 
+            const bgStyle = {
+                backgroundColor: `rgb(${15 + redValue}, 23, 42)`,
+                transition: 'background-color 1s linear'
+            };
+
+            return (
+                <div style={bgStyle} className="h-full w-full p-4 flex flex-col font-sans">
+                    
+                    {/* Fixed Height Header for Prompt (Keeps Layout Stable) */}
+                    <div className="h-[26%] bg-slate-800/80 rounded-xl p-4 shadow-xl border border-slate-700 mb-3 flex flex-col justify-center flex-shrink-0 relative overflow-y-auto custom-scrollbar">
+                        <div className="text-center w-full">
+                            <h1 className="text-3xl font-extrabold text-white leading-tight mb-2 drop-shadow-md">
+                                {topic.promptEn}
+                            </h1>
+                            <h2 className="text-2xl font-semibold text-amber-400 drop-shadow">
+                                {topic.promptZh}
+                            </h2>
+                        </div>
+                    </div>
+
+                    {/* Main Layout: 3 Columns */}
+                    <div className="flex flex-row flex-1 overflow-hidden space-x-3">
+                        
+                        {/* LEFT: Agree Team */}
+                        <TeamColumn 
+                            side="agree" 
+                            topic={topic} 
+                            students={students.filter(s => s.team === 'agree')} 
+                        />
+
+                        {/* CENTER: Timer & Controls */}
+                        <div className="flex flex-col flex-1 h-full max-w-[40%]">
+                            
+                            {/* Topic Navigation */}
+                            <div className="flex justify-between items-center mb-2 bg-slate-800/50 p-1.5 rounded-lg border border-slate-700">
+                                <button onClick={() => setTopicIndex(i => (i > 0 ? i - 1 : topicsData.length - 1))} className="bg-slate-700 px-3 py-1 rounded text-xs font-bold hover:bg-slate-600 transition">Prev</button>
+                                <div className="text-slate-300 text-sm font-semibold tracking-wider">TOPIC {topicIndex + 1} OF {topicsData.length}</div>
+                                <button onClick={() => setTopicIndex(i => (i < topicsData.length - 1 ? i + 1 : 0))} className="bg-slate-700 px-3 py-1 rounded text-xs font-bold hover:bg-slate-600 transition">Next</button>
+                            </div>
+
+                            {/* Timer Component */}
+                            <div className="bg-slate-800 rounded-xl p-3 flex flex-col items-center justify-center border-2 border-slate-700 shadow-[0_0_20px_rgba(0,0,0,0.5)] relative overflow-hidden flex-shrink-0">
+                                <div className="absolute top-0 left-0 h-1.5 bg-emerald-500 transition-all duration-1000" style={{ width: `${timePercentage * 100}%` }}></div>
+                                <div className="text-6xl font-extrabold font-mono tracking-widest mb-2 z-10 text-white drop-shadow-lg">
+                                    {formatTime(timeLeft)}
+                                </div>
+                                <div className="flex space-x-2 z-10 mb-2">
+                                    <button onClick={() => setTimer(300)} className="bg-slate-700 hover:bg-slate-600 px-3 py-1 text-xs font-bold rounded transition">5m</button>
+                                    <button onClick={() => setTimer(600)} className="bg-slate-700 hover:bg-slate-600 px-3 py-1 text-xs font-bold rounded transition">10m</button>
+                                    <button onClick={() => setTimer(900)} className="bg-slate-700 hover:bg-slate-600 px-3 py-1 text-xs font-bold rounded transition">15m</button>
+                                </div>
+                                <div className="flex space-x-2 z-10 w-full px-4">
+                                    <button onClick={() => setTimerActive(!timerActive)} className={`flex-1 py-1.5 text-xs font-bold rounded uppercase tracking-wider transition ${timerActive ? 'bg-amber-500 hover:bg-amber-600 text-slate-900' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg'}`}>
+                                        {timerActive ? 'Pause' : 'Start Timer'}
+                                    </button>
+                                    <button onClick={() => setTimer(timerTotal)} className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 text-xs font-bold rounded transition">Reset</button>
+                                </div>
+                            </div>
+
+                            {/* Add Student Input */}
+                            <div className="mt-3 flex flex-shrink-0 shadow-lg">
+                                <input 
+                                    type="text" 
+                                    value={newStudentName}
+                                    onChange={e => setNewStudentName(e.target.value)}
+                                    onKeyPress={e => e.key === 'Enter' && handleAddStudent()}
+                                    placeholder="Enter Debater Name..."
+                                    className="flex-1 bg-slate-800 text-white p-2 rounded-l text-sm border-y border-l border-slate-600 focus:outline-none focus:border-blue-500"
+                                />
+                                <button onClick={handleAddStudent} className="bg-blue-600 hover:bg-blue-500 px-4 py-2 text-sm font-bold rounded-r border-y border-r border-blue-600 transition">Add</button>
+                            </div>
+                            
+                            {/* Assign Last Student Buttons */}
+                            <div className="flex space-x-2 mt-2 flex-shrink-0">
+                                <button onClick={() => assignLastStudent('agree')} className="flex-1 bg-blue-600/80 hover:bg-blue-500 py-1.5 text-xs font-bold rounded shadow transition">Assign to Agree 👈</button>
+                                <button onClick={() => assignLastStudent('disagree')} className="flex-1 bg-rose-600/80 hover:bg-rose-500 py-1.5 text-xs font-bold rounded shadow transition">👉 Assign to Disagree</button>
+                            </div>
+
+                            {/* Split Scoreboard Roster in the Middle */}
+                            <div className="flex flex-1 mt-3 border-2 border-slate-700 rounded-lg overflow-hidden bg-slate-900/50 shadow-inner">
+                                <div className="w-1/2 p-2 flex flex-col border-r-2 border-slate-700/50 bg-blue-900/10">
+                                    <h4 className="text-center text-blue-400 font-bold mb-2 text-xs uppercase tracking-wider border-b border-blue-500/30 pb-1">Agree Roster</h4>
+                                    <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
+                                        {students.filter(s => s.team === 'agree').map(s => (
+                                            <div key={s.id} onClick={() => removeStudent(s.id)} title="Click to remove" className="text-white text-center bg-blue-600/20 hover:bg-red-600/40 py-1.5 text-sm rounded cursor-pointer transition border border-blue-500/20">
+                                                {s.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="w-1/2 p-2 flex flex-col bg-rose-900/10">
+                                    <h4 className="text-center text-rose-400 font-bold mb-2 text-xs uppercase tracking-wider border-b border-rose-500/30 pb-1">Disagree Roster</h4>
+                                    <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
+                                        {students.filter(s => s.team === 'disagree').map(s => (
+                                            <div key={s.id} onClick={() => removeStudent(s.id)} title="Click to remove" className="text-white text-center bg-rose-600/20 hover:bg-red-600/40 py-1.5 text-sm rounded cursor-pointer transition border border-rose-500/20">
+                                                {s.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* RIGHT: Disagree Team */}
+                        <TeamColumn 
+                            side="disagree" 
+                            topic={topic} 
+                            students={students.filter(s => s.team === 'disagree')} 
+                        />
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

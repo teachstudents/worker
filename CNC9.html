@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Grade 9 English | Oxford Shenzhen Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e1b4b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            padding: 10px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: var(--shadow);
+            height: 60px;
+            gap: 5px;
+        }
+
+        .header-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.secondary {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn:active { transform: scale(0.95); }
+        .nav-btn:disabled { opacity: 0; pointer-events: none; }
+
+        .xp-badge {
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 10px;
+            padding-top: 70px; /* Account for header */
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Unit Grid (Home) */
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding-bottom: 20px;
+        }
+
+        .unit-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            text-align: center;
+        }
+        .unit-card.completed { border-color: var(--success); }
+        .unit-emoji { font-size: 2em; margin-bottom: 5px; }
+        .unit-title { font-size: 0.9em; font-weight: 700; color: var(--text-primary); }
+
+        /* Mode Selector - Flex layout to fit screen and prevent scrolling */
+        .mode-selector {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 0;
+            font-size: 1.05em; /* Increased font size for readability */
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: -0.3px; /* Ensure fit on small screens */
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* TTS Clickable Areas */
+        .tts-clickable {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .tts-clickable:active { transform: scale(0.98); }
+        .tts-active { border-color: var(--accent) !important; box-shadow: 0 0 8px var(--accent); }
+
+        /* Vocabulary Cards */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .vocab-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+        .vocab-emoji-bg {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+        .vocab-emoji { font-size: 2em; line-height: 1; }
+        .vocab-word { font-size: 1.05em; font-weight: 700; color: var(--text-primary); }
+        .vocab-pronunciation { color: var(--text-secondary); font-size: 0.8em; }
+
+        /* Grammar Box & Games */
+        .grammar-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border);
+        }
+        .grammar-title { font-size: 1.05em; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .grammar-rule, .grammar-example {
+            background: var(--bg-input);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 4px 0;
+            font-size: 0.95em;
+            border-left: 3px solid var(--primary);
+            color: var(--text-primary);
+        }
+        .grammar-exercise {
+            background: var(--bg-dark);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px dashed var(--border);
+        }
+        .grammar-q { font-size: 1em; font-weight: 600; margin-bottom: 10px; }
+        .grammar-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+        .grammar-opt {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .grammar-opt.correct { background: var(--success); border-color: var(--success); }
+        .grammar-opt.wrong { background: #ef4444; border-color: #ef4444; }
+
+        /* Reading Box */
+        .reading-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.05em;
+            line-height: 1.6;
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Conversations */
+        .convo-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .convo-tab {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .convo-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .conversation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0;
+            min-height: 220px;
+        }
+        .message-bubble {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 1em;
+            line-height: 1.4;
+            opacity: 0;
+            animation: popIn 0.3s forwards;
+            cursor: pointer;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-left {
+            align-self: flex-start;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        .message-right {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Flashcards */
+        .flashcard-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            perspective: 1000px;
+        }
+        .flashcard {
+            height: 130px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+        .flashcard-front { background: var(--bg-card); }
+        .flashcard-back { background: var(--primary); transform: rotateY(180deg); color: white; border-color: var(--primary); }
+
+        /* Quiz & Spelling */
+        .interactive-container {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .quiz-option {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        .quiz-option.correct { background: var(--success); border-color: var(--success); }
+        .quiz-option.wrong { background: #ef4444; border-color: #ef4444; }
+
+        .spelling-wrapper { position: relative; display: inline-block; width: 100%; margin: 10px 0; }
+        .spelling-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.3em;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            text-align: center;
+        }
+        .btn-full {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .btn-repeat {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        /* Glitter Effect */
+        .glitter {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fbbf24;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: sparkle 0.6s linear forwards;
+            box-shadow: 0 0 5px #fcd34d;
+        }
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="header">
+        <div class="header-group">
+            <button class="nav-btn secondary" id="homeBtn" onclick="showHome()">🏠 Home</button>
+            <button class="nav-btn secondary" id="backBtn" onclick="navigateBack()" disabled>⬅ Back</button>
+        </div>
+        <div class="header-title" id="headerTitle">Grade 9 English</div>
+        <div class="header-group">
+            <div class="xp-badge">⭐ <span id="xpValue">0</span></div>
+            <button class="nav-btn" id="nextBtn" onclick="navigateForward()" disabled>Next ➡</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Home View -->
+        <div id="homeView">
+            <div class="section-title">Semester 1 (上册)</div>
+            <div class="units-grid" id="sem1Grid"></div>
+            
+            <div class="section-title" style="margin-top: 10px;">Semester 2 (下册)</div>
+            <div class="units-grid" id="sem2Grid"></div>
+        </div>
+
+        <!-- Content View -->
+        <div id="contentView" style="display: none;">
+            <!-- Mode Selector (Vocab -> Grammar -> Reading -> Quiz -> Convo -> Cards -> Spell) -->
+            <div class="mode-selector" id="modeSelector">
+                <button class="mode-btn active" onclick="setMode('vocab')">Vocab</button>
+                <button class="mode-btn" onclick="setMode('grammar')">Grammar</button>
+                <button class="mode-btn" onclick="setMode('reading')">Reading</button>
+                <button class="mode-btn" onclick="setMode('quiz')">Quiz</button>
+                <button class="mode-btn" onclick="setMode('convo')">Convo</button>
+                <button class="mode-btn" onclick="setMode('flashcards')">Cards</button>
+                <button class="mode-btn" onclick="setMode('spell')">Spell</button>
+            </div>
+            
+            <div id="contentArea"></div>
+        </div>
+    </div>
+
+    <script>
+        // Full Grade 9 Curriculum Data - Oxford Shenzhen Edition
+        const grade9Data = {
+            units: [
+                // SEMESTER 1
+                {
+                    number: 1, semester: 1, title: "Wise men in history", emoji: "🧠",
+                    vocabulary: [
+                        { word: "wise", emoji: "🦉", pronunciation: "/waɪz/" },
+                        { word: "ancient", emoji: "🏛️", pronunciation: "/ˈeɪnʃənt/" },
+                        { word: "philosopher", emoji: "📜", pronunciation: "/fəˈlɑːsəfər/" },
+                        { word: "thinker", emoji: "🤔", pronunciation: "/ˈθɪŋkər/" },
+                        { word: "solve", emoji: "💡", pronunciation: "/sɑːlv/" },
+                        { word: "puzzle", emoji: "🧩", pronunciation: "/ˈpʌzl/" },
+                        { word: "challenge", emoji: "⚔️", pronunciation: "/ˈtʃælɪndʒ/" }
+                    ],
+                    grammar: [
+                        { title: "Past Continuous Tense", rule: "Use 'was/were + verb-ing' for an action happening at a specific time in the past.", examples: ["I was studying when he called.", "They were reading about history."] },
+                        { title: "Simple Past Review", rule: "Used for completed actions in the past.", examples: ["The philosopher solved the puzzle yesterday."] }
+                    ],
+                    grammarExercises: [
+                        { q: "While Archimedes ___ a bath, he discovered a great theory.", options: ["takes", "was taking", "took"], correct: 1 },
+                        { q: "Choose the synonym: You should tell them the truth, not a lie.", options: ["fact", "excuse", "method"], correct: 0 }
+                    ],
+                    reading: "Ancient philosophers were great thinkers. For example, Archimedes was taking a bath when he suddenly solved a difficult puzzle for the king. He was so excited that he shouted 'Eureka!' This wise man used his brain to overcome a great challenge.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Are you ready for the history exam tomorrow?" },
+                            { speaker: "right", text: "I'm a bit nervous. There are so many ancient philosophers to remember." },
+                            { speaker: "left", text: "Don't worry. We were studying all night. We can solve any problem." }
+                        ],
+                        [
+                            { speaker: "left", text: "What were you doing when the teacher asked the question?" },
+                            { speaker: "right", text: "I was reading about a famous thinker. I didn't hear her!" },
+                            { speaker: "left", text: "You should pay more attention in class." }
+                        ],
+                        [
+                            { speaker: "left", text: "This math puzzle is a huge challenge." },
+                            { speaker: "right", text: "Let's think like wise men. How can we solve it?" },
+                            { speaker: "left", text: "Maybe we need to look at it from a different angle." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What was Archimedes doing when he solved the puzzle?", options: ["Sleeping", "Taking a bath", "Eating"], correct: 1 },
+                        { question: "Which word is a synonym for 'fact'?", options: ["Truth", "Puzzle", "Challenge"], correct: 0 }
+                    ],
+                    spelling: ["ancient", "philosopher", "puzzle", "challenge"]
+                },
+                {
+                    number: 2, semester: 1, title: "Great minds", emoji: "💡",
+                    vocabulary: [
+                        { word: "genius", emoji: "🌟", pronunciation: "/ˈdʒiːniəs/" },
+                        { word: "inventor", emoji: "⚙️", pronunciation: "/ɪnˈventər/" },
+                        { word: "scientist", emoji: "🔬", pronunciation: "/ˈsaɪəntɪst/" },
+                        { word: "discover", emoji: "🔭", pronunciation: "/dɪˈskʌvər/" },
+                        { word: "invention", emoji: "🚀", pronunciation: "/ɪnˈvenʃn/" },
+                        { word: "create", emoji: "🎨", pronunciation: "/kriˈeɪt/" },
+                        { word: "theory", emoji: "📐", pronunciation: "/ˈθiːəri/" }
+                    ],
+                    grammar: [
+                        { title: "Passive Voice (Present & Past)", rule: "Use 'be + past participle' when the object receives the action.", examples: ["The theory was created by Einstein.", "Computers are used by students."] },
+                        { title: "Using 'by'", rule: "Use 'by' to show who did the action in a passive sentence.", examples: ["The lightbulb was invented by Edison."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Gravity ___ discovered by Isaac Newton.", options: ["is", "was", "were"], correct: 1 },
+                        { q: "Many new inventions ___ created every year.", options: ["are", "was", "is"], correct: 0 }
+                    ],
+                    reading: "A genius is someone with exceptional intellectual power. Albert Einstein was a famous scientist. His theory of relativity was studied by many people. Thomas Edison was a great inventor. The lightbulb was invented by him, changing how the world lived in the dark.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Our science project must be finished by Friday." },
+                            { speaker: "right", text: "I know. What invention are we presenting?" },
+                            { speaker: "left", text: "The telephone. It was invented by Alexander Graham Bell." }
+                        ],
+                        [
+                            { speaker: "left", text: "Do you think you are a genius?" },
+                            { speaker: "right", text: "No, but I study hard to discover new things." },
+                            { speaker: "left", text: "Hard work is just as important as being a genius." }
+                        ],
+                        [
+                            { speaker: "left", text: "This theory is so difficult to understand." },
+                            { speaker: "right", text: "It was created by a very smart scientist. Let's read it together." },
+                            { speaker: "left", text: "Okay, maybe we can figure it out." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Who invented the lightbulb?", options: ["Einstein", "Edison", "Newton"], correct: 1 },
+                        { question: "Choose the correct passive form: The book ___ by Tom.", options: ["wrote", "was written", "writes"], correct: 1 }
+                    ],
+                    spelling: ["genius", "inventor", "invention", "theory"]
+                },
+                {
+                    number: 3, semester: 1, title: "Family life", emoji: "👨‍👩‍👧",
+                    vocabulary: [
+                        { word: "relationship", emoji: "🤝", pronunciation: "/rɪˈleɪʃnʃɪp/" },
+                        { word: "communicate", emoji: "🗣️", pronunciation: "/kəˈmjuːnɪkeɪt/" },
+                        { word: "support", emoji: "🫂", pronunciation: "/səˈpɔːrt/" },
+                        { word: "argue", emoji: "⚡", pronunciation: "/ˈɑːrɡjuː/" },
+                        { word: "understand", emoji: "👂", pronunciation: "/ˌʌndərˈstænd/" },
+                        { word: "respect", emoji: "🫡", pronunciation: "/rɪˈspekt/" }
+                    ],
+                    grammar: [
+                        { title: "Object Clauses", rule: "Use that, if, or whether to introduce a dependent clause acting as an object.", examples: ["I think that family is important.", "I wonder if he will support me."] },
+                        { title: "Expressing Opinions", rule: "State your view clearly.", examples: ["In my opinion, we should communicate more."] }
+                    ],
+                    grammarExercises: [
+                        { q: "I don't know ___ she agrees with me or not.", options: ["that", "whether", "what"], correct: 1 },
+                        { q: "My parents believe ___ respect is very important.", options: ["if", "whether", "that"], correct: 2 }
+                    ],
+                    reading: "As secondary students grow up, family relationships can become complicated. Teenagers sometimes argue with their parents about school or friends. Experts say that communication is the key. Parents and teenagers must understand and respect each other to build strong support.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "I often argue with my parents about my screen time." },
+                            { speaker: "right", text: "I think that you should communicate with them calmly." },
+                            { speaker: "left", text: "You're right. I know that they just want to support me." }
+                        ],
+                        [
+                            { speaker: "left", text: "I wonder whether my sister will help me with my homework." },
+                            { speaker: "right", text: "Just ask her. Good relationships require asking for help." },
+                            { speaker: "left", text: "I will. I respect her knowledge a lot." }
+                        ],
+                        [
+                            { speaker: "left", text: "High school entrance exams are causing me so much pressure." },
+                            { speaker: "right", text: "Does your family understand?" },
+                            { speaker: "left", text: "Yes, they support me entirely. It makes me feel much better." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is the key to a good relationship?", options: ["Arguing", "Communication", "Ignoring"], correct: 1 },
+                        { question: "Which word introduces an object clause showing a choice?", options: ["That", "Because", "Whether"], correct: 1 }
+                    ],
+                    spelling: ["relationship", "communicate", "support", "respect"]
+                },
+                {
+                    number: 4, semester: 1, title: "Problems and advice", emoji: "📝",
+                    vocabulary: [
+                        { word: "problem", emoji: "❗", pronunciation: "/ˈprɑːbləm/" },
+                        { word: "advice", emoji: "💡", pronunciation: "/ədˈvaɪs/" },
+                        { word: "suggest", emoji: "🙋", pronunciation: "/səɡˈdʒest/" },
+                        { word: "solution", emoji: "🔑", pronunciation: "/səˈluːʃn/" },
+                        { word: "worry", emoji: "😟", pronunciation: "/ˈwɜːri/" },
+                        { word: "stress", emoji: "😫", pronunciation: "/stres/" }
+                    ],
+                    grammar: [
+                        { title: "Modal Verbs for Advice", rule: "Use should, ought to, or had better + base verb.", examples: ["You ought to study harder.", "You had better not sleep late."] },
+                        { title: "Making Suggestions", rule: "Use 'Why don't you...' or 'How about...'", examples: ["How about asking for a solution?", "Why don't you talk to her?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "You look tired. You ___ better go to bed early.", options: ["should", "had", "ought"], correct: 1 },
+                        { q: "How about ___ a walk to reduce stress?", options: ["take", "taking", "takes"], correct: 1 }
+                    ],
+                    reading: "Ninth grade brings a lot of academic stress. Many students write letters to 'agony aunts' seeking advice for their problems. If you feel worry and pressure, you ought to take regular breaks. A good solution is to talk to a teacher. You had better not keep it all inside.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "I have a big problem. I failed my math test." },
+                            { speaker: "right", text: "Why don't you ask the teacher for extra help?" },
+                            { speaker: "left", text: "That is good advice. I will do that tomorrow." }
+                        ],
+                        [
+                            { speaker: "left", text: "I have so much stress from the Zhongkao preparations." },
+                            { speaker: "right", text: "You had better take a rest. How about listening to some music?" },
+                            { speaker: "left", text: "I will try that. I need a solution to this worry." }
+                        ],
+                        [
+                            { speaker: "left", text: "My friend is mad at me, but I don't know why." },
+                            { speaker: "right", text: "I suggest that you talk to her directly." },
+                            { speaker: "left", text: "You ought to be a counselor. You give great advice!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is a good phrase for giving a suggestion?", options: ["You must", "How about", "I order you"], correct: 1 },
+                        { question: "What should you do if you have exam stress?", options: ["Keep it inside", "Take a break", "Stop sleeping"], correct: 1 }
+                    ],
+                    spelling: ["problem", "advice", "solution", "stress"]
+                },
+                {
+                    number: 5, semester: 1, title: "Action!", emoji: "🎬",
+                    vocabulary: [
+                        { word: "action", emoji: "🏃", pronunciation: "/ˈækʃn/" },
+                        { word: "adventure", emoji: "🧗", pronunciation: "/ədˈventʃər/" },
+                        { word: "hero", emoji: "🦸", pronunciation: "/ˈhɪroʊ/" },
+                        { word: "scene", emoji: "📸", pronunciation: "/siːn/" },
+                        { word: "director", emoji: "💺", pronunciation: "/dəˈrektər/" },
+                        { word: "audience", emoji: "👥", pronunciation: "/ˈɔːdiəns/" }
+                    ],
+                    grammar: [
+                        { title: "Relative Clauses", rule: "Use who (people), which (things), or that (both) to describe a noun.", examples: ["The hero is a man who saves people.", "This is the movie which won an award."] }
+                    ],
+                    grammarExercises: [
+                        { q: "He is the director ___ made that amazing action movie.", options: ["which", "who", "what"], correct: 1 },
+                        { q: "I love scenes ___ have a lot of special effects.", options: ["who", "that", "whose"], correct: 1 }
+                    ],
+                    reading: "Action movies are very popular among secondary students. A good director creates thrilling scenes that keep the audience on the edge of their seats. The hero, who usually goes on a dangerous adventure, must defeat the villain. It is a fantastic way to relax during leisure time.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Did you see the new action movie yesterday?" },
+                            { speaker: "right", text: "Yes! The actor who played the hero was amazing." },
+                            { speaker: "left", text: "I agree. The scene which had the car chase was the best." }
+                        ],
+                        [
+                            { speaker: "left", text: "Who is your favorite movie director?" },
+                            { speaker: "right", text: "I like directors that create big science fiction adventures." },
+                            { speaker: "left", text: "Me too. The audience always loves a good adventure." }
+                        ],
+                        [
+                            { speaker: "left", text: "Let's go to the cinema this weekend." },
+                            { speaker: "right", text: "Great! I want to watch a movie that has a lot of action." },
+                            { speaker: "left", text: "I'll buy the tickets for us." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Which relative pronoun is used for a person?", options: ["Which", "Who", "Where"], correct: 1 },
+                        { question: "What does an audience do?", options: ["Make the movie", "Watch the movie", "Act in the movie"], correct: 1 }
+                    ],
+                    spelling: ["action", "adventure", "director", "audience"]
+                },
+                {
+                    number: 6, semester: 1, title: "Healthy diet", emoji: "🥗",
+                    vocabulary: [
+                        { word: "diet", emoji: "🍽️", pronunciation: "/ˈdaɪət/" },
+                        { word: "nutrition", emoji: "🥑", pronunciation: "/nuˈtrɪʃn/" },
+                        { word: "balanced", emoji: "⚖️", pronunciation: "/ˈbælənst/" },
+                        { word: "vitamin", emoji: "💊", pronunciation: "/ˈvaɪtəmɪn/" },
+                        { word: "calorie", emoji: "🔥", pronunciation: "/ˈkæləri/" },
+                        { word: "ingredient", emoji: "🧂", pronunciation: "/ɪnˈɡriːdiənt/" }
+                    ],
+                    grammar: [
+                        { title: "Countable & Uncountable", rule: "Countable nouns have plurals (apples). Uncountable nouns do not (water).", examples: ["I ate two apples.", "I drank some water."] },
+                        { title: "Quantifiers", rule: "Use many (countable), much (uncountable), some/a lot of (both).", examples: ["How many calories?", "How much nutrition?"] }
+                    ],
+                    grammarExercises: [
+                        { q: "How ___ water should a student drink every day?", options: ["many", "much", "some"], correct: 1 },
+                        { q: "A balanced diet contains a lot of ___.", options: ["vitamins", "vitamin", "much vitamins"], correct: 0 }
+                    ],
+                    reading: "To prepare for the Zhongkao, a student's brain needs excellent nutrition. A balanced diet is essential. You shouldn't consume too many empty calories. Instead, eat meals with fresh ingredients that provide a lot of vitamins. Remember, how much you sleep and what you eat affect your grades!",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "I'm always tired during morning classes." },
+                            { speaker: "right", text: "Do you eat a balanced diet for breakfast?" },
+                            { speaker: "left", text: "Not really. I usually just eat a few cookies." },
+                            { speaker: "right", text: "You need more nutrition and vitamins!" }
+                        ],
+                        [
+                            { speaker: "left", text: "How many calories are in this burger?" },
+                            { speaker: "right", text: "A lot! It has too much fat and not enough healthy ingredients." },
+                            { speaker: "left", text: "I guess I will choose a salad instead." }
+                        ],
+                        [
+                            { speaker: "left", text: "I am trying to improve my diet." },
+                            { speaker: "right", text: "That's smart. How much water do you drink daily?" },
+                            { speaker: "left", text: "About 8 glasses. It keeps my brain active." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Which is an uncountable noun?", options: ["Apple", "Water", "Vitamin"], correct: 1 },
+                        { question: "What is essential for a student's brain?", options: ["Empty calories", "A balanced diet", "Less sleep"], correct: 1 }
+                    ],
+                    spelling: ["nutrition", "balanced", "calorie", "ingredient"]
+                },
+                {
+                    number: 7, semester: 1, title: "The Adventures of Tom Sawyer", emoji: "📖",
+                    vocabulary: [
+                        { word: "adventure", emoji: "🏕️", pronunciation: "/ədˈventʃər/" },
+                        { word: "character", emoji: "🎭", pronunciation: "/ˈkærəktər/" },
+                        { word: "plot", emoji: "📜", pronunciation: "/plɑːt/" },
+                        { word: "setting", emoji: "🏞️", pronunciation: "/ˈsetɪŋ/" },
+                        { word: "theme", emoji: "💡", pronunciation: "/θiːm/" },
+                        { word: "literature", emoji: "📚", pronunciation: "/ˈlɪtrətʃər/" }
+                    ],
+                    grammar: [
+                        { title: "Narrative Tenses", rule: "Use past simple for main events, past continuous for background, and past perfect for earlier events.", examples: ["He had left before I arrived."] },
+                        { title: "Time Connectors", rule: "Use when, while, after, before, as soon as to link events.", examples: ["As soon as he saw the cave, he ran inside."] }
+                    ],
+                    grammarExercises: [
+                        { q: "The boys ___ in the river when they heard a noise.", options: ["swim", "were swimming", "swam"], correct: 1 },
+                        { q: "By the time we got to the cinema, the movie ___.", options: ["starts", "started", "had started"], correct: 2 }
+                    ],
+                    reading: "The Adventures of Tom Sawyer is a famous piece of literature. The main character, Tom, goes on a great adventure. The setting is a small town near a big river. Before he found the treasure, he had experienced many dangerous situations. The plot is full of exciting twists.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Have you read The Adventures of Tom Sawyer?" },
+                            { speaker: "right", text: "Yes! Tom is such an interesting character." },
+                            { speaker: "left", text: "I agree. The plot is full of adventure and mystery." }
+                        ],
+                        [
+                            { speaker: "left", text: "What is the theme of this literature book?" },
+                            { speaker: "right", text: "It is about growing up and being brave." },
+                            { speaker: "left", text: "The setting near the Mississippi River makes it so realistic." }
+                        ],
+                        [
+                            { speaker: "left", text: "We need to write a book report by Friday." },
+                            { speaker: "right", text: "I had already started writing mine before the teacher reminded us." },
+                            { speaker: "left", text: "You are so fast! I will write about the main characters." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is the main character's name in the reading?", options: ["Jack", "Tom", "O. Henry"], correct: 1 },
+                        { question: "Which word links two past events?", options: ["Because", "Before", "But"], correct: 1 }
+                    ],
+                    spelling: ["character", "literature", "setting", "theme"]
+                },
+                {
+                    number: 8, semester: 1, title: "Surprise endings", emoji: "🎁",
+                    vocabulary: [
+                        { word: "surprise", emoji: "😲", pronunciation: "/sərˈpraɪz/" },
+                        { word: "ending", emoji: "🔚", pronunciation: "/ˈendɪŋ/" },
+                        { word: "twist", emoji: "🌪️", pronunciation: "/twɪst/" },
+                        { word: "reveal", emoji: "👁️", pronunciation: "/rɪˈviːl/" },
+                        { word: "mysterious", emoji: "🕵️", pronunciation: "/mɪˈstɪriəs/" },
+                        { word: "unexpected", emoji: "⚡", pronunciation: "/ˌʌnɪkˈspektɪd/" }
+                    ],
+                    grammar: [
+                        { title: "Review of Tenses", rule: "Pay attention to context clues to choose between present, past, and future tenses.", examples: ["I read a story yesterday. I am reading now."] },
+                        { title: "Adverbial Clauses", rule: "Use although, though, or even though for contrast.", examples: ["Although it was raining, we went out."] }
+                    ],
+                    grammarExercises: [
+                        { q: "___ the ending was unexpected, the story was brilliant.", options: ["Because", "Although", "If"], correct: 1 },
+                        { q: "O. Henry ___ many stories with surprise endings in his life.", options: ["wrote", "writes", "is writing"], correct: 0 }
+                    ],
+                    reading: "O. Henry is famous for writing mysterious stories with a surprise ending. In 'The Gift of the Magi', the twist reveals that both characters sacrificed their most prized possessions for each other. The unexpected ending always leaves the audience amazed and thinking deeply.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Did you guess the ending of the mysterious story?" },
+                            { speaker: "right", text: "No! The twist was completely unexpected." },
+                            { speaker: "left", text: "I love it when authors reveal secrets at the very end." }
+                        ],
+                        [
+                            { speaker: "left", text: "Although the book is long, it is very good." },
+                            { speaker: "right", text: "Yes, every chapter has a new surprise." },
+                            { speaker: "left", text: "The ending made me cry, though." }
+                        ],
+                        [
+                            { speaker: "left", text: "We have to write a story with a twist for English class." },
+                            { speaker: "right", text: "I'm going to write about a mysterious traveler." },
+                            { speaker: "left", text: "Make sure you reveal the truth on the last page!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is O. Henry famous for?", options: ["Poems", "Surprise endings", "Science fiction"], correct: 1 },
+                        { question: "Which word is a contrast conjunction?", options: ["Because", "Although", "So"], correct: 1 }
+                    ],
+                    spelling: ["surprise", "twist", "reveal", "mysterious"]
+                },
+                // SEMESTER 2
+                {
+                    number: 9, semester: 2, title: "Great explorations", emoji: "🧭",
+                    vocabulary: [
+                        { word: "exploration", emoji: "🗺️", pronunciation: "/ˌekspləˈreɪʃn/" },
+                        { word: "explorer", emoji: "🔭", pronunciation: "/ɪkˈsplɔːrər/" },
+                        { word: "voyage", emoji: "⛵", pronunciation: "/ˈvɔɪɪdʒ/" },
+                        { word: "discover", emoji: "🔍", pronunciation: "/dɪˈskʌvər/" },
+                        { word: "unknown", emoji: "❓", pronunciation: "/ˌʌnˈnoʊn/" },
+                        { word: "expedition", emoji: "🎒", pronunciation: "/ˌekspəˈdɪʃn/" }
+                    ],
+                    grammar: [
+                        { title: "Present Perfect Tense", rule: "Use 'have/has + past participle' for life experiences.", examples: ["I have read about Columbus.", "He has never been to space."] },
+                        { title: "Present Perfect vs Past", rule: "Past is finished time. Present perfect connects past to now.", examples: ["I went to Beijing in 2020. I have visited Beijing twice."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Zheng He ___ on many great voyages in the 15th century.", options: ["goes", "went", "has gone"], correct: 1 },
+                        { q: "___ you ever read the story of Magellan?", options: ["Did", "Do", "Have"], correct: 2 }
+                    ],
+                    reading: "Throughout history, brave explorers have organized expeditions into the unknown. Zheng He went on seven epic voyages and discovered new trading routes. Columbus sailed across the Atlantic. These explorations have changed our understanding of the world forever.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Have you finished your history report?" },
+                            { speaker: "right", text: "Yes, I have written about Zheng He's great voyages." },
+                            { speaker: "left", text: "He was an amazing explorer. When did he live?" },
+                            { speaker: "right", text: "He lived during the Ming Dynasty." }
+                        ],
+                        [
+                            { speaker: "left", text: "I want to go on an expedition to the Amazon." },
+                            { speaker: "right", text: "Have you ever been to a jungle before?" },
+                            { speaker: "left", text: "No, but I have read many books about the unknown." }
+                        ],
+                        [
+                            { speaker: "left", text: "We have discovered so much about space." },
+                            { speaker: "right", text: "True, but there is still so much unknown out there." },
+                            { speaker: "left", text: "That's what makes space exploration so exciting!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Which tense describes an experience with no specific time?", options: ["Present Perfect", "Simple Past", "Future"], correct: 0 },
+                        { question: "What did Zheng He do?", options: ["Invent the telephone", "Go on sea voyages", "Discover gravity"], correct: 1 }
+                    ],
+                    spelling: ["exploration", "explorer", "voyage", "expedition"]
+                },
+                {
+                    number: 10, semester: 2, title: "Culture shock", emoji: "😲",
+                    vocabulary: [
+                        { word: "culture shock", emoji: "😵", pronunciation: "/ˈkʌltʃər ʃɑːk/" },
+                        { word: "custom", emoji: "🎎", pronunciation: "/ˈkʌstəm/" },
+                        { word: "tradition", emoji: "🏮", pronunciation: "/trəˈdɪʃn/" },
+                        { word: "adapt", emoji: "🔄", pronunciation: "/əˈdæpt/" },
+                        { word: "unfamiliar", emoji: "낯", pronunciation: "/ˌʌnfəˈmɪliər/" },
+                        { word: "misunderstanding", emoji: "🤷", pronunciation: "/ˌmɪsʌndərˈstændɪŋ/" }
+                    ],
+                    grammar: [
+                        { title: "Advanced Comparatives", rule: "Use 'The + comparative..., the + comparative...' to show a linked change.", examples: ["The harder you work, the better you will do."] },
+                        { title: "Advanced Superlatives", rule: "Use 'One of the + superlative + plural noun'.", examples: ["It is one of the most interesting traditions."] }
+                    ],
+                    grammarExercises: [
+                        { q: "The more you study the language, the ___ you will adapt.", options: ["easy", "easier", "easiest"], correct: 1 },
+                        { q: "Spring Festival is one of the most important ___ in China.", options: ["tradition", "traditions", "traditional"], correct: 1 }
+                    ],
+                    reading: "When students study abroad, they often face culture shock. The food and customs are completely unfamiliar. This can lead to a misunderstanding. However, the more you learn about a new tradition, the easier it is to adapt. Over time, you build global friendships.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "My cousin went to study in the UK and had severe culture shock." },
+                            { speaker: "right", text: "That is common. The customs are very unfamiliar there." },
+                            { speaker: "left", text: "The longer he stayed, the better he adapted, though." }
+                        ],
+                        [
+                            { speaker: "left", text: "Using chopsticks is one of the oldest traditions in China." },
+                            { speaker: "right", text: "Foreigners often have a misunderstanding of how to hold them." },
+                            { speaker: "left", text: "Yes, but they adapt quickly if you teach them." }
+                        ],
+                        [
+                            { speaker: "left", text: "The more I read about different cultures, the more fascinated I become." },
+                            { speaker: "right", text: "Me too! It helps prevent any cultural misunderstanding." },
+                            { speaker: "left", text: "Exactly. Respecting every custom is important." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is 'culture shock'?", options: ["An electric shock", "Disorientation in a new culture", "A type of movie"], correct: 1 },
+                        { question: "Complete: The __ you practice, the __ you get.", options: ["more / better", "most / best", "much / good"], correct: 0 }
+                    ],
+                    spelling: ["custom", "tradition", "adapt", "unfamiliar"]
+                },
+                {
+                    number: 11, semester: 2, title: "The environment", emoji: "🌍",
+                    vocabulary: [
+                        { word: "environment", emoji: "🌳", pronunciation: "/ɪnˈvaɪrənmənt/" },
+                        { word: "pollution", emoji: "🏭", pronunciation: "/pəˈluːʃn/" },
+                        { word: "protect", emoji: "🛡️", pronunciation: "/prəˈtekt/" },
+                        { word: "recycle", emoji: "♻️", pronunciation: "/ˌriːˈsaɪkl/" },
+                        { word: "resource", emoji: "💧", pronunciation: "/ˈriːsɔːrs/" },
+                        { word: "sustainable", emoji: "🌱", pronunciation: "/səˈsteɪnəbl/" }
+                    ],
+                    grammar: [
+                        { title: "Conditional Type 1", rule: "Real future possibilities: If + present, will + base verb.", examples: ["If we recycle, we will save resources."] },
+                        { title: "Conditional Connectors", rule: "Use unless (if not) or as long as.", examples: ["We will have pollution unless we protect the earth."] }
+                    ],
+                    grammarExercises: [
+                        { q: "If we ___ the environment, the earth will be ruined.", options: ["don't protect", "didn't protect", "won't protect"], correct: 0 },
+                        { q: "You can use this paper ___ long as you recycle it.", options: ["so", "as", "if"], correct: 1 }
+                    ],
+                    reading: "Our environment is suffering from air and water pollution. We must protect our natural resources. If we don't recycle, we will destroy the planet for future generations. Developing sustainable habits is the only way to save the Earth.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Look at all this plastic pollution." },
+                            { speaker: "right", text: "If we don't recycle it, it will end up in the ocean." },
+                            { speaker: "left", text: "We should start a sustainable program at school." }
+                        ],
+                        [
+                            { speaker: "left", text: "What will happen if we use up all our water resources?" },
+                            { speaker: "right", text: "We will not survive unless we protect them now." },
+                            { speaker: "left", text: "That's why I turn off the tap when I brush my teeth." }
+                        ],
+                        [
+                            { speaker: "left", text: "I want to help the environment." },
+                            { speaker: "right", text: "You can, as long as you make small daily changes." },
+                            { speaker: "left", text: "I will start by bringing my own bags to the store." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What does 'unless' mean in conditionals?", options: ["Because", "If not", "When"], correct: 1 },
+                        { question: "What is the best way to handle plastic?", options: ["Burn it", "Recycle it", "Throw it in the river"], correct: 1 }
+                    ],
+                    spelling: ["pollution", "protect", "recycle", "sustainable"]
+                },
+                {
+                    number: 12, semester: 2, title: "Natural disasters", emoji: "⚠️",
+                    vocabulary: [
+                        { word: "disaster", emoji: "🚨", pronunciation: "/dɪˈzæstər/" },
+                        { word: "earthquake", emoji: "🫨", pronunciation: "/ˈɜːrθkweɪk/" },
+                        { word: "typhoon", emoji: "🌀", pronunciation: "/taɪˈfuːn/" },
+                        { word: "flood", emoji: "🌊", pronunciation: "/flʌd/" },
+                        { word: "drought", emoji: "🏜️", pronunciation: "/draʊt/" },
+                        { word: "wildfire", emoji: "🔥", pronunciation: "/ˈwaɪldfaɪər/" }
+                    ],
+                    grammar: [
+                        { title: "Past Perfect Tense", rule: "Use 'had + past participle' for an action that happened BEFORE another past action.", examples: ["The flood had ruined the town before help arrived."] },
+                        { title: "Past Perfect vs Simple Past", rule: "Past Perfect = 1st event. Simple Past = 2nd event.", examples: ["When I woke up, the earthquake had already stopped."] }
+                    ],
+                    grammarExercises: [
+                        { q: "By the time we got home, the typhoon ___ started.", options: ["has", "have", "had"], correct: 2 },
+                        { q: "The crops died because it ___ not rained for months during the drought.", options: ["had", "did", "was"], correct: 0 }
+                    ],
+                    reading: "Natural disasters are sudden and terrifying. Last year, a massive typhoon hit the coast. By the time rescue teams arrived, the flood had already destroyed many homes. In other areas, a long drought had caused a terrible wildfire before firefighters could stop it.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Did you hear about the earthquake in Japan?" },
+                            { speaker: "right", text: "Yes. Many buildings had collapsed before the sirens even went off." },
+                            { speaker: "left", text: "That disaster is so scary." }
+                        ],
+                        [
+                            { speaker: "left", text: "The farmers are suffering from the drought." },
+                            { speaker: "right", text: "I read that the river had dried up completely by last week." },
+                            { speaker: "left", text: "I hope it rains soon to prevent a wildfire." }
+                        ],
+                        [
+                            { speaker: "left", text: "What should we do in a typhoon?" },
+                            { speaker: "right", text: "Stay indoors. The news said the flood waters had risen quickly yesterday." },
+                            { speaker: "left", text: "Okay, I will make sure the windows are locked." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "Which disaster involves too much water?", options: ["Drought", "Flood", "Wildfire"], correct: 1 },
+                        { question: "In Past Perfect, which action happened first?", options: ["The one with Simple Past", "The one with 'had + V3'", "They happen at the same time"], correct: 1 }
+                    ],
+                    spelling: ["disaster", "earthquake", "typhoon", "drought"]
+                },
+                {
+                    number: 13, semester: 2, title: "Sport", emoji: "🏅",
+                    vocabulary: [
+                        { word: "sport", emoji: "🏀", pronunciation: "/spɔːrt/" },
+                        { word: "competition", emoji: "🏆", pronunciation: "/ˌkɑːmpəˈtɪʃn/" },
+                        { word: "athlete", emoji: "🏃", pronunciation: "/ˈæθliːt/" },
+                        { word: "training", emoji: "🏋️", pronunciation: "/ˈtreɪnɪŋ/" },
+                        { word: "victory", emoji: "✌️", pronunciation: "/ˈvɪktəri/" },
+                        { word: "teamwork", emoji: "🤝", pronunciation: "/ˈtiːmwɜːrk/" }
+                    ],
+                    grammar: [
+                        { title: "Modals for Ability", rule: "Use can, could, or be able to to express ability.", examples: ["He can run fast.", "She was able to win the race."] },
+                        { title: "Modals for Permission", rule: "Use may, can, or could to ask for or give permission.", examples: ["May I join the team?", "You can play now."] }
+                    ],
+                    grammarExercises: [
+                        { q: "Last year, I ___ not swim, but now I can.", options: ["could", "can", "may"], correct: 0 },
+                        { q: "___ I borrow your basketball for the training?", options: ["Will", "May", "Should"], correct: 1 }
+                    ],
+                    reading: "To become a professional athlete, you need years of hard training. In a sports competition, teamwork is just as important as individual skill. When the team works together, they can achieve a great victory. Even if you lose, sports teach you valuable life lessons.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "Are you joining the sports competition this year?" },
+                            { speaker: "right", text: "Yes, I am training for the 100-meter dash." },
+                            { speaker: "left", text: "You are a great athlete. I know you can win the victory!" }
+                        ],
+                        [
+                            { speaker: "left", text: "Mr. Smith, may I leave practice early today?" },
+                            { speaker: "right", text: "Why? Are you injured?" },
+                            { speaker: "left", text: "No, I have to study for the Zhongkao." },
+                            { speaker: "right", text: "Okay, you may go. See you tomorrow." }
+                        ],
+                        [
+                            { speaker: "left", text: "We lost the basketball game yesterday." },
+                            { speaker: "right", text: "It's okay. Our teamwork was excellent." },
+                            { speaker: "left", text: "We will train harder and win next time!" }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What is essential in a team sport?", options: ["Selfishness", "Teamwork", "Sleeping"], correct: 1 },
+                        { question: "Which modal verb asks for permission politely?", options: ["May", "Must", "Will"], correct: 0 }
+                    ],
+                    spelling: ["athlete", "training", "victory", "teamwork"]
+                },
+                {
+                    number: 14, semester: 2, title: "Caring for your health", emoji: "🩺",
+                    vocabulary: [
+                        { word: "health", emoji: "❤️", pronunciation: "/helθ/" },
+                        { word: "physical", emoji: "🏃", pronunciation: "/ˈfɪzɪkl/" },
+                        { word: "mental", emoji: "🧠", pronunciation: "/ˈmentl/" },
+                        { word: "exercise", emoji: "🤸", pronunciation: "/ˈeksərsaɪz/" },
+                        { word: "wellness", emoji: "🧘", pronunciation: "/ˈwelnəs/" },
+                        { word: "diet", emoji: "🥗", pronunciation: "/ˈdaɪət/" } 
+                    ],
+                    grammar: [
+                        { title: "Integrated Review", rule: "Review of conditionals, passive voice, and relative clauses.", examples: ["If you exercise, you will be healthier."] },
+                        { title: "Expressing Necessity", rule: "Use need to, have to, or must.", examples: ["Students need to balance study and rest."] }
+                    ],
+                    grammarExercises: [
+                        { q: "If you want good mental health, you ___ to sleep 8 hours a night.", options: ["need", "must", "should"], correct: 0 },
+                        { q: "A balanced diet ___ required for physical wellness.", options: ["is", "are", "be"], correct: 0 }
+                    ],
+                    reading: "Caring for your health is important for Zhongkao preparation. Students need both physical exercise and mental wellness. A healthy diet and regular training can help you stay strong and focused during exams. Remember, without health, you cannot achieve your dreams.",
+                    conversations: [
+                        [
+                            { speaker: "left", text: "I feel so exhausted all the time." },
+                            { speaker: "right", text: "You need to focus on your physical health. Do you exercise?" },
+                            { speaker: "left", text: "Not really. I just study all day." },
+                            { speaker: "right", text: "You must take breaks to maintain your mental wellness." }
+                        ],
+                        [
+                            { speaker: "left", text: "What does a healthy diet look like?" },
+                            { speaker: "right", text: "It includes lots of vegetables, fruit, and water." },
+                            { speaker: "left", text: "I will stop eating so much fast food." }
+                        ],
+                        [
+                            { speaker: "left", text: "We are almost done with middle school!" },
+                            { speaker: "right", text: "Yes! If we stay healthy, we will do great on the exams." },
+                            { speaker: "left", text: "Let's go play basketball to get some exercise." }
+                        ]
+                    ],
+                    quiz: [
+                        { question: "What two types of health are mentioned?", options: ["Physical and Mental", "Fast and Slow", "Good and Bad"], correct: 0 },
+                        { question: "Which word shows a strong necessity?", options: ["Might", "Must", "Could"], correct: 1 }
+                    ],
+                    spelling: ["physical", "mental", "exercise", "wellness"]
+                }
+            ]
+        };
+
+        // State variables
+        let xp = 0;
+        let completedUnits = [];
+        let currentUnit = null;
+        let currentMode = 'vocab';
+        let voices = [];
+        const SPEECH_RATE = 0.85; 
+
+        // Initialization
+        function init() {
+            loadVoices();
+            renderMainMenu();
+        }
+
+        function loadVoices() {
+            if ('speechSynthesis' in window) {
+                voices = speechSynthesis.getVoices();
+                if (voices.length === 0) setTimeout(loadVoices, 100);
+            }
+        }
+
+        // TTS function attach to clickables
+        function speak(text, voiceName = "Emma") {
+            if (!('speechSynthesis' in window)) return;
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = SPEECH_RATE; 
+            
+            const voice = voices.find(v => v.name.includes(voiceName));
+            if (voice) utterance.voice = voice;
+            
+            // Visual feedback on the clicked element
+            document.querySelectorAll('.tts-active').forEach(el => el.classList.remove('tts-active'));
+            
+            // Capture the target safely
+            let activeEl = null;
+            if (typeof event !== 'undefined' && event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.contains('tts-clickable')) {
+                activeEl = event.currentTarget;
+                activeEl.classList.add('tts-active');
+            }
+
+            utterance.onend = () => {
+                if (activeEl) {
+                    activeEl.classList.remove('tts-active');
+                }
+            };
+
+            speechSynthesis.speak(utterance);
+        }
+
+        // Success Sound
+        function playSuccessSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+        }
+
+        // Glitter Animation
+        function createGlitter(targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            for(let i=0; i<20; i++) {
+                const glitter = document.createElement('div');
+                glitter.className = 'glitter';
+                glitter.style.left = (rect.left + rect.width/2) + 'px';
+                glitter.style.top = (rect.top + rect.height/2) + 'px';
+                
+                // random outward translation
+                const tx = (Math.random() * 140 - 70) + 'px';
+                const ty = (Math.random() * 100 - 50) + 'px';
+                glitter.style.setProperty('--tx', tx);
+                glitter.style.setProperty('--ty', ty);
+                
+                document.body.appendChild(glitter);
+                setTimeout(() => glitter.remove(), 600);
+            }
+        }
+
+        function addXP(pts) {
+            xp += pts;
+            document.getElementById('xpValue').innerText = xp;
+        }
+
+        // Navigation & Display
+        function renderMainMenu() {
+            const sem1 = document.getElementById('sem1Grid');
+            const sem2 = document.getElementById('sem2Grid');
+            sem1.innerHTML = ''; sem2.innerHTML = '';
+            
+            document.getElementById('headerTitle').innerText = "Grade 9 English";
+            document.getElementById('backBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = true;
+
+            grade9Data.units.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = `unit-card ${completedUnits.includes(unit.number) ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="unit-emoji">${unit.emoji}</div>
+                    <div class="unit-title">U${unit.number}: ${unit.title}</div>
+                `;
+                card.onclick = () => loadUnit(unit);
+                if(unit.semester === 1) sem1.appendChild(card);
+                else sem2.appendChild(card);
+            });
+        }
+
+        function showHome() {
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            document.getElementById('homeView').style.display = 'block';
+            document.getElementById('contentView').style.display = 'none';
+            renderMainMenu();
+        }
+
+        function loadUnit(unit) {
+            currentUnit = unit;
+            currentMode = 'vocab';
+            updateModeButtons();
+            
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('contentView').style.display = 'block';
+            document.getElementById('headerTitle').innerText = `U${unit.number} (Sem ${unit.semester})`;
+            
+            document.getElementById('backBtn').disabled = false;
+            
+            renderContent();
+            addXP(5);
+        }
+
+        const ALL_MODES = ['vocab', 'grammar', 'reading', 'quiz', 'convo', 'flashcards', 'spell'];
+
+        function navigateBack() {
+            let idx = ALL_MODES.indexOf(currentMode);
+            if (idx > 0) {
+                setMode(ALL_MODES[idx - 1]);
+            } else {
+                showHome();
+            }
+        }
+
+        function navigateForward() {
+            let idx = ALL_MODES.indexOf(currentMode);
+            if (idx < ALL_MODES.length - 1) {
+                setMode(ALL_MODES[idx + 1]);
+            }
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            updateModeButtons();
+            renderContent();
+        }
+
+        function updateModeButtons() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            const idx = ALL_MODES.indexOf(currentMode);
+            const buttons = document.querySelectorAll('.mode-btn');
+            
+            buttons.forEach(b => {
+                if(b.innerText.toLowerCase().includes(modeShortName(currentMode))) {
+                    b.classList.add('active');
+                }
+            });
+            
+            document.getElementById('nextBtn').disabled = (idx === ALL_MODES.length - 1);
+        }
+
+        function modeShortName(mode) {
+            if(mode==='flashcards') return 'cards';
+            return mode;
+        }
+
+        function renderContent() {
+            const area = document.getElementById('contentArea');
+            area.innerHTML = '';
+            
+            if (currentMode === 'vocab') renderVocabulary(area);
+            if (currentMode === 'grammar') renderGrammar(area);
+            if (currentMode === 'reading') renderReading(area);
+            if (currentMode === 'convo') renderConversation(area);
+            if (currentMode === 'flashcards') renderFlashcards(area);
+            if (currentMode === 'spell') renderSpelling(area);
+            if (currentMode === 'quiz') renderQuiz(area);
+        }
+
+        // --- View Renderers ---
+
+        function renderVocabulary(container) {
+            const grid = document.createElement('div');
+            grid.className = 'vocab-grid';
+            currentUnit.vocabulary.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card tts-clickable';
+                card.onclick = (e) => { speak(item.word, i%2===0?'Emma':'Brian'); addXP(1); };
+                card.innerHTML = `
+                    <div class="vocab-emoji-bg"><div class="vocab-emoji">${item.emoji}</div></div>
+                    <div class="vocab-word">${item.word}</div>
+                    <div class="vocab-pronunciation">${item.pronunciation}</div>
+                `;
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        function renderGrammar(container) {
+            // Rules
+            currentUnit.grammar.forEach(item => {
+                const box = document.createElement('div');
+                box.className = 'grammar-box';
+                let html = `<div class="grammar-title">${item.title}</div>`;
+                html += `<div class="grammar-rule tts-clickable" onclick="speak('${item.rule.replace(/'/g,"\\'")}'); addXP(1);">${item.rule}</div>`;
+                item.examples.forEach(ex => {
+                    html += `<div class="grammar-example tts-clickable" onclick="speak('${ex.replace(/'/g,"\\'")}'); addXP(1);">${ex}</div>`;
+                });
+                box.innerHTML = html;
+                container.appendChild(box);
+            });
+
+            // Interactive Grammar Games
+            if(currentUnit.grammarExercises && currentUnit.grammarExercises.length > 0) {
+                const exContainer = document.createElement('div');
+                exContainer.innerHTML = `<div class="section-title" style="margin-top:20px;">Grammar Games</div>`;
+                
+                currentUnit.grammarExercises.forEach((ex, i) => {
+                    const qBox = document.createElement('div');
+                    qBox.className = 'grammar-exercise';
+                    
+                    let html = `<div class="grammar-q">${i+1}. ${ex.q}</div><div class="grammar-opts">`;
+                    ex.options.forEach((opt, optIdx) => {
+                        html += `<button class="grammar-opt" onclick="checkGrammar(this, ${optIdx}, ${ex.correct})">${opt}</button>`;
+                    });
+                    html += `</div>`;
+                    qBox.innerHTML = html;
+                    exContainer.appendChild(qBox);
+                });
+                container.appendChild(exContainer);
+            }
+        }
+
+        window.checkGrammar = function(btn, selected, correct) {
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('.grammar-opt');
+            buttons.forEach(b => b.style.pointerEvents = 'none'); // disable all
+
+            if(selected === correct) {
+                btn.classList.add('correct');
+                addXP(5);
+                playSuccessSound();
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+        }
+
+        function renderReading(container) {
+            const box = document.createElement('div');
+            box.className = 'reading-box tts-clickable';
+            box.innerText = currentUnit.reading;
+            box.onclick = () => { speak(currentUnit.reading, 'Brian'); addXP(2); };
+            container.appendChild(box);
+        }
+
+        // Conversation Logic (Text Message Style + 3 Tabs)
+        let isConvoPlaying = false;
+        let activeConvoIdx = 0;
+
+        function renderConversation(container) {
+            activeConvoIdx = 0;
+            
+            // Build tabs
+            let html = `<div class="convo-tabs">`;
+            currentUnit.conversations.forEach((_, i) => {
+                html += `<button class="convo-tab ${i===0?'active':''}" onclick="switchConvo(${i}, this)">Convo ${i+1}</button>`;
+            });
+            html += `</div>`;
+            html += `<div class="conversation-container" id="chatContainer"></div>`;
+            html += `<button class="btn-full" style="margin-top:10px;" onclick="startConversation()">▶️ Play Audio</button>`;
+            
+            container.innerHTML = html;
+            
+            // Render first convo text statically first
+            renderStaticChat();
+        }
+
+        window.switchConvo = function(idx, btnElement) {
+            speechSynthesis.cancel();
+            isConvoPlaying = false;
+            activeConvoIdx = idx;
+            document.querySelectorAll('.convo-tab').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderStaticChat();
+        };
+
+        function renderStaticChat() {
+            const chatBox = document.getElementById('chatContainer');
+            chatBox.innerHTML = '';
+            const convo = currentUnit.conversations[activeConvoIdx];
+            convo.forEach((line) => {
+                const msgBubble = document.createElement('div');
+                msgBubble.className = `message-bubble message-${line.speaker} tts-clickable`;
+                msgBubble.textContent = line.text;
+                msgBubble.style.opacity = 1; // fully visible
+                msgBubble.onclick = () => speak(line.text, line.speaker === "left" ? "Emma" : "Brian");
+                chatBox.appendChild(msgBubble);
+            });
+        }
+
+        function startConversation() {
+            speechSynthesis.cancel();
+            isConvoPlaying = true;
+            document.getElementById('chatContainer').innerHTML = '';
+            playConvoLine(0);
+        }
+
+        function playConvoLine(idx) {
+            const convo = currentUnit.conversations[activeConvoIdx];
+            if (!isConvoPlaying || idx >= convo.length) {
+                isConvoPlaying = false;
+                return;
+            }
+
+            const line = convo[idx];
+            const chatBox = document.getElementById('chatContainer');
+            
+            const msgBubble = document.createElement('div');
+            msgBubble.className = `message-bubble message-${line.speaker} tts-clickable`;
+            msgBubble.textContent = line.text;
+            msgBubble.onclick = () => speak(line.text, line.speaker === "left" ? "Emma" : "Brian");
+            
+            chatBox.appendChild(msgBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const utterance = new SpeechSynthesisUtterance(line.text);
+            utterance.rate = SPEECH_RATE;
+            const voice = voices.find(v => v.name.includes(line.speaker === "left" ? "Emma" : "Brian"));
+            if (voice) utterance.voice = voice;
+
+            utterance.onend = () => {
+                if(isConvoPlaying) {
+                    setTimeout(() => playConvoLine(idx + 1), 400);
+                }
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // Flashcards
+        function renderFlashcards(container) {
+            const grid = document.createElement('div');
+            grid.className = 'flashcard-container';
+            
+            currentUnit.vocabulary.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'flashcard tts-clickable';
+                card.innerHTML = `
+                    <div class="flashcard-front">
+                        <div style="font-size:2.5em;">${item.emoji}</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div style="font-size:1.05em; font-weight:bold;">${item.word}</div>
+                    </div>
+                `;
+                card.onclick = (e) => {
+                    card.classList.toggle('flipped');
+                    if(card.classList.contains('flipped')) {
+                        speak(item.word);
+                        addXP(1);
+                    }
+                };
+                grid.appendChild(card);
+            });
+            container.appendChild(grid);
+        }
+
+        // Spelling Game with Glitter & Sound
+        let spellIndex = 0;
+        function renderSpelling(container) {
+            spellIndex = 0;
+            container.innerHTML = `<div id="spellArea" class="interactive-container"></div>`;
+            showSpellingWord();
+        }
+
+        function showSpellingWord() {
+            const area = document.getElementById('spellArea');
+            if(spellIndex >= currentUnit.spelling.length) {
+                area.innerHTML = `<h3>🎉 Spelling Complete!</h3><button class="btn-full" style="margin-top:10px;" onclick="setMode('spell')">Try Again</button>`;
+                addXP(10);
+                return;
+            }
+            
+            const word = currentUnit.spelling[spellIndex];
+            const emoji = currentUnit.vocabulary.find(v => v.word === word)?.emoji || '📝';
+            
+            area.innerHTML = `
+                <div style="font-size: 3em;">${emoji}</div>
+                <button class="btn-full btn-repeat" onclick="speak('${word}')">🔁 Repeat Audio</button>
+                <div class="spelling-wrapper">
+                    <input type="text" id="spellInput" class="spelling-input" placeholder="Type here..." autocomplete="off">
+                </div>
+                <button class="btn-full" onclick="checkSpelling('${word}')">Check</button>
+            `;
+            setTimeout(() => speak(word), 300);
+        }
+
+        window.checkSpelling = function(word) {
+            const input = document.getElementById('spellInput');
+            if(input.value.trim().toLowerCase() === word.toLowerCase()) {
+                input.style.borderColor = 'var(--success)';
+                input.style.color = 'var(--success)';
+                addXP(5);
+                playSuccessSound();
+                createGlitter(input);
+                
+                setTimeout(() => {
+                    spellIndex++;
+                    showSpellingWord();
+                }, 1200);
+            } else {
+                input.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    input.style.borderColor = 'var(--border)';
+                    input.value = '';
+                }, 800);
+            }
+        };
+
+        // Quiz
+        let quizIdx = 0;
+        function renderQuiz(container) {
+            quizIdx = 0;
+            container.innerHTML = `<div id="quizArea" class="interactive-container"></div>`;
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            const area = document.getElementById('quizArea');
+            if(quizIdx >= currentUnit.quiz.length) {
+                area.innerHTML = `<h3>🎉 Quiz Complete!</h3><button class="btn-full" style="margin-top:10px;" onclick="setMode('quiz')">Try Again</button>`;
+                addXP(10);
+                return;
+            }
+            
+            const q = currentUnit.quiz[quizIdx];
+            let html = `<div style="font-size: 1.1em; font-weight: bold;">${q.question}</div><div class="quiz-options">`;
+            
+            q.options.forEach((opt, i) => {
+                html += `<button class="quiz-option" onclick="checkQuizAnswer(${i}, ${q.correct}, this)">${opt}</button>`;
+            });
+            html += `</div>`;
+            area.innerHTML = html;
+        }
+
+        window.checkQuizAnswer = function(selected, correct, btn) {
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons.forEach(b => b.disabled = true);
+            
+            if(selected === correct) {
+                btn.classList.add('correct');
+                addXP(5);
+                playSuccessSound();
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+            setTimeout(() => {
+                quizIdx++;
+                showQuizQuestion();
+            }, 1200);
+        };
+
+        window.onload = init;
+    </script>
+</body>
+</html>

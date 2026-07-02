@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trinity Grade 2 Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fall {
+      to { transform: translateY(100vh) rotate(360deg); }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .animate-pop { animation: pop 0.3s ease-out forwards; }
+    .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+    .hide-scroll::-webkit-scrollbar { display: none; }
+    
+    /* Utility class for hiding elements */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col overflow-x-hidden relative">
+
+  <div id="confetti-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
+  
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+  <header id="main-header" class="hidden bg-white shadow-sm p-2 flex flex-wrap gap-2 justify-between items-center z-10 border-b border-slate-200">
+    <div class="flex gap-2">
+      <button onclick="navigate('dashboard')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-bold text-sm transition-colors">🏠 Home</button>
+    </div>
+    <div class="flex gap-2 items-center">
+      <div class="bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100 font-bold text-indigo-700 flex items-center gap-1 shadow-sm text-sm">
+        <span class="text-lg">🦊</span> Remy
+      </div>
+      <div class="flex gap-2 items-center bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 shadow-sm text-sm">
+        <div class="font-bold text-slate-700" id="header-player-name">👤 Player</div>
+        <div class="font-bold text-amber-600" id="header-points">🌟 0 pts</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div id="view-login" class="bg-white p-10 rounded-3xl shadow-xl max-w-md w-full text-center animate-pop border-t-8 border-blue-500">
+      <h1 class="text-5xl font-extrabold mb-2 text-slate-800">Trinity Lab</h1>
+      <p class="text-blue-600 font-bold text-2xl mb-8">Level 2 (A1-A2)</p>
+      <h2 class="text-3xl mb-6 text-slate-600 font-medium">Please enter your name to begin.</h2>
+      <input 
+        type="text" 
+        id="player-name-input"
+        placeholder="Your Name"
+        class="w-full text-center text-3xl p-5 bg-slate-50 border-2 border-slate-200 rounded-xl mb-4 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all"
+        onkeydown="if(event.key === 'Enter') handleLogin()"
+      />
+      <p id="login-error" class="text-red-500 font-bold text-lg mb-4 hidden">Please enter your name!</p>
+      <button 
+        onclick="handleLogin()"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-3xl py-5 rounded-xl shadow-lg transform transition active:scale-95"
+      >
+        Start Learning
+      </button>
+    </div>
+
+    <div id="view-dashboard" class="hidden bg-white p-10 rounded-3xl shadow-xl max-w-3xl w-full text-center animate-pop">
+      <h1 class="text-5xl font-extrabold mb-4 text-slate-800" id="dashboard-welcome">Welcome!</h1>
+      <p class="text-2xl text-slate-600 mb-10">Choose a module to practice your English.</p>
+      
+      <div class="grid md:grid-cols-2 gap-8">
+        <button 
+          onclick="navigate('lab')"
+          class="flex flex-col items-center p-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 group"
+        >
+          <span class="text-8xl mb-6 group-hover:scale-110 transition-transform block">🎙️</span>
+          <h3 class="text-4xl font-extrabold text-white mb-4">Speaking Lab</h3>
+          <p class="text-indigo-100 text-2xl font-medium">Vocab, Grammar & Voice Practice</p>
+        </button>
+
+        <button 
+          onclick="startQuiz()"
+          class="flex flex-col items-center p-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 group"
+        >
+          <span class="text-8xl mb-6 group-hover:scale-110 transition-transform block">📝</span>
+          <h3 class="text-4xl font-extrabold text-white mb-4">Grammar Quiz</h3>
+          <p class="text-emerald-100 text-2xl font-medium">Test your knowledge for points</p>
+        </button>
+      </div>
+    </div>
+
+    <div id="view-lab" class="hidden bg-white rounded-3xl shadow-xl max-w-6xl w-full flex flex-col h-[85vh] animate-pop overflow-hidden border border-slate-200">
+      <div class="bg-slate-50 p-3 border-b border-slate-200 text-center">
+        <h2 class="text-xl font-extrabold text-slate-800 mb-2">Interactive Speaking Lab</h2>
+        <div class="w-full max-w-md mx-auto bg-slate-200 rounded-full h-2 mb-3 overflow-hidden">
+          <div id="lab-progress-bar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-2 mt-1" id="lab-tabs">
+          <!-- Tabs injected by JS -->
+        </div>
+      </div>
+
+      <div class="flex-grow overflow-y-auto p-8 md:p-10 hide-scroll bg-slate-50" id="lab-content-area">
+        <!-- Syllabus Content or Recording Studio injected here -->
+      </div>
+    </div>
+
+    <div id="view-quiz" class="hidden bg-white p-10 md:p-14 rounded-3xl shadow-xl max-w-5xl w-full animate-pop border-4 border-slate-200 relative">
+      <div id="quiz-progress" class="absolute top-8 right-8 bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-black text-2xl">
+        Q 1 / 5
+      </div>
+      <h2 id="quiz-topic" class="text-3xl font-black text-slate-400 mb-10 uppercase tracking-widest">Topic</h2>
+      
+      <div class="bg-slate-50 border-4 border-slate-200 p-12 rounded-3xl mb-12 shadow-sm">
+         <h1 id="quiz-question" class="text-5xl md:text-6xl font-black text-center text-slate-800 leading-tight">
+          Question goes here?
+        </h1>
+      </div>
+
+      <div id="quiz-options" class="flex flex-col gap-6">
+        <!-- Options injected by JS -->
+      </div>
+
+      <div id="quiz-next-container" class="mt-12 text-center hidden animate-pop">
+         <button onclick="handleNextQuestion()" id="quiz-next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-black text-3xl py-8 px-16 rounded-2xl shadow-xl transition transform hover:-translate-y-1 hover:scale-105">
+          Next Question
+        </button>
+      </div>
+    </div>
+
+    <div id="view-results" class="hidden bg-white p-14 rounded-3xl shadow-xl max-w-3xl w-full text-center animate-pop border-t-8 border-green-500">
+      <h1 class="text-6xl font-black mb-8 text-slate-800">Awesome Job!</h1>
+      <p class="text-3xl text-slate-600 mb-12 font-medium">You finished the grammar quiz.</p>
+      
+      <div class="bg-amber-50 border-4 border-amber-200 p-12 rounded-3xl mb-12 inline-block w-full">
+        <h2 class="text-3xl font-black mb-6 text-amber-700 uppercase tracking-widest">Final Score</h2>
+        <p id="results-score" class="text-8xl text-amber-500 font-black">0</p>
+      </div>
+
+      <button onclick="navigate('dashboard')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-black text-4xl py-8 rounded-2xl shadow-xl transition transform hover:-translate-y-1">
+        Return to Dashboard
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // --- DATA ---
+    const syllabus = {
+      home: {
+        id: 'home',
+        title: 'Home & Rooms',
+        icon: '🏠',
+        vocab: [
+          { word: "sitting room", emoji: "🛋️" }, { word: "bedroom", emoji: "🛏️" },
+          { word: "kitchen", emoji: "🍳" }, { word: "bathroom", emoji: "🚿" },
+          { word: "fridge", emoji: "🧊" }, { word: "table", emoji: "🪑" },
+          { word: "book", emoji: "📖" }, { word: "camera", emoji: "📷" },
+          { word: "spoon", emoji: "🥄" }, { word: "cup", emoji: "☕" },
+          { word: "pen", emoji: "🖊️" }, { word: "colours", emoji: "🔵" }
+        ],
+        grammarTitle: "Prepositions & There is/are",
+        grammarDesc: "in, on, under, next to, between | there is / there are",
+        qa: [
+          { q: "Where do you live?", a: "I live in a flat in Beijing." },
+          { q: "How many rooms are there in your home?", a: "There are four rooms: a kitchen, a bathroom, a sitting room, and a bedroom." },
+          { q: "What is your favourite room? Describe it.", a: "My favourite room is the sitting room. It is blue and there is a big sofa, a table, and a television." },
+          { q: "Is the pen in your bag?", a: "No, it is not. The pen is on the table." }
+        ],
+        practice: [
+          "I have got a small bedroom.",
+          "There is a fridge next to the table.",
+          "The book is on the chair.",
+          "My cup is under the table."
+        ]
+      },
+      family: {
+        id: 'family',
+        title: 'Family & Info',
+        icon: '👨‍👩‍👧',
+        vocab: [
+          { word: "father", emoji: "👨" }, { word: "mother", emoji: "👩" },
+          { word: "brother", emoji: "👦" }, { word: "sister", emoji: "👧" },
+          { word: "grandfather", emoji: "👴" }, { word: "grandmother", emoji: "👵" },
+          { word: "name", emoji: "📛" }, { word: "age", emoji: "🎂" },
+          { word: "live with", emoji: "❤️" }, { word: "family", emoji: "👨‍👩‍👧‍👦" }
+        ],
+        grammarTitle: "Simple Present & Question Words",
+        grammarDesc: "who, how many, how old | subject + verb (live, have, is/are)",
+        qa: [
+          { q: "Who do you live with?", a: "I live with my father, my mother, and my little sister." },
+          { q: "How many brothers and sisters do you have?", a: "I have one brother and no sisters." },
+          { q: "How old is your brother?", a: "My brother Bob is ten years old." },
+          { q: "What is your mother's name?", a: "My mother's name is Luisa." }
+        ],
+        practice: [
+          "I live with my parents and my sister.",
+          "My brother is twelve years old.",
+          "How old are they? They are seven and nine.",
+          "We have a big family."
+        ]
+      },
+      possessions: {
+        id: 'possessions',
+        title: 'Possessions',
+        icon: '🎒',
+        vocab: [
+          { word: "bag", emoji: "👜" }, { word: "phone", emoji: "📱" },
+          { word: "computer", emoji: "💻" }, { word: "toy", emoji: "🧸" },
+          { word: "clothes", emoji: "👕" }, { word: "backpack", emoji: "🎒" },
+          { word: "pencil", emoji: "🖍️" }, { word: "notebook", emoji: "📓" },
+          { word: "key", emoji: "🔑" }, { word: "wallet", emoji: "👛" }
+        ],
+        grammarTitle: "Possessive Adjectives & Has/Have Got",
+        grammarDesc: "mine, yours, his, hers, ours | I have got / She has got",
+        qa: [
+          { q: "What things are yours?", a: "My phone, my books, and my red bag are mine." },
+          { q: "What things belong to other people?", a: "The blue pen is his. The big camera is hers." },
+          { q: "Is this your notebook?", a: "Yes, it is mine." }
+        ],
+        practice: [
+          "I have got a new phone.",
+          "This pencil is mine. That one is yours.",
+          "She has got a red bag.",
+          "Is this your computer? Yes, it is mine."
+        ]
+      },
+      pets: {
+        id: 'pets',
+        title: 'Pets & Animals',
+        icon: '🐾',
+        vocab: [
+          { word: "dog", emoji: "🐶" }, { word: "cat", emoji: "🐱" },
+          { word: "bird", emoji: "🐦" }, { word: "fish", emoji: "🐠" },
+          { word: "rabbit", emoji: "🐰" }, { word: "turtle", emoji: "🐢" },
+          { word: "bone", emoji: "🦴" }, { word: "food", emoji: "🥣" },
+          { word: "collar", emoji: "🎀" }, { word: "bath", emoji: "🛁" }
+        ],
+        grammarTitle: "Simple Questions & Descriptive Responses",
+        grammarDesc: "Do you have...? What is its name? It is... / I like... because...",
+        qa: [
+          { q: "Do you have a cat?", a: "No, I do not. I have a dog." },
+          { q: "What is your pet's name?", a: "My dog's name is Max." },
+          { q: "What colour is it?", a: "It is black and white. It is very cute." }
+        ],
+        practice: [
+          "I have got a small dog.",
+          "Its name is Max. It is brown.",
+          "My cat sleeps on the sofa.",
+          "I give my fish food every day."
+        ]
+      }
+    };
+
+    const labPrompts = [
+      "Describe your favourite room. What is in it?",
+      "Who do you live with? How old are they?",
+      "What things are yours? What things belong to other people?",
+      "Do you have a pet? What is its name?",
+      "Where do you live? How many rooms are there?",
+      "Show me something in your room. What is it and where is it?"
+    ];
+
+    const questions = [
+      {
+        id: 1, topic: "Possessions", question: "Have you got a smartphone?",
+        options: [{ text: "Yes, I have.", isCorrect: true }, { text: "Yes, I got.", isCorrect: false }, { text: "Yes, I has.", isCorrect: false }],
+        praise: "Awesome"
+      },
+      {
+        id: 2, topic: "Rooms", question: "_____ a computer on your desk?",
+        options: [{ text: "Are there", isCorrect: false }, { text: "Is there", isCorrect: true }, { text: "There is", isCorrect: false }],
+        praise: "Brilliant"
+      },
+      {
+        id: 3, topic: "Family & Friends", question: "My best friend _____ a skateboard.",
+        options: [{ text: "have got", isCorrect: false }, { text: "is got", isCorrect: false }, { text: "has got", isCorrect: true }],
+        praise: "Fantastic"
+      },
+      {
+        id: 4, topic: "Prepositions", question: "Where is your backpack?",
+        options: [{ text: "It is in Tuesday.", isCorrect: false }, { text: "It is under the desk.", isCorrect: true }, { text: "They are under the desk.", isCorrect: false }],
+        praise: "Excellent"
+      },
+      {
+        id: 5, topic: "Numbers", question: "How many students _____ in your class?",
+        options: [{ text: "there are", isCorrect: false }, { text: "are there", isCorrect: true }, { text: "is there", isCorrect: false }],
+        praise: "Superb"
+      }
+    ];
+
+    // --- STATE ---
+    let state = {
+      view: 'login', // login, dashboard, lab, quiz, results
+      playerName: '',
+      points: 0,
+      currentQIndex: 0,
+      selectedAnswer: null,
+      activeTab: 'home',
+      expandedQA: {},
+      promptIndex: 0,
+      checklist: { c1: false, c2: false, c3: false, c4: false, c5: false },
+      labProgress: 0,
+      voices: [],
+      isRecording: false,
+      transcript: ''
+    };
+
+    // --- STREAMING_CHUNK:Initializing Audio Context & Speech Synthesis... ---
+    let audioCtx;
+    function playSoundEffect(type) {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1); 
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+      } else if (type === 'incorrect') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+      }
+    }
+
+    function loadVoices() {
+      state.voices = window.speechSynthesis.getVoices();
+    }
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    function speak(text, isPraise = false) {
+      window.speechSynthesis.cancel();
+      let textToSpeak = text;
+      
+      if (isPraise) {
+        const praises = ["Great job!", "You sound amazing!", "Perfect pronunciation!", "Excellent work!"];
+        const randomPraise = praises[Math.floor(Math.random() * praises.length)];
+        textToSpeak = `Remy says: ${randomPraise} ${text}`;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 0.85; 
+      
+      const preferredNames = [
+        'Microsoft Giuseppe Multilingual Online', 'Microsoft Vivienne Multilingual Online',
+        'Microsoft Florian Multilingual Online', 'Microsoft Seraphina Multilingual Online',
+        'Microsoft Emma Multilingual Online', 'Microsoft Brian Multilingual Online',
+        'Microsoft Ava Multilingual Online', 'Microsoft Andrew Multilingual Online',
+        'Microsoft Remy', 'Microsoft Emma', 'Microsoft Andrew'
+      ];
+      
+      let selectedVoice = state.voices.find(v => preferredNames.some(p => v.name.includes(p)));
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // --- STREAMING_CHUNK:Setting up Speech Recognition... ---
+    let recognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-GB';
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event) => {
+        const currentTranscript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        state.transcript = currentTranscript;
+        document.getElementById('recording-transcript').innerHTML = currentTranscript;
+      };
+
+      recognition.onerror = (event) => {
+        state.transcript = '⚠️ Microphone error. Please check permissions.';
+        document.getElementById('recording-transcript').innerHTML = `<span class="text-red-500 italic">${state.transcript}</span>`;
+        stopRecordingUI();
+      };
+
+      recognition.onend = () => {
+        stopRecordingUI();
+      };
+    }
+
+    function toggleRecording() {
+      if (!recognition) {
+        showToast('Speech recognition is not supported in this browser. Try Chrome or Edge!', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('record-btn');
+      if (state.isRecording) {
+        recognition.stop();
+        stopRecordingUI();
+      } else {
+        state.transcript = '';
+        document.getElementById('recording-transcript').innerHTML = '<span class="italic text-slate-400">Listening...</span>';
+        try {
+          recognition.start();
+          state.isRecording = true;
+          btn.innerHTML = 'Stop Recording';
+          btn.className = 'px-14 py-8 rounded-full font-black text-3xl shadow-lg transition transform hover:scale-105 mb-10 flex items-center gap-3 mx-auto bg-red-500 text-white animate-pulse';
+        } catch(e) {
+            console.error(e);
+        }
+      }
+    }
+
+    function stopRecordingUI() {
+      state.isRecording = false;
+      const btn = document.getElementById('record-btn');
+      if(btn) {
+          btn.innerHTML = 'Start Practice';
+          btn.className = 'px-14 py-8 rounded-full font-black text-3xl shadow-lg transition transform hover:scale-105 mb-10 flex items-center gap-3 mx-auto bg-green-500 text-white hover:bg-green-600';
+      }
+    }
+
+    // --- STREAMING_CHUNK:Utility Functions (Toast, Confetti, Navigation)... ---
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `px-6 py-4 rounded-xl shadow-lg text-white font-bold text-xl animate-slide-in flex items-center gap-3 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> ${message}`;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function triggerConfetti() {
+      const container = document.getElementById('confetti-container');
+      container.innerHTML = '';
+      const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+      
+      for (let i = 0; i < 40; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'absolute w-4 h-4 rounded-full';
+        drop.style.left = Math.random() * 100 + '%';
+        drop.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        drop.style.top = '-20px';
+        drop.style.animation = `fall ${Math.random() * 2 + 2}s linear ${Math.random() * 0.5}s forwards`;
+        container.appendChild(drop);
+      }
+    }
+
+    function navigate(view) {
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-lab').classList.add('hidden');
+      document.getElementById('view-quiz').classList.add('hidden');
+      document.getElementById('view-results').classList.add('hidden');
+      
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+      state.view = view;
+
+      if (view !== 'login') {
+        document.getElementById('main-header').classList.remove('hidden');
+      } else {
+        document.getElementById('main-header').classList.add('hidden');
+      }
+
+      if (view === 'dashboard') {
+        document.getElementById('dashboard-welcome').innerText = `Welcome, ${state.playerName}!`;
+        updateHeader();
+      } else if (view === 'lab') {
+        renderLabTabs();
+        renderLabContent();
+      }
+    }
+
+    function updateHeader() {
+      document.getElementById('header-player-name').innerText = `👤 ${state.playerName}`;
+      document.getElementById('header-points').innerText = `🌟 ${state.points} pts`;
+    }
+
+    // --- STREAMING_CHUNK:Interaction Logic (Login, Quiz, Lab Actions)... ---
+    function handleLogin() {
+      const name = document.getElementById('player-name-input').value.trim();
+      if (!name) {
+        document.getElementById('login-error').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('login-error').classList.add('hidden');
+      state.playerName = name;
+      navigate('dashboard');
+    }
+
+    function startQuiz() {
+      state.currentQIndex = 0;
+      state.selectedAnswer = null;
+      renderQuizQuestion();
+      navigate('quiz');
+    }
+
+    function handleQuizAnswer(index) {
+      if (state.selectedAnswer !== null) return; 
+      
+      state.selectedAnswer = index;
+      const question = questions[state.currentQIndex];
+      const option = question.options[index];
+      const isCorrect = option.isCorrect;
+
+      if (isCorrect) {
+        playSoundEffect('correct');
+        triggerConfetti();
+        state.points += 10;
+        updateHeader();
+        speak(`Remy says: ${question.praise}, ${state.playerName}! That is correct.`);
+      } else {
+        playSoundEffect('incorrect');
+        speak(`Remy says: Oops! Try again next time, ${state.playerName}.`);
+      }
+      
+      renderQuizQuestion(); // Re-render to show highlights
+      document.getElementById('quiz-next-container').classList.remove('hidden');
+    }
+
+    function handleNextQuestion() {
+      if (state.currentQIndex < questions.length - 1) {
+        state.currentQIndex++;
+        state.selectedAnswer = null;
+        document.getElementById('quiz-next-container').classList.add('hidden');
+        renderQuizQuestion();
+      } else {
+        document.getElementById('results-score').innerText = state.points;
+        navigate('results');
+        speak(`Quiz complete! You scored ${state.points} points.`);
+        triggerConfetti();
+      }
+    }
+
+    // --- STREAMING_CHUNK:Rendering Engine for Lab & Quiz... ---
+    function renderQuizQuestion() {
+      const q = questions[state.currentQIndex];
+      document.getElementById('quiz-progress').innerText = `Q ${state.currentQIndex + 1} / ${questions.length}`;
+      document.getElementById('quiz-topic').innerText = q.topic;
+      document.getElementById('quiz-question').innerText = q.question;
+
+      const optionsContainer = document.getElementById('quiz-options');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        
+        let btnClass = "text-3xl md:text-4xl font-extrabold py-10 px-10 rounded-2xl border-4 transition-all w-full text-left ";
+        
+        if (state.selectedAnswer !== null) {
+          btn.disabled = true;
+          if (i === state.selectedAnswer) {
+            btnClass += opt.isCorrect 
+              ? "bg-green-50 border-green-500 text-green-700 scale-105" 
+              : "bg-red-50 border-red-500 text-red-700 scale-105";
+          } else if (opt.isCorrect && i !== state.selectedAnswer) {
+             btnClass += "bg-green-50 border-green-200 text-green-600 opacity-80"; 
+          } else {
+            btnClass += "bg-white border-slate-100 text-slate-400 opacity-50";
+          }
+        } else {
+          btnClass += "bg-white border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50 cursor-pointer shadow-sm";
+          btn.onclick = () => handleQuizAnswer(i);
+        }
+
+        btn.className = btnClass;
+        btn.innerText = opt.text;
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function setActiveTab(tabId) {
+      state.activeTab = tabId;
+      renderLabTabs();
+      renderLabContent();
+    }
+
+    function toggleQA(key) {
+      state.expandedQA[key] = !state.expandedQA[key];
+      renderLabContent();
+    }
+
+    function toggleChecklist(id) {
+        state.checklist[id] = !state.checklist[id];
+    }
+
+    function saveLabProgress() {
+      const checkedCount = Object.values(state.checklist).filter(Boolean).length;
+      const pct = Math.round((checkedCount / 5) * 100);
+      state.labProgress = pct;
+      document.getElementById('lab-progress-bar').style.width = `${pct}%`;
+      speak(`Remy says: Excellent self assessment! You are ${pct} percent done.`);
+      triggerConfetti();
+      showToast(`Progress saved! ${pct}% complete.`);
+    }
+
+    function nextPrompt() {
+        state.promptIndex = (state.promptIndex + 1) % labPrompts.length;
+        renderLabContent();
+    }
+
+    function renderLabTabs() {
+      const container = document.getElementById('lab-tabs');
+      container.innerHTML = '';
+      
+      Object.values(syllabus).forEach(tab => {
+        const btn = document.createElement('button');
+        btn.className = `px-3 py-1.5 rounded-full font-bold text-sm transition-all shadow-sm ${state.activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`;
+        btn.innerHTML = `<span class="mr-1">${tab.icon}</span> ${tab.title}`;
+        btn.onclick = () => setActiveTab(tab.id);
+        container.appendChild(btn);
+      });
+
+      const recordingBtn = document.createElement('button');
+      recordingBtn.className = `px-3 py-1.5 rounded-full font-bold text-sm transition-all shadow-sm ${state.activeTab === 'speaking' ? 'bg-purple-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-purple-50'}`;
+      recordingBtn.innerHTML = `<span class="mr-1">🎙️</span> Recording Studio`;
+      recordingBtn.onclick = () => setActiveTab('speaking');
+      container.appendChild(recordingBtn);
+    }
+
+    function renderLabContent() {
+      const container = document.getElementById('lab-content-area');
+      container.innerHTML = '';
+
+      if (state.activeTab !== 'speaking') {
+        const tab = syllabus[state.activeTab];
+        
+        // Vocab Section
+        let vocabHtml = `<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 mb-10">
+          <h3 class="text-4xl font-extrabold text-blue-600 mb-10 flex items-center gap-3"><span class="text-5xl">${tab.icon}</span> Vocabulary</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">`;
+        
+        tab.vocab.forEach(v => {
+          vocabHtml += `
+            <div onclick="speak('${v.word}')" class="bg-slate-50 p-8 rounded-xl text-center cursor-pointer hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition border-2 border-slate-100 flex flex-col items-center justify-center gap-4 shadow-sm transform hover:-translate-y-1">
+              <span class="text-6xl">${v.emoji}</span>
+              <span class="font-extrabold text-2xl">${v.word}</span>
+            </div>`;
+        });
+
+        vocabHtml += `</div>
+          <div class="mt-12 bg-blue-50 border-l-8 border-blue-500 p-8 rounded-r-2xl">
+            <p class="font-black text-blue-800 text-3xl mb-4">Target Grammar: ${tab.grammarTitle}</p>
+            <p class="text-blue-700 text-2xl font-medium">${tab.grammarDesc}</p>
+          </div>
+        </div>`;
+
+        // Examiner QA Section
+        let qaHtml = `<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 mb-10">
+          <h3 class="text-4xl font-extrabold text-emerald-600 mb-10 flex items-center gap-3"><span class="text-5xl">❓</span> Examiner Questions</h3>
+          <div class="space-y-6">`;
+        
+        tab.qa.forEach((qaPair, i) => {
+          const key = `${tab.id}-qa-${i}`;
+          const isOpen = state.expandedQA[key];
+          qaHtml += `
+            <div class="border-2 border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-emerald-300">
+              <button onclick="toggleQA('${key}')" class="w-full text-left p-8 bg-slate-50 hover:bg-slate-100 font-extrabold text-slate-800 flex justify-between items-center text-2xl md:text-3xl">
+                <span>${qaPair.q}</span>
+                <span class="text-slate-400 text-3xl">${isOpen ? '▲' : '▼'}</span>
+              </button>
+              ${isOpen ? `
+                <div class="p-8 bg-white text-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 text-2xl border-t border-slate-100">
+                  <p class="flex-1 font-medium leading-relaxed">${qaPair.a}</p>
+                  <button onclick="speak('${qaPair.a}')" class="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 hover:shadow-md px-10 py-5 rounded-xl text-2xl font-extrabold transition shrink-0 shadow-sm border-4 border-emerald-200">
+                    Listen
+                  </button>
+                </div>
+              ` : ''}
+            </div>`;
+        });
+        qaHtml += `</div></div>`;
+
+        // Practice Sentences Section
+        let practiceHtml = `<div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-100">
+          <h3 class="text-4xl font-extrabold text-amber-500 mb-10 flex items-center gap-3"><span class="text-5xl">🔄</span> Read Aloud Practice</h3>
+          <div class="space-y-6">`;
+        
+        tab.practice.forEach((sentence) => {
+          practiceHtml += `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 p-8 bg-slate-50 rounded-2xl border-2 border-slate-100 hover:border-amber-200 transition-all">
+              <span class="text-slate-800 font-extrabold text-2xl md:text-3xl flex-1 leading-relaxed">${sentence}</span>
+              <button onclick="speak('${sentence}', true)" class="bg-amber-100 text-amber-800 hover:bg-amber-200 hover:shadow-md px-10 py-5 rounded-xl text-2xl font-extrabold transition shadow-sm shrink-0 border-4 border-amber-200">
+                Listen
+              </button>
+            </div>`;
+        });
+        practiceHtml += `</div></div>`;
+
+        container.innerHTML = vocabHtml + qaHtml + practiceHtml;
+      } else {
+        // Recording Studio Section
+        const promptText = labPrompts[state.promptIndex];
+        
+        let html = `
+          <div class="space-y-10 max-w-5xl mx-auto">
+            <div class="bg-white p-12 rounded-3xl shadow-sm border-4 border-purple-100 text-center">
+              <h3 class="text-2xl font-black text-purple-500 tracking-widest uppercase mb-8">Step 1: Model Prompt</h3>
+              <p class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-12 min-h-[100px] flex items-center justify-center leading-tight">
+                "${promptText}"
+              </p>
+              <div class="flex justify-center gap-8">
+                <button onclick="speak('${promptText}')" class="bg-slate-100 text-slate-800 hover:bg-slate-200 px-12 py-6 rounded-2xl text-2xl font-black transition shadow-sm border-4 border-slate-200 hover:shadow-md">
+                  Listen to Model
+                </button>
+                <button onclick="nextPrompt()" class="bg-purple-100 text-purple-800 hover:bg-purple-200 px-12 py-6 rounded-2xl text-2xl font-black transition shadow-sm border-4 border-purple-200 hover:shadow-md">
+                  Next Prompt
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-purple-50 p-12 rounded-3xl shadow-sm border-4 border-purple-200 text-center">
+              <h3 class="text-2xl font-black text-purple-600 tracking-widest uppercase mb-10">Step 2: Your Turn</h3>
+              <button 
+                id="record-btn"
+                onclick="toggleRecording()" 
+                class="px-14 py-8 rounded-full font-black text-3xl shadow-lg transition transform hover:scale-105 mb-10 flex items-center gap-3 mx-auto ${state.isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white hover:bg-green-600'}"
+              >
+                ${state.isRecording ? 'Stop Recording' : 'Start Practice'}
+              </button>
+              <div class="bg-white p-10 rounded-2xl min-h-[150px] border-4 border-purple-100 text-left shadow-inner">
+                <p class="text-slate-500 text-xl mb-4 font-bold uppercase tracking-wider">Transcript:</p>
+                <p id="recording-transcript" class="text-slate-800 text-3xl font-medium leading-relaxed">
+                  ${state.transcript || '<span class="italic text-slate-400">Your speech will appear here...</span>'}
+                </p>
+              </div>
+            </div>
+
+            <div class="bg-white p-12 rounded-3xl shadow-sm border-4 border-slate-200">
+              <h3 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-4"><span class="text-4xl">✅</span> Self-Assessment</h3>
+              <div class="space-y-6 mb-10">`;
+
+        [
+          { id: 'c1', label: "I used full sentences, not just one word." },
+          { id: 'c2', label: "I used correct prepositions (in, on, next to)." },
+          { id: 'c3', label: "I spoke clearly and at a natural pace." },
+          { id: 'c4', label: "I answered all parts of the question." },
+          { id: 'c5', label: "I feel confident about this topic." }
+        ].forEach(item => {
+          const isChecked = state.checklist[item.id] ? 'checked' : '';
+          html += `
+            <label class="flex items-center gap-6 p-6 bg-slate-50 rounded-2xl cursor-pointer hover:bg-slate-100 border-4 border-slate-100 transition">
+              <input 
+                type="checkbox" 
+                ${isChecked}
+                onchange="toggleChecklist('${item.id}')"
+                class="w-10 h-10 text-green-500 rounded border-slate-300 focus:ring-green-500 cursor-pointer" 
+              />
+              <span class="text-slate-700 text-2xl font-extrabold">${item.label}</span>
+            </label>`;
+        });
+
+        html += `
+              </div>
+              <button onclick="saveLabProgress()" class="w-full bg-slate-800 text-white hover:bg-slate-700 px-10 py-6 rounded-2xl text-3xl font-black transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                Save Session Progress
+              </button>
+            </div>
+          </div>`;
+          
+        container.innerHTML = html;
+      }
+    }
+
+  </script>
+</body>
+</html>

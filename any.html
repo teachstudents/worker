@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Grammar Quest: Some/Any & Much/Many</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            padding: 15px;
+            line-height: 1.5;
+            color: #e0e0ff;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(102, 126, 234, 0.7); }
+            50% { box-shadow: 0 0 25px rgba(102, 126, 234, 1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes shimmerFloat {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-120px) scale(2); opacity: 0; }
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: rgba(25, 20, 45, 0.85);
+            border-radius: 24px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), 
+                        0 0 40px rgba(102, 126, 234, 0.4),
+                        inset 0 0 30px rgba(76, 0, 255, 0.2);
+            overflow: hidden;
+            border: 2px solid rgba(102, 126, 234, 0.6);
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.7);
+            position: relative;
+            z-index: 5;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        }
+        
+        .nav-buttons { 
+            display: flex; 
+            gap: 8px; 
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white; 
+            border: none; 
+            padding: 9px 18px;
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.6);
+            background: linear-gradient(135deg, #3a0ca3, #4361ee);
+        }
+        
+        .nav-btn:active:not(:disabled) {
+            transform: translateY(1px) scale(0.98);
+        }
+        
+        .nav-btn:disabled {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            cursor: not-allowed; 
+            transform: none;
+            opacity: 0.7;
+        }
+        
+        .score-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            background: rgba(30, 25, 55, 0.7);
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(102, 126, 234, 0.5);
+        }
+        
+        .trophy-btn {
+            background: linear-gradient(135deg, #ff9e64, #ff6b6b, #ee5a6f);
+            color: white; 
+            border: none; 
+            padding: 12px 22px;
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 800; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(255, 107, 107, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .trophy-btn:hover {
+            transform: scale(1.08) rotate(2deg);
+            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.8);
+            animation: none;
+        }
+        
+        .trophy-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .trophy-icon { 
+            font-size: 20px; 
+            margin-right: 4px; 
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .shimmer-container {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 180px;
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .shimmer {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #fff, #00ffff, transparent 70%);
+            border-radius: 50%;
+            animation: shimmerFloat 2.5s ease-in-out infinite;
+            opacity: 0;
+            box-shadow: 0 0 15px #00ffff;
+        }
+        
+        .topic-select {
+            padding: 10px 22px; 
+            border-radius: 50px; 
+            border: 2px solid rgba(102, 126, 234, 0.7);
+            font-family: 'Exo 2', sans-serif;
+            font-size: 15px; 
+            background: rgba(30, 25, 55, 0.9); 
+            color: #fff;
+            cursor: pointer; 
+            min-width: 210px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .topic-select:focus { 
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.3);
+            transform: scale(1.03);
+        }
+        
+        .topic-select option {
+            background: #1a1a2e;
+            color: white;
+        }
+        
+        .content { 
+            padding: 28px; 
+            position: relative;
+        }
+        
+        .content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at 70% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .home-page { 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .welcome-title {
+            text-align: center; 
+            color: #fff; 
+            margin-bottom: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.1em; 
+            text-shadow: 0 0 15px rgba(102, 126, 234, 0.9),
+                         0 0 30px rgba(0, 255, 255, 0.7);
+            animation: glow 2.5s ease-in-out infinite alternate;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .welcome-subtitle {
+            text-align: center; 
+            color: #b8c1ec; 
+            margin-bottom: 32px;
+            font-size: 1.05em;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        .noun-legend {
+            display: flex; 
+            gap: 24px; 
+            justify-content: center;
+            margin: 18px 0 28px; 
+            flex-wrap: wrap;
+            padding: 12px 20px;
+            background: rgba(35, 30, 65, 0.7);
+            border-radius: 16px;
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .legend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.92em;
+            padding: 6px 14px;
+            border-radius: 50px;
+            background: rgba(45, 40, 75, 0.8);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .noun-tag {
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white;
+            padding: 4px 14px; 
+            border-radius: 50px; 
+            font-size: 0.82em;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            min-width: 110px;
+            text-align: center;
+        }
+        
+        .noun-tag.uncountable { 
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            animation: pulse 3s infinite;
+        }
+        
+        .noun-tag.countable { 
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            animation: pulse 3.5s infinite;
+        }
+        
+        .pattern-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px; 
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .pattern-card {
+            background: linear-gradient(135deg, rgba(45, 40, 85, 0.9), rgba(30, 25, 65, 0.95));
+            color: white; 
+            padding: 16px 20px; 
+            border-radius: 20px;
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                        0 0 25px rgba(102, 126, 234, 0.3);
+            position: relative; 
+            overflow: hidden;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 110px;
+        }
+        
+        .pattern-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+            z-index: 0;
+        }
+        
+        .pattern-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(102, 126, 234, 0.6),
+                        0 0 60px rgba(0, 255, 255, 0.4);
+            border-color: rgba(0, 255, 255, 0.8);
+            z-index: 2;
+        }
+        
+        .pattern-card:active {
+            transform: translateY(2px) scale(0.99);
+        }
+        
+        .pattern-card h3 { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25em; 
+            margin-bottom: 8px; 
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pattern-card p { 
+            font-size: 0.9em; 
+            opacity: 0.95; 
+            line-height: 1.45; 
+            position: relative;
+            z-index: 1;
+            margin-bottom: 0;
+        }
+        
+        .study-page { 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .study-content {
+            background: rgba(35, 30, 65, 0.85); 
+            padding: 26px;
+            border-radius: 20px; 
+            margin-bottom: 26px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .study-content h2 {
+            color: #fff; 
+            margin-bottom: 16px;
+            padding-bottom: 10px; 
+            border-bottom: 3px solid rgba(102, 126, 234, 0.7);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rule-box {
+            background: rgba(45, 40, 80, 0.9); 
+            padding: 18px; 
+            border-radius: 14px;
+            margin: 14px 0; 
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rule-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        }
+        
+        .rule-box h4 { 
+            color: #a7c7ff; 
+            margin-bottom: 9px; 
+            font-size: 1.12em;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        
+        .pattern-box {
+            background: rgba(30, 25, 55, 0.95); 
+            padding: 14px; 
+            border-radius: 10px;
+            margin: 10px 0; 
+            border: 2px dashed rgba(0, 255, 255, 0.6);
+            font-family: 'Courier New', monospace; 
+            font-size: 0.94em;
+            color: #e0f7ff;
+            position: relative;
+        }
+        
+        .pattern-box::before {
+            content: '💡';
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: rgba(45, 40, 80, 0.95);
+            padding: 0 8px;
+            font-size: 1.1em;
+        }
+        
+        .example-row {
+            display: flex; 
+            gap: 14px; 
+            margin: 10px 0; 
+            flex-wrap: wrap;
+        }
+        
+        .example-box {
+            flex: 1; 
+            min-width: 190px; 
+            padding: 12px;
+            border-radius: 12px; 
+            font-size: 0.94em;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .example-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .example-box:hover::before {
+            opacity: 1;
+        }
+        
+        .example-box.correct {
+            background: rgba(40, 167, 69, 0.15); 
+            border-color: #28a745;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .example-box.incorrect {
+            background: rgba(220, 53, 69, 0.15); 
+            border-color: #dc3545;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        .start-practice-btn {
+            background: linear-gradient(135deg, #00c9ff, #92fe9d);
+            color: #0a1929; 
+            border: none; 
+            padding: 16px 42px;
+            border-radius: 50px; 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px; 
+            font-weight: 800;
+            cursor: pointer; 
+            display: block; 
+            margin: 30px auto;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(0, 201, 255, 0.5),
+                        0 0 30px rgba(146, 254, 157, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2.5s infinite;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .start-practice-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.7s;
+        }
+        
+        .start-practice-btn:hover::before {
+            left: 100%;
+        }
+        
+        .start-practice-btn:hover {
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0, 201, 255, 0.8),
+                        0 0 45px rgba(146, 254, 157, 0.7);
+            animation: none;
+        }
+        
+        .start-practice-btn:active {
+            transform: scale(0.97) translateY(2px);
+        }
+        
+        .practice-page { 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-container {
+            background: rgba(35, 30, 65, 0.85); 
+            border-radius: 14px;
+            padding: 5px; 
+            margin-bottom: 18px;
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2, #00c9ff);
+            height: 24px; 
+            border-radius: 10px;
+            transition: width 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex; 
+            align-items: center;
+            justify-content: flex-end; 
+            padding-right: 12px;
+            color: white; 
+            font-weight: 800; 
+            font-size: 13px;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: rotate 3s linear infinite;
+        }
+        
+        .question-container {
+            background: rgba(40, 35, 70, 0.92); 
+            padding: 28px;
+            border-radius: 20px; 
+            margin-bottom: 18px;
+            border: 2px solid rgba(102, 126, 234, 0.6);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .question-number {
+            color: #a7c7ff; 
+            font-weight: 700;
+            margin-bottom: 14px; 
+            font-size: 1.08em;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .question-text {
+            font-size: 2.6em; 
+            color: #fff;
+            margin-bottom: 24px; 
+            line-height: 1.6;
+            padding: 20px; 
+            background: rgba(30, 25, 55, 0.95);
+            border-radius: 14px; 
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            border-left: 4px solid #667eea;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .question-text:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            transform: translateY(-2px);
+            background: rgba(40, 35, 70, 0.98);
+        }
+        
+        .options-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px; 
+            margin-bottom: 18px;
+        }
+        
+        .option-btn {
+            background: rgba(45, 40, 80, 0.95); 
+            border: 3px solid rgba(102, 126, 234, 0.7);
+            padding: 18px 20px; 
+            border-radius: 16px;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 2.08em; 
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative; 
+            overflow: hidden;
+            text-align: left;
+            color: #e0e0ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .option-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background: rgba(67, 97, 238, 0.95); 
+            color: white;
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6),
+                        0 0 20px rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+        }
+        
+        .option-btn:active:not(:disabled) {
+            transform: translateY(2px) scale(0.98);
+        }
+        
+        .option-btn.correct {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border-color: #28a745 !important;
+            color: white !important; 
+            animation: pulse 0.6s ease;
+            box-shadow: 0 0 25px rgba(40, 167, 69, 0.7) !important;
+            transform: scale(1.05) !important;
+        }
+        
+        .option-btn.incorrect {
+            background: linear-gradient(135deg, #dc3545, #e74c3c) !important;
+            border-color: #dc3545 !important;
+            color: white !important;
+            animation: shake 0.6s ease;
+            box-shadow: 0 0 25px rgba(220, 53, 69, 0.7) !important;
+        }
+        
+        .option-btn:disabled { 
+            cursor: not-allowed; 
+            opacity: 0.85; 
+            transform: none !important;
+        }
+        
+        .feedback-box {
+            background: rgba(50, 45, 85, 0.95); 
+            border: 2px solid rgba(255, 193, 7, 0.7);
+            padding: 20px; 
+            border-radius: 14px;
+            margin-top: 20px; 
+            display: none;
+            animation: slideIn 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .feedback-box::before {
+            content: '✨';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 1.5em;
+            animation: float 2s ease-in-out infinite;
+        }
+        
+        .feedback-box.show { 
+            display: block; 
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .feedback-box.correct-feedback { 
+            background: rgba(40, 167, 69, 0.15); 
+            border-color: #28a745;
+            border-left-color: #28a745;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .feedback-box.incorrect-feedback { 
+            background: rgba(220, 53, 69, 0.15); 
+            border-color: #dc3545;
+            border-left-color: #dc3545;
+        }
+        
+        .feedback-title { 
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800; 
+            margin-bottom: 9px; 
+            font-size: 1.15em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feedback-text { 
+            line-height: 1.6; 
+            color: #e0e0ff; 
+            font-size: 1.1em;
+        }
+        
+        .tts-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad, #6c3483);
+            color: white; 
+            border: none; 
+            padding: 10px 22px;
+            border-radius: 50px; 
+            cursor: pointer;
+            font-family: 'Exo 2', sans-serif;
+            font-size: 14px; 
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tts-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tts-btn:hover::after {
+            opacity: 1;
+        }
+        
+        .tts-btn:hover {
+            transform: scale(1.07) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.7);
+            background: linear-gradient(135deg, #8e44ad, #9b59b6, #7d3c98);
+        }
+        
+        .tts-btn:active {
+            transform: scale(0.98) translateY(1px);
+        }
+        
+        .results-page { 
+            text-align: center; 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .results-content {
+            background: rgba(40, 35, 70, 0.95); 
+            padding: 40px;
+            border-radius: 24px; 
+            margin: 30px auto;
+            max-width: 650px;
+            border: 3px solid rgba(102, 126, 234, 0.7);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(102, 126, 234, 0.4);
+            position: relative;
+            animation: slideIn 0.7s ease-out;
+        }
+        
+        .results-content::before {
+            content: '🏆';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3em;
+            animation: float 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .final-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.2em; 
+            color: #fff;
+            font-weight: 900; 
+            margin: 22px 0;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.9),
+                         0 0 40px rgba(0, 255, 255, 0.7);
+            background: linear-gradient(135deg, #667eea, #00c9ff, #92fe9d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: glow 2.5s ease-in-out infinite alternate;
+            position: relative;
+        }
+        
+        .final-score::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 3s infinite;
+            z-index: -1;
+        }
+        
+        .score-message {
+            font-size: 1.45em; 
+            color: #fff;
+            margin-bottom: 32px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; 
+            border: none; 
+            padding: 16px 42px;
+            border-radius: 50px; 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 800; 
+            cursor: pointer;
+            margin: 12px; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .restart-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.7s;
+        }
+        
+        .restart-btn:hover::before {
+            left: 100%;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.8);
+        }
+        
+        .restart-btn:active {
+            transform: scale(0.97) translateY(2px);
+        }
+        
+        .reference-section {
+            background: rgba(35, 30, 65, 0.85); 
+            padding: 28px;
+            border-radius: 20px; 
+            margin-top: 40px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .reference-section h3 {
+            color: #fff; 
+            margin-bottom: 18px;
+            padding-bottom: 10px; 
+            border-bottom: 3px solid rgba(102, 126, 234, 0.7);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.35em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .reference-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+        
+        .reference-card {
+            background: rgba(45, 40, 80, 0.9); 
+            padding: 20px;
+            border-radius: 16px; 
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .reference-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
+                        0 0 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .reference-card h4 { 
+            color: #a7c7ff; 
+            margin-bottom: 10px; 
+            font-size: 1.1em;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .reference-card ul { 
+            padding-left: 22px; 
+            font-size: 0.94em; 
+        }
+        
+        .reference-card li { 
+            margin-bottom: 8px; 
+            color: #c5c9ff; 
+            position: relative;
+            padding-left: 18px;
+        }
+        
+        .reference-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.2em;
+            color: #a7c7ff;
+        }
+        
+        .hidden { 
+            display: none !important; 
+        }
+        
+        /* Review Modal */
+        .review-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 12, 41, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        .review-modal.show {
+            display: flex;
+        }
+        
+        .review-content {
+            background: rgba(40, 35, 70, 0.98);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 3px solid rgba(220, 53, 69, 0.7);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7),
+                        0 0 50px rgba(220, 53, 69, 0.4);
+            position: relative;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .review-content::before {
+            content: '🔍';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5em;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .review-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            color: #fff;
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+        }
+        
+        .review-item {
+            background: rgba(45, 40, 80, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 18px;
+            border-left: 4px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .review-item::before {
+            content: '❌';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+        
+        .review-question {
+            font-size: 1.15em;
+            color: #fff;
+            margin-bottom: 12px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        
+        .review-answer {
+            background: rgba(220, 53, 69, 0.15);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 8px 0;
+            font-size: 0.95em;
+            color: #ffcdd2;
+        }
+        
+        .review-correct {
+            background: rgba(40, 167, 69, 0.15);
+            color: #c8e6c9;
+        }
+        
+        .review-explanation {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.3);
+            font-size: 0.95em;
+            color: #b8c1ec;
+            line-height: 1.6;
+        }
+        
+        .close-review {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 25px auto 0;
+            display: block;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .close-review:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.8);
+        }
+        
+        /* Particle background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(102, 126, 234, 0.7);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.8);
+        }
+        
+        @media (max-width: 768px) {
+            .options-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .header { 
+                flex-direction: column; 
+                gap: 14px; 
+                text-align: center;
+            }
+            .nav-buttons { 
+                flex-wrap: wrap; 
+                justify-content: center; 
+            }
+            .content { 
+                padding: 20px; 
+            }
+            .welcome-title { 
+                font-size: 1.7em; 
+            }
+            .question-text { 
+                font-size: 1.2em; 
+            }
+            .pattern-grid {
+                grid-template-columns: 1fr;
+            }
+            .reference-grid {
+                grid-template-columns: 1fr;
+            }
+            .noun-legend {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        /* Touch feedback */
+        @media (hover: none) {
+            .option-btn:active:not(:disabled) {
+                transform: scale(0.97) !important;
+                background: rgba(67, 97, 238, 0.95) !important;
+            }
+            .nav-btn:active:not(:disabled),
+            .restart-btn:active,
+            .start-practice-btn:active,
+            .trophy-btn:active,
+            .tts-btn:active {
+                transform: scale(0.96) !important;
+            }
+        }
+        
+        /* Drag and drop visual feedback */
+        .option-btn.drag-over {
+            border-color: #00ffff !important;
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.4) !important;
+            transform: scale(1.03) !important;
+        }
+        
+        /* Confetti animation for correct answers */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: confetti-fall 3s ease-in-out forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle background -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="topicSelect" style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.2em; display: flex; align-items: center; gap: 6px; color: #fff;">🎯 Topic:</label>
+                <select class="topic-select" id="topicSelect" onchange="updateTopic()">
+                    <option value="default">🌍 General</option>
+                    <option value="school">🏫 School & Study</option>
+                </select>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn" id="backBtn" onclick="goBack()">⬅️ Back</button>
+                <button class="nav-btn" id="homeBtn" onclick="goHome()">🏠 Home</button>
+                <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next ➡️</button>
+            </div>
+            <div class="score-container">
+                <button class="trophy-btn" id="trophyBtn" onclick="addManualPoints()">
+                    <span class="trophy-icon">🏆</span><span id="scoreDisplay">0</span> ⚡ pts
+                </button>
+                <div class="shimmer-container" id="shimmerContainer"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Home Page -->
+            <div class="home-page" id="homePage">
+                <h1 class="welcome-title">🎮 Grammar Quest: Some/Any & Much/Many 🚀</h1>
+                
+                <div class="noun-legend">
+                    <div class="legend-item"><span class="noun-tag countable">📦 Countable</span> books 📚, apples 🍎, students 👨‍🎓</div>
+                    <div class="legend-item"><span class="noun-tag uncountable">💧 Uncountable</span> water 💧, advice 💡, homework 📝</div>
+                </div>
+                
+                <div class="pattern-grid" id="patternGrid"></div>
+                
+                <div class="reference-section">
+                    <h3>Quick Reference: Questions with Some/Any & Much/Many</h3>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <h4>Some in Questions</h4>
+                            <ul>
+                                <li><strong>Offers:</strong> Would you like some tea?</li>
+                                <li><strong>Requests:</strong> Can I have some water?</li>
+                                <li><strong>Expected "Yes":</strong> Do you have some time?</li>
+                                <li><em>Pattern: some + noun (countable plural/uncountable)</em></li>
+                            </ul>
+                        </div>
+                        <div class="reference-card">
+                            <h4>Any in Questions</h4>
+                            <ul>
+                                <li><strong>General questions:</strong> Do you have any questions?</li>
+                                <li><strong>Negative expectation:</strong> Is there any milk left?</li>
+                                <li><strong>With countable/uncountable:</strong> any books / any information</li>
+                                <li><em>Pattern: any + noun (in most questions)</em></li>
+                            </ul>
+                        </div>
+                        <div class="reference-card">
+                            <h4>Much in Questions</h4>
+                            <ul>
+                                <li><strong>Uncountable nouns only:</strong> How much time? How much homework?</li>
+                                <li><strong>Not for countable:</strong> ✗ How much books? ✓ How many books?</li>
+                                <li><em>Pattern: How much + uncountable noun</em></li>
+                            </ul>
+                        </div>
+                        <div class="reference-card">
+                            <h4>Many in Questions</h4>
+                            <ul>
+                                <li><strong>Countable plural nouns:</strong> How many students? How many apples?</li>
+                                <li><strong>Not for uncountable:</strong> ✗ How many water? ✓ How much water?</li>
+                                <li><em>Pattern: How many + countable plural noun</em></li>
+                            </ul>
+                        </div>
+                        <div class="reference-card">
+                            <h4>Is there / Are there</h4>
+                            <ul>
+                                <li><strong>Is there + any + uncountable:</strong> Is there any water?</li>
+                                <li><strong>Are there + any + countable plural:</strong> Are there any books?</li>
+                                <li><em>Key: Verb agrees with noun, not with "any"</em></li>
+                            </ul>
+                        </div>
+                        <div class="reference-card">
+                            <h4>Common ZhongKao Errors</h4>
+                            <ul>
+                                <li>✗ How much students? ✓ How many students?</li>
+                                <li>✗ Do you have some questions? ✓ Do you have any questions?</li>
+                                <li>✗ Is there any books? ✓ Are there any books?</li>
+                                <li><em>Tip: Identify noun type first, then choose quantifier</em></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Page -->
+            <div class="study-page hidden" id="studyPage">
+                <div class="study-content" id="studyContent"></div>
+                <button class="start-practice-btn" onclick="startPractice()">🚀 Start Practice Quest (10 Questions)</button>
+            </div>
+
+            <!-- Practice Page -->
+            <div class="practice-page hidden" id="practicePage">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%;">0/10</div>
+                </div>
+                <div class="question-container">
+                    <div class="question-number" id="questionNumber">Question 1 of 10</div>
+                    <div class="question-text" id="questionText" onclick="playQuestionAudio()" title="Click to hear question out loud">Loading...</div>
+                    <div class="options-grid" id="optionsGrid"></div>
+                    <div class="feedback-box" id="feedbackBox">
+                        <div class="feedback-title" id="feedbackTitle"></div>
+                        <div class="feedback-text" id="feedbackText"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div class="results-page hidden" id="resultsPage">
+                <div class="results-content">
+                    <h2 style="color: #fff; margin-bottom: 18px; font-family: 'Orbitron', sans-serif; display: flex; justify-content: center; align-items: center; gap: 10px;">🎉 Quest Complete! 🏆</h2>
+                    <div class="final-score" id="finalScore">0/10</div>
+                    <div class="score-message" id="scoreMessage">Great effort, champion! ✨</div>
+                    <button class="restart-btn" onclick="restartPractice()">🔄 Retry Quest</button>
+                    <button class="restart-btn" onclick="goHome()">🏠 Return to Base</button>
+                    <button class="restart-btn" onclick="showReview()" id="reviewBtn" style="background: linear-gradient(135deg, #ff6b6b, #ee5a6f);">🔍 Review Mistakes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="review-modal" id="reviewModal">
+        <div class="review-content">
+            <h3 class="review-title">🔍 Review Session: Let's Learn From Mistakes! ✨</h3>
+            <div id="reviewItems"></div>
+            <button class="close-review" onclick="closeReview()">✅ Got It! Back to Quest</button>
+        </div>
+    </div>
+
+<script>
+// === VERIFIED QUESTION BANKS: Some/Any & Much/Many in Questions ===
+// All questions pre-verified for natural collocations, accurate noun types, and Beijing ZhongKao alignment
+
+const verifiedQuestions = {
+    // Pattern 1: Some in Questions (Offers, Requests, Expected Yes)
+    someInQuestions: {
+        default: [
+            { q: "Would you like _____ tea?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' is used in offers. 'Would you like some tea?' is a polite, natural offer. 'Any' is for general questions, not offers.", fullSentence: "Would you like some tea?" },
+            { q: "Can I have _____ water, please?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' is used in polite requests. 'Can I have some water?' expects a positive response. 'Any' would sound doubtful.", fullSentence: "Can I have some water, please?" },
+            { q: "Do you have _____ time to help me?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' is used when we expect 'yes'. Asking for help politely suggests we hope they have time.", fullSentence: "Do you have some time to help me?" },
+            { q: "Could you give me _____ advice on this?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in requests for uncountable nouns. 'Advice' is uncountable; 'some advice' is the natural collocation.", fullSentence: "Could you give me some advice on this?" },
+            { q: "Would you like _____ cookies?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' for offers with countable plural nouns. 'Cookies' is countable; 'some cookies' is natural in offers.", fullSentence: "Would you like some cookies?" },
+            { q: "Can we have _____ more minutes?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in polite requests for time. 'Minutes' is countable plural; 'some more minutes' is natural.", fullSentence: "Can we have some more minutes?" },
+            { q: "Would you like _____ help with your homework?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in offers of assistance. 'Help' is uncountable; 'some help' is the standard polite offer.", fullSentence: "Would you like some help with your homework?" },
+            { q: "Could I borrow _____ money for lunch?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in polite requests. 'Money' is uncountable; 'some money' is natural for borrowing requests.", fullSentence: "Could I borrow some money for lunch?" },
+            { q: "Do you have _____ ideas for the project?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' when expecting positive input. 'Ideas' is countable plural; 'some ideas' encourages sharing.", fullSentence: "Do you have some ideas for the project?" },
+            { q: "Would you like _____ sugar in your coffee?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in offers with uncountable nouns. 'Sugar' is uncountable; 'some sugar' is the natural offer pattern.", fullSentence: "Would you like some sugar in your coffee?" }
+        ],
+        school: [
+            { q: "Would you like _____ help with this grammar question?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in offers of academic help. Natural teacher-student or peer interaction.", fullSentence: "Would you like some help with this grammar question?" },
+            { q: "Can I have _____ more time to finish the test?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in polite requests for time. 'Time' is uncountable; exam context makes this relevant.", fullSentence: "Can I have some more time to finish the test?" },
+            { q: "Do you have _____ questions about the lesson?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' is used in general questions. 'Questions' is countable plural; this is a standard classroom question.", fullSentence: "Do you have any questions about the lesson?" },
+            { q: "Could you give me _____ advice on studying for ZhongKao?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in requests for uncountable 'advice'. Exam preparation context is highly relevant.", fullSentence: "Could you give me some advice on studying for ZhongKao?" },
+            { q: "Would you like _____ extra practice exercises?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in offers with countable plural 'exercises'. Natural academic support interaction.", fullSentence: "Would you like some extra practice exercises?" },
+            { q: "Can we have _____ more minutes to discuss this?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in polite requests for class time. 'Minutes' is countable plural; collaborative learning context.", fullSentence: "Can we have some more minutes to discuss this?" },
+            { q: "Would you like _____ help reviewing vocabulary?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in offers of study support. 'Help' is uncountable; natural peer tutoring language.", fullSentence: "Would you like some help reviewing vocabulary?" },
+            { q: "Could I borrow _____ notes from yesterday's class?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in polite requests. 'Notes' is countable plural; common student-to-student interaction.", fullSentence: "Could I borrow some notes from yesterday's class?" },
+            { q: "Do you have _____ suggestions for improving my writing?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' when expecting helpful input. 'Suggestions' is countable plural; academic feedback context.", fullSentence: "Do you have some suggestions for improving my writing?" },
+            { q: "Would you like _____ feedback on your essay?", options: ["some", "any", "much", "many"], correct: 0, feedback: "'Some' in offers with uncountable 'feedback'. Natural teacher-student academic interaction.", fullSentence: "Would you like some feedback on your essay?" }
+        ]
+    },
+    
+    // Pattern 2: Any in Questions (General Inquiries, Negative Expectation)
+    anyInQuestions: {
+        default: [
+            { q: "Do you have _____ questions?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' is used in general questions. 'Questions' is countable plural; this is the standard neutral question form.", fullSentence: "Do you have any questions?" },
+            { q: "Is there _____ milk in the refrigerator?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions about existence. 'Milk' is uncountable; 'Is there any...?' is the natural inquiry pattern.", fullSentence: "Is there any milk in the refrigerator?" },
+            { q: "Are there _____ parks near here?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in general questions with countable plural. 'Parks' is countable; 'Are there any...?' is standard.", fullSentence: "Are there any parks near here?" },
+            { q: "Do you need _____ help?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in neutral offers/questions. 'Help' is uncountable; 'Do you need any help?' is polite and open-ended.", fullSentence: "Do you need any help?" },
+            { q: "Is there _____ reason to worry?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions with abstract uncountable nouns. 'Reason' here is uncountable; natural expression.", fullSentence: "Is there any reason to worry?" },
+            { q: "Are there _____ students who can help?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in general questions with countable plural. Seeking volunteers; neutral inquiry form.", fullSentence: "Are there any students who can help?" },
+            { q: "Do you have _____ idea what time it is?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions with singular countable nouns meaning 'even one'. Natural informal inquiry.", fullSentence: "Do you have any idea what time it is?" },
+            { q: "Is there _____ problem with this answer?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions checking for issues. 'Problem' is countable singular; 'any problem' = 'even one problem'.", fullSentence: "Is there any problem with this answer?" },
+            { q: "Are there _____ mistakes in my writing?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions seeking feedback. 'Mistakes' is countable plural; natural request for correction.", fullSentence: "Are there any mistakes in my writing?" },
+            { q: "Do you have _____ information about the exam?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions with uncountable 'information'. Standard inquiry for academic details.", fullSentence: "Do you have any information about the exam?" }
+        ],
+        school: [
+            { q: "Do you have _____ questions about the homework?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in standard classroom questions. 'Questions' is countable plural; neutral teacher inquiry.", fullSentence: "Do you have any questions about the homework?" },
+            { q: "Is there _____ extra credit available?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions about availability. 'Extra credit' is uncountable concept; natural student question.", fullSentence: "Is there any extra credit available?" },
+            { q: "Are there _____ study groups for this subject?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in general questions with countable plural. Seeking academic support opportunities.", fullSentence: "Are there any study groups for this subject?" },
+            { q: "Do you need _____ help understanding this rule?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in neutral offers of assistance. 'Help' is uncountable; polite teacher-student interaction.", fullSentence: "Do you need any help understanding this rule?" },
+            { q: "Is there _____ point in memorizing this?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions about value. 'Point' is countable singular; natural student reflection question.", fullSentence: "Is there any point in memorizing this?" },
+            { q: "Are there _____ students who finished early?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in general questions with countable plural. Checking class progress; neutral inquiry.", fullSentence: "Are there any students who finished early?" },
+            { q: "Do you have _____ idea how to solve this?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' meaning 'even one' with singular countable. Natural peer collaboration language.", fullSentence: "Do you have any idea how to solve this?" },
+            { q: "Is there _____ confusion about the instructions?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions checking understanding. 'Confusion' is uncountable; teacher clarity check.", fullSentence: "Is there any confusion about the instructions?" },
+            { q: "Are there _____ errors in my ZhongKao practice test?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in questions seeking feedback. 'Errors' is countable plural; exam preparation context.", fullSentence: "Are there any errors in my ZhongKao practice test?" },
+            { q: "Do you have _____ advice for improving my speaking?", options: ["some", "any", "much", "many"], correct: 1, feedback: "'Any' in open-ended requests. 'Advice' is uncountable; natural student seeking guidance.", fullSentence: "Do you have any advice for improving my speaking?" }
+        ]
+    },
+    
+    // Pattern 3: Much in Questions (Uncountable Nouns)
+    muchInQuestions: {
+        default: [
+            { q: "How _____ water do you drink every day?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' is used with uncountable nouns in questions. 'Water' is uncountable; 'How much water?' is the correct pattern.", fullSentence: "How much water do you drink every day?" },
+            { q: "How _____ time do you spend on homework?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'time'. 'How much time?' is the standard question for duration.", fullSentence: "How much time do you spend on homework?" },
+            { q: "How _____ sugar do you want in your tea?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'sugar'. Quantity questions for uncountables use 'how much'.", fullSentence: "How much sugar do you want in your tea?" },
+            { q: "How _____ homework do you have tonight?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'homework'. 'Homework' is always uncountable in English.", fullSentence: "How much homework do you have tonight?" },
+            { q: "How _____ money do you need for the trip?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'money'. Financial questions use 'how much' for amounts.", fullSentence: "How much money do you need for the trip?" },
+            { q: "How _____ advice did the teacher give you?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'advice'. 'Advice' cannot be counted; 'how much advice' is correct.", fullSentence: "How much advice did the teacher give you?" },
+            { q: "How _____ information is on this website?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'information'. 'Information' is always uncountable in English.", fullSentence: "How much information is on this website?" },
+            { q: "How _____ progress have you made this week?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'progress'. Present perfect tense for recent achievements.", fullSentence: "How much progress have you made this week?" },
+            { q: "How _____ patience does learning English require?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable abstract noun 'patience'. Natural reflection question for language learners.", fullSentence: "How much patience does learning English require?" },
+            { q: "How _____ furniture is in your room?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'furniture'. 'Furniture' is always uncountable; common error area for Chinese learners.", fullSentence: "How much furniture is in your room?" }
+        ],
+        school: [
+            { q: "How _____ time do you spend reviewing grammar?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'time'. Study habit question; relevant for self-assessment.", fullSentence: "How much time do you spend reviewing grammar?" },
+            { q: "How _____ homework is assigned this weekend?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'homework'. Planning question; natural student inquiry.", fullSentence: "How much homework is assigned this weekend?" },
+            { q: "How _____ practice do you need for the speaking test?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'practice'. Exam preparation context; skill development focus.", fullSentence: "How much practice do you need for the speaking test?" },
+            { q: "How _____ feedback did you receive on your essay?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'feedback'. Academic reflection question; uncountable noun pattern.", fullSentence: "How much feedback did you receive on your essay?" },
+            { q: "How _____ help do you need with pronunciation?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'help'. Seeking support; natural student-teacher interaction.", fullSentence: "How much help do you need with pronunciation?" },
+            { q: "How _____ improvement have you seen in your writing?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'improvement'. Progress reflection; present perfect for recent past.", fullSentence: "How much improvement have you seen in your writing?" },
+            { q: "How _____ vocabulary should I learn each week?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable 'vocabulary words' implied. 'Vocabulary' as a concept is uncountable, but when asking about individual words, 'how many' is used. This tests nuanced understanding.", fullSentence: "How many vocabulary words should I learn each week?" },
+            { q: "How _____ attention do you pay in class?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'attention'. Self-reflection question; abstract noun pattern.", fullSentence: "How much attention do you pay in class?" },
+            { q: "How _____ effort does it take to master this rule?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable 'effort'. Learning process question; natural academic language.", fullSentence: "How much effort does it take to master this rule?" },
+            { q: "How _____ confidence do you feel about the exam?", options: ["much", "many", "some", "any"], correct: 0, feedback: "'Much' with uncountable abstract noun 'confidence'. Emotional self-assessment; relevant exam context.", fullSentence: "How much confidence do you feel about the exam?" }
+        ]
+    },
+    
+    // Pattern 4: Many in Questions (Countable Plural Nouns)
+    manyInQuestions: {
+        default: [
+            { q: "How _____ books do you read each month?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' is used with countable plural nouns. 'Books' is countable plural; 'How many books?' is the correct pattern.", fullSentence: "How many books do you read each month?" },
+            { q: "How _____ students are in your English class?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'students'. Class size question; natural school inquiry.", fullSentence: "How many students are in your English class?" },
+            { q: "How _____ apples do you want to buy?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'apples'. Shopping question; countable noun pattern.", fullSentence: "How many apples do you want to buy?" },
+            { q: "How _____ questions are on the test?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'questions'. Exam preparation question; highly relevant for ZhongKao.", fullSentence: "How many questions are on the test?" },
+            { q: "How _____ friends do you have in this school?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'friends'. Social question; countable noun pattern.", fullSentence: "How many friends do you have in this school?" },
+            { q: "How _____ mistakes did you make in the exercise?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'mistakes'. Error analysis question; natural learning reflection.", fullSentence: "How many mistakes did you make in the exercise?" },
+            { q: "How _____ days are left until the exam?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'days'. Time countdown question; exam context relevance.", fullSentence: "How many days are left until the exam?" },
+            { q: "How _____ times have you practiced this dialogue?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable 'times' (occasions). Practice frequency question; present perfect for experiences.", fullSentence: "How many times have you practiced this dialogue?" },
+            { q: "How _____ words are in this paragraph?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'words'. Reading analysis question; countable noun pattern.", fullSentence: "How many words are in this paragraph?" },
+            { q: "How _____ classes do you have on Monday?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'classes'. Schedule question; natural student inquiry.", fullSentence: "How many classes do you have on Monday?" }
+        ],
+        school: [
+            { q: "How _____ vocabulary words should I learn weekly?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'words'. Study planning question; 'vocabulary words' is countable.", fullSentence: "How many vocabulary words should I learn weekly?" },
+            { q: "How _____ grammar exercises are in this chapter?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'exercises'. Textbook navigation question; academic context.", fullSentence: "How many grammar exercises are in this chapter?" },
+            { q: "How _____ students passed the last mock exam?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'students'. Performance inquiry; exam preparation relevance.", fullSentence: "How many students passed the last mock exam?" },
+            { q: "How _____ pages do we need to read tonight?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'pages'. Homework planning question; natural student language.", fullSentence: "How many pages do we need to read tonight?" },
+            { q: "How _____ times have you taken a practice test?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable 'times' (occasions). Exam preparation reflection; present perfect tense.", fullSentence: "How many times have you taken a practice test?" },
+            { q: "How _____ classmates do you study with regularly?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'classmates'. Study habit question; collaborative learning context.", fullSentence: "How many classmates do you study with regularly?" },
+            { q: "How _____ questions did you answer correctly?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'questions'. Self-assessment question; exam skill reflection.", fullSentence: "How many questions did you answer correctly?" },
+            { q: "How _____ minutes do we have for this section?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'minutes'. Time management question; test-taking strategy.", fullSentence: "How many minutes do we have for this section?" },
+            { q: "How _____ essays have you written this semester?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'essays'. Progress tracking question; academic reflection.", fullSentence: "How many essays have you written this semester?" },
+            { q: "How _____ new words did you learn today?", options: ["much", "many", "some", "any"], correct: 1, feedback: "'Many' with countable plural 'words'. Daily learning reflection; vocabulary acquisition focus.", fullSentence: "How many new words did you learn today?" }
+        ]
+    },
+    
+    // Pattern 5: Mixed - Some/Any Choice in Questions
+    someAnyChoice: {
+        default: [
+            { q: "Would you like _____ coffee? (offer)", options: ["some", "any"], correct: 0, feedback: "'Some' is used in offers. 'Would you like some coffee?' is polite and expects 'yes'. 'Any' would sound doubtful or negative.", fullSentence: "Would you like some coffee?" },
+            { q: "Do you have _____ brothers or sisters? (general question)", options: ["some", "any"], correct: 1, feedback: "'Any' is used in general questions. 'Do you have any brothers?' is the neutral inquiry form.", fullSentence: "Do you have any brothers or sisters?" },
+            { q: "Can I have _____ sugar? (request)", options: ["some", "any"], correct: 0, feedback: "'Some' is used in polite requests. 'Can I have some sugar?' expects a positive response.", fullSentence: "Can I have some sugar?" },
+            { q: "Is there _____ milk left? (checking)", options: ["some", "any"], correct: 1, feedback: "'Any' is used when checking existence, especially if we think the answer might be 'no'. 'Is there any milk?' is neutral.", fullSentence: "Is there any milk left?" },
+            { q: "Do you need _____ help? (open offer)", options: ["some", "any"], correct: 1, feedback: "'Any' in open-ended offers. 'Do you need any help?' is polite and doesn't assume the answer.", fullSentence: "Do you need any help?" },
+            { q: "Could you give me _____ advice? (request)", options: ["some", "any"], correct: 0, feedback: "'Some' in requests for uncountable nouns. 'Could you give me some advice?' is natural and polite.", fullSentence: "Could you give me some advice?" },
+            { q: "Are there _____ parks nearby? (general inquiry)", options: ["some", "any"], correct: 1, feedback: "'Any' in general questions with countable plural. 'Are there any parks?' is the standard neutral form.", fullSentence: "Are there any parks nearby?" },
+            { q: "Would you like _____ cookies? (offer)", options: ["some", "any"], correct: 0, feedback: "'Some' in offers with countable plural. 'Would you like some cookies?' is hospitable and expects 'yes'.", fullSentence: "Would you like some cookies?" },
+            { q: "Do you have _____ questions? (classroom)", options: ["some", "any"], correct: 1, feedback: "'Any' in standard classroom questions. 'Do you have any questions?' invites open inquiry.", fullSentence: "Do you have any questions?" },
+            { q: "Can we have _____ more time? (request)", options: ["some", "any"], correct: 0, feedback: "'Some' in polite requests. 'Can we have some more time?' expects consideration and likely approval.", fullSentence: "Can we have some more time?" }
+        ],
+        school: [
+            { q: "Would you like _____ help with this question? (offer)", options: ["some", "any"], correct: 0, feedback: "'Some' in offers of academic assistance. Natural teacher-student interaction.", fullSentence: "Would you like some help with this question?" },
+            { q: "Do you have _____ questions about the lesson? (general)", options: ["some", "any"], correct: 1, feedback: "'Any' in standard classroom inquiries. Neutral teacher question inviting student input.", fullSentence: "Do you have any questions about the lesson?" },
+            { q: "Can I have _____ more minutes? (request)", options: ["some", "any"], correct: 0, feedback: "'Some' in polite requests for time. Natural student request in class.", fullSentence: "Can I have some more minutes?" },
+            { q: "Is there _____ extra credit available? (checking)", options: ["some", "any"], correct: 1, feedback: "'Any' when checking availability. Neutral student inquiry about academic opportunities.", fullSentence: "Is there any extra credit available?" },
+            { q: "Do you need _____ clarification? (open offer)", options: ["some", "any"], correct: 1, feedback: "'Any' in open-ended offers of help. Polite teacher question that doesn't assume confusion.", fullSentence: "Do you need any clarification?" },
+            { q: "Could you give me _____ feedback? (request)", options: ["some", "any"], correct: 0, feedback: "'Some' in requests for uncountable 'feedback'. Natural student seeking academic input.", fullSentence: "Could you give me some feedback?" },
+            { q: "Are there _____ study groups? (general inquiry)", options: ["some", "any"], correct: 1, feedback: "'Any' in general questions about availability. Neutral inquiry for academic support.", fullSentence: "Are there any study groups?" },
+            { q: "Would you like _____ practice exercises? (offer)", options: ["some", "any"], correct: 0, feedback: "'Some' in offers with countable plural. Natural teacher offering additional resources.", fullSentence: "Would you like some practice exercises?" },
+            { q: "Do you have _____ suggestions? (open question)", options: ["some", "any"], correct: 1, feedback: "'Any' in open-ended questions inviting input. Natural collaborative classroom language.", fullSentence: "Do you have any suggestions?" },
+            { q: "Can we have _____ more examples? (request)", options: ["some", "any"], correct: 0, feedback: "'Some' in polite requests for clarification. Natural student seeking better understanding.", fullSentence: "Can we have some more examples?" }
+        ]
+    },
+    
+    // Pattern 6: Mixed - Much/Many Choice in Questions
+    muchManyChoice: {
+        default: [
+            { q: "How _____ water do you drink? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' is used with uncountable nouns. 'Water' is uncountable; 'How much water?' is correct.", fullSentence: "How much water do you drink?" },
+            { q: "How _____ books do you have? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' is used with countable plural nouns. 'Books' is countable plural; 'How many books?' is correct.", fullSentence: "How many books do you have?" },
+            { q: "How _____ time do you need? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'time'. Duration questions use 'how much'.", fullSentence: "How much time do you need?" },
+            { q: "How _____ students are there? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'students'. Quantity questions for people use 'how many'.", fullSentence: "How many students are there?" },
+            { q: "How _____ sugar do you want? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'sugar'. Ingredient quantity questions use 'how much'.", fullSentence: "How much sugar do you want?" },
+            { q: "How _____ mistakes did you make? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'mistakes'. Error counting questions use 'how many'.", fullSentence: "How many mistakes did you make?" },
+            { q: "How _____ money do you have? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'money'. Financial amount questions use 'how much'.", fullSentence: "How much money do you have?" },
+            { q: "How _____ friends do you have? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'friends'. Social quantity questions use 'how many'.", fullSentence: "How many friends do you have?" },
+            { q: "How _____ homework is there? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'homework'. 'Homework' is always uncountable in English.", fullSentence: "How much homework is there?" },
+            { q: "How _____ days until the exam? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'days'. Time countdown for events uses 'how many'.", fullSentence: "How many days until the exam?" }
+        ],
+        school: [
+            { q: "How _____ vocabulary words should I learn? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'words'. Study planning for vocabulary uses 'how many'.", fullSentence: "How many vocabulary words should I learn?" },
+            { q: "How _____ practice do I need? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'practice'. Skill development questions use 'how much'.", fullSentence: "How much practice do I need?" },
+            { q: "How _____ questions are on the test? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'questions'. Exam structure questions use 'how many'.", fullSentence: "How many questions are on the test?" },
+            { q: "How _____ time should I spend studying? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'time'. Study duration questions use 'how much'.", fullSentence: "How much time should I spend studying?" },
+            { q: "How _____ essays have you written? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'essays'. Writing output questions use 'how many'.", fullSentence: "How many essays have you written?" },
+            { q: "How _____ help do you need? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'help'. Assistance quantity questions use 'how much'.", fullSentence: "How much help do you need?" },
+            { q: "How _____ classmates are in your group? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'classmates'. Group size questions use 'how many'.", fullSentence: "How many classmates are in your group?" },
+            { q: "How _____ feedback did you receive? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'feedback'. Academic input questions use 'how much'.", fullSentence: "How much feedback did you receive?" },
+            { q: "How _____ pages must we read? (countable)", options: ["much", "many"], correct: 1, feedback: "'Many' with countable plural 'pages'. Reading assignment questions use 'how many'.", fullSentence: "How many pages must we read?" },
+            { q: "How _____ improvement have you made? (uncountable)", options: ["much", "many"], correct: 0, feedback: "'Much' with uncountable 'improvement'. Progress assessment questions use 'how much'.", fullSentence: "How much improvement have you made?" }
+        ]
+    }
+};
+
+// Pattern category metadata
+const patternCategories = [
+    { id: 'someInQuestions', title: '🔹 Some in Questions ✨', desc: 'Offers, requests, expected "yes" 🎯' },
+    { id: 'anyInQuestions', title: '🔹 Any in Questions ❓', desc: 'General inquiries, negative expectation 🤔' },
+    { id: 'muchInQuestions', title: '🔹 Much in Questions ⚖️', desc: 'How much + uncountable nouns 💧' },
+    { id: 'manyInQuestions', title: '🔹 Many in Questions 🔢', desc: 'How many + countable plural nouns 📚' },
+    { id: 'someAnyChoice', title: '🔹 Some vs. Any Choice 🎲', desc: 'Select the correct quantifier ✨' },
+    { id: 'muchManyChoice', title: '🔹 Much vs. Many Choice 🎯', desc: 'Identify countable vs. uncountable 🔍' }
+];
+
+// Game state
+let state = {
+    page: 'home',
+    category: null,
+    questions: [],
+    current: 0,
+    score: 0,
+    points: 0,
+    answered: false,
+    topic: 'default',
+    history: ['home'],
+    incorrectAnswers: [], // Store incorrect answers for review
+    usedQuestions: new Set() // Track used questions to prevent repeats
+};
+
+// Audio context for sound effects
+let audioContext;
+let correctSound, incorrectSound;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+    renderGrid();
+    updateNav();
+    loadVoices();
+    initParticles();
+    initAudio();
+});
+
+// Initialize Web Audio API for sound effects
+function initAudio() {
+    try {
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioContext();
+        
+        // Create correct answer sound (pleasant chime)
+        correctSound = () => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.3);
+        };
+        
+        // Create incorrect answer sound (soft buzz)
+        incorrectSound = () => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.25);
+        };
+    } catch (e) {
+        console.log('Web Audio API not supported', e);
+        // Fallback: no sound effects
+        correctSound = () => {};
+        incorrectSound = () => {};
+    }
+}
+
+// Create particle background
+function initParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 30;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Random size
+        const size = Math.random() * 3 + 2;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random animation duration and delay
+        const duration = Math.random() * 20 + 15;
+        const delay = Math.random() * 10;
+        particle.style.animation = `float ${duration}s infinite linear`;
+        particle.style.animationDelay = `${delay}s`;
+        
+        // Random color
+        const colors = ['#667eea', '#764ba2', '#00c9ff', '#92fe9d', '#ff6b6b'];
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.boxShadow = `0 0 ${size*2}px ${particle.style.background}`;
+        
+        particlesContainer.appendChild(particle);
+    }
+}
+
+function loadVoices() {
+    if ('speechSynthesis' in window) {
+        // Load voices immediately and on change
+        const load = () => {
+            const voices = speechSynthesis.getVoices();
+            console.log(`Loaded ${voices.length} voices`);
+        };
+        
+        load();
+        speechSynthesis.onvoiceschanged = load;
+    }
+}
+
+function renderGrid() {
+    const grid = document.getElementById('patternGrid');
+    grid.innerHTML = '';
+    patternCategories.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'pattern-card';
+        card.innerHTML = `<h3>${cat.title}</h3><p>${cat.desc}</p>`;
+        card.onclick = () => selectCategory(cat.id);
+        grid.appendChild(card);
+    });
+}
+
+function updateTopic() {
+    state.topic = document.getElementById('topicSelect').value;
+    if (state.category) renderStudy();
+}
+
+function selectCategory(id) {
+    state.category = patternCategories.find(c => c.id === id);
+    state.history.push('study');
+    showPage('study');
+    renderStudy();
+    updateNav();
+}
+
+function renderStudy() {
+    const cat = state.category;
+    const topic = state.topic;
+    const content = document.getElementById('studyContent');
+    
+    let html = `<h2>📖 ${cat.title}</h2>`;
+    
+    // Rules based on category
+    const rules = {
+        someInQuestions: [
+            { title: 'When to Use "Some" in Questions ✨', content: 'Use "some" in questions when making offers, polite requests, or when you expect a "yes" answer.', pattern: 'Would you like some + noun? | Can I have some + noun? | Do you have some + noun? (expecting yes)' },
+            { title: 'Noun Types with "Some" 📦💧', content: '"Some" works with both countable plural and uncountable nouns.', pattern: 'some + countable plural: some books 📚, some cookies 🍪 | some + uncountable: some water 💧, some advice 💡', nouns: { countable: ['books', 'cookies', 'minutes', 'ideas'], uncountable: ['water', 'advice', 'help', 'time'] } },
+            { title: 'ZhongKao Tip 🎯', content: 'In Beijing exams, "some" in questions often appears in polite dialogue. Look for context clues: offers (Would you like...?), requests (Can I have...?), or hopeful questions.', tip: 'If the question sounds polite or hopeful → likely "some" ✨' }
+        ],
+        anyInQuestions: [
+            { title: 'When to Use "Any" in Questions ❓', content: 'Use "any" in most general questions, especially when the answer could be "no" or when you don\'t know the answer.', pattern: 'Do you have any + noun? | Is there any + uncountable? | Are there any + countable plural?' },
+            { title: 'Noun Types with "Any" 🔍', content: '"Any" works with countable plural, uncountable, AND singular countable (meaning "even one").', pattern: 'any + countable plural: any books 📚, any questions ❓ | any + uncountable: any water 💧, any information ℹ️ | any + singular: any idea 💡, any problem ⚠️', nouns: { countable: ['books', 'questions', 'students', 'mistakes'], uncountable: ['water', 'information', 'help', 'advice'] } },
+            { title: 'ZhongKao Tip 🎯', content: '"Any" is the default choice for neutral questions in ZhongKao. If the question doesn\'t sound like an offer or request, choose "any".', tip: 'General question? → Default to "any" ❓' }
+        ],
+        muchInQuestions: [
+            { title: 'When to Use "Much" in Questions ⚖️', content: 'Use "much" with uncountable nouns in "How much...?" questions.', pattern: 'How much + uncountable noun: How much time? ⏰ How much water? 💧 How much homework? 📝' },
+            { title: 'Common Uncountable Nouns 💧', content: 'Memorize these uncountable nouns for ZhongKao: time, water, money, homework, advice, information, help, progress, furniture, luggage.', pattern: '✗ How much books? ✓ How many books? 📚 | ✗ How many water? ✓ How much water? 💧', nouns: { uncountable: ['time', 'water', 'money', 'homework', 'advice', 'information', 'help', 'progress', 'furniture', 'luggage'] } },
+            { title: 'ZhongKao Tip 🎯', content: 'A common error is using "much" with countable nouns. Always identify the noun type first: can you count it? If yes → many; if no → much.', tip: 'Step 1: Is the noun countable? Step 2: Choose many/much accordingly 🔍' }
+        ],
+        manyInQuestions: [
+            { title: 'When to Use "Many" in Questions 🔢', content: 'Use "many" with countable plural nouns in "How many...?" questions.', pattern: 'How many + countable plural noun: How many books? 📚 How many students? 👨‍🎓 How many questions? ❓' },
+            { title: 'Countable Plural Nouns 📦', content: 'Countable nouns can be singular or plural. In "How many" questions, always use the plural form.', pattern: 'How many + plural: books 📚, students 👨‍🎓, apples 🍎, questions ❓, mistakes ✏️, days 📅, words ✍️', nouns: { countable: ['books', 'students', 'apples', 'questions', 'mistakes', 'days', 'words', 'friends', 'classes', 'pages'] } },
+            { title: 'ZhongKao Tip 🎯', content: 'Watch for nouns that look plural but are uncountable (e.g., "news", "mathematics"). These take "much", not "many".', tip: 'Plural-looking ≠ countable. Learn the exceptions! ⚠️' }
+        ],
+        someAnyChoice: [
+            { title: 'Choosing Between Some and Any 🎲', content: 'The choice depends on the question type and expected answer.', pattern: 'OFFER/REQUEST/EXPECT YES → some ✨ | GENERAL QUESTION/UNKNOWN → any ❓' },
+            { title: 'Decision Flowchart 🔀', content: '1. Is it an offer? (Would you like...?) → some ✨ | 2. Is it a request? (Can I have...?) → some ✨ | 3. Do you expect "yes"? → some ✨ | 4. Is it a neutral question? → any ❓', example: '✓ Would you like some tea? ☕ (offer) | ✓ Do you have any questions? ❓ (neutral)' },
+            { title: 'ZhongKao Tip 🎯', content: 'In dialogue completion questions, look at the speaker\'s intention. Polite/helpful tone → some ✨; neutral inquiry → any ❓.', tip: 'Context is key: What is the speaker trying to do? 🤔' }
+        ],
+        muchManyChoice: [
+            { title: 'Choosing Between Much and Many ⚖️🔢', content: 'The choice depends entirely on whether the noun is countable or uncountable.', pattern: 'COUNTABLE PLURAL 📦 → many 🔢 | UNCOUNTABLE 💧 → much ⚖️' },
+            { title: 'Quick Identification Strategy 🔍', content: 'Can you put a number in front of the noun? If yes → countable → many 🔢. If no → uncountable → much ⚖️.', example: '✓ three books 📚 → countable → How many books? 🔢 | ✗ three water 💧 → uncountable → How much water? ⚖️' },
+            { title: 'ZhongKao Tip 🎯', content: 'Memorize the top 10 uncountable nouns tested in Beijing exams: time, money, water, homework, advice, information, help, progress, furniture, luggage. All others are likely countable.', tip: 'When in doubt, ask: "Can I count this?" 🤔' }
+        ]
+    };
+    
+    rules[cat.id].forEach(rule => {
+        html += `
+            <div class="rule-box">
+                <h4>${rule.title}</h4>
+                <p>${rule.content}</p>
+                <div class="pattern-box">${rule.pattern}</div>
+                ${rule.nouns ? `
+                    <div style="margin: 8px 0;">
+                        ${rule.nouns.countable ? `<div><strong>📦 Countable:</strong> ${rule.nouns.countable.map(n => `<span class="noun-tag countable">${n}</span>`).join(' ')}</div>` : ''}
+                        ${rule.nouns.uncountable ? `<div style="margin-top: 4px;"><strong>💧 Uncountable:</strong> ${rule.nouns.uncountable.map(n => `<span class="noun-tag uncountable">${n}</span>`).join(' ')}</div>` : ''}
+                    </div>
+                ` : ''}
+                ${rule.example ? `<div class="example-box correct"><strong>✓</strong> ${rule.example}</div>` : ''}
+                ${rule.tip ? `<p style="margin-top: 8px;"><em>💡 ${rule.tip}</em></p>` : ''}
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="rule-box">
+            <h4>🎯 Topic: ${topic === 'default' ? '🌍 General' : topic.charAt(0).toUpperCase() + topic.slice(1)}</h4>
+            <p>All questions use ${topic === 'default' ? 'general contexts' : topic + '-related vocabulary'}.</p>
+            <p><strong>Change topic above to customize questions! ✨</strong></p>
+        </div>
+        <div class="example-row">
+            <div class="example-box correct"><strong>✓ Natural:</strong> ${getExample(cat.id, true)}</div>
+            <div class="example-box incorrect"><strong>✗ Unnatural:</strong> ${getExample(cat.id, false)}</div>
+        </div>
+    `;
+    
+    content.innerHTML = html;
+}
+
+function getExample(catId, correct) {
+    const examples = {
+        someInQuestions: correct ? "✨ Would you like some help? ✨" : "❌ Would you like any help? (less natural for offers)",
+        anyInQuestions: correct ? "❓ Do you have any questions? ❓" : "❌ Do you have some questions? (implies you expect yes)",
+        muchInQuestions: correct ? "⚖️ How much time do you need? ⚖️" : "❌ How many time do you need? (incorrect: time is uncountable)",
+        manyInQuestions: correct ? "🔢 How many books do you have? 🔢" : "❌ How much books do you have? (incorrect: books is countable)",
+        someAnyChoice: correct ? "✨ Can I have some water? (request) ✨" : "❌ Can I have any water? (sounds doubtful)",
+        muchManyChoice: correct ? "⚖️ How much homework? (uncountable) 💧 | 🔢 How many exercises? (countable) 📚" : "❌ How much exercises? (incorrect)"
+    };
+    return examples[catId];
+}
+
+function startPractice() {
+    const catId = state.category.id;
+    const topic = state.topic;
+    const bank = verifiedQuestions[catId];
+    
+    // Use topic-specific questions if available, else default
+    const source = bank[topic] || bank.default;
+    
+    // Filter out already used questions and get 10 new ones
+    let availableQuestions = source.filter(q => !state.usedQuestions.has(q.q));
+    
+    // If we don't have enough unused questions, reset the used set for this category
+    if (availableQuestions.length < 10) {
+        state.usedQuestions.clear();
+        availableQuestions = [...source];
+    }
+    
+    // Shuffle and take 10 questions
+    state.questions = shuffleArray(availableQuestions).slice(0, 10);
+    
+    // Mark these questions as used
+    state.questions.forEach(q => state.usedQuestions.add(q.q));
+    
+    state.current = 0;
+    state.answered = false;
+    state.score = 0;
+    state.incorrectAnswers = []; // Reset incorrect answers for this session
+    state.history.push('practice');
+    showPage('practice');
+    renderQuestion();
+    updateNav();
+}
+
+function renderQuestion() {
+    const q = state.questions[state.current];
+    document.getElementById('questionNumber').textContent = `Question ${state.current + 1} of 10 ❓`;
+    document.getElementById('questionText').textContent = q.q;
+    document.getElementById('progressBar').style.width = `${((state.current + 1) / 10) * 100}%`;
+    document.getElementById('progressBar').textContent = `${state.current + 1}/10`;
+    
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.dataset.index = i;
+        
+        // Add touch/drag events
+        btn.addEventListener('touchstart', handleTouchStart, {passive: true});
+        btn.addEventListener('touchmove', handleTouchMove, {passive: false});
+        btn.addEventListener('touchend', handleTouchEnd);
+        btn.addEventListener('mousedown', handleMouseDown);
+        btn.addEventListener('mousemove', handleMouseMove);
+        btn.addEventListener('mouseup', handleMouseUp);
+        btn.addEventListener('mouseleave', handleMouseLeave);
+        
+        btn.onclick = () => selectAnswer(i);
+        grid.appendChild(btn);
+    });
+    
+    document.getElementById('feedbackBox').classList.remove('show', 'correct-feedback', 'incorrect-feedback');
+    state.answered = false;
+    updateNav();
+}
+
+// Touch and drag handling for mobile/desktop
+let isDragging = false;
+let draggedElement = null;
+
+function handleTouchStart(e) {
+    isDragging = true;
+    draggedElement = e.currentTarget;
+    e.currentTarget.classList.add('drag-over');
+}
+
+function handleTouchMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+}
+
+function handleTouchEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    if (draggedElement) {
+        draggedElement.classList.remove('drag-over');
+        const index = parseInt(draggedElement.dataset.index);
+        selectAnswer(index);
+        draggedElement = null;
+    }
+}
+
+function handleMouseDown(e) {
+    isDragging = true;
+    draggedElement = e.currentTarget;
+    e.currentTarget.classList.add('drag-over');
+}
+
+function handleMouseMove(e) {
+    if (!isDragging) return;
+}
+
+function handleMouseUp(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    if (draggedElement) {
+        draggedElement.classList.remove('drag-over');
+        const index = parseInt(draggedElement.dataset.index);
+        selectAnswer(index);
+        draggedElement = null;
+    }
+}
+
+function handleMouseLeave(e) {
+    if (isDragging && draggedElement) {
+        draggedElement.classList.remove('drag-over');
+        isDragging = false;
+        draggedElement = null;
+    }
+}
+
+function selectAnswer(index) {
+    if (state.answered) return;
+    state.answered = true;
+    
+    const q = state.questions[state.current];
+    const buttons = document.querySelectorAll('.option-btn');
+    
+    buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correct) btn.classList.add('correct');
+        else if (i === index) btn.classList.add('incorrect');
+    });
+    
+    const feedback = document.getElementById('feedbackBox');
+    const title = document.getElementById('feedbackTitle');
+    const text = document.getElementById('feedbackText');
+    
+    if (index === q.correct) {
+        state.score++;
+        state.points += 10;
+        feedback.classList.add('correct-feedback');
+        title.textContent = '✨ Correct! Amazing! ✨';
+        createShimmer();
+        createConfetti();
+        correctSound(); // Play correct sound
+        
+        // Auto-play the full sentence after answering correctly
+        setTimeout(playQuestionAudio, 500); 
+    } else {
+        feedback.classList.add('incorrect-feedback');
+        title.textContent = '❌ Not quite! Let\'s learn! ❌';
+        incorrectSound(); // Play incorrect sound
+        
+        // Store incorrect answer for review
+        state.incorrectAnswers.push({
+            question: q.q,
+            userAnswer: q.options[index],
+            correctAnswer: q.options[q.correct],
+            feedback: q.feedback,
+            fullSentence: q.fullSentence
+        });
+        
+        // Auto-play the full sentence after answering incorrectly
+        setTimeout(playQuestionAudio, 500);
+    }
+    
+    text.textContent = q.feedback;
+    feedback.classList.add('show');
+    
+    updateScore();
+    updateNav();
+}
+
+// Text-to-Speech function triggered by clicking the question box or after answering
+function playQuestionAudio() {
+    const q = state.questions[state.current];
+    if (!q) return;
+    
+    // Read question if unanswered (replacing blank), or full sentence if answered
+    const textToSpeak = state.answered ? q.fullSentence : q.q.replace(/_+/g, "blank");
+    
+    if ('speechSynthesis' in window) {
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85; // 85% speed for better comprehension for secondary students
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        // Get available voices and filter for Microsoft multilingual voices
+        const voices = window.speechSynthesis.getVoices();
+        const targetVoices = ['Giuseppe', 'Remy', 'Vivienne', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
+        
+        // Find a matching voice
+        let selectedVoice = null;
+        for (const voiceName of targetVoices) {
+            const voice = voices.find(v => v.name.includes(voiceName) || v.name.toLowerCase().includes(voiceName.toLowerCase()));
+            if (voice) {
+                selectedVoice = voice;
+                break;
+            }
+        }
+        
+        // If no target voice found, pick a random English voice
+        if (!selectedVoice) {
+            const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+            if (englishVoices.length > 0) {
+                selectedVoice = englishVoices[Math.floor(Math.random() * englishVoices.length)];
+            }
+        }
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+        
+        // Speak without showing which voice is used
+        window.speechSynthesis.speak(utterance);
+    } else {
+        // Fallback visual feedback if TTS not supported
+        const feedback = document.getElementById('feedbackBox');
+        if (feedback && state.answered) {
+            feedback.innerHTML += `<div style="margin-top:10px;padding:8px;background:rgba(102,126,234,0.2);border-radius:8px;font-size:0.9em">🔊 TTS not supported in this browser. Correct sentence: "${textToSpeak}"</div>`;
+        }
+    }
+}
+
+function nextQuestion() {
+    if (state.current < 9) {
+        state.current++;
+        state.answered = false;
+        renderQuestion();
+    } else {
+        showResults();
+    }
+    updateNav();
+}
+
+function showResults() {
+    state.history.push('results');
+    showPage('results');
+    const pct = (state.score / 10) * 100;
+    document.getElementById('finalScore').textContent = `${state.score}/10`;
+    
+    let msg = '';
+    if (pct >= 90) msg = '🌟 Outstanding! You\'re a Grammar Master! ✨🏆';
+    else if (pct >= 75) msg = '👏 Great job! Very good understanding! 🚀';
+    else if (pct >= 60) msg = '💪 Good effort! Keep practicing, champion! ✨';
+    else msg = '📚 Keep studying! You can improve! 💫';
+    
+    document.getElementById('scoreMessage').textContent = msg;
+    
+    // Show/hide review button based on incorrect answers
+    document.getElementById('reviewBtn').style.display = state.incorrectAnswers.length > 0 ? 'inline-flex' : 'none';
+    
+    updateNav();
+}
+
+function showReview() {
+    const modal = document.getElementById('reviewModal');
+    const reviewItems = document.getElementById('reviewItems');
+    
+    if (state.incorrectAnswers.length === 0) {
+        reviewItems.innerHTML = '<p style="text-align:center;font-size:1.2em;color:#c8e6c9">✨ No mistakes to review! You aced it! 🏆✨</p>';
+    } else {
+        reviewItems.innerHTML = state.incorrectAnswers.map((item, index) => `
+            <div class="review-item">
+                <div class="review-question">❓ ${item.question}</div>
+                <div class="review-answer">Your answer: <strong>${item.userAnswer}</strong> ❌</div>
+                <div class="review-answer review-correct">Correct answer: <strong>${item.correctAnswer}</strong> ✅</div>
+                <div class="review-explanation">💡 ${item.feedback}</div>
+                <div style="margin-top:10px">
+                    <button class="tts-btn" onclick="speakReviewSentence(${index})" style="padding:8px 16px;font-size:0.9em">🔊 Hear Correct Sentence</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    modal.classList.add('show');
+}
+
+function speakReviewSentence(index) {
+    const item = state.incorrectAnswers[index];
+    if (!item || !item.fullSentence) return;
+    
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(item.fullSentence);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85; // 85% speed for secondary students
+        
+        // Same voice selection logic as main TTS
+        const voices = window.speechSynthesis.getVoices();
+        const targetVoices = ['Giuseppe', 'Remy', 'Vivienne', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
+        
+        let selectedVoice = null;
+        for (const voiceName of targetVoices) {
+            const voice = voices.find(v => v.name.includes(voiceName) || v.name.toLowerCase().includes(voiceName.toLowerCase()));
+            if (voice) {
+                selectedVoice = voice;
+                break;
+            }
+        }
+        
+        if (!selectedVoice) {
+            const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+            if (englishVoices.length > 0) {
+                selectedVoice = englishVoices[Math.floor(Math.random() * englishVoices.length)];
+            }
+        }
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+        
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function closeReview() {
+    document.getElementById('reviewModal').classList.remove('show');
+}
+
+function restartPractice() {
+    state.current = 0;
+    state.answered = false;
+    state.score = 0;
+    state.incorrectAnswers = [];
+    // Keep the same category and topic, but get new questions
+    const catId = state.category.id;
+    const topic = state.topic;
+    const bank = verifiedQuestions[catId];
+    const source = bank[topic] || bank.default;
+    
+    // Reset used questions for fresh start
+    state.usedQuestions.clear();
+    
+    // Get 10 new questions
+    let availableQuestions = [...source];
+    state.questions = shuffleArray(availableQuestions).slice(0, 10);
+    state.questions.forEach(q => state.usedQuestions.add(q.q));
+    
+    state.history.push('practice');
+    showPage('practice');
+    renderQuestion();
+    updateNav();
+}
+
+function goBack() {
+    if (state.history.length > 1) {
+        state.history.pop();
+        showPage(state.history[state.history.length - 1]);
+        updateNav();
+    }
+}
+
+function goHome() {
+    state.history = ['home'];
+    state.category = null;
+    showPage('home');
+    updateNav();
+}
+
+function showPage(name) {
+    ['homePage', 'studyPage', 'practicePage', 'resultsPage'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById(name + 'Page').classList.remove('hidden');
+    state.page = name;
+    
+    // Hide review modal when changing pages
+    if (name !== 'results') {
+        document.getElementById('reviewModal').classList.remove('show');
+    }
+}
+
+function updateNav() {
+    document.getElementById('backBtn').disabled = state.history.length <= 1;
+    const next = document.getElementById('nextBtn');
+    if (state.page === 'practice') {
+        next.disabled = !state.answered;
+        next.textContent = state.current < 9 ? 'Next ➡️' : 'Finish 🏁';
+    } else {
+        next.disabled = true;
+    }
+}
+
+function updateScore() {
+    document.getElementById('scoreDisplay').textContent = state.points;
+}
+
+function addManualPoints() {
+    state.points += 10;
+    updateScore();
+    createShimmer();
+    correctSound(); // Play a little sound for manual points too
+}
+
+function createShimmer() {
+    const container = document.getElementById('shimmerContainer');
+    for (let i = 0; i < 7; i++) {
+        const s = document.createElement('div');
+        s.className = 'shimmer';
+        s.style.left = `${Math.random() * 80 + 10}%`;
+        s.style.animationDelay = `${Math.random() * 0.7}s`;
+        container.appendChild(s);
+        
+        setTimeout(() => {
+            s.remove();
+        }, 2500);
+    }
+}
+
+function createConfetti() {
+    // Create confetti explosion for correct answers
+    const colors = ['#ffd700', '#ff6b6b', '#4ade80', '#667eea', '#00c9ff', '#ff9e64'];
+    
+    for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        // Random position near the trophy button
+        const rect = document.getElementById('trophyBtn').getBoundingClientRect();
+        const x = rect.left + rect.width/2 + (Math.random() - 0.5) * 100;
+        const y = rect.top + rect.height/2;
+        
+        confetti.style.left = `${x}px`;
+        confetti.style.top = `${y}px`;
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = `${Math.random() * 8 + 6}px`;
+        confetti.style.height = confetti.style.width;
+        confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
+        confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+        
+        document.body.appendChild(confetti);
+        
+        // Remove after animation
+        setTimeout(() => {
+            confetti.remove();
+        }, 3000);
+    }
+}
+
+function shuffleArray(array) {
+    const a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+</script>
+</body>
+</html>

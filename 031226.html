@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Quest: Secondary Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            touch-action: manipulation; 
+            background-color: #f8fafc; 
+            overflow-x: hidden;
+            color: #1e293b;
+            padding-top: 5rem; /* Space for fixed header */
+        }
+        
+        .screen { display: none; min-height: calc(100vh - 5rem); width: 100vw; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+        .screen.active { display: flex; animation: fadeIn 0.4s ease-out forwards; }
+
+        /* Custom Full-Height Lock for Convo Screen to prevent page scroll */
+        #convo-screen.active {
+            height: calc(100vh - 5rem);
+            min-height: auto;
+            overflow: hidden;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Fixed Navigation Header */
+        #nav-header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 5rem;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            z-index: 50; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 1rem;
+        }
+
+        /* Clean 3D Buttons */
+        .btn-3d { 
+            transition: all 0.1s ease;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+            cursor: pointer;
+        }
+        .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0,0,0,0.15); filter: brightness(1.05); }
+        .btn-3d:active { transform: translateY(6px); box-shadow: 0 0px 0 rgba(0,0,0,0.15); }
+        
+        .btn-white { background-color: #ffffff; border: 2px solid #e2e8f0; color: #334155; }
+        .btn-blue { background-color: #3b82f6; border: 2px solid #2563eb; color: #ffffff; }
+        .btn-green { background-color: #10b981; border: 2px solid #059669; color: #ffffff; }
+        .btn-purple { background-color: #8b5cf6; border: 2px solid #7c3aed; color: #ffffff; }
+        .btn-orange { background-color: #f97316; border: 2px solid #ea580c; color: #ffffff; }
+        
+        .nav-btn {
+            background-color: #f1f5f9; border: 2px solid #cbd5e1; color: #475569;
+            font-weight: 800; padding: 0.5rem 1rem; border-radius: 1rem;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background-color: #e2e8f0; transform: translateY(-2px); }
+        .nav-btn:active { transform: translateY(2px); }
+
+        .points-btn {
+            background-color: #fbbf24; border: 2px solid #f59e0b; color: #92400e;
+            font-weight: 900; padding: 0.5rem 1.2rem; border-radius: 1rem;
+            box-shadow: 0 4px 0 #d97706; transition: all 0.1s; cursor: pointer;
+        }
+        .points-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 0 #d97706; }
+        .points-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #d97706; }
+
+        /* Chat Bubbles (30% Wider Container) */
+        #convo-container {
+            display: flex; flex-direction: column; gap: 0.8rem;
+            width: 100%; 
+            max-width: 1040px; /* Expanded by 30% from 800px */
+            flex-grow: 1;
+            height: 0; /* Forces internal scroll */
+            overflow-y: auto; padding: 1rem;
+            scroll-behavior: smooth;
+        }
+        .chat-bubble {
+            max-width: 75%; /* Reduced from 80% to keep bubbles distinctly left/right in wider container */
+            padding: 1rem 1.5rem;
+            border-radius: 2rem; font-size: 1.25rem;
+            line-height: 1.4; transition: all 0.3s ease;
+            opacity: 0; transform: translateY(10px);
+            border: 2px solid transparent;
+        }
+        .chat-bubble.active {
+            opacity: 1; transform: translateY(0) scale(1.02);
+            font-weight: 800; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .chat-bubble.inactive { opacity: 0.7; transform: scale(0.98); font-weight: 700; }
+        
+        .chat-left { align-self: flex-start; border-bottom-left-radius: 0.5rem; background-color: #f1f5f9; color: #0f172a; border-color: #cbd5e1; }
+        .chat-right { align-self: flex-end; border-bottom-right-radius: 0.5rem; background-color: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; text-align: right; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        
+        .pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .shake { animation: shake 0.3s ease-in-out; }
+        
+        .correct-bg { background-color: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
+        .incorrect-bg { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+
+        #glitter-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 100; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .emoji { font-style: normal; }
+    </style>
+</head>
+<body>
+
+    <canvas id="glitter-canvas"></canvas>
+
+    <!-- FIXED NAVIGATION HEADER -->
+    <nav id="nav-header">
+        <div class="flex gap-2 sm:gap-4 items-center flex-wrap">
+            <button onclick="navBack()" class="nav-btn">⬅ Back</button>
+            <button onclick="navHome()" class="nav-btn">🏠 Home</button>
+            <button id="header-restart" onclick="repeatConvo()" class="nav-btn" style="display: none;">🔄 Restart</button>
+            <button id="header-next-line" onclick="navNext()" class="bg-indigo-100 text-indigo-700 font-bold py-1.5 px-4 rounded-xl hover:bg-indigo-200 transition-colors shadow-sm" style="display: none;">Next Line ➡</button>
+        </div>
+        <div class="flex gap-2 sm:gap-4 items-center flex-wrap">
+            <button id="header-skip" onclick="navNext()" class="nav-btn">Skip / Next ➡</button>
+            <button onclick="addBonusPoints()" class="points-btn" title="Click for Bonus Points!">
+                🌟 XP: <span id="nav-xp">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN MENU -->
+    <div id="menu-screen" class="screen active">
+        <div class="w-full max-w-4xl mb-12 mt-4">
+            <div id="topic-grid" class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- Topics injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOPIC HUB SCREEN -->
+    <div id="hub-screen" class="screen">
+        <div class="w-full max-w-4xl">
+            <div class="bg-white rounded-[2rem] shadow-md border-2 border-slate-100 p-8 pop-in">
+                <div class="text-center mb-8 border-b-2 border-slate-50 pb-8">
+                    <span id="hub-emoji" class="text-6xl mb-4 block"></span>
+                    <h2 id="hub-title" class="text-4xl font-black text-slate-800 mb-2"></h2>
+                    <p id="hub-vocab" class="text-lg font-bold text-slate-500 leading-relaxed max-w-2xl mx-auto"></p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Grammar Section -->
+                    <div class="bg-slate-50 p-6 rounded-3xl border-2 border-slate-100">
+                        <h3 class="text-xl font-black text-slate-700 mb-4 flex items-center gap-2">Grammar Drills 📝</h3>
+                        <div class="flex flex-col gap-3" id="grammar-btns">
+                            <!-- Injected -->
+                        </div>
+                    </div>
+
+                    <!-- Conversation Section -->
+                    <div class="bg-indigo-50 p-6 rounded-3xl border-2 border-indigo-100">
+                        <h3 class="text-xl font-black text-indigo-900 mb-4 flex items-center gap-2">Conversation Practice 🗣️</h3>
+                        <div class="flex flex-col gap-4" id="convo-btns">
+                            <!-- Injected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="screen">
+        <div class="w-full max-w-3xl bg-white rounded-[2rem] shadow-lg p-8 border-2 border-slate-100 flex flex-col items-center pop-in relative">
+            <header class="w-full flex justify-between items-center mb-8">
+                <span id="quiz-type-title" class="text-xl font-black text-slate-400 uppercase tracking-widest"></span>
+                <span id="question-counter" class="text-lg font-bold text-slate-500 bg-slate-100 px-4 py-1 rounded-full"></span>
+            </header>
+
+            <div id="question-text" class="text-3xl font-black text-slate-800 text-center mb-10 leading-snug min-h-[100px] flex items-center"></div>
+
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full"></div>
+
+            <div id="feedback-area" class="h-16 mt-6 flex items-center justify-center text-2xl font-black transition-all"></div>
+        </div>
+    </div>
+
+    <!-- CONVERSATION SCREEN (Locked Height, 30% wider max-w-6xl) -->
+    <div id="convo-screen" class="screen bg-white">
+        <div class="w-full max-w-6xl flex flex-col items-center h-full pop-in">
+            <div id="convo-container"></div>
+        </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="results-screen" class="screen">
+        <div class="w-full max-w-2xl bg-white rounded-[2rem] shadow-xl p-10 border-2 border-slate-100 text-center pop-in">
+            <h2 id="results-header" class="text-5xl font-black text-slate-800 mb-6">Drill Complete! 🎯</h2>
+            
+            <div id="badge-celebration" class="hidden flex flex-col items-center mb-8">
+                <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center text-5xl shadow-inner border-4 border-yellow-300 mb-4 pop-in">
+                    <span id="earned-badge-icon"></span>
+                </div>
+                <p class="text-xl font-black text-yellow-600 uppercase tracking-widest">New Badge Unlocked!</p>
+            </div>
+
+            <p class="text-lg font-bold text-slate-500 mb-4 uppercase tracking-widest" id="res-subtitle"></p>
+            <div class="text-7xl font-black mb-8 text-indigo-600">
+                <span id="res-score"></span>
+            </div>
+            
+            <button onclick="navBack()" class="btn-3d btn-green py-4 px-12 rounded-2xl font-black text-2xl w-full max-w-sm mx-auto">
+                CONTINUE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- SECONDARY STUDENT CONTEXT DATASET ---
+        const lessons = {
+            "School": {
+                title: "School Life", emoji: "🏫",
+                vocab: "Laboratory 🧪, Essay 📝, Mathematics 📐, History 📚, Exam 📋, Classroom 🏫, Professor 👩‍🏫, Deadline ⏱️, Research 🔍",
+                grammar: {
+                    "Simple Present": [
+                        { q: "I ___ my chemistry homework every evening.", options: ["do", "does", "doing", "did"], a: "do" },
+                        { q: "She usually ___ to the science lab early.", options: ["goes", "go", "going", "went"], a: "goes" },
+                        { q: "Our history teacher ___ us about ancient empires.", options: ["teaches", "teach", "teaching", "taught"], a: "teaches" },
+                        { q: "We always ___ uniforms during the school assembly.", options: ["wear", "wears", "wearing", "wore"], a: "wear" },
+                        { q: "He ___ a very complex math problem today.", options: ["has", "have", "having", "had"], a: "has" },
+                        { q: "I ___ an important biology class every Tuesday.", options: ["have", "has", "having", "had"], a: "have" },
+                        { q: "They never ___ late for their final exams.", options: ["arrive", "arrives", "arriving", "arrived"], a: "arrive" },
+                        { q: "The library bell always ___ at eight o'clock.", options: ["rings", "ring", "ringing", "rang"], a: "rings" },
+                        { q: "She usually ___ lunch in the senior cafeteria.", options: ["eats", "eat", "eating", "ate"], a: "eats" },
+                        { q: "We sometimes ___ advanced literature books in the library.", options: ["read", "reads", "reading", "readed"], a: "read" }
+                    ],
+                    "Present Continuous": [
+                        { q: "The students ___ literature right now.", options: ["are studying", "is studying", "study", "studied"], a: "are studying" },
+                        { q: "I ___ a research essay on my laptop at the moment.", options: ["am writing", "writing", "write", "wrote"], a: "am writing" },
+                        { q: "He ___ his physics assignment currently.", options: ["is doing", "are doing", "does", "did"], a: "is doing" },
+                        { q: "We ___ a crucial mid-term test right now.", options: ["are taking", "is taking", "take", "took"], a: "are taking" },
+                        { q: "The professor ___ a diagram on the board at the moment.", options: ["is drawing", "are drawing", "draws", "drew"], a: "is drawing" },
+                        { q: "Look! They ___ a debate in the courtyard.", options: ["are practicing", "is practicing", "practice", "practiced"], a: "are practicing" },
+                        { q: "She ___ to the lecture right now.", options: ["is listening", "are listening", "listens", "listened"], a: "is listening" },
+                        { q: "We ___ for the principal at the moment.", options: ["are waiting", "is waiting", "wait", "waited"], a: "are waiting" },
+                        { q: "Currently, I ___ the school's new computer lab.", options: ["am using", "use", "using", "used"], a: "am using" },
+                        { q: "The students ___ their lockers now.", options: ["are cleaning", "is cleaning", "clean", "cleaned"], a: "are cleaning" }
+                    ],
+                    "Simple Past": [
+                        { q: "We ___ a difficult algebra test yesterday.", options: ["had", "have", "has", "having"], a: "had" },
+                        { q: "I ___ my textbook at home yesterday morning.", options: ["left", "leave", "leaving", "leaves"], a: "left" },
+                        { q: "She ___ a fantastic graph in economics class last week.", options: ["drew", "draw", "drawing", "draws"], a: "drew" },
+                        { q: "They ___ about chemical reactions yesterday.", options: ["learned", "learn", "learning", "learns"], a: "learned" },
+                        { q: "He ___ early for the school debate this morning.", options: ["woke up", "wake up", "waking up", "wakes up"], a: "woke up" },
+                        { q: "I ___ my long essay last night.", options: ["finished", "finish", "finishing", "finishes"], a: "finished" },
+                        { q: "The teacher ___ us historical facts yesterday.", options: ["told", "tell", "telling", "tells"], a: "told" },
+                        { q: "We ___ to the national museum for a trip last month.", options: ["went", "go", "going", "goes"], a: "went" },
+                        { q: "She ___ an advanced English exam last Friday.", options: ["took", "take", "taking", "takes"], a: "took" },
+                        { q: "He ___ his calculator during the test yesterday.", options: ["broke", "break", "breaking", "breaks"], a: "broke" }
+                    ],
+                    "Adjectives": [
+                        { q: "The chemistry homework yesterday was very ___.", options: ["hard", "hardly", "hards", "harding"], a: "hard" },
+                        { q: "Our science laboratory today is big and ___.", options: ["clean", "cleanly", "cleaning", "cleans"], a: "clean" },
+                        { q: "The literature test last week was quite ___.", options: ["easy", "easily", "easing", "ease"], a: "easy" },
+                        { q: "My textbook backpack this year is very ___.", options: ["heavy", "heavily", "heaviness", "heavies"], a: "heavy" },
+                        { q: "She is a ___ senior student every day.", options: ["good", "well", "goodly", "best"], a: "good" },
+                        { q: "The school library is always very ___ for studying.", options: ["quiet", "quietly", "quietness", "quieter"], a: "quiet" },
+                        { q: "The new professor is very ___ to us.", options: ["kind", "kindly", "kindness", "kinder"], a: "kind" },
+                        { q: "His research notes are very ___ right now.", options: ["neat", "neatly", "neatness", "neats"], a: "neat" },
+                        { q: "The morning lecture was very ___ today.", options: ["long", "longly", "length", "longer"], a: "long" },
+                        { q: "Our graduation uniform is very ___.", options: ["smart", "smartly", "smartness", "smarter"], a: "smart" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Have you started the math assignment yet? 📐", side: "left", voice: "william" },
+                        { text: "Yes, I am working on the algebra section right now. 📓", side: "right", voice: "emma" },
+                        { text: "Is it difficult to understand? 🤔", side: "left", voice: "william" },
+                        { text: "It is quite challenging, but I have my notes. 📝", side: "right", voice: "emma" },
+                        { text: "I left my calculator in my locker yesterday. 🔢", side: "left", voice: "william" },
+                        { text: "You can borrow my spare calculator today. 🤝", side: "right", voice: "emma" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Are we doing the chemistry experiment today, or just reading the textbook? 🧪", side: "left", voice: "remy" },
+                        { text: "We are doing the lab experiment, so you need your safety goggles. 🥽", side: "right", voice: "vivienne" },
+                        { text: "Did you read the instructions, or should we ask the professor? 👩‍🏫", side: "left", voice: "remy" },
+                        { text: "I read them last night, and the steps are very clear. 📖", side: "right", voice: "vivienne" },
+                        { text: "Okay, I will measure the liquids carefully. 💧", side: "left", voice: "remy" },
+                        { text: "Perfect, and I will record the data in my notebook. 📊", side: "right", voice: "vivienne" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "When is the deadline for our history presentation? ⏱️", side: "left", voice: "giuseppe" },
+                        { text: "It is due next Friday, but we need to finish our research this weekend. 🔍", side: "right", voice: "ava" },
+                        { text: "Should we focus on the economic impacts or the political changes? 🏛️", side: "left", voice: "giuseppe" },
+                        { text: "The professor specifically asked us to analyze the economic consequences. 📉", side: "right", voice: "ava" },
+                        { text: "In that case, I will find reliable sources in the library archive. 📚", side: "left", voice: "giuseppe" },
+                        { text: "Excellent, and I will start designing the presentation slides. 💻", side: "right", voice: "ava" }
+                    ]
+                }
+            },
+            "Technology": {
+                title: "Technology", emoji: "💻",
+                vocab: "Algorithm 💻, Smartphone 📱, Network 🌐, Virtual 🎮, Battery 🔋, Encryption 🔌, Software ⚙️, Code ⌨️",
+                grammar: {
+                    "Simple Present": [
+                        { q: "He usually ___ software on his laptop after school.", options: ["codes", "code", "coding", "coded"], a: "codes" },
+                        { q: "I always ___ my tablet to study programming.", options: ["use", "uses", "using", "used"], a: "use" },
+                        { q: "She ___ her devices securely every night.", options: ["charges", "charge", "charging", "charged"], a: "charges" },
+                        { q: "The server generally ___ a long time without crashing.", options: ["lasts", "last", "lasting", "lasted"], a: "lasts" },
+                        { q: "We often ___ tutorials on the computer on weekends.", options: ["watch", "watches", "watching", "watched"], a: "watch" },
+                        { q: "He ___ the code repository every morning.", options: ["checks", "check", "checking", "checked"], a: "checks" },
+                        { q: "She always ___ the terminal to run commands.", options: ["opens", "open", "opening", "opened"], a: "opens" },
+                        { q: "I ___ fast on my mechanical keyboard.", options: ["type", "types", "typing", "typed"], a: "type" },
+                        { q: "He often ___ the mouse to navigate the interface.", options: ["clicks", "click", "clicking", "clicked"], a: "clicks" },
+                        { q: "She usually ___ good open-source projects with me.", options: ["shares", "share", "sharing", "shared"], a: "shares" }
+                    ],
+                    "Present Continuous": [
+                        { q: "I ___ a new mobile application right now.", options: ["am programming", "is programming", "program", "programmed"], a: "am programming" },
+                        { q: "He ___ for network data on the internet at the moment.", options: ["is searching", "are searching", "searches", "searched"], a: "is searching" },
+                        { q: "They ___ the touch screen interface currently.", options: ["are testing", "is testing", "test", "tested"], a: "are testing" },
+                        { q: "She ___ her laptop battery right now.", options: ["is monitoring", "are monitoring", "monitors", "monitored"], a: "is monitoring" },
+                        { q: "We ___ secure connections to access the server now.", options: ["are using", "is using", "use", "used"], a: "are using" },
+                        { q: "I ___ an encrypted email to my professor at the moment.", options: ["am sending", "sending", "send", "sent"], a: "am sending" },
+                        { q: "He ___ a large software update right now.", options: ["is downloading", "are downloading", "downloads", "downloaded"], a: "is downloading" },
+                        { q: "They ___ in a secure forum at the moment.", options: ["are communicating", "is communicating", "communicate", "communicated"], a: "are communicating" },
+                        { q: "She ___ a tech conference on her tablet currently.", options: ["is watching", "are watching", "watches", "watched"], a: "is watching" },
+                        { q: "I ___ for a solution to the error code now.", options: ["am looking", "is looking", "look", "looked"], a: "am looking" }
+                    ],
+                    "Simple Past": [
+                        { q: "My school ___ us new laptops last week.", options: ["bought", "buy", "buying", "buys"], a: "bought" },
+                        { q: "I ___ my hard drive at home yesterday morning.", options: ["left", "leave", "leaving", "leaves"], a: "left" },
+                        { q: "She ___ the computer lab after school yesterday.", options: ["used", "use", "using", "uses"], a: "used" },
+                        { q: "The server ___ very unexpectedly last night.", options: ["crashed", "crash", "crashing", "crashes"], a: "crashed" },
+                        { q: "He ___ the simulation with his classmates last Sunday.", options: ["ran", "run", "running", "runs"], a: "ran" },
+                        { q: "I ___ my old monitor yesterday.", options: ["broke", "break", "breaking", "breaks"], a: "broke" },
+                        { q: "She ___ a powerful anti-virus program last night.", options: ["installed", "install", "installing", "installs"], a: "installed" },
+                        { q: "We ___ our devices before the presentation yesterday.", options: ["charged", "charge", "charging", "charges"], a: "charged" },
+                        { q: "They ___ a long tutorial video last Friday.", options: ["watched", "watch", "watching", "watches"], a: "watched" },
+                        { q: "He ___ the delete button by mistake yesterday.", options: ["clicked", "click", "clicking", "clicks"], a: "clicked" }
+                    ],
+                    "Adjectives": [
+                        { q: "This old operating system is very ___ today.", options: ["slow", "slowly", "slowing", "slows"], a: "slow" },
+                        { q: "My new processor is incredibly ___ now.", options: ["fast", "fastly", "fasting", "fasts"], a: "fast" },
+                        { q: "The high-resolution screen is very ___.", options: ["clear", "clearly", "clearness", "clears"], a: "clear" },
+                        { q: "This mechanical keyboard is very ___ right now.", options: ["loud", "loudly", "loudness", "louder"], a: "loud" },
+                        { q: "The virtual reality simulation is extremely ___.", options: ["immersive", "immersively", "immerse", "immersions"], a: "immersive" },
+                        { q: "That new graphics card was very ___ yesterday.", options: ["expensive", "expensively", "expense", "expend"], a: "expensive" },
+                        { q: "My old phone was very ___ to fix last year.", options: ["cheap", "cheaply", "cheapness", "cheaps"], a: "cheap" },
+                        { q: "The LED display is exceptionally ___.", options: ["bright", "brightly", "brightness", "brighter"], a: "bright" },
+                        { q: "The cloud storage is very ___ for my projects.", options: ["useful", "usefully", "usefulness", "use"], a: "useful" },
+                        { q: "My old motherboard is currently ___.", options: ["broken", "broke", "break", "breaking"], a: "broken" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Have you upgraded your smartphone's operating system? 📱", side: "left", voice: "brian" },
+                        { text: "Yes, I installed the new update last night. ⚙️", side: "right", voice: "ava" },
+                        { text: "Is the new interface responsive? ⚡", side: "left", voice: "brian" },
+                        { text: "Yes, the animations are much smoother now. 🚀", side: "right", voice: "ava" },
+                        { text: "I want to download the new graphics software. 🎨", side: "left", voice: "brian" },
+                        { text: "Make sure you have enough storage space first! 💾", side: "right", voice: "ava" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Are you writing the code in Python or Java? ⌨️", side: "left", voice: "andrew" },
+                        { text: "I am using Python because the machine learning libraries are better. 🐍", side: "right", voice: "vivienne" },
+                        { text: "Did you encounter any syntax errors during compilation? ❌", side: "left", voice: "andrew" },
+                        { text: "Yes, but I used the debugger to fix them quickly. 🐛", side: "right", voice: "vivienne" },
+                        { text: "Can you upload the script to our shared repository later? ☁️", side: "left", voice: "andrew" },
+                        { text: "Absolutely, I will commit the changes tonight. 🔐", side: "right", voice: "vivienne" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Do you think artificial intelligence will replace software engineers? 🤖", side: "left", voice: "giuseppe" },
+                        { text: "I believe AI will be a powerful tool, but humans will still guide the logic. 🧠", side: "right", voice: "emma" },
+                        { text: "What about the ethical concerns of automated algorithms? ⚖️", side: "left", voice: "giuseppe" },
+                        { text: "That is why developers must focus on creating unbiased and transparent systems. 🔍", side: "right", voice: "emma" },
+                        { text: "It seems the tech industry will need more philosophy students! 📚", side: "left", voice: "giuseppe" },
+                        { text: "Exactly, interdisciplinary knowledge will be essential in the future. 🌍", side: "right", voice: "emma" }
+                    ]
+                }
+            },
+            "SocialMedia": {
+                title: "Social Media", emoji: "💬",
+                vocab: "Algorithm 📈, Connection 🔗, Profile 👤, Trending 📊, Viral 🦠, Notification 🔔, Privacy 🔐, Influencer 🌟",
+                grammar: {
+                    "Simple Present": [
+                        { q: "She usually ___ engaging content on her timeline.", options: ["shares", "share", "sharing", "shared"], a: "shares" },
+                        { q: "I always ___ my privacy settings regularly.", options: ["check", "checks", "checking", "checked"], a: "check" },
+                        { q: "He ___ in the academic forum every day.", options: ["chats", "chat", "chatting", "chatted"], a: "chats" },
+                        { q: "We often ___ online after finishing assignments.", options: ["go", "goes", "going", "went"], a: "go" },
+                        { q: "They usually ___ educational videos on weekends.", options: ["watch", "watches", "watching", "watched"], a: "watch" },
+                        { q: "She ___ a new article every Friday.", options: ["posts", "post", "posting", "posted"], a: "posts" },
+                        { q: "He always ___ his classmates' achievements.", options: ["likes", "like", "liking", "liked"], a: "likes" },
+                        { q: "I ___ the latest news feeds every morning.", options: ["read", "reads", "reading", "readed"], a: "read" },
+                        { q: "She usually ___ her portfolio on Sundays.", options: ["updates", "update", "updating", "updated"], a: "updates" },
+                        { q: "He ___ many industry leaders online.", options: ["follows", "follow", "following", "followed"], a: "follows" }
+                    ],
+                    "Present Continuous": [
+                        { q: "We ___ a live stream of the conference right now.", options: ["are watching", "is watching", "watch", "watched"], a: "are watching" },
+                        { q: "I ___ a formal email to my mentor at the moment.", options: ["am typing", "typing", "type", "typed"], a: "am typing" },
+                        { q: "She ___ a link to the article currently.", options: ["is sharing", "are sharing", "shares", "shared"], a: "is sharing" },
+                        { q: "They ___ in a virtual study room right now.", options: ["are chatting", "is chatting", "chat", "chatted"], a: "are chatting" },
+                        { q: "He ___ an important notification at the moment.", options: ["is sending", "are sending", "sends", "sent"], a: "is sending" },
+                        { q: "I ___ a podcast for my classmates now.", options: ["am recording", "recording", "record", "recorded"], a: "am recording" },
+                        { q: "She ___ the trending topics currently.", options: ["is reading", "are reading", "reads", "read"], a: "is reading" },
+                        { q: "They ___ a group selfie for the yearbook right now.", options: ["are taking", "is taking", "take", "took"], a: "are taking" },
+                        { q: "He ___ through the analytics dashboard at the moment.", options: ["is scrolling", "are scrolling", "scrolls", "scrolled"], a: "is scrolling" },
+                        { q: "I ___ to the comments section right now.", options: ["am replying", "replying", "reply", "replied"], a: "am replying" }
+                    ],
+                    "Simple Past": [
+                        { q: "I ___ him an invitation link last night.", options: ["sent", "send", "sending", "sends"], a: "sent" },
+                        { q: "She ___ a professional update on LinkedIn yesterday.", options: ["shared", "share", "sharing", "shares"], a: "shared" },
+                        { q: "We ___ on the video call for an hour last Friday.", options: ["chatted", "chat", "chatting", "chats"], a: "chatted" },
+                        { q: "He ___ the insightful post two hours ago.", options: ["liked", "like", "liking", "likes"], a: "liked" },
+                        { q: "They ___ a documentary in the group last weekend.", options: ["watched", "watch", "watching", "watches"], a: "watched" },
+                        { q: "I ___ a long blog entry yesterday.", options: ["posted", "post", "posting", "posts"], a: "posted" },
+                        { q: "She ___ to the constructive feedback last night.", options: ["replied", "reply", "replying", "replies"], a: "replied" },
+                        { q: "He ___ the community guidelines yesterday morning.", options: ["opened", "open", "opening", "opens"], a: "opened" },
+                        { q: "We ___ the online seminar last week.", options: ["joined", "join", "joining", "joins"], a: "joined" },
+                        { q: "I ___ your digital portfolio last Sunday.", options: ["saw", "see", "seeing", "sees"], a: "saw" }
+                    ],
+                    "Adjectives": [
+                        { q: "The educational channel yesterday was very ___.", options: ["popular", "popularly", "popularity", "populars"], a: "popular" },
+                        { q: "This digital infographic is very ___.", options: ["clear", "clearly", "clearness", "clearer"], a: "clear" },
+                        { q: "The notification he sent was very ___.", options: ["urgent", "urgently", "urgency", "urgents"], a: "urgent" },
+                        { q: "Her photography online is always ___.", options: ["professional", "professionally", "profession", "professions"], a: "professional" },
+                        { q: "Our debate forum is very ___ every day.", options: ["active", "actively", "action", "actives"], a: "active" },
+                        { q: "That satire video was very ___ last night.", options: ["funny", "funnily", "fun", "funs"], a: "funny" },
+                        { q: "The long privacy policy was very ___.", options: ["boring", "boringly", "boredom", "bored"], a: "boring" },
+                        { q: "Her tech review online is very ___ today.", options: ["informative", "informatively", "information", "inform"], a: "informative" },
+                        { q: "That news article was unfortunately ___ yesterday.", options: ["fake", "fakely", "fakes", "faked"], a: "fake" },
+                        { q: "My connections are very ___ people.", options: ["authentic", "authentically", "authenticity", "authentics"], a: "authentic" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Did you see the announcement on the school portal? 🔔", side: "left", voice: "emma" },
+                        { text: "Yes, I read the post last night. 📱", side: "right", voice: "andrew" },
+                        { text: "Are you attending the virtual study session? 💻", side: "left", voice: "emma" },
+                        { text: "Yes, I RSVP'd immediately! ✅", side: "right", voice: "andrew" },
+                        { text: "I will share the meeting link in our group chat. 🔗", side: "left", voice: "emma" },
+                        { text: "Great, tag me when you post it. 👤", side: "right", voice: "andrew" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Did you watch the documentary that went viral yesterday? 🦠", side: "left", voice: "vivienne" },
+                        { text: "I saw it on my feed, and I shared it with my science class. 🔬", side: "right", voice: "remy" },
+                        { text: "The cinematography was stunning, don't you think? 🎥", side: "left", voice: "vivienne" },
+                        { text: "Absolutely, it had incredibly high production value. 📈", side: "right", voice: "remy" },
+                        { text: "I plan to write a blog post analyzing its impact later today. 📝", side: "left", voice: "vivienne" },
+                        { text: "Send me the draft, I would love to read your thoughts. ✉️", side: "right", voice: "remy" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Have you reviewed your privacy settings recently? 🔐", side: "left", voice: "ava" },
+                        { text: "Yes, I try to limit how much data algorithms can track. 📊", side: "right", voice: "brian" },
+                        { text: "Do you think targeted advertising is a breach of privacy? 🛑", side: "left", voice: "ava" },
+                        { text: "It is a complex issue. It provides convenience but sacrifices anonymity. ⚖️", side: "right", voice: "brian" },
+                        { text: "I prefer to use platforms that prioritize end-to-end encryption. 🛡️", side: "left", voice: "ava" },
+                        { text: "That is a smart way to manage your digital footprint securely. 🌐", side: "right", voice: "brian" }
+                    ]
+                }
+            },
+            "Sports": {
+                title: "Athletics", emoji: "🏆",
+                vocab: "Tournament 🏆, Strategy 📋, Athletics 👟, Teamwork 🤝, Victory 🏅, Practice 🏋️, Defense 🛡️, Offense ⚔️",
+                grammar: {
+                    "Simple Present": [
+                        { q: "We usually ___ tactical drills after school.", options: ["practice", "practices", "practicing", "practiced"], a: "practice" },
+                        { q: "He always ___ very fast during the marathon.", options: ["runs", "run", "running", "ran"], a: "runs" },
+                        { q: "Our varsity team always ___ the regional match.", options: ["wins", "win", "winning", "won"], a: "wins" },
+                        { q: "They ___ basketball strategies on weekends.", options: ["discuss", "discusses", "discussing", "discussed"], a: "discuss" },
+                        { q: "She often ___ high to block the volleyball.", options: ["jumps", "jump", "jumping", "jumped"], a: "jumps" },
+                        { q: "He always ___ the ball with precision.", options: ["kicks", "kick", "kicking", "kicked"], a: "kicks" },
+                        { q: "She usually ___ the pass effectively.", options: ["catches", "catch", "catching", "caught"], a: "catches" },
+                        { q: "I always ___ the javelin far across the field.", options: ["throw", "throws", "throwing", "threw"], a: "throw" },
+                        { q: "He often ___ the tennis ball with incredible spin.", options: ["hits", "hit", "hitting", "hitted"], a: "hits" },
+                        { q: "She always ___ her muscles dynamically before sprinting.", options: ["stretches", "stretch", "stretching", "stretched"], a: "stretches" }
+                    ],
+                    "Present Continuous": [
+                        { q: "They ___ in the championship tournament right now.", options: ["are competing", "is competing", "compete", "competed"], a: "are competing" },
+                        { q: "I ___ for the marathon at the moment.", options: ["am training", "is training", "train", "trained"], a: "am training" },
+                        { q: "The team ___ the final match today.", options: ["is winning", "are winning", "win", "won"], a: "is winning" },
+                        { q: "He ___ defense with his coach currently.", options: ["is practicing", "are practicing", "practices", "practiced"], a: "is practicing" },
+                        { q: "We ___ over the hurdles now.", options: ["are jumping", "is jumping", "jump", "jumped"], a: "are jumping" },
+                        { q: "I ___ laps in the Olympic pool right now.", options: ["am swimming", "is swimming", "swim", "swam"], a: "am swimming" },
+                        { q: "She ___ the penalty shot at the moment.", options: ["is taking", "are taking", "takes", "took"], a: "is taking" },
+                        { q: "They ___ the baton to each other currently.", options: ["are passing", "is passing", "pass", "passed"], a: "are passing" },
+                        { q: "He ___ his injured knee now.", options: ["is resting", "are resting", "rests", "rested"], a: "is resting" },
+                        { q: "I ___ the athletic analysis on TV right now.", options: ["am watching", "watching", "watch", "watched"], a: "am watching" }
+                    ],
+                    "Simple Past": [
+                        { q: "Our high school team ___ the state championship last Saturday.", options: ["won", "win", "winning", "wins"], a: "won" },
+                        { q: "I ___ a competitive match with my rival yesterday.", options: ["played", "play", "playing", "plays"], a: "played" },
+                        { q: "He ___ exceptionally fast in the relay last week.", options: ["ran", "run", "running", "runs"], a: "ran" },
+                        { q: "We ___ the semi-final game last Friday.", options: ["lost", "lose", "losing", "loses"], a: "lost" },
+                        { q: "She ___ over the high bar in track class yesterday.", options: ["jumped", "jump", "jumping", "jumps"], a: "jumped" },
+                        { q: "He ___ the winning goal very accurately last game.", options: ["scored", "score", "scoring", "scores"], a: "scored" },
+                        { q: "She ___ the discus a record distance yesterday.", options: ["threw", "throw", "throwing", "throws"], a: "threw" },
+                        { q: "I ___ the fast pitch with one hand last Sunday.", options: ["caught", "catch", "catching", "catches"], a: "caught" },
+                        { q: "He ___ the golf ball powerfully yesterday morning.", options: ["hit", "hitting", "hits", "hitted"], a: "hit" },
+                        { q: "The varsity match ___ at two o'clock last Saturday.", options: ["started", "start", "starting", "starts"], a: "started" }
+                    ],
+                    "Adjectives": [
+                        { q: "The professional athlete is very ___ today.", options: ["agile", "agilely", "agility", "agiles"], a: "agile" },
+                        { q: "I am very ___ after the intensive training camp.", options: ["exhausted", "exhaust", "exhausting", "exhausts"], a: "exhausted" },
+                        { q: "Tennis is a very ___ and strategic sport.", options: ["fast", "fastly", "fastness", "faster"], a: "fast" },
+                        { q: "Our defensive line is incredibly ___ this year.", options: ["formidable", "formidably", "strength", "stronger"], a: "formidable" },
+                        { q: "Winning the regional cup yesterday was truly ___.", options: ["thrilling", "thrill", "thrilled", "thrills"], a: "thrilling" },
+                        { q: "He is a very ___ sprinter on the track team.", options: ["explosive", "explosively", "explosion", "explodes"], a: "explosive" },
+                        { q: "The opponent's strategy was frustratingly ___.", options: ["slow", "slowly", "slowness", "slower"], a: "slow" },
+                        { q: "Athletics keep your cardiovascular system very ___.", options: ["healthy", "health", "healthily", "healthier"], a: "healthy" },
+                        { q: "The playoff game was extremely ___ yesterday.", options: ["intense", "intensely", "intensity", "intents"], a: "intense" },
+                        { q: "The warm-up routine is ___ for injury prevention.", options: ["crucial", "crucially", "crux", "crucify"], a: "crucial" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Are you attending the football match after school? ⚽", side: "left", voice: "brian" },
+                        { text: "Yes, I am meeting the squad at the stadium. 🏟️", side: "right", voice: "william" },
+                        { text: "I hope our offense is strong today. ⚔️", side: "left", voice: "brian" },
+                        { text: "Our captain has been practicing new strategies all week. 📋", side: "right", voice: "william" },
+                        { text: "We definitely need a victory to qualify for regionals! 🏆", side: "left", voice: "brian" },
+                        { text: "Absolutely, it will be a thrilling game. 🎉", side: "right", voice: "william" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "What did you think of the basketball team's defense last night? 🏀", side: "left", voice: "ava" },
+                        { text: "Their zone defense was incredibly formidable against the rivals. 🛡️", side: "right", voice: "vivienne" },
+                        { text: "I agree, but their offensive transitions were a bit slow. 🏃", side: "left", voice: "ava" },
+                        { text: "That is true, the coach needs to emphasize speed in practice. ⏱️", side: "right", voice: "vivienne" },
+                        { text: "If they improve their agility, they will be unstoppable. 💪", side: "left", voice: "ava" },
+                        { text: "Exactly, endurance and agility are crucial for the playoffs. 🏅", side: "right", voice: "vivienne" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Do you believe talent or intense training is more important for athletes? 🏋️", side: "left", voice: "giuseppe" },
+                        { text: "Talent provides a foundation, but rigorous training builds champions. 🏆", side: "right", voice: "remy" },
+                        { text: "However, some athletes naturally possess explosive speed without much effort. ⚡", side: "left", voice: "giuseppe" },
+                        { text: "Yes, but without discipline, that natural speed easily fades. 📉", side: "right", voice: "remy" },
+                        { text: "So, psychological resilience is just as vital as physical capability? 🧠", side: "left", voice: "giuseppe" },
+                        { text: "Precisely! A strategic mind often overcomes pure physical strength. ♟️", side: "right", voice: "remy" }
+                    ]
+                }
+            },
+            "Health": {
+                title: "Wellness", emoji: "🏥",
+                vocab: "Nutrition 🥗, Exercise 🏃, Hygiene 🧼, Immunity 🛡️, Therapy 🧘, Recovery 🛌, Metabolism 💧, Stress 😫",
+                grammar: {
+                    "Simple Present": [
+                        { q: "I always ___ my hands to maintain good hygiene.", options: ["wash", "washes", "washing", "washed"], a: "wash" },
+                        { q: "He usually ___ supplements to boost his immunity.", options: ["takes", "take", "taking", "took"], a: "takes" },
+                        { q: "She ___ balanced nutrition every day.", options: ["maintains", "maintain", "maintaining", "maintained"], a: "maintains" },
+                        { q: "We often ___ eight hours for proper recovery.", options: ["sleep", "sleeps", "sleeping", "slept"], a: "sleep" },
+                        { q: "Hydration ___ your metabolism function optimally.", options: ["helps", "help", "helping", "helped"], a: "helps" },
+                        { q: "He ___ purified water in the morning.", options: ["drinks", "drink", "drinking", "drank"], a: "drinks" },
+                        { q: "She always ___ yoga to reduce academic stress.", options: ["practices", "practice", "practicing", "practiced"], a: "practices" },
+                        { q: "I ___ my teeth to prevent cavities.", options: ["brush", "brushes", "brushing", "brushed"], a: "brush" },
+                        { q: "He often ___ the physician for a routine checkup.", options: ["visits", "visit", "visiting", "visited"], a: "visits" },
+                        { q: "My head sometimes ___ when I lack sufficient sleep.", options: ["hurts", "hurt", "hurting", "hurted"], a: "hurts" }
+                    ],
+                    "Present Continuous": [
+                        { q: "He ___ to the clinic for therapy right now.", options: ["is going", "go", "going", "went"], a: "is going" },
+                        { q: "I ___ my hands with antibacterial soap at the moment.", options: ["am washing", "washing", "wash", "washed"], a: "am washing" },
+                        { q: "She ___ in bed because her immune system is compromised.", options: ["is sleeping", "are sleeping", "sleeps", "slept"], a: "is sleeping" },
+                        { q: "We ___ electrolytes to stay hydrated right now.", options: ["are drinking", "is drinking", "drink", "drank"], a: "are drinking" },
+                        { q: "The physician ___ to him about his diet currently.", options: ["is talking", "are talking", "talks", "talked"], a: "is talking" },
+                        { q: "I ___ at home to ensure full recovery.", options: ["am resting", "resting", "rest", "rested"], a: "am resting" },
+                        { q: "He ___ intensely due to allergies right now.", options: ["is coughing", "are coughing", "coughs", "coughed"], a: "is coughing" },
+                        { q: "They ___ organic meals for better nutrition today.", options: ["are eating", "is eating", "eat", "ate"], a: "are eating" },
+                        { q: "My nose ___ because of the seasonal pollen.", options: ["is running", "are running", "runs", "ran"], a: "is running" },
+                        { q: "I ___ severely exhausted after exam week.", options: ["am feeling", "feeling", "feel", "felt"], a: "am feeling" }
+                    ],
+                    "Simple Past": [
+                        { q: "I ___ feverish yesterday, so I avoided campus.", options: ["felt", "feel", "feeling", "feels"], a: "felt" },
+                        { q: "She ___ the prescribed antibiotics this morning.", options: ["took", "take", "taking", "takes"], a: "took" },
+                        { q: "We ___ to the specialist for a consultation last week.", options: ["went", "go", "going", "goes"], a: "went" },
+                        { q: "He ___ his hands thoroughly before the meal yesterday.", options: ["washed", "wash", "washing", "washes"], a: "washed" },
+                        { q: "I ___ extensively to recover my energy last night.", options: ["slept", "sleep", "sleeping", "sleeps"], a: "slept" },
+                        { q: "I ___ herbal tea to soothe my throat yesterday morning.", options: ["drank", "drink", "drinking", "drinks"], a: "drank" },
+                        { q: "She ___ a nutritious salad last night.", options: ["ate", "eat", "eating", "eats"], a: "ate" },
+                        { q: "We ___ the medical facility last Friday.", options: ["visited", "visit", "visiting", "visits"], a: "visited" },
+                        { q: "He ___ isolated in his room to prevent spreading germs.", options: ["stayed", "stay", "staying", "stays"], a: "stayed" },
+                        { q: "My joint ___ significantly after the rigorous workout.", options: ["hurt", "hurting", "hurts", "hurted"], a: "hurt" }
+                    ],
+                    "Adjectives": [
+                        { q: "Consuming organic produce is very ___ for cellular health.", options: ["beneficial", "benefit", "beneficially", "benefits"], a: "beneficial" },
+                        { q: "I feel incredibly ___ and nauseous today.", options: ["sick", "sickly", "sickness", "sicks"], a: "sick" },
+                        { q: "She is consistently ___ due to a lack of deep sleep.", options: ["lethargic", "lethargy", "lethargically", "lethargies"], a: "lethargic" },
+                        { q: "You need a ___ cardiovascular system for endurance sports.", options: ["healthy", "health", "healthily", "healthier"], a: "healthy" },
+                        { q: "The artificial sweetener tastes remarkably ___.", options: ["bitter", "bitterly", "bitterness", "bitters"], a: "bitter" },
+                        { q: "I feel dangerously ___; I might have a fever.", options: ["hot", "hotly", "hotness", "hotter"], a: "hot" },
+                        { q: "The ice therapy was painfully ___ yesterday.", options: ["cold", "coldly", "coldness", "colder"], a: "cold" },
+                        { q: "You must be physically ___ to lift that equipment.", options: ["strong", "strongly", "strength", "stronger"], a: "strong" },
+                        { q: "I feel physically ___ after recovering from the flu.", options: ["weak", "weakly", "weakness", "weaker"], a: "weak" },
+                        { q: "My head is ___ and I need to sit down.", options: ["dizzy", "dizzily", "dizziness", "dizzier"], a: "dizzy" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Are you feeling okay today? You look pale. 🤒", side: "left", voice: "ava" },
+                        { text: "I have a severe migraine and a sore throat. 🤧", side: "right", voice: "andrew" },
+                        { text: "Did you visit the school nurse this morning? 👩‍⚕️", side: "left", voice: "ava" },
+                        { text: "Yes, she recommended hydration and plenty of rest. 🛌", side: "right", voice: "andrew" },
+                        { text: "You should definitely go home and recover. 🏠", side: "left", voice: "ava" },
+                        { text: "I will. I cannot concentrate on my studies anyway. 📚", side: "right", voice: "andrew" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "How are you managing your stress during finals week? 😫", side: "left", voice: "vivienne" },
+                        { text: "I am practicing yoga and ensuring I get eight hours of sleep. 🧘", side: "right", voice: "brian" },
+                        { text: "That is smart. Sleep deprivation ruins cognitive function. 🧠", side: "left", voice: "vivienne" },
+                        { text: "Exactly. I also cut out caffeine to avoid anxiety spikes. ☕", side: "right", voice: "brian" },
+                        { text: "I should try that. My current caffeine intake is definitely unhealthy. 📉", side: "left", voice: "vivienne" },
+                        { text: "Substituting it with herbal tea really boosts your immune system! 🍵", side: "right", voice: "brian" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Do you believe the cafeteria provides adequate nutrition for students? 🥗", side: "left", voice: "emma" },
+                        { text: "They offer salads, but the meals lack sufficient lean protein. 🥩", side: "right", voice: "giuseppe" },
+                        { text: "I agree. Macronutrient balance is crucial for developing teenagers. 📊", side: "left", voice: "emma" },
+                        { text: "Furthermore, the snacks are loaded with refined sugars. 🍬", side: "right", voice: "giuseppe" },
+                        { text: "We should petition the school board for healthier alternatives. 📝", side: "left", voice: "emma" },
+                        { text: "I will support that. Better diet leads to better academic performance. 🎓", side: "right", voice: "giuseppe" }
+                    ]
+                }
+            },
+            "FreeTime": {
+                title: "Leisure", emoji: "🎨",
+                vocab: "Extracurricular 📅, Cinema 🍿, Volunteering 🏞️, Literature 📖, Concert 🎸, Coding 💻, Canvas 🎨",
+                grammar: {
+                    "Simple Present": [
+                        { q: "My peer group usually ___ volunteering on Sundays.", options: ["does", "do", "doing", "did"], a: "does" },
+                        { q: "I often ___ complex novels on the weekend.", options: ["read", "reads", "reading", "rode"], a: "read" },
+                        { q: "She ___ to classical music while studying.", options: ["listens", "listen", "listening", "listened"], a: "listens" },
+                        { q: "We sometimes ___ historical archives at the library.", options: ["analyze", "analyzes", "analyzing", "analyzed"], a: "analyze" },
+                        { q: "He usually ___ independent films with his critics club.", options: ["watches", "watch", "watching", "watched"], a: "watches" },
+                        { q: "I always ___ strategy board games with my brother.", options: ["play", "plays", "playing", "played"], a: "play" },
+                        { q: "She often ___ intricate landscapes in her studio.", options: ["paints", "paint", "painting", "painted"], a: "paints" },
+                        { q: "He sometimes ___ in the community choir.", options: ["sings", "sing", "singing", "sang"], a: "sings" },
+                        { q: "We always ___ complex algorithms in coding club.", options: ["write", "writes", "writing", "wrote"], a: "write" },
+                        { q: "My dad usually ___ gourmet meals on weekends.", options: ["cooks", "cook", "cooking", "cooked"], a: "cooks" }
+                    ],
+                    "Present Continuous": [
+                        { q: "We ___ a documentary at the cinema right now.", options: ["are watching", "is watching", "watch", "watched"], a: "are watching" },
+                        { q: "I ___ a new software application at the moment.", options: ["am developing", "developing", "develop", "developed"], a: "am developing" },
+                        { q: "She ___ to a fascinating podcast currently.", options: ["is listening", "are listening", "listens", "listened"], a: "is listening" },
+                        { q: "They ___ an international cuisine now.", options: ["are preparing", "is preparing", "prepare", "prepared"], a: "are preparing" },
+                        { q: "He ___ a demanding academic journal right now.", options: ["is reading", "are reading", "reads", "read"], a: "is reading" },
+                        { q: "I ___ a portrait for the art exhibition at the moment.", options: ["am drawing", "drawing", "draw", "drew"], a: "am drawing" },
+                        { q: "She ___ a classical aria right now.", options: ["is singing", "are singing", "sings", "sang"], a: "is singing" },
+                        { q: "They ___ a competitive chess match currently.", options: ["are playing", "is playing", "play", "played"], a: "are playing" },
+                        { q: "He ___ dinner for the extended family now.", options: ["is making", "are making", "makes", "made"], a: "is making" },
+                        { q: "I ___ actively after a stressful week right now.", options: ["am relaxing", "relaxing", "relax", "relaxed"], a: "am relaxing" }
+                    ],
+                    "Simple Past": [
+                        { q: "We ___ an extravagant banquet last weekend.", options: ["ate", "eat", "eating", "eats"], a: "ate" },
+                        { q: "I ___ an inspiring documentary yesterday.", options: ["watched", "watch", "watching", "watches"], a: "watched" },
+                        { q: "She ___ her bicycle across the county line yesterday.", options: ["rode", "ride", "riding", "rides"], a: "rode" },
+                        { q: "They ___ to the metropolitan museum on Saturday.", options: ["went", "go", "going", "goes"], a: "went" },
+                        { q: "He ___ an entire philosophical manuscript last night.", options: ["read", "readed", "reading", "reads"], a: "read" },
+                        { q: "We ___ a complex simulation last Sunday.", options: ["played", "play", "playing", "plays"], a: "played" },
+                        { q: "She ___ a breathtaking mural yesterday.", options: ["painted", "paint", "painting", "paints"], a: "painted" },
+                        { q: "He ___ a solo at the charity event last night.", options: ["sang", "sing", "singing", "sings"], a: "sang" },
+                        { q: "They ___ the community center last weekend.", options: ["renovated", "renovate", "renovating", "renovates"], a: "renovated" },
+                        { q: "My mom ___ an authentic recipe yesterday.", options: ["cooked", "cook", "cooking", "cooks"], a: "cooked" }
+                    ],
+                    "Adjectives": [
+                        { q: "The extracurricular trip was highly ___.", options: ["educational", "education", "educationally", "educates"], a: "educational" },
+                        { q: "The gourmet food was exceptionally ___.", options: ["delicious", "deliciously", "delight", "deliciousness"], a: "delicious" },
+                        { q: "Developing software is intellectually ___.", options: ["stimulating", "stimulate", "stimulated", "stimulus"], a: "stimulating" },
+                        { q: "The independent film was absolutely ___.", options: ["profound", "profoundly", "profundity", "profounder"], a: "profound" },
+                        { q: "My volunteer group is very ___.", options: ["dedicated", "dedicate", "dedication", "dedicatedly"], a: "dedicated" },
+                        { q: "The lecture last night was dreadfully ___.", options: ["boring", "boringly", "boredom", "bored"], a: "boring" },
+                        { q: "She is a remarkably ___ artist.", options: ["creative", "creatively", "create", "creation"], a: "creative" },
+                        { q: "The classic novel I read was ___.", options: ["fascinating", "fascinate", "fascination", "fascinated"], a: "fascinating" },
+                        { q: "Painting is a very ___ activity.", options: ["therapeutic", "therapy", "therapeutically", "therapist"], a: "therapeutic" },
+                        { q: "The symphony at the concert was incredibly ___.", options: ["loud", "loudly", "loudness", "louder"], a: "loud" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "What are your plans for the weekend? 📅", side: "left", voice: "william" },
+                        { text: "I am going to the independent cinema downtown. 🍿", side: "right", voice: "emma" },
+                        { text: "Are you watching that new historical documentary? 🎥", side: "left", voice: "william" },
+                        { text: "Yes, our film club is reviewing it for an assignment. 📝", side: "right", voice: "emma" },
+                        { text: "That sounds intellectually stimulating! 🧠", side: "left", voice: "william" },
+                        { text: "It is! You should join our club meeting next week. 🤝", side: "right", voice: "emma" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Have you continued painting your abstract canvas? 🎨", side: "left", voice: "remy" },
+                        { text: "Yes, I spent four hours mixing custom palettes yesterday. 🖌️", side: "right", voice: "ava" },
+                        { text: "Are you submitting it to the regional art gallery? 🖼️", side: "left", voice: "remy" },
+                        { text: "I hope so, but I still need to perfect the shading. 🌫️", side: "right", voice: "ava" },
+                        { text: "Your dedication to visual arts is truly inspiring. ✨", side: "left", voice: "remy" },
+                        { text: "Thank you! It is a very therapeutic way to spend my free time. 🧘", side: "right", voice: "ava" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Do extracurricular activities distract students from academics? 📚", side: "left", voice: "andrew" },
+                        { text: "Not at all. They build essential soft skills like leadership. 👑", side: "right", voice: "giuseppe" },
+                        { text: "But managing coding club and varsity sports causes severe burnout. 😫", side: "left", voice: "andrew" },
+                        { text: "Time management is the key. Students must learn to prioritize. ⏱️", side: "right", voice: "giuseppe" },
+                        { text: "Universities do look for well-rounded candidates, not just high grades. 🎓", side: "left", voice: "andrew" },
+                        { text: "Exactly. Hobbies and volunteering demonstrate true character. 🌟", side: "right", voice: "giuseppe" }
+                    ]
+                }
+            },
+            "Travel": {
+                title: "Expeditions", emoji: "✈️",
+                vocab: "Itinerary 📅, Passport 🛂, Departure 🛫, Culture ⛩️, Museum 🏛️, Architecture 🏙️, Logistics 🧳",
+                grammar: {
+                    "Simple Present": [
+                        { q: "Our debate team usually ___ by train to tournaments.", options: ["travels", "travel", "traveling", "traveled"], a: "travels" },
+                        { q: "I always ___ my itinerary before an international trip.", options: ["check", "checks", "checking", "checked"], a: "check" },
+                        { q: "She often ___ flight tickets online to secure discounts.", options: ["purchases", "purchase", "purchasing", "purchased"], a: "purchases" },
+                        { q: "The express train always ___ at the central station exactly on time.", options: ["arrives", "arrive", "arriving", "arrived"], a: "arrives" },
+                        { q: "We usually ___ at an economical hostel during excursions.", options: ["stay", "stays", "staying", "stayed"], a: "stay" },
+                        { q: "He ___ digital maps to navigate complex foreign cities.", options: ["utilizes", "utilize", "utilizing", "utilized"], a: "utilizes" },
+                        { q: "They often ___ landscape photography when exploring.", options: ["capture", "captures", "capturing", "captured"], a: "capture" },
+                        { q: "The commercial jet ___ at a high cruising altitude.", options: ["flies", "fly", "flying", "flew"], a: "flies" },
+                        { q: "I always ___ my passport when crossing national borders.", options: ["carry", "carries", "carrying", "carried"], a: "carry" },
+                        { q: "Our history professor ___ us to significant archaeological sites.", options: ["guides", "guide", "guiding", "guided"], a: "guides" }
+                    ],
+                    "Present Continuous": [
+                        { q: "I ___ to a model UN conference in Beijing right now.", options: ["am flying", "flying", "fly", "flew"], a: "am flying" },
+                        { q: "She ___ her logistics gear for the expedition at the moment.", options: ["is packing", "are packing", "packs", "packed"], a: "is packing" },
+                        { q: "We ___ at the international terminal currently.", options: ["are waiting", "is waiting", "wait", "waited"], a: "are waiting" },
+                        { q: "He ___ his navigation app right now.", options: ["is consulting", "are consulting", "consults", "consulted"], a: "is consulting" },
+                        { q: "They ___ to the local tour guide at the moment.", options: ["are listening", "is listening", "listen", "listened"], a: "are listening" },
+                        { q: "I ___ panoramic photos of the architecture now.", options: ["am capturing", "capturing", "capture", "captured"], a: "am capturing" },
+                        { q: "The shuttle ___ to the convention center right now.", options: ["is driving", "are driving", "drives", "drove"], a: "is driving" },
+                        { q: "We ___ a profoundly educational time on our trip currently.", options: ["are having", "is having", "have", "had"], a: "are having" },
+                        { q: "She ___ an admission ticket for the museum now.", options: ["is buying", "are buying", "buys", "bought"], a: "is buying" },
+                        { q: "The students ___ their heavy backpacks at the moment.", options: ["are carrying", "is carrying", "carry", "carried"], a: "are carrying" }
+                    ],
+                    "Simple Past": [
+                        { q: "We ___ to an international summit last summer.", options: ["traveled", "travel", "traveling", "travels"], a: "traveled" },
+                        { q: "I ___ my boarding pass at the security checkpoint yesterday.", options: ["misplaced", "misplace", "misplacing", "misplaces"], a: "misplaced" },
+                        { q: "She ___ solo for the first time during the exchange program.", options: ["flew", "fly", "flying", "flies"], a: "flew" },
+                        { q: "They ___ at a historical lodge during the field trip.", options: ["stayed", "stay", "staying", "stays"], a: "stayed" },
+                        { q: "He ___ a cumbersome suitcase through the airport yesterday.", options: ["carried", "carry", "carrying", "carries"], a: "carried" },
+                        { q: "We ___ the national art gallery last Friday.", options: ["visited", "visit", "visiting", "visits"], a: "visited" },
+                        { q: "The intercity bus ___ significantly delayed yesterday.", options: ["arrived", "arrive", "arriving", "arrives"], a: "arrived" },
+                        { q: "I ___ an authentic cultural artifact last weekend.", options: ["purchased", "purchase", "purchasing", "purchases"], a: "purchased" },
+                        { q: "She ___ stunning architectural photos on her camera yesterday.", options: ["took", "take", "taking", "takes"], a: "took" },
+                        { q: "Our chaperone ___ us a detailed itinerary last Monday.", options: ["provided", "provide", "providing", "provides"], a: "provided" }
+                    ],
+                    "Adjectives": [
+                        { q: "The international terminal was overwhelmingly ___ today.", options: ["crowded", "crowd", "crowding", "crowds"], a: "crowded" },
+                        { q: "My expedition backpack is extremely ___ right now.", options: ["heavy", "heavily", "heaviness", "heavies"], a: "heavy" },
+                        { q: "The cultural immersion trip was highly ___.", options: ["educational", "education", "educationally", "educates"], a: "educational" },
+                        { q: "Our accommodation is surprisingly ___.", options: ["comfortable", "comfortably", "comfort", "comforts"], a: "comfortable" },
+                        { q: "The direct flight tickets were prohibitively ___ yesterday.", options: ["expensive", "expensively", "expense", "expend"], a: "expensive" },
+                        { q: "The interactive map was undeniably ___ to us.", options: ["useful", "usefully", "usefulness", "use"], a: "useful" },
+                        { q: "That historical monument is impressively ___.", options: ["tall", "tally", "tallness", "taller"], a: "tall" },
+                        { q: "The journey to the capital was visually ___.", options: ["stunning", "stun", "stunningly", "stuns"], a: "stunning" },
+                        { q: "Our bilingual guide is incredibly ___.", options: ["knowledgeable", "knowledge", "know", "knows"], a: "knowledgeable" },
+                        { q: "The view from the observatory is absolutely ___.", options: ["breathtaking", "breath", "breathes", "breathing"], a: "breathtaking" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Are you prepared for the school trip to the capital? 🏛️", side: "left", voice: "william" },
+                        { text: "I have packed my suitcase, but I still need to print the itinerary. 🧳", side: "right", voice: "emma" },
+                        { text: "Do not forget your student ID for museum discounts. 🎫", side: "left", voice: "william" },
+                        { text: "Good point! The architecture there is supposed to be breathtaking. 🏙️", side: "right", voice: "emma" },
+                        { text: "I am definitely bringing my DSLR camera to capture it. 📷", side: "left", voice: "william" },
+                        { text: "Awesome, we can document the entire expedition! 🗺️", side: "right", voice: "emma" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Did you verify our flight departure terminal? 🛫", side: "left", voice: "ava" },
+                        { text: "Yes, we depart from Terminal 3. Security might be crowded. 🛂", side: "right", voice: "vivienne" },
+                        { text: "I packed light to avoid checking in luggage. Logistics are stressful. 🎒", side: "left", voice: "ava" },
+                        { text: "Smart. I only brought essentials for the cultural exchange program. ⛩️", side: "right", voice: "vivienne" },
+                        { text: "Have you downloaded the offline maps for navigation? 📱", side: "left", voice: "ava" },
+                        { text: "Yes, the digital map will be undeniably useful. 📍", side: "right", voice: "vivienne" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Is studying abroad actually beneficial for secondary students? 🌍", side: "left", voice: "remy" },
+                        { text: "Absolutely. Cultural immersion develops a broader global perspective. 👁️", side: "right", voice: "brian" },
+                        { text: "However, the financial logistics make it inaccessible for many. 💵", side: "left", voice: "remy" },
+                        { text: "That is true, schools should offer more scholarships for expeditions. 🏫", side: "right", voice: "brian" },
+                        { text: "Also, overcoming language barriers builds immense resilience. 🗣️", side: "left", voice: "remy" },
+                        { text: "Agreed. Navigating a foreign city teaches genuine independence. 🧭", side: "right", voice: "brian" }
+                    ]
+                }
+            },
+            "Space": {
+                title: "Cosmos", emoji: "🔭",
+                vocab: "Orbit 🪐, Galaxy 🌌, Gravity 🌍, Telescope 🔭, Satellite 🛰️, Nebula ☁️, Physics 📐, Cosmos ✨",
+                grammar: {
+                    "Simple Present": [
+                        { q: "The Earth ___ the sun due to gravitational pull.", options: ["orbits", "orbit", "orbiting", "orbited"], a: "orbits" },
+                        { q: "The moon ___ solar radiation at night.", options: ["reflects", "reflect", "reflecting", "reflected"], a: "reflects" },
+                        { q: "Astronauts ___ pressurized suits in the vacuum of space.", options: ["wear", "wears", "wearing", "wore"], a: "wear" },
+                        { q: "We ___ about orbital mechanics in advanced physics.", options: ["learn", "learns", "learning", "learned"], a: "learn" },
+                        { q: "A commercial satellite ___ data back to Earth constantly.", options: ["transmits", "transmit", "transmitting", "transmitted"], a: "transmits" },
+                        { q: "The sun ___ vital thermal energy to our ecosystem.", options: ["provides", "provide", "providing", "provided"], a: "provides" },
+                        { q: "I ___ at distant galaxies with a high-powered telescope.", options: ["observe", "observes", "observing", "observed"], a: "observe" },
+                        { q: "There ___ infinite mysteries in the observable universe.", options: ["are", "is", "be", "was"], a: "are" },
+                        { q: "He ___ academic papers about theoretical astrophysics.", options: ["reads", "read", "reading", "readed"], a: "reads" },
+                        { q: "Gravity ___ atmospheric gases from escaping into the void.", options: ["prevents", "prevent", "preventing", "prevented"], a: "prevents" }
+                    ],
+                    "Present Continuous": [
+                        { q: "The international crew ___ in zero gravity right now.", options: ["is floating", "are floating", "floats", "floated"], a: "is floating" },
+                        { q: "We ___ a live rover landing on Mars at the moment.", options: ["are watching", "is watching", "watch", "watched"], a: "are watching" },
+                        { q: "The planetary axis ___ slowly right now.", options: ["is rotating", "are rotating", "rotates", "rotated"], a: "is rotating" },
+                        { q: "I ___ through the observatory lens currently.", options: ["am looking", "looking", "look", "looked"], a: "am looking" },
+                        { q: "The astrophysicists ___ a recently discovered exoplanet now.", options: ["are studying", "is studying", "study", "studied"], a: "are studying" },
+                        { q: "He ___ an orbital trajectory diagram at the moment.", options: ["is calculating", "are calculating", "calculates", "calculated"], a: "is calculating" },
+                        { q: "The constellations ___ vividly in the clear night sky.", options: ["are shining", "is shining", "shine", "shone"], a: "are shining" },
+                        { q: "The exploratory probe ___ beyond our solar system right now.", options: ["is traveling", "are traveling", "travels", "traveled"], a: "is traveling" },
+                        { q: "They ___ protective gear for the spacewalk currently.", options: ["are equipping", "is equipping", "equip", "equipped"], a: "are equipping" },
+                        { q: "I ___ a thesis about dark matter phenomenon now.", options: ["am writing", "writing", "write", "writes"], a: "am writing" }
+                    ],
+                    "Simple Past": [
+                        { q: "The pioneer astronaut ___ on the lunar surface decades ago.", options: ["walked", "walk", "walking", "walks"], a: "walked" },
+                        { q: "I ___ a meteor shower during the astronomy club meeting.", options: ["observed", "observe", "observing", "observes"], a: "observed" },
+                        { q: "We ___ about solar flares in science class yesterday.", options: ["analyzed", "analyze", "analyzing", "analyzes"], a: "analyzed" },
+                        { q: "The automated probe ___ safely on the asteroid last week.", options: ["landed", "land", "landing", "lands"], a: "landed" },
+                        { q: "She ___ an intriguing documentary about supernovas yesterday.", options: ["watched", "watch", "watching", "watches"], a: "watched" },
+                        { q: "He ___ complex mathematical formulas to predict the eclipse.", options: ["used", "use", "using", "uses"], a: "used" },
+                        { q: "They ___ high-resolution images of Saturn's rings.", options: ["captured", "capture", "capturing", "captures"], a: "captured" },
+                        { q: "The heavy-lift rocket ___ successfully from the launchpad.", options: ["launched", "launch", "launching", "launches"], a: "launched" },
+                        { q: "I ___ an article concerning extraterrestrial habitats last Saturday.", options: ["read", "readed", "reading", "reads"], a: "read" },
+                        { q: "The observatory ___ a completely new galaxy last year.", options: ["discovered", "discover", "discovering", "discovers"], a: "discovered" }
+                    ],
+                    "Adjectives": [
+                        { q: "The vacuum of space is profoundly ___.", options: ["silent", "silently", "silence", "silencer"], a: "silent" },
+                        { q: "The core of the sun is unimaginably ___.", options: ["hot", "hotly", "hotness", "hotter"], a: "hot" },
+                        { q: "The lunar eclipse looked extraordinarily ___ last night.", options: ["spectacular", "spectacle", "spectacularly", "spectacles"], a: "spectacular" },
+                        { q: "The gas giant Jupiter is an absolutely ___ planet.", options: ["massive", "massively", "mass", "massing"], a: "massive" },
+                        { q: "The concept of a black hole is conceptually ___.", options: ["terrifying", "terrify", "terrifyingly", "terror"], a: "terrifying" },
+                        { q: "Interstellar travel remains highly ___ and theoretical.", options: ["complex", "complexity", "complexly", "complexes"], a: "complex" },
+                        { q: "The Andromeda galaxy is astronomically ___ from Earth.", options: ["distant", "distance", "distantly", "distances"], a: "distant" },
+                        { q: "Advanced astrophysics is an intellectually ___ subject.", options: ["challenging", "challenge", "challenged", "challenger"], a: "challenging" },
+                        { q: "The speed of light is the most ___ velocity in the universe.", options: ["rapid", "rapidly", "rapidity", "rapids"], a: "rapid" },
+                        { q: "The sheer scale of the cosmos is entirely ___.", options: ["incomprehensible", "incomprehensibly", "comprehend", "comprehension"], a: "incomprehensible" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "Are you joining the astronomy club viewing tonight? 🔭", side: "left", voice: "brian" },
+                        { text: "Yes, the sky is exceptionally clear for observing constellations. ✨", side: "right", voice: "ava" },
+                        { text: "I hope we can calibrate the telescope to see Saturn's rings. 🪐", side: "left", voice: "brian" },
+                        { text: "The club president said the orbital alignment is perfect tonight. 🌌", side: "right", voice: "ava" },
+                        { text: "Awesome, I will bring my notebook to log the coordinates. 📓", side: "left", voice: "brian" },
+                        { text: "Great! Space observation is truly fascinating. 🚀", side: "right", voice: "ava" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Did you understand the lecture on gravitational waves? 🌊", side: "left", voice: "giuseppe" },
+                        { text: "Mostly, but the mathematics behind spacetime distortion are complex. 📐", side: "right", voice: "vivienne" },
+                        { text: "I struggled to grasp how massive objects bend light. 💡", side: "left", voice: "giuseppe" },
+                        { text: "It is called gravitational lensing. It is a profound concept! 🔍", side: "right", voice: "vivienne" },
+                        { text: "Physics really challenges my conventional understanding of reality. 🧠", side: "left", voice: "giuseppe" },
+                        { text: "Exactly, the cosmos is entirely incomprehensible sometimes. 🌌", side: "right", voice: "vivienne" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Should humanity prioritize funding space exploration or fixing Earth? 🌍", side: "left", voice: "andrew" },
+                        { text: "Space exploration drives technological innovations that benefit Earth. 🛰️", side: "right", voice: "emma" },
+                        { text: "But allocating billions to Mars missions seems ethically questionable. 💵", side: "left", voice: "andrew" },
+                        { text: "However, becoming a multi-planetary species ensures our survival. 🚀", side: "right", voice: "emma" },
+                        { text: "I argue that ecological conservation must be our primary directive. 🌲", side: "left", voice: "andrew" },
+                        { text: "We must balance both; orbital satellites are crucial for monitoring climate change. 🌡️", side: "right", voice: "emma" }
+                    ]
+                }
+            },
+            "Things": {
+                title: "Personal Items", emoji: "🎒",
+                vocab: "Backpack 🎒, Credentials 🔑, Smartwatch ⌚, Spectacles 👓, Thermos ☕, Container 📦, Umbrella ☂️, Stylus 🖊️, Document 📄, Currency 💵",
+                grammar: {
+                    "Simple Present": [
+                        { q: "I systematically ___ my credentials in a secure compartment.", options: ["store", "stores", "storing", "stored"], a: "store" },
+                        { q: "He consistently ___ a digital smartwatch to track his vitals.", options: ["wears", "wear", "wearing", "wore"], a: "wears" },
+                        { q: "She ___ prescription spectacles to alleviate eye strain.", options: ["requires", "require", "requiring", "required"], a: "requires" },
+                        { q: "I ___ caffeinated beverages from my insulated thermos.", options: ["consume", "consumes", "consuming", "consumed"], a: "consume" },
+                        { q: "He ___ his electronic peripherals in a reinforced container.", options: ["secures", "secure", "securing", "secured"], a: "secures" },
+                        { q: "We strictly ___ a compact umbrella during unpredictable weather.", options: ["carry", "carries", "carrying", "carried"], a: "carry" },
+                        { q: "She ___ a precision stylus for her digital illustrations.", options: ["utilizes", "utilize", "utilizing", "utilized"], a: "utilizes" },
+                        { q: "I ___ extensively on premium quality stationary.", options: ["draft", "drafts", "drafting", "drafted"], a: "draft" },
+                        { q: "He cautiously ___ his digital currency on software upgrades.", options: ["allocates", "allocate", "allocating", "allocated"], a: "allocates" },
+                        { q: "My ergonomic backpack ___ all my heavy academic textbooks.", options: ["accommodates", "accommodate", "accommodating", "accommodated"], a: "accommodates" }
+                    ],
+                    "Present Continuous": [
+                        { q: "I ___ my locker keys in my jacket pocket right now.", options: ["am placing", "placing", "place", "placed"], a: "am placing" },
+                        { q: "He ___ a sophisticated fitness tracker today.", options: ["is sporting", "are sporting", "sports", "sported"], a: "is sporting" },
+                        { q: "She ___ the lenses of her spectacles at the moment.", options: ["is sanitizing", "are sanitizing", "sanitizes", "sanitized"], a: "is sanitizing" },
+                        { q: "I ___ espresso from my thermal cup currently.", options: ["am sipping", "sipping", "sip", "sipped"], a: "am sipping" },
+                        { q: "He ___ the cumbersome storage box right now.", options: ["is transporting", "are transporting", "transports", "transported"], a: "is transporting" },
+                        { q: "We ___ our umbrellas because a torrential downpour is occurring.", options: ["are deploying", "is deploying", "deploy", "deployed"], a: "are deploying" },
+                        { q: "She ___ intricate notes with a calligraphy pen now.", options: ["is inscribing", "are inscribing", "inscribes", "inscribed"], a: "is inscribing" },
+                        { q: "I ___ the legal document precisely currently.", options: ["am filing", "filing", "file", "filed"], a: "am filing" },
+                        { q: "He ___ his remaining budget at the moment.", options: ["is calculating", "are calculating", "calculates", "calculated"], a: "is calculating" },
+                        { q: "I ___ my overloaded bag across the campus now.", options: ["am lugging", "lugging", "lug", "lugged"], a: "am lugging" }
+                    ],
+                    "Simple Past": [
+                        { q: "I ___ my digital access card yesterday.", options: ["misplaced", "misplace", "misplacing", "misplaces"], a: "misplaced" },
+                        { q: "He ___ a premium smartwatch online last year.", options: ["purchased", "purchase", "purchasing", "purchases"], a: "purchased" },
+                        { q: "She ___ her expensive glasses during PE class yesterday.", options: ["shattered", "shatter", "shattering", "shatters"], a: "shattered" },
+                        { q: "I ___ my stainless steel thermos in the auditorium.", options: ["abandoned", "abandon", "abandoning", "abandons"], a: "abandoned" },
+                        { q: "He ___ the encrypted lockbox yesterday morning.", options: ["unlocked", "unlock", "unlocking", "unlocks"], a: "unlocked" },
+                        { q: "We ___ our rain gear in the classroom last Friday.", options: ["forgot", "forget", "forgetting", "forgets"], a: "forgot" },
+                        { q: "She ___ a high-quality drafting pen yesterday.", options: ["discovered", "discover", "discovering", "discovers"], a: "discovered" },
+                        { q: "I ___ the final essay on the official document.", options: ["composed", "compose", "composing", "composes"], a: "composed" },
+                        { q: "He ___ a significant portion of his allowance on peripherals.", options: ["expended", "expend", "expending", "expends"], a: "expended" },
+                        { q: "I ___ my laptop bag to the study session yesterday.", options: ["transported", "transport", "transporting", "transports"], a: "transported" }
+                    ],
+                    "Adjectives": [
+                        { q: "My reinforced school bag is incredibly ___.", options: ["durable", "durably", "durability", "durables"], a: "durable" },
+                        { q: "The security key is easily ___ if you aren't careful.", options: ["losable", "lose", "loss", "losing"], a: "losable" },
+                        { q: "His advanced smartwatch is prohibitively ___.", options: ["expensive", "expensively", "expense", "expend"], a: "expensive" },
+                        { q: "Her specialized glasses are completely ___.", options: ["transparent", "transparently", "transparency", "transparents"], a: "transparent" },
+                        { q: "The insulated thermos was entirely ___.", options: ["vacant", "vacantly", "vacancy", "vacate"], a: "vacant" },
+                        { q: "The heavy-duty container is surprisingly ___.", options: ["lightweight", "light", "lightly", "lightness"], a: "lightweight" },
+                        { q: "My automatic umbrella is exceptionally ___ today.", options: ["practical", "practically", "practicality", "practice"], a: "practical" },
+                        { q: "This fountain pen is exceptionally ___ to utilize.", options: ["fluid", "fluidly", "fluidity", "fluids"], a: "fluid" },
+                        { q: "The parchment paper is deliberately ___.", options: ["textured", "texture", "texturally", "textures"], a: "textured" },
+                        { q: "The antique lockbox was visibly ___.", options: ["tarnished", "tarnish", "tarnishing", "tarnishes"], a: "tarnished" }
+                    ]
+                },
+                convos: {
+                    "Everyday Chat": [
+                        { text: "I misplaced my locker combination key yesterday. 🔑", side: "left", voice: "emma" },
+                        { text: "Is it securely stored in your backpack? 🎒", side: "right", voice: "william" },
+                        { text: "No, my bag's compartments are entirely empty. 📦", side: "left", voice: "emma" },
+                        { text: "Did you investigate near your insulated thermos? ☕", side: "right", voice: "william" },
+                        { text: "Yes, I eventually located it underneath my documents! 📄", side: "left", voice: "emma" },
+                        { text: "That is highly irregular, but I am glad you found it. 🤔", side: "right", voice: "william" }
+                    ],
+                    "Detailed Discussion": [
+                        { text: "Are you considering purchasing that new smartwatch? ⌚", side: "left", voice: "brian" },
+                        { text: "I am, but the price point is prohibitively expensive for a student. 💵", side: "right", voice: "remy" },
+                        { text: "However, its biometric tracking features are highly sophisticated. 🏃", side: "left", voice: "brian" },
+                        { text: "True, it monitors cardiovascular health with incredible accuracy. ❤️", side: "right", voice: "remy" },
+                        { text: "You should evaluate if the utility justifies the financial investment. 📊", side: "left", voice: "brian" },
+                        { text: "I will read more technical reviews before expending my savings. 💻", side: "right", voice: "remy" }
+                    ],
+                    "Advanced Debate": [
+                        { text: "Is the transition from physical textbooks to digital tablets truly beneficial? 📱", side: "left", voice: "ava" },
+                        { text: "Absolutely. Carrying heavy physical volumes causes chronic back strain. 🎒", side: "right", voice: "giuseppe" },
+                        { text: "But excessive screen time exacerbates optical fatigue for many students. 👓", side: "left", voice: "ava" },
+                        { text: "They can mitigate that by utilizing blue-light filtering spectacles. 🛡️", side: "right", voice: "giuseppe" },
+                        { text: "Furthermore, the tactile sensation of annotating paper is superior for retention. 🖊️", side: "left", voice: "ava" },
+                        { text: "Modern styluses replicate that friction perfectly on digital displays. ✨", side: "right", voice: "giuseppe" }
+                    ]
+                }
+            }
+        };
+
+        // --- TTS & VOICE SYSTEM ---
+        const synth = window.speechSynthesis;
+        let voicesMap = {};
+        let isTtsActive = false;
+        
+        // Prevent Garbage Collection of utterances which causes {"isTrusted":true} error
+        window.utteranceBank = []; 
+        
+        function initVoices() {
+            const voices = synth.getVoices();
+            if (voices.length === 0) return;
+            const names = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
+            names.forEach(n => {
+                const found = voices.find(v => v.name.includes(n) && v.name.includes("Online")) ||
+                              voices.find(v => v.name.includes(n)) ||
+                              voices.find(v => v.lang.startsWith("en"));
+                voicesMap[n.toLowerCase()] = found;
+            });
+        }
+        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = initVoices;
+        setTimeout(initVoices, 200);
+
+        function speak(text, voiceName, onEnd) {
+            synth.cancel();
+            
+            // Remove emojis and blanks for cleaner speech using robust regex
+            const cleanText = text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/___/g, "blank").trim();
+            
+            if (!cleanText) {
+                if (onEnd) onEnd();
+                return;
+            }
+
+            setTimeout(() => {
+                const utter = new SpeechSynthesisUtterance(cleanText);
+                window.utteranceBank.push(utter); // Prevent GC
+                
+                let selectedVoice = voicesMap[voiceName?.toLowerCase()] || voicesMap['emma'];
+                
+                if (!selectedVoice) {
+                    const availableVoices = synth.getVoices();
+                    selectedVoice = availableVoices.find(v => v.lang.startsWith('en')) || availableVoices[0];
+                }
+                
+                if (selectedVoice) {
+                    utter.voice = selectedVoice;
+                }
+                
+                utter.rate = 0.85; // Persona Requirement: 85% speed
+                
+                utter.onend = () => {
+                    const idx = window.utteranceBank.indexOf(utter);
+                    if (idx > -1) window.utteranceBank.splice(idx, 1);
+                    if (onEnd) onEnd();
+                };
+                
+                utter.onerror = (e) => {
+                    const idx = window.utteranceBank.indexOf(utter);
+                    if (idx > -1) window.utteranceBank.splice(idx, 1);
+                    if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                        console.warn("TTS Error avoided: ", e.error);
+                    }
+                    if (onEnd) onEnd(); 
+                };
+
+                synth.speak(utter);
+            }, 50);
+        }
+
+        function wrapEmojis(text) {
+            return text.replace(/([\p{Emoji_Presentation}\p{Extended_Pictographic}\uFE0F])/gu, '<span class="emoji">$1</span>');
+        }
+
+        // --- CORE STATE ---
+        let totalXP = parseInt(localStorage.getItem('gq_xp')) || 0;
+        let earnedBadges = JSON.parse(localStorage.getItem('gq_badges')) || [];
+        let screenHistory = ['menu-screen'];
+        let currentTopic = null;
+        let currentQuizData = null;
+        let currentConvoData = null;
+        let currentQuizType = '';
+        let currentConvoType = '';
+        let qIndex = 0; let cIndex = 0; let quizScore = 0;
+        let isLocked = false;
+        let convoTimeout = null;
+
+        function updateXP(amt) {
+            totalXP += amt;
+            localStorage.setItem('gq_xp', totalXP);
+            document.getElementById('nav-xp').textContent = totalXP;
+            let rank = "Novice";
+            if (totalXP > 100) rank = "Apprentice";
+            if (totalXP > 250) rank = "Scholar";
+            if (totalXP > 500) rank = "Master";
+            const playerLvl = document.getElementById('player-level');
+            if (playerLvl) playerLvl.textContent = rank;
+        }
+
+        function showScreenOnly(id) {
+            synth.cancel();
+            clearTimeout(convoTimeout);
+            isTtsActive = false; 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            
+            // Handle Navigation Button Visibility Contextually
+            if (id === 'convo-screen') {
+                document.getElementById('header-restart').style.display = 'block';
+                document.getElementById('header-next-line').style.display = 'block';
+                document.getElementById('header-skip').style.display = 'none';
+            } else {
+                document.getElementById('header-restart').style.display = 'none';
+                document.getElementById('header-next-line').style.display = 'none';
+                document.getElementById('header-skip').style.display = 'block';
+            }
+
+            if (id === 'menu-screen') renderMenu();
+        }
+
+        function navHome() { screenHistory = ['menu-screen']; showScreenOnly('menu-screen'); }
+        function navBack() { if (screenHistory.length > 1) { screenHistory.pop(); showScreenOnly(screenHistory[screenHistory.length-1]); } }
+
+        function navNext() {
+            const currentScreen = screenHistory[screenHistory.length - 1];
+            if (currentScreen === 'quiz-screen' && !isLocked) {
+                checkAnswer(null, null, true); // Skip Question
+            } else if (currentScreen === 'convo-screen') {
+                if (isTtsActive) {
+                    clearTimeout(convoTimeout);
+                    synth.cancel(); // This instantly triggers utter.onend -> progresses dialogue
+                } else if (cIndex >= currentConvoData.length) {
+                    // Next convo
+                    const keys = Object.keys(lessons[currentTopic].convos);
+                    let idx = keys.indexOf(currentConvoType);
+                    if (idx >= 0 && idx < keys.length - 1) {
+                        startConvo(keys[idx + 1]);
+                    } else {
+                        navBack();
+                    }
+                } else {
+                    playTurn();
+                }
+            } else if (currentScreen === 'hub-screen') {
+                const keys = Object.keys(lessons);
+                let idx = keys.indexOf(currentTopic);
+                if (idx >= 0 && idx < keys.length - 1) openTopic(keys[idx + 1]);
+                else navHome();
+            } else if (currentScreen === 'menu-screen') {
+                openTopic(Object.keys(lessons)[0]);
+            } else if (currentScreen === 'results-screen') {
+                navBack();
+            }
+        }
+
+        function renderMenu() {
+            const grid = document.getElementById('topic-grid');
+            grid.innerHTML = '';
+            Object.keys(lessons).forEach(key => {
+                const item = lessons[key];
+                const btn = document.createElement('button');
+                btn.className = 'btn-3d btn-white p-6 rounded-[2rem] flex flex-col items-center justify-center';
+                btn.innerHTML = `<span class="text-5xl mb-3">${item.emoji}</span><span class="font-black text-slate-700 text-lg">${item.title}</span>`;
+                btn.onclick = () => openTopic(key);
+                grid.appendChild(btn);
+            });
+            updateXP(0); // refresh display
+        }
+
+        function openTopic(key) {
+            currentTopic = key; 
+            const data = lessons[key];
+            if(screenHistory[screenHistory.length-1] !== 'hub-screen') screenHistory.push('hub-screen');
+            
+            document.getElementById('hub-emoji').textContent = data.emoji;
+            document.getElementById('hub-title').textContent = data.title;
+            document.getElementById('hub-vocab').innerHTML = wrapEmojis(data.vocab);
+            
+            const gBtns = document.getElementById('grammar-btns');
+            gBtns.innerHTML = '';
+            Object.keys(data.grammar).forEach(gType => {
+                const b = document.createElement('button');
+                b.className = 'btn-3d btn-white py-3 px-4 rounded-xl font-bold text-left flex justify-between w-full';
+                b.innerHTML = `${gType} <span>▶</span>`;
+                b.onclick = () => startQuiz(gType);
+                gBtns.appendChild(b);
+            });
+
+            const cBtns = document.getElementById('convo-btns');
+            cBtns.innerHTML = '';
+            Object.keys(data.convos).forEach(cType => {
+                const b = document.createElement('button');
+                b.className = 'btn-3d btn-blue py-3 px-4 rounded-xl font-bold text-left flex justify-between w-full';
+                b.innerHTML = `${cType} <span>▶</span>`;
+                b.onclick = () => startConvo(cType);
+                cBtns.appendChild(b);
+            });
+            
+            showScreenOnly('hub-screen');
+        }
+
+        // --- QUIZ LOGIC ---
+        function startQuiz(type) {
+            currentQuizType = type;
+            currentQuizData = lessons[currentTopic].grammar[type];
+            qIndex = 0; quizScore = 0; isLocked = false;
+            screenHistory.push('quiz-screen');
+            document.getElementById('quiz-type-title').textContent = `${lessons[currentTopic].title} - ${type}`;
+            showScreenOnly('quiz-screen');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = currentQuizData[qIndex];
+            document.getElementById('question-counter').textContent = `Drill ${qIndex+1} / ${currentQuizData.length}`;
+            document.getElementById('question-text').innerHTML = wrapEmojis(q.q);
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+            shuffledOptions.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = 'btn-3d btn-white py-6 px-4 rounded-2xl font-black text-2xl text-slate-700 w-full';
+                b.textContent = opt;
+                b.onclick = () => checkAnswer(opt, b, false);
+                container.appendChild(b);
+            });
+            
+            document.getElementById('feedback-area').textContent = '';
+            speak(q.q, 'emma');
+        }
+
+        function checkAnswer(ans, btn, skipped = false) {
+            if (isLocked) return; 
+            isLocked = true;
+            
+            const correct = currentQuizData[qIndex].a;
+            const f = document.getElementById('feedback-area');
+            
+            if (skipped) {
+                f.textContent = "Skipped ⏭️";
+                f.className = "h-16 mt-6 flex items-center justify-center text-3xl font-black text-slate-500 pop-in";
+                speak("Skipped.", 'emma');
+            } else if (ans === correct) {
+                quizScore++; 
+                btn.classList.add('correct-bg'); 
+                f.textContent = "Perfect! ✨"; 
+                f.className = "h-16 mt-6 flex items-center justify-center text-3xl font-black text-green-600 pop-in";
+                updateXP(5);
+                speak("Perfect!", 'emma');
+            } else {
+                btn.classList.add('incorrect-bg', 'shake'); 
+                f.textContent = "Not quite! 💡";
+                f.className = "h-16 mt-6 flex items-center justify-center text-3xl font-black text-red-500 pop-in";
+                speak("Try again next time.", 'emma');
+            }
+            
+            setTimeout(() => {
+                qIndex++;
+                if (qIndex < currentQuizData.length) { isLocked = false; renderQuestion(); }
+                else showResults();
+            }, 1500);
+        }
+
+        function showResults() {
+            screenHistory.push('results-screen');
+            showScreenOnly('results-screen');
+            document.getElementById('res-subtitle').textContent = currentQuizType;
+            document.getElementById('res-score').textContent = `${quizScore} / ${currentQuizData.length}`;
+            
+            const badgeBox = document.getElementById('badge-celebration');
+            if (quizScore === currentQuizData.length && !earnedBadges.includes(currentTopic)) {
+                earnedBadges.push(currentTopic);
+                localStorage.setItem('gq_badges', JSON.stringify(earnedBadges));
+                document.getElementById('earned-badge-icon').innerHTML = wrapEmojis(lessons[currentTopic].emoji);
+                badgeBox.classList.remove('hidden');
+                document.getElementById('results-header').textContent = "RANK UP! 🏅";
+                triggerFireworks();
+                speak(`Fantastic! You earned the ${lessons[currentTopic].title} badge!`, 'william');
+            } else {
+                badgeBox.classList.add('hidden');
+                document.getElementById('results-header').textContent = "Drill Complete! 🎯";
+                speak(`Well done! You got ${quizScore} out of ${currentQuizData.length}.`, 'william');
+            }
+        }
+
+        // --- CONVO ENGINE ---
+        function startConvo(type) {
+            currentConvoType = type;
+            currentConvoData = lessons[currentTopic].convos[type];
+            cIndex = 0;
+            screenHistory.push('convo-screen');
+            document.getElementById('convo-container').innerHTML = '';
+            showScreenOnly('convo-screen');
+            
+            isTtsActive = true; 
+            convoTimeout = setTimeout(playTurn, 500); 
+        }
+
+        function playTurn() {
+            clearTimeout(convoTimeout);
+            if (!isTtsActive || !currentConvoData) return;
+            
+            if (cIndex >= currentConvoData.length) {
+                isTtsActive = false;
+                updateXP(10); 
+                return;
+            }
+            
+            const turn = currentConvoData[cIndex];
+            const container = document.getElementById('convo-container');
+            const b = document.createElement('div');
+            b.className = `chat-bubble ${turn.side === 'left' ? 'chat-left' : 'chat-right'} active`;
+            b.innerHTML = wrapEmojis(turn.text);
+            container.appendChild(b);
+            container.scrollTop = container.scrollHeight;
+            
+            const all = container.querySelectorAll('.chat-bubble');
+            if (all.length > 1) {
+                all[all.length-2].classList.remove('active');
+                all[all.length-2].classList.add('inactive');
+            }
+
+            speak(turn.text, turn.voice, () => {
+                if (isTtsActive) {
+                    cIndex++;
+                    if (cIndex < currentConvoData.length) {
+                        convoTimeout = setTimeout(playTurn, 600); // Auto-advance 
+                    } else {
+                        isTtsActive = false;
+                        updateXP(10); 
+                    }
+                }
+            });
+        }
+
+        function repeatConvo() { 
+            synth.cancel();
+            clearTimeout(convoTimeout);
+            document.getElementById('convo-container').innerHTML = ''; 
+            cIndex = 0; 
+            isTtsActive = true; 
+            playTurn(); 
+        }
+
+        // --- PARTICLES ---
+        const canvas = document.getElementById('glitter-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        window.onresize();
+        
+        function addBonusPoints() { 
+            updateXP(5); 
+            triggerFireworks(); 
+            speak("Bonus points!", "william"); 
+        }
+        
+        function triggerFireworks() {
+            for(let i=0; i<80; i++) particles.push({ 
+                x: window.innerWidth/2, 
+                y: window.innerHeight/2, 
+                sx: (Math.random()-0.5)*15, 
+                sy: (Math.random()-0.5)*15, 
+                a: 1, 
+                c: `hsl(${Math.random()*60 + 40}, 100%, 50%)`, // Gold/Yellow spectrum
+                size: Math.random() * 8 + 4
+            });
+        }
+        
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.sx; p.y += p.sy; p.a -= 0.02;
+                ctx.globalAlpha = Math.max(0, p.a); ctx.fillStyle = p.c;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+                if (p.a <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+        
+        window.onload = renderMenu;
+    </script>
+</body>
+</html>

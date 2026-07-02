@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Living Light</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        /* --- CORE LAYOUT --- */
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #0f172a; /* Slate 900 (Deep Ocean) */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            color: #f8fafc;
+        }
+
+        #app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            position: relative;
+            padding: 1.5rem;
+        }
+
+        /* --- UI COMPONENTS --- */
+        .btn-3d {
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.4);
+            transform: translateY(0);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0);
+        }
+        
+        .fade-in { animation: fadeUp 0.3s ease-out forwards; width: 100%; height: 100%; display: flex; flex-direction: column; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Shimmer Effect (Bioluminescent Cyan) */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-effect {
+            background: linear-gradient(90deg, #06b6d4 25%, #22d3ee 50%, #06b6d4 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+            border-color: #0891b2 !important;
+            color: #0f172a !important;
+        }
+
+        /* --- SPECIFIC ELEMENTS --- */
+        .vocab-card {
+            background: #1e293b; /* Slate 800 */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+            border: 2px solid #334155;
+            transition: all 0.2s ease;
+        }
+        .vocab-card:active {
+            transform: scale(0.98);
+            background-color: #0f172a;
+            border-color: #06b6d4;
+        }
+
+        /* Fixed Width Gap */
+        .gap-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 11rem; 
+            border-bottom: 3px solid #06b6d4; /* Cyan 500 */
+            padding: 0 2px;
+            margin: 0 4px;
+            color: #22d3ee;
+            font-weight: 700;
+            background: #0f172a;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            height: 1.4em;
+            vertical-align: bottom;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 1.25rem; 
+        }
+        .gap-slot.filled { background: #e2e8f0; border-bottom: 3px solid #0891b2; color: #0f172a; }
+        .gap-slot.wrong { animation: shake 0.4s; background: #7f1d1d !important; border-color: #ef4444 !important; color: #fecaca; }
+
+        /* Highlight Word */
+        .highlight-word {
+            transition: background-color 0.1s, color 0.1s;
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+        .highlight-word.active {
+            background-color: #06b6d4; 
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* MCQ Large Format */
+        .mcq-option-large {
+            font-size: 1.15rem; 
+            padding: 1rem;
+            border: 3px solid #334155; 
+            border-radius: 1rem;
+            transition: all 0.2s;
+            text-align: left;
+            background: #1e293b;
+            color: #f8fafc;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .mcq-option-large:active { transform: scale(0.98); }
+        .mcq-option-large.correct { background-color: #064e3b; border-color: #10b981; }
+        .mcq-option-large.wrong { background-color: #7f1d1d; border-color: #ef4444; }
+
+        /* TF Buttons */
+        .tf-btn {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 4px solid #334155;
+            background: #1e293b;
+            color: #f8fafc;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .tf-btn:active { transform: scale(0.95); }
+        .tf-btn.correct { background: #064e3b; border-color: #10b981; color: #a7f3d0; }
+        .tf-btn.wrong { background: #7f1d1d; border-color: #ef4444; color: #fecaca; }
+
+        .word-bank-item {
+            font-size: 1.1rem; 
+            padding: 0.5rem 1rem; 
+            background: #334155;
+            color: #f8fafc;
+            border: 1px solid #475569;
+        }
+        .word-bank-item.selected {
+            background-color: #06b6d4;
+            color: #0f172a;
+            border-color: #0891b2;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .word-bank-item.used {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transform: scale(0.95);
+        }
+
+        #praise-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+        
+        /* REDUCED PRAISE TEXT SIZE */
+        #praise-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #06b6d4; 
+            text-shadow: 0 2px 0 #0f172a, 0 4px 6px rgba(0,0,0,0.5);
+            background: rgba(15, 23, 42, 0.95);
+            padding: 1rem 2.5rem;
+            border-radius: 1.5rem;
+            border: 4px solid #06b6d4;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        /* Speaking Module Styles */
+        .speaking-question-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 1.5rem; 
+            background: #1e293b;
+            border: 2px solid #334155;
+        }
+        .speaking-question-card:active {
+            transform: scale(0.98);
+            background-color: #0f172a; 
+            border-color: #06b6d4;
+        }
+        
+        /* Lesson Card Styles */
+        .lesson-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lesson-card:active {
+            transform: scale(0.98);
+            background-color: #0f172a;
+            border-color: #06b6d4;
+        }
+        .lesson-header {
+            font-weight: 800;
+            color: #22d3ee;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Main Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .menu-item {
+            background: #1e293b;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 2px solid #334155;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            color: #f8fafc;
+        }
+        .menu-item:active {
+            border-color: #06b6d4;
+            background: #0f172a;
+            transform: scale(0.95);
+        }
+        .menu-item i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #22d3ee;
+        }
+        .menu-item span {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header (Decreased size by 20%: h-12, p-1) -->
+    <header class="bg-[#020617] text-white p-1 shadow-lg z-20 flex-none h-12 border-b-2 border-cyan-500">
+        <div class="max-w-7xl mx-auto flex justify-between items-center h-full w-full px-2">
+            
+            <div class="flex gap-4 items-center">
+                <button onclick="showMenu()" class="text-white hover:text-cyan-400 transition" title="Main Menu">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="h-5 w-px bg-slate-700"></div>
+                <button onclick="resetProgress()" class="text-slate-400 hover:text-white transition" title="New Session">
+                    <i class="fas fa-redo text-lg"></i>
+                </button>
+                <button onclick="toggleAudio()" id="audio-btn" class="text-cyan-400 hover:text-cyan-300 transition" title="Toggle Auto-Play">
+                    <i class="fas fa-volume-up text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center flex-1 mx-4">
+                <div class="w-full max-w-sm h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-cyan-400 w-0 transition-all duration-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <div id="header-actions"></div>
+                <div class="bg-slate-900 px-2 py-0.5 rounded-lg text-lg font-mono border border-slate-700 min-w-[50px] text-center">
+                    <span id="score-val" class="text-cyan-400 font-bold">0</span>
+                </div>
+                
+                <button id="prev-btn" class="bg-slate-800 hover:bg-slate-700 text-white w-8 h-8 rounded-lg flex items-center justify-center disabled:opacity-30 transition btn-3d">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </button>
+                <button id="next-btn" class="bg-cyan-600 hover:bg-cyan-500 text-slate-50 px-3 h-8 rounded-lg font-bold flex items-center gap-1 btn-3d text-xs transition shadow-cyan-900/50">
+                    NEXT <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="praise-overlay" class="pop-in">
+        <div id="praise-text">Correct!</div>
+    </div>
+
+    <main id="app-content" class="relative w-full h-full">
+        <!-- Injected here -->
+    </main>
+
+    <script>
+        /* --- STATE --- */
+        const defaultState = { page: 0, score: 0, audioEnabled: true };
+        let state = JSON.parse(localStorage.getItem('ielts_biolum_v5')) || defaultState;
+
+        function saveState() { localStorage.setItem('ielts_biolum_v5', JSON.stringify(state)); }
+        function resetProgress() { if(confirm("Start a New Session?")) { state = { ...defaultState }; saveState(); location.reload(); } }
+        
+        function startUnit() { 
+            state.page = 1; 
+            saveState(); 
+            render(); 
+        }
+
+        function toggleAudio() { 
+            state.audioEnabled = !state.audioEnabled; 
+            saveState(); 
+            updateAudioIcon(); 
+            stopAudio(); 
+        }
+        
+        function updateAudioIcon() {
+            const btn = document.getElementById('audio-btn');
+            if(btn) btn.innerHTML = state.audioEnabled ? '<i class="fas fa-volume-up text-lg"></i>' : '<i class="fas fa-volume-mute text-lg text-gray-500"></i>';
+        }
+
+        function showMenu() {
+            state.page = -1; // Menu State
+            saveState();
+            render();
+        }
+
+        function goToPage(p) {
+            state.page = p;
+            saveState();
+            render();
+        }
+
+        /* --- DATA --- */
+        const speakingModules = [
+            {
+                id: 1,
+                title: "Module 1: Natural Attraction & Light",
+                source: "Living Light",
+                questions: [
+                    { text: "Bioluminescence is the production of light by living organisms. If you could have a bioluminescent feature to help you navigate the dark hallways of your high school during a power outage, what would it be?", voice: "Andrew" },
+                    { text: "The passage states that the ocean has almost nowhere to hide, so being invisible is important. In a crowded school cafeteria, do you prefer to 'blend in' and become invisible, or stand out?", voice: "Emma" },
+                    { text: "Some species, like fireflies, use flashes of light to attract a mate. How is this similar to the way high school students might dress up for a prom or school dance?", voice: "Ava" },
+                    { text: "Certain shrimp dim themselves to match the clouds overhead. Have you ever changed your behavior to 'dim' yourself and match the mood of a specific teacher's classroom?", voice: "Brian" },
+                    { text: "A sudden burst of light can startle a predator, giving prey a chance to escape. Describe a time you were startled by something unexpected, like a pop quiz or a loud school bell.", voice: "Andrew" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Module 2: Defense Mechanisms",
+                source: "Ocean Survival",
+                questions: [
+                    { text: "The 'burglar alarm' effect summons the predator of your predator. If a younger student is being bothered by a bully, do you think it's a good strategy to alert a senior student or teacher to handle it?", voice: "Emma" },
+                    { text: "For tiny beings, water is very viscous, like swimming through syrup. When studying a difficult subject like advanced math, does the learning process ever feel 'viscous' and slow to you?", voice: "Ava" },
+                    { text: "Some deep-sea squid give a squirt of light before darting off into the gloom. How do you make a 'quick getaway' when the bell rings at the end of a long school day?", voice: "Brian" },
+                    { text: "Some mushrooms use luminescence to attract insects to land on them. Think about school clubs. What kind of 'luminescence' or appealing factors do clubs use to attract new student members?", voice: "Andrew" },
+                    { text: "A decoy allows an animal to escape by leaving a glowing body part behind. If you had to use a 'decoy' to get out of doing weekend chores, what distraction would you use?", voice: "Emma" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Module 3: Feathers of Love",
+                source: "Birds of Paradise",
+                questions: [
+                    { text: "The male Carola's parotia performs an absurd theater dance to attract females. Do you think teenagers perform their own 'absurd theater' on social media to get likes and attention?", voice: "Ava" },
+                    { text: "The bright colors of the birds stand out sharply against the green forest. When preparing for a school spirit week, what colors do you wear to stand out in the crowd?", voice: "Brian" },
+                    { text: "Evolution favored extreme feathers because the birds live in a safe environment with few predators. How does a safe and supportive high school environment allow students to express themselves more creatively?", voice: "Andrew" },
+                    { text: "Physical barriers like mountains isolate animal populations, leading to different species. In a large high school, do social 'barriers' create distinct cliques or groups of students?", voice: "Emma" },
+                    { text: "The birds perform in areas they have cleared like a dance floor. Describe the atmosphere of your favorite school dance or sports event.", voice: "Ava" }
+                ]
+            },
+            {
+                id: 4,
+                title: "Module 4: Trouble in Paradise",
+                source: "Conservation and Threats",
+                questions: [
+                    { text: "Local people in New Guinea copy the birds' rituals in their own dances. Which famous athletes or musicians do high school students often copy in their behavior or fashion?", voice: "Brian" },
+                    { text: "In the past, thousands of birds were hunted for European ladies' hats. Today, we are more aware of conservation. What environmental issues are students at your school most passionate about?", voice: "Andrew" },
+                    { text: "Logging and farming present dangers to the birds' forest habitats. If a local park near your school was going to be destroyed for a mall, how would you and your friends react?", voice: "Emma" },
+                    { text: "Conservationist David Mitchell relies on local villagers to help protect the birds. Why is it important to involve local high school students when trying to solve a community problem?", voice: "Ava" },
+                    { text: "A farmer decided not to cut down trees after seeing the birds land there. Describe a time when witnessing something beautiful changed your mind about a decision you were going to make.", voice: "Brian" }
+                ]
+            },
+            {
+                id: 5,
+                title: "Module 5: The Mysterious Jellyfish",
+                source: "Marine Invertebrates",
+                questions: [
+                    { text: "Jellyfish are invertebrates without bones, brains, or hearts, yet they survive. What is a subject in school that seems to lack 'structure' but is still very important to learn?", voice: "Andrew" },
+                    { text: "The 'immortal jellyfish' can revert back to a younger state. If you could revert back to your freshman year of high school knowing what you know now, what would you do differently?", voice: "Emma" },
+                    { text: "Jellyfish stings can be venomous and painful. Dealing with harsh criticism from a peer can also feel like a painful 'sting.' How do you recover from negative comments?", voice: "Ava" },
+                    { text: "In some countries, jellyfish are considered a delicacy. What is a food served in your school cafeteria that some students love, but others refuse to eat?", voice: "Brian" },
+                    { text: "Jellyfish blooms can clog fishing gear and close beaches. Sometimes, rumors or gossip can 'bloom' and cause problems in a high school. How can students stop rumors from spreading?", voice: "Andrew" }
+                ]
+            }
+        ];
+
+        const specialLessons = {
+            2: {
+                title: "Lesson 2: The Predator's Spotlight",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-slate-700 p-4 rounded-xl border border-slate-600">
+                            <h4 class="font-bold text-cyan-400 mb-2">Target Vocabulary</h4>
+                            <p class="text-lg text-slate-200">Lure, Decoy, Alarm, Startle, Camouflage</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-cyan-500 mb-2">Scaffolded Speaking Questions:</h4>
+                            <div class="space-y-3">
+                                <div onclick="speak('Anglerfish use a glowing lure to attract prey. If you wanted to lure your friends to a weekend study session, what reward would you offer them?', null, 'Andrew')" class="speaking-question-card rounded-lg">
+                                    1. Anglerfish use a glowing lure to attract prey. If you wanted to lure your friends to a weekend study session, what reward would you offer them?
+                                </div>
+                                <div onclick="speak('Some squid release a decoy of glowing fluid to escape. Have you ever used a clever distraction, or decoy, to avoid answering a difficult question in class?', null, 'Emma')" class="speaking-question-card rounded-lg">
+                                    2. Some squid release a decoy of glowing fluid to escape. Have you ever used a clever distraction, or decoy, to avoid answering a difficult question in class?
+                                </div>
+                                <div onclick="speak('The burglar alarm effect alerts bigger predators. In high school, if someone is breaking the rules, when is it appropriate to sound the alarm to a teacher?', null, 'Ava')" class="speaking-question-card rounded-lg">
+                                    3. The burglar alarm effect alerts bigger predators. In high school, if someone is breaking the rules, when is it appropriate to sound the alarm to a teacher?
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800 text-white p-6 rounded-xl shadow-lg border border-cyan-600">
+                            <h4 class="font-bold text-blue-400 mb-2 uppercase tracking-widest text-sm">Inquiry-Based Learning (IBL)</h4>
+                            <p class="text-xl font-medium">"Does standing out (like a glowing fish) make you more successful, or does it just make you a target? Discuss how this applies to high school social dynamics."</p>
+                        </div>
+                    </div>
+                `
+            },
+            4: {
+                title: "Lesson 4: The Mystery of the Bio-Bay",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-slate-700 p-4 rounded-xl border border-slate-600">
+                            <h4 class="font-bold text-cyan-400 mb-2">GRASPS Activity</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-slate-200">
+                                <li><strong>Goal:</strong> Form a plan to protect the bioluminescent bay in Puerto Rico.</li>
+                                <li><strong>Role:</strong> High School Environmental Club Leaders.</li>
+                                <li><strong>Audience:</strong> The local town council.</li>
+                                <li><strong>Product:</strong> A 2-minute persuasive speech.</li>
+                            </ul>
+                        </div>
+                        <div onclick="speak('A new developer wants to build a giant hotel next to the bio-bay. The lights from the hotel will ruin the visibility of the glowing water, and the construction might harm the dinoflagellates. You must present a theory on how to balance tourism with saving the bay.', null, 'Brian')" class="bg-slate-800 p-6 rounded-xl border-2 border-slate-600 cursor-pointer hover:bg-slate-700 transition active:scale-95">
+                            <h4 class="font-bold text-cyan-300 mb-4">Task Situation</h4>
+                            <p class="text-lg leading-relaxed text-slate-100">A new developer wants to build a giant hotel next to the bio-bay. The lights from the hotel will ruin the visibility of the glowing water, and the construction might harm the dinoflagellates. You must present a theory on how to balance tourism with saving the bay.</p>
+                        </div>
+                    </div>
+                `
+            },
+            6: {
+                title: "Lesson 6: Bioluminescence & Tech",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-cyan-600 to-blue-700 p-6 rounded-xl text-white shadow-lg">
+                            <h4 class="font-bold text-2xl mb-2">Project: “The Deep Sea Designer”</h4>
+                            <p class="opacity-90">Groups of 2-3 Students</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div onclick="speak('Step 1. Imagine a new deep-sea creature that uses bioluminescence to survive the pressures of high school, like finding a locker in the dark.', null, 'Emma')" class="lesson-card">
+                                <div class="lesson-header">Step 1: Concept</div>
+                                <p class="text-slate-200">Imagine a new deep-sea creature that uses bioluminescence to survive the pressures of a metaphorical 'high school' environment (e.g., finding a locker in the dark).</p>
+                            </div>
+                            <div onclick="speak('Step 2. Write a detailed prompt for an AI image generator describing this creature, using words like glowing cyan, transparent, viscous, and camouflage.', null, 'Ava')" class="lesson-card">
+                                <div class="lesson-header">Step 2: Write Prompt</div>
+                                <p class="text-slate-200">Write a detailed prompt for an AI image generator describing this creature, using words like <em>glowing cyan, transparent, viscous, camouflage</em>.</p>
+                            </div>
+                            <div onclick="speak('Step 3. Present the AI-generated image to the class. Explain how its light features help it defend against predators or attract friends.', null, 'Brian')" class="lesson-card">
+                                <div class="lesson-header">Step 3: Speaking Output</div>
+                                <p class="text-slate-200">Present the AI-generated image to the class. Explain how its light features help it defend against predators or attract friends.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            8: {
+                title: "Lesson 8: Analogies & Figurative Language",
+                content: `
+                    <div class="space-y-4">
+                        <div onclick="speak('Analogizing is a cognitive tool that involves comparing two unlike things to help us understand a complex or novel concept. When studying the unusual evolutionary behaviors of birds of paradise, analogizing helps us map their biological movements onto familiar human concepts, such as a dancer performing on a stage. By analyzing why the author uses these analogies—rather than just identifying them as literary devices—readers can better visualize the physical mechanics of the birds\\' elaborate displays and understand the author\\'s communication design.', null, 'Andrew')" class="lesson-card">
+                            <div class="lesson-header">1. Analogizing</div>
+                            <p class="text-slate-200">Analogizing is a cognitive tool that involves comparing two unlike things to help us understand a complex or novel concept. When studying the unusual evolutionary behaviors of birds of paradise, analogizing helps us map their biological movements onto familiar human concepts, such as a dancer performing on a stage. By analyzing <em>why</em> the author uses these analogies—rather than just identifying them as literary devices—readers can better visualize the physical mechanics of the birds' elaborate displays and understand the author's communication design.</p>
+                        </div>
+                        
+                        <div onclick="speak('The Mating Rituals of Carola\\'s Parotia. To attract the attention of females watching from the branches above, the male performs a highly complex and dramatic mating dance. His ritual includes: The Bow, acting as a noble performer. The Head Bounce, pausing for dramatic effect. And The Ballerina Dance, spreading his black feathers out like a ballerina\\'s dress.', null, 'Emma')" class="lesson-card">
+                            <div class="lesson-header">2. The Mating Rituals of Carola’s Parotia</div>
+                            <p class="text-slate-200 mb-2">To attract the attention of females watching from the branches above, the male Carola's parotia performs a highly complex and dramatic mating dance. His ritual includes:</p>
+                            <ul class="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+                                <li><strong>The Bow:</strong> He begins his performance by acting as a "noble performer," bowing deeply to his audience so that the long feathers growing from the top of his head tap the ground.</li>
+                                <li><strong>The Head Bounce:</strong> He pauses for dramatic effect, then sinks his neck and moves his head up and down to make his long head feathers bounce.</li>
+                                <li><strong>The Ballerina Dance:</strong> Known as the "dance king" of the birds of paradise, he executes a move where he spreads his soft, black feathers out completely around his body to look like a ballerina's dress. He continually jumps and shakes his feathers to maintain the female's attention.</li>
+                            </ul>
+                        </div>
+
+                        <div onclick="speak('Figurative Language in Reading 2B. The author relies on similes, metaphors, and personification to create vivid mental images of these absurd and beautiful mating rituals.', null, 'Ava')" class="lesson-card">
+                            <div class="lesson-header">3. Figurative Language in Reading 2B</div>
+                            <p class="text-slate-200 mb-2">The author heavily relies on figurative language to create vivid mental images of these "absurd" and beautiful mating rituals. Reading 2B utilizes three main types of figurative language:</p>
+                            <ul class="list-disc pl-5 space-y-2 text-slate-300 text-sm">
+                                <li><strong>Similes:</strong> This device compares two different things using the words <em>like</em> or <em>as</em>. The text describes the red bird of paradise moving his wings "<strong>like</strong> a giant butterfly," and notes that the Carola's parotia spreads his feathers "<strong>like</strong> a dress".</li>
+                                <li><strong>Metaphors:</strong> This device states that one thing <em>is</em> another to make a direct comparison. The author refers to the dense jungle as "nature's most absurd <strong>theater</strong>," describes the forest as offering the birds a "<strong>stage</strong>," and calls the Carola's parotia the "<strong>dance king</strong>".</li>
+                                <li><strong>Personification:</strong> This device assigns human-like qualities to something non-human. The text personifies the male bird by framing his natural mating instincts as a human performance, calling him a "<strong>noble performer</strong>" who "<strong>bows deeply to his audience</strong>".</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        const vocabulary = [
+            { word: "Bioluminescence", emoji: "💡", def: "The production of light by living organisms.", sent: "Using bioluminescence is like wearing a glow-in-the-dark bracelet to the school dance to stand out.", persona: "Emma" },
+            { word: "Transparent", emoji: "👻", def: "Allowing light to pass through so objects behind can be seen.", sent: "Jellyfish and snails are transparent, much like the clear backpacks some high schools require for safety.", persona: "Brian" },
+            { word: "Predator", emoji: "🦈", def: "An animal that naturally preys on others.", sent: "In the ocean, avoiding a predator is like dodging the opposing team's captain on the football field.", persona: "Ava" },
+            { word: "Astonishing", emoji: "😲", def: "Extremely surprising or impressive.", sent: "The glowing water was astonishing, like walking into the gym completely transformed for prom.", persona: "Andrew" },
+            { word: "Descend", emoji: "⬇️", def: "To move or fall downward.", sent: "As you descend into the deep ocean, it gets dark, just like going down into the school basement.", persona: "Emma" },
+            { word: "Invisible", emoji: "s️", def: "Unable to be seen.", sent: "Shrimp use light to become invisible, like a freshman trying to blend into the crowd on the first day.", persona: "Brian" },
+            { word: "Absurd", emoji: "🎭", def: "Wildly unreasonable, illogical, or inappropriate.", sent: "The bird's colorful costume and theater dance is absurd, similar to the crazy outfits worn during spirit week.", persona: "Ava" },
+            { word: "Startle", emoji: "⚡", def: "To cause someone to feel sudden shock or alarm.", sent: "A sudden flash of light startles predators, just like the school bell ringing unexpectedly loudly.", persona: "Andrew" },
+            { word: "Viscous", emoji: "🍯", def: "Having a thick, sticky consistency.", sent: "For tiny beings, water is viscous, like swimming through the syrup at the school pancake breakfast.", persona: "Emma" },
+            { word: "Evolution", emoji: "🧬", def: "The gradual development of something.", sent: "Through sexual selection and evolution, birds changed their feathers, similar to how your personal style changes over four years of high school.", persona: "Brian" }
+        ];
+
+        const lectures = {
+            1: {
+                title: "🌊 Living Light (Part 1)",
+                text: "The ability of some species to create light—known as bioluminescence—is both magical and commonplace. Magical, because of its glimmering beauty. Commonplace, because many life forms can do it. On land the most familiar examples are fireflies, flashing to attract mates on a warm summer night. But there are other luminous land organisms, including glow-worms, millipedes, and some 90 species of fungus. Even some birds, such as the Atlantic puffin, have beaks that glow in the dark. But the real biological light show takes place in the sea. Here, an astonishing number of beings can make light. Some, such as ostracods, are like ocean fireflies, using flashes of light to attract a mate. There are also glowing bacteria, and light-making fish, squid, and jellyfish. Indeed, of all the groups of organisms known to make light, more than four-fifths live in the ocean. As a place to live, the ocean has a couple of peculiarities. Firstly, there is almost nowhere to hide, so being invisible is very important. Secondly, as you descend, sunlight disappears. At first, red light is absorbed. Then the yellow and green parts of the spectrum disappear, leaving just the blue. At 200 meters below the surface, the ocean becomes a kind of perpetual twilight, and at 600 meters the blue fades out too. In fact, most of the ocean is as black as the night sky. These factors make light uniquely useful as a weapon or a veil.",
+                gaps: { parts: [], ans: [], bank: [] }
+            },
+            2: {
+                title: "👀 Hiding with Light (Part 2)",
+                text: "In the ocean's upper layers, where light penetrates, creatures need to blend in to survive. Any life form that stands out is in danger of being spotted by predators—especially those swimming below, looking up. Many life forms solve this problem by avoiding the light zone during the day. Others—such as jellyfish and swimming snails—are transparent, ghostlike creatures, almost impossible to see. Other sea species use light to survive in the upper layers—but how? Some, such as certain shrimp and squid, illuminate their bellies to match the light coming from above. This allows them to become invisible to predators below. Their light can be turned on and off at will—some even have a dimmer switch. For example, certain types of shrimp can alter how much light they give off, depending on the brightness of the water around them. If a cloud passes overhead and briefly blocks the light, the shrimp will dim itself accordingly. But if the aim is to remain invisible, why do some creatures light up when they are touched, or when the water nearby is disturbed? A couple of reasons. First, a sudden burst of light may startle a predator, giving the prey a chance to escape. Some kinds of deep-sea squid, for example, give a big squirt of light before darting off into the gloom. Second, there is the principle of \"the enemy of my enemy is my friend.\" Giving off light can help summon the predator of your predator. Known as the \"burglar alarm\" effect, this is especially useful for tiny life forms, such as dinoflagellates, that cannot swim fast. For such small beings, water is too viscous to allow a quick getaway—it would be like trying to swim through syrup. Instead, when threatened by a shrimp, for example, these organisms light up. The flashes attract larger fish that are better able to spot—and eat—the shrimp. The chief defense for these tiny organisms is therefore not fight or flight—but light. One of the best places in the world to see a natural light show is Vieques, a small island that belongs to Puerto Rico. The island is famous for its bahía bioluminiscente, or \"bio bay\"—home to countless dinoflagellates... Dinoflagellates light up whenever the water around them moves... Watching them through the canoe's transparent floor can give a powerful impression that the water is part of the sky, and you are paddling through the stars.",
+                gaps: {
+                    parts: ["For such small beings, water is too [1] to allow a quick getaway. Instead, when threatened by a [2], these organisms light up. The [3] attract larger fish that eat the shrimp. The chief defense is not fight or flight—but [4]."],
+                    ans: ["viscous", "shrimp", "flashes", "light"],
+                    bank: ["viscous", "shrimp", "flashes", "light", "fast", "predator", "dark"] 
+                }
+            },
+            3: {
+                title: "🐦 Feathers of Love",
+                text: "Covered in soft, black feathers, the noble performer bows deeply to his audience. From the top of his head grow several long feathers that tap the ground as he begins his dance. This dancing bird is Carola's parotia, just one of the many birds of paradise that live on the island of New Guinea. This male bird is attempting to impress a row of females that are watching him from a branch above.",
+                gaps: { parts: [], ans: [], bank: [] }
+            },
+            4: {
+                title: "🪼 The Mysterious Jellyfish",
+                text: "Jellyfish can be found all over the world, from deep oceans to shallow coastal areas. They've been around for hundreds of millions of years. Boneless, brainless, and bloodless, jellyfish are some of the most diverse and fascinating creatures in the sea. Jellyfish aren't actually fish. With thousands of different species, in two different biological phyla, jellyfish is more of a broad term than anything else. Unlike fish, which have backbones, jellyfish are invertebrates. Jellyfish got their common name from the jelly-like material they're made out of called mesoglea. In recent years, scientists have started using the umbrella term sea jellies to clear up the confusion. There is an immortal jellyfish. Jellyfish can reproduce sexually by releasing sperm and eggs into the water, and reproduce asexually by splitting into two or cloning. But at least one jellyfish can actually reverse the aging process. The Turritopsis dohrnii has earned the nickname the immortal jellyfish for being able to undergo a process called transdifferentiation. An adult or juvenile under stress, instead of dying, can revert back to a polyp and begin the life cycle all over again. It is the only animal in the world that is known to be able to reverse its life cycle. Box jellyfish are the most venomous marine animals in the world. Jellyfish stings are a common fear of beachgoers worldwide, and with good reason—there are an estimated 150 million jellyfish stings reported annually. And while not all jellyfish have stingers, the Australian box jellyfish, or Chironex fleckeri, is considered the most venomous marine animal in the world. Its deadly tentacles can grow up to 10 feet long. Humans and other animals that are unlucky enough to get stung may experience paralysis, cardiac arrest, and even death within just a few minutes. Jellyfish are 95% water. To put this in perspective, the average adult human male is about 60% water. But jellyfish are much simpler than humans. They don't have hearts, blood, brains, or bones. Jellyfish do have very basic sensory organs in their bells and tentacles, and a simple digestive cavity which serves as a stomach, intestine, and esophagus. If a jellyfish washes up on the beach, it will mostly evaporate due to the high water content. Groups of jellyfish are called blooms, swarms, or smacks. Jellyfish blooms can form quickly, and scientists think that the jellies get together for mating purposes. In extreme cases, the bloom can be so dense there are more jellyfish than water in a given area. They can be as small as a cubic meter, or cover hundreds of square miles. While these blooms are natural, they've caused problems all over the world, such as clogging fishing equipment in Mexico, destroying Chinese ships, and closing beaches in Australia and Europe. There is still so much to learn about these floating, mysterious creatures. Scientists believe that there may be as many as 300,000 species of jellyfish that we haven't yet discovered.",
+                gaps: {
+                    parts: ["Jellyfish are [1] and do not have backbones. The Australian box jellyfish is the most [2] marine animal in the world. The immortal jellyfish can revert back to a younger state through a process called [3]. Groups of jellyfish are called [4]."],
+                    ans: ["invertebrates", "venomous", "transdifferentiation", "blooms"],
+                    bank: ["invertebrates", "venomous", "transdifferentiation", "blooms", "vertebrates", "safe", "swimming"] 
+                }
+            }
+        };
+
+        const allQuestions = [
+            // MCQs (15 questions)
+            { type: 'mcq', q: "According to the text, where are the most familiar examples of bioluminescence found on land?", opts: ["In dark caves.", "In the deep jungle.", "Among fireflies on a warm summer night.", "In glowing mushrooms inside houses."], ans: 2 },
+            { type: 'mcq', q: "What happens to sunlight as you descend deeper into the ocean?", opts: ["Blue light is absorbed first.", "All colors are absorbed equally.", "Red light is absorbed first, leaving only blue.", "It gets brighter due to bioluminescence."], ans: 2 },
+            { type: 'mcq', q: "How do certain shrimp use bioluminescence for camouflage in the upper ocean layers?", opts: ["They flash brightly to blind predators.", "They illuminate their bellies to match the light coming from above.", "They detach a glowing arm as a decoy.", "They create a glowing smoke screen."], ans: 1 },
+            { type: 'mcq', q: "What is the purpose of the 'burglar alarm' effect used by dinoflagellates?", opts: ["To warn other dinoflagellates of danger.", "To attract a mate in the dark water.", "To attract larger fish that will spot and eat their predators.", "To stun their prey before eating them."], ans: 2 },
+            { type: 'mcq', q: "Why is water described as being 'viscous' for tiny dinoflagellates?", opts: ["Because the ocean is very cold.", "Because the water is filled with syrupy pollution.", "Because they are so small, swimming through water is like swimming through syrup.", "Because they have large, heavy shells."], ans: 2 },
+            { type: 'mcq', q: "Where is the famous 'bio bay' located, according to the 'Stars of the Sea' sidebar?", opts: ["In the deep Pacific Ocean.", "On the island of New Guinea.", "On Vieques, an island belonging to Puerto Rico.", "Off the coast of Australia."], ans: 2 },
+            { type: 'mcq', q: "What is the male Carola's parotia attempting to do when he bows deeply and taps the ground with his head feathers?", opts: ["Frighten away a predator.", "Impress a row of females watching from a branch.", "Find insects hiding in the dirt.", "Signal to other males to begin migrating."], ans: 1 },
+            { type: 'mcq', q: "What distinguishes jellyfish from actual fish?", opts: ["Jellyfish have cartilage instead of bone.", "Jellyfish are invertebrates without backbones.", "Jellyfish only live in deep ocean trenches.", "Jellyfish breathe air instead of water."], ans: 1 },
+            { type: 'mcq', q: "Why is the Turritopsis dohrnii nicknamed the 'immortal jellyfish'?", opts: ["It is completely immune to all venom.", "It can survive out of water indefinitely.", "It can undergo transdifferentiation and revert back to a younger state.", "It possesses the brightest bioluminescence in the ocean."], ans: 2 },
+            { type: 'mcq', q: "Which creature is considered the most venomous marine animal in the world?", opts: ["The anglerfish.", "The Atlantic puffin.", "The Australian box jellyfish.", "The deep-sea squid."], ans: 2 },
+            { type: 'mcq', q: "What percentage of a jellyfish is made up of water?", opts: ["60%", "75%", "95%", "99%"], ans: 2 },
+            { type: 'mcq', q: "What is one problem caused by jellyfish blooms mentioned in the text?", opts: ["They eat all the coral reefs.", "They clog fishing equipment and destroy ships.", "They drain the ocean's oxygen supply.", "They blind passing sailors with their light."], ans: 1 },
+            { type: 'mcq', q: "What is the scientific term for the jelly-like material that jellyfish are made of?", opts: ["Transdifferentiation", "Mesoglea", "Viscous fluid", "Bioluminescence"], ans: 1 },
+            { type: 'mcq', q: "To blend in and avoid predators looking up from below, some swimming snails and jellyfish are...", opts: ["covered in black feathers.", "able to swim incredibly fast.", "transparent and ghostlike.", "able to shoot venom."], ans: 2 },
+            { type: 'mcq', q: "What is the primary reason the Atlantic puffin is mentioned in the text?", opts: ["As an example of a bird with a beak that glows in the dark.", "As the main predator of the Australian box jellyfish.", "As a bird that hunts in the perpetual twilight zone.", "As a species that uses a 'dimmer switch' to hide."], ans: 0 },
+            
+            // True/False (15 questions)
+            { type: 'tf', q: "More than four-fifths of all organism groups known to make light live in the ocean.", ans: true, exp: "The text states that more than four-fifths of bioluminescent groups live in the sea." },
+            { type: 'tf', q: "At exactly 200 meters below the surface, all blue light completely fades out.", ans: false, exp: "At 200 meters it becomes perpetual twilight; blue light fades out at 600 meters." },
+            { type: 'tf', q: "Some types of shrimp can act like a 'dimmer switch' by altering how much light they give off based on cloud cover.", ans: true, exp: "If a cloud passes overhead, the shrimp will dim itself accordingly." },
+            { type: 'tf', q: "The 'burglar alarm' effect involves a deep-sea squid giving a big squirt of light before darting off.", ans: false, exp: "That is the 'startle' effect. The burglar alarm effect summons the predator's predator." },
+            { type: 'tf', q: "Dinoflagellates light up whenever the water around them moves.", ans: true, exp: "They are responsible for the flashes of light seen when swimming or boating." },
+            { type: 'tf', q: "The male Carola's parotia bird has long feathers on his tail that tap the ground during his dance.", ans: false, exp: "The long feathers grow from the top of his head, not his tail." },
+            { type: 'tf', q: "Birds of paradise live primarily on the island of New Guinea.", ans: true, exp: "The text notes they are just one of the many birds of paradise that live on the island of New Guinea." },
+            { type: 'tf', q: "Jellyfish have been around for less time than dinosaurs.", ans: false, exp: "The text states they've been around for hundreds of millions of years, before dinosaurs." },
+            { type: 'tf', q: "Jellyfish possess very complex brains and circulatory systems.", ans: false, exp: "They are boneless, brainless, and bloodless." },
+            { type: 'tf', q: "Scientists have recently started using the term 'sea jellies' because jellyfish are not actually fish.", ans: true, exp: "This is an umbrella term used to clear up confusion." },
+            { type: 'tf', q: "The Australian box jellyfish has deadly tentacles that can grow up to 10 feet long.", ans: true, exp: "Its deadly tentacles can indeed grow up to 10 feet long." },
+            { type: 'tf', q: "An average adult human male is made up of about 95% water, just like a jellyfish.", ans: false, exp: "An average adult human male is about 60% water, while jellyfish are 95% water." },
+            { type: 'tf', q: "If a jellyfish washes up on the beach, it will mostly evaporate due to its high water content.", ans: true, exp: "The text directly states it will mostly evaporate." },
+            { type: 'tf', q: "Groups of jellyfish can be called blooms, swarms, or smacks.", ans: true, exp: "These are the correct terms for groups of jellyfish." },
+            { type: 'tf', q: "Jellyfish can only reproduce asexually by splitting into two or cloning.", ans: false, exp: "They can reproduce sexually by releasing sperm and eggs, AND asexually by splitting/cloning." }
+        ];
+
+        /* --- AUDIO SYSTEM --- */
+        let voices = [];
+        const synth = window.speechSynthesis;
+
+        function loadVoices() { voices = synth.getVoices(); }
+        synth.onvoiceschanged = loadVoices;
+        setTimeout(loadVoices, 500);
+
+        function speak(text, highlightCallback, preferredName) {
+            if(!state.audioEnabled) return;
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.85; // Slowed down for secondary students comprehension
+            
+            // STRICT VOICE LIST
+            const allowedNames = ["Andrew", "Emma", "Ava", "Brian"];
+            let selectedVoice = null;
+
+            // 1. Try preferred name with "Multilingual"
+            if (preferredName) {
+                selectedVoice = voices.find(v => v.name.includes(preferredName) && v.name.includes("Multilingual"));
+                if (!selectedVoice) selectedVoice = voices.find(v => v.name.includes(preferredName));
+            }
+
+            // 2. Strict Fallback
+            if (!selectedVoice) {
+                 for (const name of allowedNames) {
+                     selectedVoice = voices.find(v => v.name.includes(name) && v.name.includes("Multilingual"));
+                     if (selectedVoice) break;
+                 }
+                 if(!selectedVoice) {
+                    for (const name of allowedNames) {
+                         selectedVoice = voices.find(v => v.name.includes(name));
+                         if (selectedVoice) break;
+                     }
+                 }
+            }
+
+            if (selectedVoice) {
+                u.voice = selectedVoice;
+            }
+
+            if (highlightCallback) {
+                u.onboundary = (event) => { if (event.name === 'word') highlightCallback(event.charIndex); };
+            }
+            synth.speak(u);
+        }
+        function stopAudio() { synth.cancel(); }
+
+        /* --- ROUTER --- */
+        const container = document.getElementById('app-content');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const scoreDisplay = document.getElementById('score-val');
+        const progressEl = document.getElementById('progress-bar');
+        const headerActions = document.getElementById('header-actions');
+        const praiseOverlay = document.getElementById('praise-overlay');
+
+        function render() {
+            container.innerHTML = '';
+            headerActions.innerHTML = ''; 
+            praiseOverlay.style.display = 'none';
+            stopAudio();
+            scoreDisplay.textContent = state.score;
+            updateAudioIcon();
+            
+            const totalPages = 59;
+            const pct = (state.page / totalPages) * 100;
+            progressEl.style.width = `${pct}%`;
+
+            if(state.page === -1) {
+                progressEl.style.width = '0%';
+                prevBtn.style.visibility = 'hidden';
+                nextBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+                nextBtn.style.visibility = 'visible';
+            }
+
+            prevBtn.disabled = state.page <= 0;
+            prevBtn.onclick = () => { if(state.page > 0) { state.page--; saveState(); render(); }};
+            nextBtn.onclick = () => { if(state.page < totalPages) { state.page++; saveState(); render(); }};
+
+            // Routing Logic
+            if(state.page === -1) renderMenu();
+            else if(state.page === 0) renderHome();
+            else if(state.page === 1) renderWarmup();
+            else if(state.page === 2) renderWarmupAnswer();
+            
+            // Speaking Modules (Pages 3-7)
+            else if(state.page >= 3 && state.page <= 7) renderSpeakingModule(state.page - 3);
+            
+            // Lessons (Pages 8-11)
+            else if(state.page === 8) renderSpecialLesson(2);
+            else if(state.page === 9) renderSpecialLesson(4);
+            else if(state.page === 10) renderSpecialLesson(6);
+            else if(state.page === 11) renderSpecialLesson(8); // New Analogizing Lesson
+
+            // Vocabulary (Pages 12-21)
+            else if(state.page >= 12 && state.page <= 21) renderVocab(state.page - 12);
+            
+            // Scripts & Gaps (Pages 22-27)
+            else if(state.page === 22) renderScriptView(1, 'Andrew'); 
+            else if(state.page === 23) renderScriptView(2, 'Emma');   
+            else if(state.page === 24) renderGapFill(2);              
+            else if(state.page === 25) renderScriptView(3, 'Ava');    
+            else if(state.page === 26) renderScriptView(4, 'Brian');  
+            else if(state.page === 27) renderGapFill(4);              
+
+            // Unit Features & Skills (Page 28)
+            else if(state.page === 28) renderUnitFeatures();
+            
+            // Quizzes (Pages 29-58)
+            else if(state.page >= 29 && state.page <= 58) {
+                const qIndex = state.page - 29;
+                const q = allQuestions[qIndex];
+                if(q.type === 'mcq') renderMCQSingle(q, qIndex);
+                else renderTrueFalse(q, qIndex);
+            }
+            
+            else if(state.page === 59) renderFinish();
+        }
+
+        /* --- VIEWS --- */
+        function renderHome() {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center text-center flex-1">
+                    <div class="w-32 h-32 bg-cyan-900 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(6,182,212,0.6)] mx-auto border-4 border-cyan-500">
+                        <i class="fas fa-jellyfish text-6xl text-cyan-300"></i>
+                    </div>
+                    <h1 class="text-5xl font-black text-cyan-400 mb-4 tracking-tight" style="text-shadow: 0 0 10px rgba(6,182,212,0.5);">Living Light</h1>
+                    <p class="text-2xl text-slate-300 mb-8 font-light">Natural Attraction & Bioluminescence</p>
+                    <button onclick="startUnit()" class="bg-cyan-600 text-white px-12 py-5 rounded-2xl text-xl font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:bg-cyan-500 btn-3d transition border-b-4 border-cyan-800">
+                        START JOURNEY 🚀
+                    </button>
+                </div>
+            `;
+            nextBtn.style.visibility = 'hidden';
+            prevBtn.style.visibility = 'hidden';
+        }
+
+        function renderMenu() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <h2 class="text-2xl font-black text-cyan-400 mb-4 uppercase tracking-widest border-b-2 border-cyan-700 pb-2">Main Menu</h2>
+                    <div class="w-full max-w-4xl overflow-y-auto">
+                        <div class="menu-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+                            <div onclick="goToPage(0)" class="menu-item">
+                                <i class="fas fa-home text-blue-400"></i>
+                                <span>Home</span>
+                            </div>
+                            <div onclick="goToPage(1)" class="menu-item">
+                                <i class="fas fa-comments text-cyan-400"></i>
+                                <span>Warm Up</span>
+                            </div>
+                            <div onclick="goToPage(3)" class="menu-item">
+                                <i class="fas fa-microphone-alt text-teal-400"></i>
+                                <span>Speaking Modules</span>
+                            </div>
+                            <div onclick="goToPage(8)" class="menu-item">
+                                <i class="fas fa-brain text-purple-400"></i>
+                                <span>Lessons 2, 4, 6</span>
+                            </div>
+                            <div onclick="goToPage(11)" class="menu-item">
+                                <i class="fas fa-book-reader text-orange-400"></i>
+                                <span>Lesson 8: Analogizing</span>
+                            </div>
+                            <div onclick="goToPage(12)" class="menu-item">
+                                <i class="fas fa-book-open text-indigo-400"></i>
+                                <span>Vocabulary</span>
+                            </div>
+                            <div onclick="goToPage(22)" class="menu-item">
+                                <i class="fas fa-water text-cyan-500"></i>
+                                <span>Reading 2A (Part 1)</span>
+                            </div>
+                            <div onclick="goToPage(23)" class="menu-item">
+                                <i class="fas fa-eye-slash text-cyan-600"></i>
+                                <span>Reading 2A (Part 2)</span>
+                            </div>
+                            <div onclick="goToPage(25)" class="menu-item">
+                                <i class="fas fa-feather text-emerald-500"></i>
+                                <span>Reading 2B</span>
+                            </div>
+                            <div onclick="goToPage(26)" class="menu-item">
+                                <i class="fas fa-video text-blue-500"></i>
+                                <span>Jellyfish Video</span>
+                            </div>
+                            <div onclick="goToPage(28)" class="menu-item">
+                                <i class="fas fa-list-ul text-amber-500"></i>
+                                <span>Unit Features</span>
+                            </div>
+                            <div onclick="goToPage(29)" class="menu-item">
+                                <i class="fas fa-clipboard-check text-green-400"></i>
+                                <span>Quiz</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWarmup() {
+            nextBtn.style.visibility = 'visible';
+            prevBtn.style.visibility = 'visible';
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 w-full p-4">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 border-t-[8px] border-cyan-500 w-full text-center max-w-4xl">
+                        <h2 class="text-xl font-bold mb-6 text-cyan-400 uppercase tracking-widest">Speaking Warm Up 🗣️</h2>
+                        <p class="text-3xl md:text-4xl font-bold text-slate-100 mb-8 leading-tight">
+                            "Why do some deep sea creatures <span class="text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">glow</span> in the dark?"
+                        </p>
+                        <div class="flex justify-center gap-6">
+                            <button onclick="timer(60)" class="bg-slate-700 border-2 border-slate-600 hover:border-cyan-400 px-8 py-4 rounded-2xl text-xl font-bold transition flex flex-col items-center min-w-[160px] text-slate-200">
+                                <i class="fas fa-brain mb-2 text-3xl text-cyan-500"></i> Think
+                            </button>
+                            <button onclick="timer(120)" class="bg-slate-700 border-2 border-slate-600 hover:border-blue-400 px-8 py-4 rounded-2xl text-xl font-bold transition flex flex-col items-center min-w-[160px] text-slate-200">
+                                <i class="fas fa-comments mb-2 text-3xl text-blue-500"></i> Pair
+                            </button>
+                        </div>
+                        <div id="timer-display" class="text-center text-6xl font-mono font-bold text-cyan-400 mt-8">00:00</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWarmupAnswer() {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 w-full p-4">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-[0_0_20px_rgba(6,182,212,0.3)] p-10 w-full text-center text-white relative overflow-hidden max-w-4xl border-4 border-cyan-500">
+                        <h2 class="text-2xl font-bold mb-6 text-cyan-300 uppercase tracking-widest">The Reason 💡</h2>
+                        <p class="text-3xl md:text-4xl font-bold mb-6 leading-snug">
+                            "They use <span class="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">Bioluminescence</span> to attract mates, find food, or scare predators!"
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderSpeakingModule(modIndex) {
+            const mod = speakingModules[modIndex];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-slate-700 mb-4 overflow-hidden h-full">
+                        <div class="mb-4 border-b-2 border-slate-700 pb-2 flex-none">
+                            <span class="text-cyan-500 font-bold tracking-widest text-sm block mb-1 uppercase">${mod.title.split(':')[0]}</span>
+                            <h2 class="text-2xl font-black text-slate-100 mb-1">${mod.title.split(':')[1].trim()}</h2>
+                            <p class="text-slate-400 font-medium text-sm">Source: ${mod.source}</p>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto flex-1 pr-2">
+                            ${mod.questions.map((q, i) => `
+                                <div onclick="speak('${q.text.replace(/'/g, "\\'")}', null, '${q.voice}')" class="speaking-question-card rounded-xl">
+                                    <div class="flex gap-5">
+                                        <div class="flex-none pt-1">
+                                            <div class="w-10 h-10 rounded-full bg-slate-700 text-cyan-400 font-bold flex items-center justify-center text-lg border border-cyan-900">
+                                                ${i+1}
+                                            </div>
+                                        </div>
+                                        <p class="text-xl text-slate-200 leading-relaxed font-medium">
+                                            ${q.text}
+                                        </p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSpecialLesson(id) {
+            const lesson = specialLessons[id];
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-slate-700 mb-4 overflow-hidden h-full">
+                        <div class="mb-6 border-b-2 border-slate-700 pb-4 flex-none">
+                            <h2 class="text-xl font-black text-cyan-400">${lesson.title}</h2>
+                        </div>
+                        <div class="overflow-y-auto flex-1 pr-2 text-slate-200">
+                            ${lesson.content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function timer(sec) {
+            let t = sec;
+            const el = document.getElementById('timer-display');
+            clearInterval(window.timerInt);
+            window.timerInt = setInterval(() => {
+                const m = Math.floor(t/60);
+                const s = t%60;
+                el.textContent = `${m}:${s<10?'0'+s:s}`;
+                if(t<=0) { clearInterval(window.timerInt); el.textContent = "DONE"; el.classList.add('shake'); }
+                t--;
+            }, 1000);
+        }
+
+        function renderVocab(idx) {
+            const v = vocabulary[idx];
+            let voiceName = v.persona || "Brian";
+
+            const textToSpeak = `${v.word}. ${v.def}. Example: ${v.sent}`;
+            const safeText = textToSpeak.replace(/'/g, "\\'");
+
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 justify-start">
+                    <div onclick="speak('${safeText}', null, '${voiceName}')" class="vocab-card w-full max-w-6xl flex flex-col p-12 relative overflow-hidden h-full items-start text-left cursor-pointer">
+                        <div class="flex-1 flex flex-col justify-start gap-8 pt-4 w-full">
+                            <div>
+                                <span class="block text-cyan-500 text-lg font-bold tracking-widest mb-2">WORD ${idx+1}/10</span>
+                                <h2 class="text-5xl font-black text-slate-100">${v.emoji} ${v.word.toLowerCase()}</h2>
+                            </div>
+                            <p class="text-4xl text-slate-300 leading-snug font-light">${v.def}</p>
+                            <div class="border-l-[8px] border-cyan-500 pl-8 bg-slate-700/50 p-6 rounded-r-xl w-full">
+                                <p class="text-2xl md:text-3xl text-cyan-100 italic font-medium leading-relaxed">"${v.sent}"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if(state.audioEnabled) {
+                setTimeout(() => speak(textToSpeak, null, voiceName), 500);
+            }
+        }
+
+        function renderUnitFeatures() {
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 w-full max-w-6xl flex flex-col border border-slate-700 mb-4 overflow-hidden h-full">
+                        <div class="mb-4 border-b-2 border-slate-700 pb-2 flex-none">
+                            <h2 class="text-2xl font-black text-cyan-400 mb-1">Unit 2: Additional Features & Skills</h2>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto flex-1 pr-2">
+
+                            <div onclick="speak('Warm Up Activities. 1. Which animals are known for their bright colors or spectacular appearance? 2. In what ways do you think those characteristics help the animals?', null, 'Emma')" class="speaking-question-card rounded-xl">
+                                <h4 class="font-bold text-cyan-300 mb-2">Warm-Up Activities</h4>
+                                <p class="text-slate-200">1. Which animals are known for their bright colors or spectacular appearance?</p>
+                                <p class="text-slate-200">2. In what ways do you think those characteristics help the animals?</p>
+                            </div>
+
+                            <div onclick="speak('Reading 2A Skills. Target Vocabulary includes: astonishing, countless, descend, disturb, factor, flash, invisible, layer, predator, transparent. The Reading Skill is Summarizing using a Concept Map.', null, 'Andrew')" class="speaking-question-card rounded-xl">
+                                <h4 class="font-bold text-blue-300 mb-2">Reading 2A Skills</h4>
+                                <p class="text-slate-200"><strong>Target Vocab:</strong> astonishing, countless, descend, disturb, factor, flash, invisible, layer, predator, transparent.</p>
+                                <p class="text-slate-200 mt-2"><strong>Reading Skill:</strong> Summarizing (1)—Using a Concept Map.</p>
+                            </div>
+
+                            <div onclick="speak('Reading 2B Skills. Target Vocabulary includes: absurd, bounce, breed, commence, evolution, harsh, noble, prominently, ritual, undergo. The Reading Skill is Identifying Figurative Language.', null, 'Ava')" class="speaking-question-card rounded-xl">
+                                <h4 class="font-bold text-purple-300 mb-2">Reading 2B Skills</h4>
+                                <p class="text-slate-200"><strong>Target Vocab:</strong> absurd, bounce, breed, commence, evolution, harsh, noble, prominently, ritual, undergo.</p>
+                                <p class="text-slate-200 mt-2"><strong>Reading Skill:</strong> Identifying Figurative Language (similes and metaphors).</p>
+                            </div>
+
+                            <div onclick="speak('Critical Thinking: Speculating. Students make educated guesses, such as considering why Atlantic puffins have beaks that glow, and how jellyfish practically use bioluminescence.', null, 'Brian')" class="speaking-question-card rounded-xl">
+                                <h4 class="font-bold text-emerald-300 mb-2">Critical Thinking: Speculating</h4>
+                                <p class="text-slate-200">Make educated guesses using the text (e.g., why puffins have glowing beaks, how jellyfish use bioluminescence).</p>
+                            </div>
+
+                            <div onclick="speak('Word Roots. The Latin root scend means move toward. It is used in words like descend, ascend, crescendo, and transcend.', null, 'Emma')" class="speaking-question-card rounded-xl">
+                                <h4 class="font-bold text-amber-300 mb-2">Word Roots</h4>
+                                <p class="text-slate-200">The Latin root <em>scend</em> (meaning "move toward"), used in words like <em>descend, ascend, crescendo,</em> and <em>transcend</em>.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderScriptView(lecId, voiceName) {
+            const l = lectures[lecId];
+            const words = l.text.split(' ');
+            const playBtn = document.createElement('button');
+            playBtn.className = "bg-cyan-600 hover:bg-cyan-500 text-slate-50 w-8 h-8 rounded-full flex items-center justify-center transition shadow-lg font-bold";
+            playBtn.innerHTML = '<i class="fas fa-stop text-xs"></i>';
+            playBtn.onclick = stopAudio;
+            headerActions.appendChild(playBtn);
+
+            container.innerHTML = `
+                <div class="fade-in h-full p-4 flex flex-col items-center justify-center">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-slate-700">
+                        <h2 class="text-2xl text-cyan-400 font-bold mb-4">${l.title}</h2>
+                        <div id="script-container" class="text-2xl leading-relaxed font-bold text-slate-200 flex-1 flex flex-wrap content-start justify-start text-left gap-x-2 gap-y-2 overflow-y-auto">
+                            ${words.map((w, i) => `<span class="highlight-word">${w} </span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if(state.audioEnabled) {
+                setTimeout(() => {
+                    speak(l.text, (charIdx) => {
+                        let runningTotal = 0;
+                        const spans = document.querySelectorAll('.highlight-word');
+                        spans.forEach(s => s.classList.remove('active'));
+                        for(let i=0; i<spans.length; i++) {
+                            const span = spans[i];
+                            const len = span.innerText.length;
+                            if (charIdx >= runningTotal && charIdx < runningTotal + len) {
+                                span.classList.add('active');
+                                span.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                                break;
+                            }
+                            runningTotal += len;
+                        }
+                    }, voiceName);
+                }, 500);
+            }
+        }
+
+        let selectedGapWord = null;
+        function renderGapFill(lecId) {
+            const l = lectures[lecId];
+            const parts = l.gaps.parts[0].split(/(\[\d\])/);
+            const bank = [...l.gaps.bank].sort(() => 0.5 - Math.random());
+            selectedGapWord = null;
+
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-2">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-lg p-8 w-full max-w-6xl flex flex-col h-full border border-slate-700">
+                        <h2 class="text-xl text-cyan-400 font-bold mb-2">Complete the Summary:</h2>
+                        <div class="bg-slate-900 p-8 rounded-2xl text-2xl leading-loose text-slate-200 mb-4 flex-1 flex flex-wrap content-start items-center border border-slate-700 font-medium text-left">
+                            <div class="text-left w-full">
+                                ${parts.map(p => p.match(/\[\d\]/) ? `<span class="gap-slot" id="gap-${p.replace(/\D/g,'')}" onclick="handleGapClick(this, ${lecId}, ${parseInt(p.replace(/\D/g,''))-1})"></span>` : p).join('')}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 justify-center mb-4 bg-slate-800 p-4 rounded-xl min-h-[80px] items-center border border-slate-700">
+                            ${bank.map(w => `<button class="word-bank-item rounded-lg shadow-sm font-bold text-lg transition" onclick="selectBankWord(this, '${w}')">${w}</button>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectBankWord(btn, word) {
+            const isSelected = btn.classList.contains('selected');
+            document.querySelectorAll('.word-bank-item').forEach(b => b.classList.remove('selected'));
+            if (!isSelected) {
+                btn.classList.add('selected');
+                selectedGapWord = { word: word, el: btn };
+                playSound('click');
+            } else { selectedGapWord = null; }
+        }
+
+        function handleGapClick(gapEl, lecId, ansIndex) {
+            if (!selectedGapWord || gapEl.classList.contains('filled')) return;
+            const correctWord = lectures[lecId].gaps.ans[ansIndex];
+            if (selectedGapWord.word === correctWord) {
+                gapEl.textContent = selectedGapWord.word;
+                gapEl.classList.add('filled', 'shimmer-effect');
+                selectedGapWord.el.classList.add('used');
+                selectedGapWord.el.classList.remove('selected');
+                selectedGapWord = null;
+                playSound('correct');
+                const totalGaps = lectures[lecId].gaps.ans.length;
+                const filledGaps = document.querySelectorAll('.gap-slot.filled').length;
+                if(filledGaps === totalGaps) {
+                    state.score += 20; saveState();
+                    scoreDisplay.textContent = state.score;
+                    showPraise("Perfect! 🎉");
+                    triggerConfetti();
+                }
+            } else {
+                gapEl.classList.add('wrong'); playSound('wrong');
+                setTimeout(() => gapEl.classList.remove('wrong'), 500);
+            }
+        }
+
+        function renderMCQSingle(q, qIdx) {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-slate-700">
+                        <div class="mb-6 text-left w-full">
+                            <span class="text-cyan-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (MCQ)</span>
+                            <p class="font-bold text-slate-100 text-2xl leading-tight text-left">${q.q}</p>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-center gap-4">
+                            ${q.opts.map((o, oi) => `
+                                <button id="opt-${oi}" onclick="checkMCQSingle(${oi}, ${q.ans})" class="mcq-option-large">
+                                    <div class="w-10 h-10 rounded-full bg-slate-700 text-cyan-400 font-bold flex items-center justify-center mr-4 text-lg border border-slate-600 shrink-0">
+                                        ${String.fromCharCode(65+oi)}
+                                    </div>
+                                    <span class="font-medium text-slate-200 text-left">${o}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMCQSingle(optIdx, correctIdx) {
+            const btn = document.getElementById(`opt-${optIdx}`);
+            const allOpts = document.querySelectorAll('.mcq-option-large');
+            if(btn.disabled) return; 
+
+            if(optIdx === correctIdx) {
+                btn.classList.add('correct');
+                state.score += 10;
+                showPraise("Correct! 🌟");
+                triggerConfetti();
+            } else {
+                btn.classList.add('wrong');
+                btn.classList.add('shake');
+                document.getElementById(`opt-${correctIdx}`).classList.add('correct');
+            }
+            allOpts.forEach(b => b.disabled = true);
+            scoreDisplay.textContent = state.score; saveState();
+        }
+
+        function renderTrueFalse(q, qIdx) {
+            container.innerHTML = `
+                <div class="fade-in items-center justify-center h-full p-4">
+                    <div class="bg-slate-800 rounded-[2rem] shadow-xl p-8 w-full max-w-6xl h-full flex flex-col border border-slate-700">
+                        <div class="mb-6 text-left w-full">
+                            <span class="text-cyan-500 font-bold tracking-widest text-sm block mb-2">QUESTION ${qIdx+1} (TRUE/FALSE)</span>
+                            <p class="font-bold text-slate-100 text-3xl leading-tight text-left mb-8">${q.q}</p>
+                        </div>
+                        <div class="flex gap-6 justify-center mb-8">
+                            <button id="tf-true" onclick="checkTF(true, ${q.ans}, '${q.exp.replace(/'/g, "\\'")}')" class="tf-btn w-1/3">
+                                <i class="fas fa-check-circle text-4xl text-emerald-400"></i> TRUE
+                            </button>
+                            <button id="tf-false" onclick="checkTF(false, ${q.ans}, '${q.exp.replace(/'/g, "\\'")}')" class="tf-btn w-1/3">
+                                <i class="fas fa-times-circle text-4xl text-red-500"></i> FALSE
+                            </button>
+                        </div>
+                        <div id="tf-feedback" class="hidden p-6 bg-slate-900 rounded-xl border border-slate-700 text-center">
+                            <p class="text-xl text-cyan-200 font-bold" id="tf-exp-text"></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkTF(choice, answer, explanation) {
+            const btnTrue = document.getElementById('tf-true');
+            const btnFalse = document.getElementById('tf-false');
+            if(btnTrue.disabled) return;
+
+            btnTrue.disabled = true;
+            btnFalse.disabled = true;
+
+            if(choice === answer) {
+                state.score += 10;
+                showPraise("Correct! 🌟");
+                triggerConfetti();
+                if(choice) btnTrue.classList.add('correct'); else btnFalse.classList.add('correct');
+            } else {
+                if(choice) btnTrue.classList.add('wrong'); else btnFalse.classList.add('wrong');
+                if(answer) btnTrue.classList.add('correct'); else btnFalse.classList.add('correct');
+            }
+
+            const feed = document.getElementById('tf-feedback');
+            document.getElementById('tf-exp-text').textContent = "Note: " + explanation;
+            feed.classList.remove('hidden');
+            feed.classList.add('pop-in');
+
+            scoreDisplay.textContent = state.score; saveState();
+        }
+
+        function showPraise(text) {
+            const overlay = document.getElementById('praise-overlay');
+            const txt = document.getElementById('praise-text');
+            txt.textContent = text;
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+        }
+
+        function renderFinish() {
+             container.innerHTML = `
+                <div class="fade-in items-center justify-center flex-1 text-center p-4">
+                    <div class="bg-slate-800 p-16 rounded-[3rem] shadow-[0_0_40px_rgba(6,182,212,0.2)] max-w-2xl w-full border-4 border-cyan-500">
+                        <div class="text-8xl mb-6 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">🏆</div>
+                        <h2 class="text-5xl font-black text-cyan-300 mb-4">Brilliant!</h2>
+                        <div class="my-8 py-6 bg-slate-900 rounded-3xl border-2 border-slate-700">
+                            <span class="text-7xl font-black text-cyan-400">${state.score}</span>
+                        </div>
+                        <button onclick="resetProgress()" class="bg-cyan-600 text-white px-8 py-4 rounded-xl font-bold text-xl hover:bg-cyan-500 transition w-full shadow-lg">
+                            New Session 🔄
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function triggerConfetti() {
+            const colors = ['#06b6d4', '#3b82f6', '#22d3ee', '#10b981'];
+            for(let i=0; i<15; i++) {
+                const c = document.createElement('div');
+                c.style.cssText = `position:fixed;width:15px;height:15px;background:${colors[Math.floor(Math.random()*colors.length)]};top:-10px;left:${Math.random()*100}vw;pointer-events:none;z-index:99;border-radius:4px;box-shadow:0 0 8px ${colors[Math.floor(Math.random()*colors.length)]};`;
+                document.body.appendChild(c);
+                c.animate([{transform:`translate(0,0) rotate(0)`}, {transform:`translate(${Math.random()*200-100}px, 100vh) rotate(720deg)`}], {duration: 1500+Math.random()*1500});
+                setTimeout(()=>c.remove(), 3000);
+            }
+        }
+
+        function playSound(type) {
+            if(!state.audioEnabled) return;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            if(type==='click') { o.type='triangle'; o.frequency.value=600; g.gain.value=0.1; o.start(); o.stop(ctx.currentTime+0.05); } 
+            else if(type==='correct') { o.type='sine'; o.frequency.setValueAtTime(500, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime+0.1); g.gain.linearRampToValueAtTime(0, ctx.currentTime+0.3); o.start(); o.stop(ctx.currentTime+0.3); } 
+            else { o.type='sawtooth'; o.frequency.value=150; g.gain.linearRampToValueAtTime(0, ctx.currentTime+0.3); o.start(); o.stop(ctx.currentTime+0.3); }
+        }
+
+        if(state.page === 0) renderHome(); else render();
+        scoreDisplay.textContent = state.score;
+        updateAudioIcon();
+    </script>
+</body>
+</html>

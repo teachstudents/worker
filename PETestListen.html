@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B1 PET Listening Practice</title>
+    <style>
+        :root { 
+            --primary: #2c3e50; 
+            --accent: #3498db; 
+            --success: #27ae60; 
+            --error: #e74c3c; 
+            --light: #ecf0f1; 
+            --dark: #1a252f; 
+            --highlight: #f1c40f;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.4; 
+            margin: 0; 
+            padding: 0; 
+            background: #f4f7f6; 
+            color: #333; 
+        }
+        .container { 
+            max-width: 1300px; 
+            margin: 0 auto; 
+            padding: 15px; 
+        }
+        
+        #main-menu { 
+            text-align: center; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+        }
+        .student-tips {
+            background: #e8f4f8; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            text-align: left; 
+            border-left: 5px solid var(--accent);
+            font-size: 15px;
+        }
+        .student-tips h3 { margin-top: 0; color: var(--primary); font-size: 18px; }
+        .student-tips ul { margin-bottom: 0; padding-left: 20px; }
+        .student-tips li { margin-bottom: 8px; }
+
+        .student-input-group { margin-bottom: 25px; }
+        .student-input-group input { padding: 10px; font-size: 16px; width: 350px; border: 2px solid #bdc3c7; border-radius: 8px; transition: 0.3s; text-align: center;}
+        .student-input-group input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); }
+        
+        .test-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px; 
+            margin-top: 15px; 
+        }
+        @media (max-width: 850px) { .test-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 400px) { .test-grid { grid-template-columns: 1fr; } }
+        
+        .test-btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 15px 10px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 15px; 
+            font-weight: bold;
+            transition: 0.3s; 
+            display: block;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        }
+        .test-btn:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.15); }
+
+        #test-view { display: none; }
+        
+        .unified-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            flex-wrap: nowrap; 
+            gap: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            position: sticky;
+            top: 8px;
+            z-index: 100;
+            height: 56px;
+            min-height: 56px;
+            overflow-x: auto; 
+            overflow-y: hidden;
+            scrollbar-width: none; 
+        }
+        .unified-header::-webkit-scrollbar { display: none; }
+
+        .header-info {
+            display: flex;
+            gap: 12px;
+            font-size: 13px !important; 
+            align-items: center;
+            white-space: nowrap; 
+        }
+        .header-info span { font-weight: 600; color: #ecf0f1; font-size: 13px !important; }
+
+        .header-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: nowrap; 
+        }
+
+        .action-btn {
+            padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; color: white;
+            font-size: 12px !important; font-weight: bold; transition: 0.15s;
+            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; height: 32px; 
+        }
+        .btn-play { background: var(--accent); }
+        .btn-play.playing { background: #e67e22; }
+        .btn-back { background: #7f8c8d; } 
+        .btn-transcript { background: #9b59b6; } 
+        .btn-answers { background: #e74c3c; } 
+        .btn-print { background: #16a085; }
+        
+        .test-content-wrapper { background: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 3px 15px rgba(0,0,0,0.05); }
+        .test-title-display { font-size: 22px; color: var(--primary); border-bottom: 2px solid var(--light); padding-bottom: 5px; margin-bottom: 10px; margin-top: 0; }
+
+        .test-part-section {
+            margin-bottom: 30px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #e1e8ed;
+        }
+
+        .part-header-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .part-header-card h3 { margin: 0; color: var(--primary); font-size: 18px; }
+        .part-controls { display: flex; gap: 8px; }
+
+        .question-block { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #e0e0e0; }
+        .question-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        .question-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 8px; flex-direction: row; }
+        .question-label { font-weight: 600; color: var(--primary); font-size: 15px; margin: 0; flex: 1; padding-right: 10px; }
+        .question-controls { flex: 1.2; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+        
+        .mcq-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .yes-no-group { display: flex; gap: 15px; justify-content: flex-start; }
+        
+        .option-btn { 
+            padding: 10px 14px; border: 2px solid #bdc3c7; border-radius: 8px; cursor: pointer; 
+            text-align: left; background: white; font-size: 14px; transition: all 0.2s; color: #444; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); box-shadow: 0 2px 6px rgba(52, 152, 219, 0.2); }
+        .option-btn.selected { border-color: var(--accent); background: #e8f4f8; font-weight: bold; color: var(--primary); }
+        .option-btn.correct { border-color: var(--success) !important; background: #eafaf1 !important; color: #1e8449 !important; font-weight: bold; }
+        .option-btn.incorrect { border-color: var(--error) !important; background: #fadbd8 !important; color: #c0392b !important; font-weight: bold; text-decoration: line-through; }
+        .option-btn:disabled { cursor: default; }
+        
+        .yes-no-btn { text-align: center; justify-content: center; flex: none; font-weight: bold; font-size: 16px; width: 44px; height: 44px; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; }
+        
+        .answer-input-container { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .answer-input { padding: 10px 14px; border: 2px solid #ccc; border-radius: 8px; flex: 1; font-size: 15px; transition: 0.2s; }
+        .answer-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); }
+        .answer-input.correct { border-color: var(--success); background-color: #eafaf1; color: #1e8449; font-weight: bold; }
+        .answer-input.incorrect { border-color: var(--error); background-color: #fadbd8; color: #c0392b; font-weight: bold; }
+        .answer-input:disabled { background-color: #f5f5f5; color: #666; cursor: not-allowed; }
+        
+        .check-btn { background: var(--accent); color: white; border-radius: 6px; padding: 8px 16px; border: none; cursor: pointer; font-weight: bold; height: 42px;}
+        .check-btn:hover:not(:disabled) { filter: brightness(1.1); }
+
+        .hidden-section { display: none; margin-top: 15px; background: #fafafa; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 15px;}
+        .panel-header { background: #eee; padding: 10px 15px; font-weight: bold; color: var(--primary); border-bottom: 1px solid #ddd; }
+        .panel-content { padding: 15px; max-height: 300px; overflow-y: auto; }
+        .transcript-text { white-space: pre-wrap; font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 15px; line-height: 1.6; }
+        .transcript-line { padding: 3px 6px; border-radius: 4px; transition: background-color 0.3s; margin-bottom: 3px; }
+        .transcript-line.active { background-color: var(--highlight); font-weight: bold; color: black; }
+        .speaker-name { font-weight: bold; color: var(--accent); }
+        
+        .answer-key-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .answer-key-item { font-size: 14px; background: white; padding: 8px; border-radius: 4px; border: 1px solid #eee; }
+        .answer-key-item span { font-weight: bold; color: var(--success); float: right; }
+
+        @media (max-width: 750px) {
+            .question-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .question-controls { flex: 1; }
+            .part-header-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+
+        @media print {
+            body { background: white; color: black; font-size: 12pt !important; }
+            .unified-header { position: static; background: transparent; color: black; box-shadow: none; height: auto; min-height: auto; padding: 0; margin-bottom: 20px; }
+            .header-info, .header-info span { color: black; }
+            #display-score, .header-controls, .part-controls, .check-btn, .hidden-section { display: none !important; }
+            .test-content-wrapper, .test-part-section { box-shadow: none; padding: 0; border: none; }
+            .test-title-display { color: black; border-bottom: 2px solid black; font-size: 16pt !important; }
+            .answer-input, .option-btn { border: 1px solid black; background: transparent !important; color: black !important; padding: 5px; font-size: 12pt !important; box-shadow: none;}
+            .option-btn { margin-bottom: 5px; display: block; }
+            .option-btn.correct, .option-btn.incorrect { text-decoration: none; }
+            .answer-input::placeholder { color: transparent; }
+            .question-block { page-break-inside: avoid; border-bottom: none; margin-bottom: 15px; }
+            .question-row { flex-direction: column; align-items: flex-start; }
+            .question-label { color: black; font-size: 12pt !important; margin-bottom: 5px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="main-menu">
+        <div class="student-tips">
+            <h3>💡 Study Tips for Secondary Students</h3>
+            <p>Tackling the B1 Listening test requires strategy, just like preparing for a big project at school. Keep these tips in mind:</p>
+            <ul>
+                <li><strong>Pre-reading is key:</strong> Just like skimming a textbook chapter before class, always read the questions and options <em>before</em> the audio starts. Know what you are listening for!</li>
+                <li><strong>Beware of distractors:</strong> In multiple-choice questions, you will usually hear all three options mentioned. For example, someone might say, "I really wanted to play football, but it rained, so I went to the cinema." The correct answer is cinema!</li>
+                <li><strong>Context Clues (Gap Fill):</strong> In Part 3, think about what type of word is missing. Is it a date? A number? A noun? It's exactly like filling in the blanks in your science lab notes.</li>
+            </ul>
+        </div>
+        
+        <div class="student-input-group">
+            <input type="text" id="student-name" placeholder="Enter Student Name (e.g. Jane Doe)">
+        </div>
+        <h2>Select a Test Section</h2>
+        <div class="test-grid" id="test-grid"></div>
+    </div>
+
+    <div id="test-view">
+        <div class="unified-header">
+            <div class="header-info">
+                <div id="display-student">Student: <span>-</span></div>
+                <div id="display-test">Test: <span>-</span></div>
+                <div id="display-score">Score: <span id="score-val">0/25</span></div>
+            </div>
+            <div class="header-controls">
+                <button class="action-btn btn-back" onclick="showMenu()">← Back to Menu</button>
+                <button class="action-btn btn-print" onclick="window.print()">🖨️ Print</button>
+                <button class="action-btn btn-answers" id="btn-answers" onclick="toggleGlobalSection('answer-key-box', this, 'Answer Key')">▶ Show Answer Key</button>
+            </div>
+        </div>
+
+        <div class="test-content-wrapper">
+            <h2 id="test-title" class="test-title-display">Title</h2>
+            <div id="questions-container"></div>
+            
+            <div id="answer-key-box" class="hidden-section">
+                <div class="panel-header">Correct Answers</div>
+                <div class="panel-content">
+                    <div id="answer-key-content" class="answer-key-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Highly compressed dataset encompassing all 15 tests.
+const testsData = [
+    {
+        id: 1, title: "Test 1",
+        answers: {1:"B", 2:"C", 3:"B", 4:"B", 5:"A", 6:"C", 7:"C", 8:"B", 9:"A", 10:"C", 11:"A", 12:"B", 13:"C", 14:"fit", 15:"rain", 16:"boots", 17:"mini-bus", 18:"March", 19:"01252 88492", 20:"A", 21:"A", 22:"B", 23:"A", 24:"B", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. WOMAN: Lucy's joining the tennis club, so that'll be more equipment I have to buy. MAN: Oh well, don't waste too much money. We bought Miranda everything, but then she only went once... I could look in the cupboard and give you what's there. WOMAN: Oh thanks, that'd be great.
+2. WOMAN: Yes, can you go to the shop and get me a new paint brush – this one's too old. But before you do that, ask your father what he's done with the hammer – I've looked everywhere for it.
+3. WOMAN: I wonder if you can help me? I left my ring in the bathroom... It's got a square bluey-green stone with lots of smaller stones round it.
+4. MAN: Sorry I'm late – have you been here long? GIRL: Well … not really. I left home at five past six and got here at exactly quarter to seven.
+5. MAN: The football match between Spain and Hungary is now going to finish later than expected. When the match ends at 10.30 our programmes will continue as planned with an open air rock concert. But 'The Blue World' programme will now be shown next week instead.
+6. WOMAN: There's been a change of plan. The two of us are meeting Maria at the club. But the other guests will go to her flat and prepare everything while we keep Maria busy. We'll take her back there after about an hour.
+7. MAN: Yes, there were lots of grapes. Only they looked a bit sour, so I got strawberries instead. They were a bit expensive, though.
+NARRATOR: Part 2.
+INTERVIEWER: With us today is biologist Paul Hart. PAUL: We travelled on foot across Africa to Gabon, collecting plants. I chose it because it won't stay that way for long when more roads are built... We carried special equipment that was very light. It was my job to make sure everyone got home safely. Towards the end, some of the team had eaten much more than they were supposed to. Thankfully one team member's life was saved by a fisherman who took him to a doctor. I learnt so much on the trip and I'm really glad I went.
+NARRATOR: Part 3.
+ANNOUNCER: If you're looking for an extra special present, why not book a flight in a hot air balloon! It is essential that all passengers are fit. We need light winds, no rain and a clear sky. Passengers need to wear outdoor clothes and boots. Passengers return to the airfield in a mini-bus. Flights are available from the month of March. Phone 01252 88492.
+NARRATOR: Part 4.
+FATHER: So Ella, the holidays at last! What are you going to do? ELLA: Nothing, just relax. FATHER: How about you, your brother and me going off to the beach... ELLA: The sea will be freezing and there'll probably be a gale blowing, like last time, when we had to come home early because our tent got flooded! FATHER: I thought you were going to help Mr Atkins with that new horse... ELLA: He said I was perhaps too young. "Maybe next year" he said.`,
+        questions: [
+            {id:1, label:"1. Which of Miranda's things will Lucy be able to use?", options: ["A. The racket", "B. A box of balls", "C. The shoes"]},
+            {id:2, label:"2. What can't the woman find?", options: ["A. A new paint brush", "B. A pair of scissors", "C. The hammer"]},
+            {id:3, label:"3. Which ring has the woman lost?", options: ["A. Round stone with smaller stones", "B. Square stone with smaller stones round it", "C. Square stone with no small stones"]},
+            {id:4, label:"4. What time did the girl arrive?", options: ["A. Five past six", "B. Quarter to seven", "C. Seven o'clock"]},
+            {id:5, label:"5. What will be on television at 10 o'clock this evening?", options: ["A. A football match", "B. An open air rock concert", "C. 'The Blue World' programme"]},
+            {id:6, label:"6. Where will the party be?", options: ["A. The nightclub", "B. The outdoor concert", "C. Maria's flat"]},
+            {id:7, label:"7. What did the man buy?", options: ["A. Orange juice", "B. Grapes", "C. Strawberries"]},
+            {id:8, label:"8. Why did Paul choose the part of Africa he visited?", options: ["A. It is good for walking.", "B. It will soon change.", "C. He had been there before."]},
+            {id:9, label:"9. What made the team's journey slow?", options: ["A. clearing paths through the forest", "B. finding somewhere safe to camp", "C. carrying heavy equipment"]},
+            {id:10, label:"10. What did Paul worry about during the trip?", options: ["A. the number of dangerous animals", "B. getting the information he needed", "C. being responsible for a team of people"]},
+            {id:11, label:"11. Paul says that the team didn't have enough food because", options: ["A. some people ate more than they should.", "B. the walk took longer than expected.", "C. some of the food went bad too quickly."]},
+            {id:12, label:"12. Why were the team grateful to a fisherman they met?", options: ["A. He let everyone rest on his boat.", "B. He helped one of them who was ill.", "C. He told them which direction to take."]},
+            {id:13, label:"13. How does Paul feel how he is back home?", options: ["A. He is planning to do another trip.", "B. He misses the people in the team.", "C. He thinks the trip was a valuable experience."]},
+            {id:14, label:"14. All passengers need to be ______ ."},
+            {id:15, label:"15. Balloon flights are best when there are light winds, no ______ and a clear sky."},
+            {id:16, label:"16. Passengers need to wear outdoor clothes and ______ ."},
+            {id:17, label:"17. Passengers return to the airfield in a ______ ."},
+            {id:18, label:"18. Flights are available from the month of ______ each year."},
+            {id:19, label:"19. For booking and information, phone ______ ."},
+            {id:20, label:"20. Ella and her father both think she has worked hard.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Ella is happy to be alone during the holidays.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Ella has a lot in common with her friends.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. The family's last camping trip was unsuccessful.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Someone has asked Ella to look after a horse in the holidays.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Ella's father is keen for her to spend the holidays relaxing.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 2, title: "Test 2",
+        answers: {1:"A", 2:"A", 3:"C", 4:"B", 5:"A", 6:"B", 7:"A", 8:"A", 9:"C", 10:"C", 11:"A", 12:"A", 13:"B", 14:"tiger/tigers", 15:"August", 16:"1765", 17:"kitchen/kitchens", 18:"fishing", 19:"sweets/candy/candies", 20:"B", 21:"B", 22:"A", 23:"B", 24:"A", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. GIRL: Mum's driving me into town this afternoon, to buy some trainers, so I won't have to get the bus. But something to eat first is a good idea. Shall we say six o'clock? BOY: OK.
+2. GIRL: Pen … now where did I …? Oh dear, you'll be able to lend me one, won't you? Keys? – oh, here they are, in my pocket as usual …
+3. WOMAN: Because of the ski jumping finals we're late finishing. We won't now show the Nature Programme, at nine o'clock. Instead. Tim Wong's Chinese Kitchen will be at this time.
+4. MAN: I like saving money, but the post's always so slow. I prefer to talk to someone when I'm making a booking – just leave it to me.
+5. MAN: I'd really like to get a job abroad in the sun, but all the ones I've seen need building skills, which I haven't got. So I'll just stay in my present job for the time being.
+6. MAN: I want to clean the bedroom windows this afternoon, but I lent the ladder to John … could you give me a lift to his house and then bring me back with the ladder?
+7. WOMAN 2: Ours was exactly like that one, but we only had the sea to swim in. Here, let me show you a photo of our house.
+NARRATOR: Part 2.
+INTERVIEWER: We have Angela Bond, the news reporter. ANGELA: I've just returned from the United States. I must say, it's good to be able to unpack my suitcase now that the job has brought me to Britain for at least six months. The really exciting thing is being somewhere when a big news story is taking place and seeing it develop. When I was in Hong Kong, I got a really nice table and some chairs. It all starts in the morning at eight thirty when I phone the office. I'm in London and can see my boyfriend more often. My sister introduced us. One of the best things I've bought recently was a boat and when I want to feel calm and peaceful I go for a sail.
+NARRATOR: Part 3.
+MAN: Black Rock Caves were home to people and various animals, particularly tigers. A special attraction on evenings in August is a walk by candlelight. Next, Salter House. This dates back to seventeen sixty-five. The attraction nobody wants to miss is the kitchen. Finally, The Old Port. Take a trip along the riverside in an old tram as far as the fishing village. If you visit the village factory, you can see how sweets were made a hundred years ago.
+NARRATOR: Part 4.
+MARCUS: I feel awful. I've got two lots of homework to do today. CATHERINE: Of course you've got a lot. You didn't do any yesterday, did you? MARCUS: No, I didn't. I had football practice. On Sunday we went to the Science Museum. It was great. CATHERINE: I never do anything like that. I'm sure you learnt just as much there. You can come round to my house this afternoon and we'll work on it together. MARCUS: But if I don't do it by myself, I could be in trouble with the teacher. CATHERINE: We'll tell her you're finding it difficult and so I'm going to try and help you understand it. MARCUS: Alright then, thank you. At the moment, I still don't know where to begin.`,
+        questions: [
+            {id:1, label:"1. Where will the friends meet?", options: ["A. at the coffee bar", "B. outside the cinema", "C. at the bus stop"]},
+            {id:2, label:"2. What has the girl forgotten to bring?", options: ["A. her pen", "B. her keys", "C. her essay"]},
+            {id:3, label:"3. Which TV programme is on at 9 o'clock tonight?", options: ["A. Ski jumping finals", "B. Nature Programme", "C. Tim Wong's Chinese Kitchen"]},
+            {id:4, label:"4. How will the man book tickets for the show?", options: ["A. On the internet", "B. By phone", "C. By post"]},
+            {id:5, label:"5. What will the man do this winter?", options: ["A. Work as a gardener", "B. Work in a supermarket", "C. Work abroad"]},
+            {id:6, label:"6. How does the man want the woman to help him?", options: ["A. Clean the windows", "B. Give him a lift", "C. Lend him a ladder"]},
+            {id:7, label:"7. Which house did the woman stay in?", options: ["A. House with no pool", "B. House with a big pool", "C. House with no balconies"]},
+            {id:8, label:"8. Where is Angela working at the moment?", options: ["A. Britain", "B. the USA", "C. Asia"]},
+            {id:9, label:"9. Angela likes her job because she", options: ["A. loves being in dangerous situations.", "B. never knows where she'll go next.", "C. enjoys watching important events happen."]},
+            {id:10, label:"10. What did Angela bring home from Hong Kong?", options: ["A. pictures", "B. carpets", "C. furniture"]},
+            {id:11, label:"11. What time does Angela's working day begin?", options: ["A. 8.30 am", "B. 6.30 pm", "C. 10.00 am"]},
+            {id:12, label:"12. Where did Angela meet her boyfriend?", options: ["A. at her sister's house", "B. at university", "C. in Hong Kong"]},
+            {id:13, label:"13. What does Angela do to relax?", options: ["A. She cooks a meal.", "B. She does sailing.", "C. She goes shopping."]},
+            {id:14, label:"14. For half a million years, people and animals, especially ______ , lived here."},
+            {id:15, label:"15. Special evening tours during the month of ______ ."},
+            {id:16, label:"16. Built in the year ______ ."},
+            {id:17, label:"17. All visitors want to see Dorothy's ______ ."},
+            {id:18, label:"18. Have a ride on an old tram to the ______ village."},
+            {id:19, label:"19. In the factory, find out how people used to make ______ ."},
+            {id:20, label:"20. Catherine finds it hard to understand why Marcus has so much homework.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Marcus agrees that he could change his weekend activities.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Catherine thinks visiting the museum was a good experience for Marcus.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Catherine offers to show Marcus the maths homework she has already done.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Marcus worries that his teacher might be angry if Catherine helps him.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. After talking to Catherine, Marcus feels more confident about his homework.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 3, title: "Test 3",
+        answers: {1:"B", 2:"A", 3:"B", 4:"C", 5:"B", 6:"B", 7:"A", 8:"A", 9:"A", 10:"C", 11:"B", 12:"B", 13:"A", 14:"opera/operas", 15:"ten/10", 16:"relax", 17:"classic/classical", 18:"salad/salads", 19:"Tuesday", 20:"B", 21:"A", 22:"B", 23:"A", 24:"B", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. MAN: As this is your first visit to the library, I'll show you round. Foreign language dictionaries must stay in the library. These can be found over there behind the computers.
+2. WOMAN: I've lent my short-sleeved dress to Angela. Anyway, let's see what I've got here … this one, also black, short-sleeved – but it's got white flowers on the sleeves. MAN: Why don't you phone Angela and get your dress back? WOMAN: Yes, I think I will.
+3. MAN: That's when I did my degree and teacher training, and I've taught photography ever since, although I still paint in my spare time.
+4. BOY: Shall I get this one with pictures of mountains, or this one with boats on it? GIRL: She loves sailing, so get that one. BOY: Yes, I know. I'll get the one you suggested then.
+5. MAN: Peter Robbins will sign copies of his book... He is expected at a quarter past two and promises to stay until half past three. Get there as soon as you can because queues will start to form at quarter to two or even earlier.
+6. WOMAN: I don't know if you remember but when I wanted to pay the bill I couldn't find my purse, so I emptied everything out of my bag... and that's when I took my keys out. When I got back to the car, I realised they weren't in my bag.
+7. BOY: I think someone's stolen my bicycle. I left in by that tree on the pavement. GIRL: Perhaps it got in my father's way when he was parking his car. BOY: Oh yeah. It's on the other side of the road, by that street light. He probably moved it.
+NARRATOR: Part 2.
+INTERVIEWER: I'm here with Jack Williams. JACK: Swanton is on the coast – you can see the harbour from here. The most exciting thing for me is the mountains. I go climbing whenever I get the chance. A big centre was built last year to encourage the arts. It's got a cinema, a theatre and an art gallery. I'm unhappy about Swanton woods. There are no birds there, because pollution has reduced the number of insects. You've got to move with the times. Today there are hundreds of different companies... it's impossible to be bored. And a huge shopping centre, just built, is bringing in double the number of visitors – good news for us.
+NARRATOR: Part 3.
+INTERVIEWER: A woman called Lena Phipps runs these three-day courses. Lena used to be an opera singer. Lena never takes more than ten students on a course. Every class begins with some exercises to help students relax. Students learn around twenty songs. There are classical and modern songs, including pop songs. The lunch is very good, and the salads can be recommended. Courses begin on the last Tuesday of the month.
+NARRATOR: Part 4.
+SARAH: I wasn't very keen to see it when you suggested it, but I'm pleased I came now. And it was great to see scenes of London in the background. I'm sure I recognised the hotel. MARCO: I wasn't sure it was London at first, but then I recognised the place we stayed, too. SARAH: Over three hours, wasn't it? MARCO: At least. I didn't notice the time going by at all, though – I was interested. SARAH: The two women in front kept talking right through the exciting bits. I couldn't concentrate. I was really angry. MARCO: I liked his acting. He was brilliant. SARAH: You're right. He must be a new actor. MARCO: I think I prefer the other films he's made, though. His earliest one was probably the most entertaining.`,
+        questions: [
+            {id:1, label:"1. Where are the dictionaries?", options:["A. Near the window", "B. Behind the computers", "C. Next to the armchairs"]},
+            {id:2, label:"2. Which evening dress does the woman decide to wear?", options:["A. Short-sleeved with a wide belt", "B. Black with long sleeves", "C. Short-sleeved with white flowers"]},
+            {id:3, label:"3. What is the man's job now?", options:["A. Painter", "B. Photography teacher", "C. Photographer"]},
+            {id:4, label:"4. Which calendar will the boy buy?", options:["A. Mountains", "B. Wild animals", "C. Boats"]},
+            {id:5, label:"5. What time will the writer arrive at the bookshop?", options:["A. 1:45", "B. 2:15", "C. 3:30"]},
+            {id:6, label:"6. What did the woman leave in the restaurant?", options:["A. Her purse", "B. Her keys", "C. Her bag"]},
+            {id:7, label:"7. Where is the bicycle?", options:["A. By the street light", "B. By the tree", "C. By the car"]},
+            {id:8, label:"8. Where is the town of Swanton located?", options:["A. near the sea", "B. by a lake", "C. on a hill"]},
+            {id:9, label:"9. What does Jack like most about living in Swanton?", options:["A. There are opportunities for climbing nearby.", "B. There is plenty of activity in the town.", "C. There is interesting wildlife near the town."]},
+            {id:10, label:"10. What does Jack say about entertainment in Swanton?", options:["A. A music festival takes place in the town.", "B. Its football club has done well this year.", "C. An arts centre has recently opened."]},
+            {id:11, label:"11. Jack is worried about the environment of Swanton because", options:["A. the water in the river is dirty.", "B. there are few wild birds around today.", "C. pollution has destroyed the plants in one area."]},
+            {id:12, label:"12. What does Jack say about the way Swanton has changed?", options:["A. He preferred the town when it was smaller.", "B. He thinks it is a more interesting place.", "C. He is sorry that there are fewer jobs available."]},
+            {id:13, label:"13. Jack is positive about the future of Swanton because", options:["A. there is a successful new shopping centre.", "B. there will soon be a new airport.", "C. a new university is opening."]},
+            {id:14, label:"14. Lena Phipps, a very good former ______ singer is the tutor."},
+            {id:15, label:"15. The maximum number of students per course is ______ ."},
+            {id:16, label:"16. All classes start with exercises that help students to ______ ."},
+            {id:17, label:"17. Students learn to sing ______ , modern and pop songs."},
+            {id:18, label:"18. There's a very good lunch, especially the ______ ."},
+            {id:19, label:"19. Date the next course starts: ______ , 24th September."},
+            {id:20, label:"20. Sarah was expecting to enjoy the film.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Marco and Sarah agree that the city in the film was London.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Marco feels that the length of the film made it rather boring.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Sarah was upset about how some of the audience behaved during the film.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Sarah was disappointed with the way the main actor performed.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Marco thinks this film is the best the director has made.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 4, title: "Test 4",
+        answers: {1:"B", 2:"C", 3:"C", 4:"A", 5:"C", 6:"B", 7:"C", 8:"B", 9:"C", 10:"A", 11:"C", 12:"A", 13:"B", 14:"March/Mar", 15:"520", 16:"train/trains/rail/railway", 17:"identity card/ID card/ID cards", 18:"birinfo/BIRINFO", 19:"Friday/Fri", 20:"A", 21:"B", 22:"B", 23:"A", 24:"B", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. CATHY: Have you been to the gym a lot recently? DAVID: Well, I joined a gym earlier this year, but I stopped going. I've done a lot of swimming instead, and I feel much better for it!
+2. WOMAN: There's some paint left over from last time, but I can't find any brushes. And if we have a pair of scissors each, we can work faster, so don't forget yours.
+3. GIRL: They've got three types – a picture like this one with boats on, or there are some with words, and this type has shapes on it. BOY: Well, I really don't like writing. And those pictures are awful … GIRL: Right then, I know which one you'll choose …
+4. MAN: What scared me most were the bats … they flew so close at night … I thought I'd be frightened of all the other things like elephants … but we only saw them during the day.
+5. MAN: If you go over that and take the fist left, you see a bar on the right. I'll be waiting there. I'm actually in the farmhouse down the road from there at the moment.
+6. WOMAN: I hurt my foot on the day I arrived. While everyone else was going off to the mountains, I stayed and read a book by the hotel pool.
+7. WOMAN: Yes, look, it is in here after all. I told you that's where I'd put it. You just didn't look properly! (referring to the bag)
+NARRATOR: Part 2.
+INTERVIEWER: My guest today is Elena Karpov. ELENA: When I was nine, I went on to ballet lessons. Two years later, when I was eleven, I won a place at the New York Ballet School. At first it was difficult being away from home... But it taught me how to look after myself and not to depend on others. I'm going to dance the part of Cinderella. My parents used to read it to me when I was little. I'm sure children will love the ballet. I love trying on the latest fashions with my friends. I'm always buying new jeans and trainers! I sometimes sign their programmes instead, and if I can I give them one of the flowers I've received from the audience. But the most satisfying thing for me is that I'm paid for doing what I really enjoy – dancing!
+NARRATOR: Part 3.
+TEACHER: We're all going to Birmingham to see the International Athletics Championships. That's the only trip we've planned during March. A hundred and forty different national teams will take part, which means you'll see five hundred and twenty world-class sportsmen and women. We've decided to go by train this time. You must have your identity card with you as we've bought a group ticket. If you want to read some more on the Internet, look for the word 'Birinfo' in the page index. I'll write an information sheet. You'll get copies of this on Friday.
+NARRATOR: Part 4.
+MARIA: Well, I'd prefer to live near my family, but I want to see the world too. So I'd hope to have plenty of trips for work. ROLF: You could get a job with an airline company. MARIA: Mmm … that'd be great, but it's hard to get into. ROLF: My degree's in music, but I definitely don't want to be a music teacher. I'll probably look for something completely different. If I got a job in business, I could earn far more money. MARIA: I think a job has to pay well, so you can live comfortably. ROLF: That's exactly how I see it. MARIA: I'd like to find a job I really like, and stay with the same company for at least ten years. ROLF: Your father has his own business... MARIA: But he could help you set up your own business. ROLF: I couldn't imagine doing that. I know how many hours my father has to work.`,
+        questions: [
+            {id:1, label:"1. What regular exercises does David do at the moment?", options:["A. Gym", "B. Swimming", "C. Tennis"]},
+            {id:2, label:"2. What should Suzie take to Emma's house?", options:["A. Paint", "B. Brushes", "C. Scissors"]},
+            {id:3, label:"3. Which kind of T-shirt did the boy choose?", options:["A. Boats", "B. Words", "C. Shapes"]},
+            {id:4, label:"4. What frightened the man?", options:["A. Bats", "B. Elephants", "C. Lions"]},
+            {id:5, label:"5. Where is the man calling from?", options:["A. A bar", "B. A client's house", "C. A farmhouse"]},
+            {id:6, label:"6. How did the woman spend her last holiday?", options:["A. Climbing mountains", "B. Reading by the pool", "C. Watching television"]},
+            {id:7, label:"7. Where is the girl's purse?", options:["A. On the table", "B. Under the sofa", "C. In her bag"]},
+            {id:8, label:"8. Elena decided to become a dancer when she was", options:["A. seven.", "B. nine.", "C. eleven."]},
+            {id:9, label:"9. At ballet school in New York, Elena", options:["A. was the only student from Bulgaria.", "B. found learning the language hard.", "C. learned to be independent."]},
+            {id:10, label:"10. What does Elena say about the ballet called Cinderella?", options:["A. Children will enjoy it.", "B. The music was unfamiliar to her.", "C. She saw it when she was a child."]},
+            {id:11, label:"11. In her free time, Elena likes to", options:["A. go sightseeing.", "B. go to clubs.", "C. go shopping."]},
+            {id:12, label:"12. What does Elena often do for her fans?", options:["A. She gives them a flower.", "B. She signs one of her photographs.", "C. She sends them a free ticket."]},
+            {id:13, label:"13. What does Elena like best about her job?", options:["A. appearing on television", "B. doing something she loves", "C. travelling to different countries"]},
+            {id:14, label:"14. Date of college trip: 15th ______ ."},
+            {id:15, label:"15. Number of sportspeople who will compete: ______ ."},
+            {id:16, label:"16. How the group will travel to Birmingham: by ______ ."},
+            {id:17, label:"17. What group members should take on the day: ______ ."},
+            {id:18, label:"18. Name of the website page: ______ ."},
+            {id:19, label:"19. Which day other details will be available to students: ______ ."},
+            {id:20, label:"20. Maria would like to travel a lot as part of her job.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Maria is confident she will be able to work for an airline.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Rolf intends to do a job connected with his degree.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Maria and Rolf agree it is important to have a good salary.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Maria hopes to work for several different employers.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Rolf's ambition is to manage his own company one day.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 5, title: "Test 5",
+        answers: {1:"A", 2:"A", 3:"C", 4:"B", 5:"A", 6:"A", 7:"A", 8:"A", 9:"A", 10:"A", 11:"C", 12:"C", 13:"B", 14:"Cycling", 15:"castle/castles", 16:"spring/springtime", 17:"55", 18:"music", 19:"bird watching", 20:"B", 21:"B", 22:"A", 23:"B", 24:"A", 25:"A"},
+        transcript: `NARRATOR: Part 1.
+1. MAN: I went to check my CD player and CDs – I keep them on an antique chest of drawers. All the CDs were on the floor with the CD player. But the chest had completely disappeared. It wasn't in the garden either, which is where I found the television.
+2. WOMAN: What about something for the children, like a DVD? Or … some unbreakable glasses they can all use outside or on picnics? MAN: Good idea. And let's get a jug to go with them. The children have probably got lots of DVDs.
+3. MAN: I'm afraid the restaurant closes at ten o'clock, but the bar does burgers and chips until midnight. And there's always the pizza place opposite. Or we can bring sandwiches to your room. WOMAN: Fine. I won't want to eat burgers or pizza at that time of night.
+4. MAN: The eight thirty-five train gets in at nine forty. That's twelve pounds sixty-five for a single. The train after that leaves at nine ten... That costs less because you're travelling after nine. The fare is ten pounds forty-five. WOMAN: I'll take the second train.
+5. WOMAN: My grandmother always wanted to be a teacher... When she was in her thirties she went to college, but she had to work as a waitress in the evenings. A few years later she finally got the job she'd always wanted and she's done it ever since.
+6. BOY: I've lost a button on my favourite shirt. If it was the one on my pocket you wouldn't notice, but on the collar it's different. WOMAN: Why don't you take one off your sleeve and use that.
+7. MAN: Before we start painting I'll wash the kitchen floor because it's really dirty. WOMAN: It'll be easier if you sweep it before you do that, Nick. I'll carry on cleaning the windows. MAN: OK.
+NARRATOR: Part 2.
+SARAH: I've been a weather forecaster for a television company for seven years. Two years ago I became the head of the weather department. Since our news and weather service goes out all round the world, we all take turns to work at night. I normal work an eight-hour day and in that time I do ten or twelve forecasts. Before doing a weather forecast, I study data on the computer. My husband is a pilot on long-distance flights, so although he works hard he has a lot more time at home than I do. I'm really proud of myself for running in the London Marathon – it's a forty-kilometre race. Once, in an Indian village, an old man took me to have my photo taken with all his family.
+NARRATOR: Part 3.
+MAN: Before I went I read a book by Peter Green whose title is Cycling around Northumberland. Why not visit a castle? More of them are open to the public here than in any other part of the country. I recommend going in the spring, as it is not so difficult to find somewhere to stay at that time of the year. A week's hire will cost thirty-five pounds, two weeks will be fifty-five pounds. Every August there's an international festival of music. They have a programme of guided walks, photography and bird watching.
+NARRATOR: Part 4.
+DAD: So you'd better decide which university course you're going to do. JULIA: But I'm in no hurry, Dad. It's ages before I have to decide. DAD: I can see that business studies might sound dull to your friends, Julia, but you know that's far from the truth. But there aren't many jobs in the film industry, so if I were Anna, I'd took for a different course. JULIA: You're probably right. You don't think that business studies will be a bit too hard for me, do you? DAD: Of course not! JULIA: I always got good marks in maths at school. DAD: Well, what about considering economics? That might interest you more. JULIA: I'd never have thought of that, Dad. I'll go and look up some information on the Internet right away.`,
+        questions: [
+            {id:1, label:"1. What did the thieves steal?", options:["A. A chest of drawers", "B. A television set", "C. A CD player"]},
+            {id:2, label:"2. What present will they take?", options:["A. Glasses and a jug", "B. Flowers and chocolates", "C. A DVD"]},
+            {id:3, label:"3. What will the woman eat tonight?", options:["A. Burgers and chips", "B. Pizza", "C. Sandwiches"]},
+            {id:4, label:"4. How much will the girl's ticket cost?", options:["A. £12.65", "B. £10.45", "C. £9.40"]},
+            {id:5, label:"5. What is the grandmother's job now?", options:["A. Teacher", "B. Cleaner", "C. Waitress"]},
+            {id:6, label:"6. Which button has the boy lost?", options:["A. On the collar", "B. On the pocket", "C. On the sleeve"]},
+            {id:7, label:"7. What will the man do first?", options:["A. Sweep the floor", "B. Wash the floor", "C. Paint the walls"]},
+            {id:8, label:"8. How long has Sarah worked as a weather forecaster?", options:["A. two years", "B. seven years", "C. thirty years"]},
+            {id:9, label:"9. What does Sarah say about her job?", options:["A. She sometimes has to work at night.", "B. She enjoys getting up early.", "C. She works ten or twelve hours a day."]},
+            {id:10, label:"10. When Sarah does a weather forecast,", options:["A. she prepares it in advance.", "B. she sometimes forgets her words.", "C. she worries about making a mistake."]},
+            {id:11, label:"11. Sarah's husband", options:["A. works on the same days each week.", "B. wants to move nearer his work.", "C. spends a lot of time travelling."]},
+            {id:12, label:"12. Sarah is pleased because she", options:["A. has got her pilot's licence.", "B. taught her husband to play tennis.", "C. took part in a long race."]},
+            {id:13, label:"13. A man in India wanted", options:["A. to meet Sarah's family.", "B. a photo of Sarah.", "C. to receive a letter from Sarah."]},
+            {id:14, label:"14. Read Peter Green's book called ' ______ around Northumberland'."},
+            {id:15, label:"15. Lots of things to see, for example ______ ."},
+            {id:16, label:"16. Best time to go is ______ ."},
+            {id:17, label:"17. Bike Hire: Two weeks – £ ______"},
+            {id:18, label:"18. August – International Festival of ______"},
+            {id:19, label:"19. National Park Activities: Guided walks, Photography, ______"},
+            {id:20, label:"20. Julia wants to choose a course as soon as possible.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Julia's father thinks that studying business may be boring.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Julia's father believes Julia's friend is making the wrong choice.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Julia's father thinks she might find studying business too difficult.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Julia is confident about her maths.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Julia is keen to consider her father's suggestion.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 6, title: "Test 6",
+        answers: {1:"C", 2:"C", 3:"B", 4:"B", 5:"A", 6:"C", 7:"B", 8:"C", 9:"B", 10:"A", 11:"A", 12:"C", 13:"C", 14:"Greenland", 15:"5 o'clock/5 pm/17.00/5.00pm", 16:"computer/computers", 17:"space-ship/spaceship", 18:"top/highest", 19:"Friday/Fri", 20:"B", 21:"A", 22:"A", 23:"B", 24:"B", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. WOMAN: I've already been to the travel agent's and got some prices … They can offer us a better price than anything I've seen on the internet. MAN: We could phone them, couldn't we? WOMAN: I'd prefer not to phone because I want to pay in cash.
+2. GIRL: I must have forgotten to bring my hairbrush, too. MUM: You had! I've already put it in the bathroom with your other washing things. I don't know why you brought toothpaste though. We certainly didn't need two tubes!
+3. WOMAN: Shall we just stay at home this weekend? MAN: How about going to the beach tomorrow with a picnic... Isn't your sister coming to see us on Sunday? WOMAN: She'll enjoy a good day at the seaside, won't she? We'll relax at home another time … and then do the housework, too!
+4. GIRL: What about this one? Short sleeves, no collar. TOM: It's a bit ordinary. GIRL: Ah, here's one with a collar and without sleeves, but it isn't quite so nice as the other one. Hmm … no, I like the first one I saw. (collar and long sleeves).
+5. AMANDA: About my birthday party. I told you it was on the fifteenth, but I've got to change it to the thirteenth. That's a Thursday.
+6. MAN: This year's motorcycle race will finish in the city centre. Hundreds of people are expected to be in the square in front of the town hall to watch the finish.
+7. BOY: I really want to go out on my bike, but it's got a flat tyre. Why don't you play football instead? BOY: But the football's flat as well. WOMAN: It just needs more air. I've just finished putting some new glass in the window so I'll have a coffee and then I'll do it.
+NARRATOR: Part 2.
+INTERVIEWER: I'm with Robin Marshall. ROBIN: My job involves travelling around selling products for my company. I meet a lot of people doing that, and I wanted to share those experiences with others. It was winter there, so mornings were cold... Every day they said on the radio that it would be sunny later and sure enough, it was! I went to a wonderful market... I came home with a beautiful painting of the area. These dancers made it look so easy that at that moment I felt like joining in. The hotel owner was very friendly. He took me down the river in his boat. My favourite place is a mountain near Buenos Aires. It was totally quiet, and I loved that.
+NARRATOR: Part 3.
+INT: We're offering free tickets to go and see a brand new film called A Year in Greenland. It's showing this Sunday with performances every hour from midday onwards, with the last showing at five o'clock. Children will want to head straight down to the basement where the computers are kept. Moving to the first floor, a working steam engine and a life-sized model of a space-ship are among the favourite exhibits. There's an excellent café with wonderful views of the city on the top floor. To get your free tickets, you should email this programme by midday on Friday.
+NARRATOR: Part 4.
+COLIN: Hi Natasha. I see you're going out for a run. NATASHA: I am going to the office, but I've started running to work instead of taking the bus. COLIN: I tried running to work for a while, but I didn't like breathing in all the traffic pollution and I kept getting coughs. NATASHA: That's why I choose quiet streets. If I could, I'd run in the country – that would be lovely. COLIN: But surely you don't wear your tracksuit and trainers at work? NATASHA: Oh – I keep a suit at the office and change when I arrive. COLIN: Are you going to join in the big race next month? NATASHA: I'd like to. COLIN: I've sent in my application form already – I'll get one for you. But I'm not going to train by running to work – I'll run round the park a few times.`,
+        questions: [
+            {id:1, label:"1. How will they book their flights?", options:["A. On the internet", "B. By phone", "C. In person (cash)"]},
+            {id:2, label:"2. What has the daughter forgotten to bring on holiday?", options:["A. Shampoo", "B. Toothpaste", "C. Hairbrush"]},
+            {id:3, label:"3. What will the man and woman do on Sunday?", options:["A. Stay at home", "B. Go to the seaside", "C. Do housework"]},
+            {id:4, label:"4. Which blouse does the girl decide to buy?", options:["A. Short sleeves, no collar", "B. Collar and long sleeves", "C. Collar and no sleeves"]},
+            {id:5, label:"5. When is the girl having a party?", options:["A. Thursday the 13th", "B. Friday the 14th", "C. Saturday the 15th"]},
+            {id:6, label:"6. Where is the motorcycle race going to finish?", options:["A. Castle Square", "B. Outside the stadium", "C. In front of the town hall"]},
+            {id:7, label:"7. What will the woman repair next?", options:["A. A bike tyre", "B. A football", "C. A window"]},
+            {id:8, label:"8. What was Robin's job in Argentina?", options:["A. translator", "B. tour guide", "C. travelling salesman"]},
+            {id:9, label:"9. On Robin's last trip to Argentina, the weather was", options:["A. colder than he expected.", "B. suitable for what he planned.", "C. different from the forecasts he heard."]},
+            {id:10, label:"10. What did Robin buy from the market he visited?", options:["A. a picture", "B. a chair", "C. a record"]},
+            {id:11, label:"11. How did Robin feel during the dance performance he saw?", options:["A. He wanted to get up and dance.", "B. He wished he had continued his dance classes.", "C. He was sad he didn't dance well."]},
+            {id:12, label:"12. What did Robin do while he stayed in the village?", options:["A. He went on a bus tour.", "B. He went into the forest.", "C. He went on a river trip."]},
+            {id:13, label:"13. What did Robin like about his favourite place?", options:["A. the wildlife", "B. the views", "C. the peace"]},
+            {id:14, label:"14. Country the film is about: ______ ."},
+            {id:15, label:"15. Time last performance starts: ______ ."},
+            {id:16, label:"16. Use the ______ in the basement."},
+            {id:17, label:"17. See a model ______ on the first floor."},
+            {id:18, label:"18. Try the café on the ______ floor."},
+            {id:19, label:"19. Send an email before 12 o'clock on ______ ."},
+            {id:20, label:"20. Natasha has decided to take the day off work to go running.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Colin found running to work was bad for his health.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Natasha would prefer to go running outside the city.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Natasha would like to wear her sports clothes at work.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Natasha will run in the big race because she hopes to win it.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Colin and Natasha will prepare for the big race together.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 7, title: "Test 7",
+        answers: {1:"B", 2:"B", 3:"C", 4:"A", 5:"A", 6:"C", 7:"C", 8:"C", 9:"A", 10:"B", 11:"C", 12:"A", 13:"B", 14:"artists", 15:"12th July", 16:"Fridays", 17:"groups", 18:"lessons", 19:"timetable", 20:"B", 21:"B", 22:"A", 23:"B", 24:"B", 25:"A"},
+        transcript: `NARRATOR: Part 1.
+1. BOY: I've taken some great photos, but I left my camera on a tram so I won't be able to show you!
+2. MAN: All the runners have to meet in the park and register by quarter to two, though the race won't actually start until half past.
+3. BOY: I played the piano for years, until I took up the drums last year because I felt they were more my sort of instrument.
+4. WOMAN: The wet weather will continue until well into the evening. Although we might see some bright sunny periods between the showers early on, by midday it will be cloudy.
+5. MAN: The first in the series, Cookery for Beginners, was written by a well-known television cook, and Wilson's book, Computers for Beginners is in the bookshops now.
+6. MAN: My legs were really hurting me until last week, but that's worn off now, and so has the pain in my back. My shoulder's still fairly sore, though.
+7. MAN: I was staying with English friends actually, and I just ate at home with them, but I did manage to explain what I wanted when I went shopping.
+NARRATOR: Part 2.
+INT: Harry Park, how did you first become interested in 'adventure travel'? HARRY: My father had spent several years traveling the world, and he never stopped telling us about it. When I was in my twenties, I travelled a lot and explored mountains and deserts, and I wanted to show other people how wonderful these things were. I called it Park Travel at first, but in the end it was a customer who gave me the idea. Most of the places we visit have no inhabitants, and I make sure that we always take care of the environment. It's not a question of enjoying danger – it's just that you can't do what I do without thinking about the possible dangers. My favourite place is in India, where you travel along a river through spectacular scenery.
+NARRATOR: Part 3.
+MAN: Highbury College is offering three very good courses this summer. There is an English Literature course, a course about 18th-century artists which includes guided tours, and a course in Modern Architecture. All the courses begin on the 14th of June and the last day of classes is the 12th of July. Classes are from 9 to 3.30, and Fridays are also free. The college is offering special discounts for groups. If you need extra lessons, then you have to pay a fee. See the college secretary, who will give you copies of the registration forms and the timetable for the course you want.
+NARRATOR: Part 4.
+TOM: Hello, Claire, I read about you and the women's football team in the daily paper! It says the other girls in the team are all a lot older – does that make you feel nervous? CLAIRE: I'm used to it – when I joined our local club, I was only 14. TOM: But what about your schoolwork, because when I was in that tennis team, I never got my homework done on time. CLAIRE: Football's not too bad, because the matches are at weekends and we train two evenings a week. TOM: Aren't you planning to go to university when you leave school next year? CLAIRE: I think I'll probably concentrate on my football career first. Even if we don't win every game, it'll still be a great experience! TOM: When's your next match? CLAIRE: On Saturday afternoon – please come and cheer us on, Tom! TOM: Don't worry, I won't miss the match.`,
+        questions: [
+            {id:1, label:"1. What has the boy lost?", options:["A. A map", "B. A camera", "C. Money"]},
+            {id:2, label:"2. What time does the race begin?", options:["A. 1:45", "B. 2:30", "C. 3:15"]},
+            {id:3, label:"3. Which musical instrument does the boy play now?", options:["A. Trumpet", "B. Piano", "C. Drums"]},
+            {id:4, label:"4. What will the weather be like tomorrow afternoon?", options:["A. Cloudy and wet", "B. Bright sunny periods", "C. Showery and windy"]},
+            {id:5, label:"5. What is the subject of James Wilson's book?", options:["A. Computers", "B. Cookery", "C. Photography"]},
+            {id:6, label:"6. Which part of the man's body hurts him at the moment?", options:["A. Legs", "B. Back", "C. Shoulder"]},
+            {id:7, label:"7. Where was the man's knowledge of Spanish useful?", options:["A. In a restaurant", "B. With Spanish guests", "C. Going shopping"]},
+            {id:8, label:"8. Harry first became interested in adventure travel because his father", options:["A. gave him adventure stories to read", "B. worked in a travel company", "C. talked a lot about the places he'd been to."]},
+            {id:9, label:"9. Harry decided to start an adventure travel company because he", options:["A. wanted to share his experience with others", "B. thought he could make a lot of money", "C. hoped to do more travelling himself."]},
+            {id:10, label:"10. Who suggested the name for Harry's company?", options:["A. a friend", "B. a customer", "C. his wife."]},
+            {id:11, label:"11. When Harry visits a place, he tries to", options:["A. give the local people jobs", "B. take modern equipment", "C. avoid damaging the area."]},
+            {id:12, label:"12. What does Harry say about doing dangerous things?", options:["A. It's part of his job", "B. It's frightening", "C. It's enjoyable."]},
+            {id:13, label:"13. What is Harry's favourite place?", options:["A. a mountain", "B. a building", "C. a river."]},
+            {id:14, label:"14. Courses available on: English Literature; 18th century ______ ; Modern Architecture."},
+            {id:15, label:"15. Dates for all courses: start date: 14th June; end date: ______ ."},
+            {id:16, label:"16. Classes: every day except ______ ."},
+            {id:17, label:"17. Course fees: £425 each. Reduced prices for ______ ."},
+            {id:18, label:"18. Not included in price: extra ______ ; transport."},
+            {id:19, label:"19. Available from secretary: registration forms; a copy of the ______ for your course."},
+            {id:20, label:"20. Claire has read about the football tour in a newspaper.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Claire is worried about being the youngest member of the team.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Tom feels that schoolwork is more important than sports training.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Claire intends to study at a university next year.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Claire thinks it's important to win every game on the tour.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Tom agrees to go and support Claire's team at her next match.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 8, title: "Test 8",
+        answers: {1:"C", 2:"A", 3:"C", 4:"A", 5:"A", 6:"C", 7:"B", 8:"A", 9:"B", 10:"B", 11:"C", 12:"B", 13:"C", 14:"1921", 15:"Japan/Japanese", 16:"gift/gifts", 17:"hotel/hotel next door", 18:"station/railway station", 19:"group/groups", 20:"B", 21:"A", 22:"B", 23:"B", 24:"B", 25:"A"},
+        transcript: `NARRATOR: Part 1.
+1. MARIA: Well, I did see a wonderful collection of short stories in a shop yesterday, and I'd really like that, or a really nice leather suitcase. MUM: Oh, dear, I was sure you'd really love my idea, so I'm afraid I've already got it... (a carpet)
+2. GUIDE: We've visited the oldest building in the city – the castle, and we still have the famous gardens to see and the trip on the river boat which we're going to do at the end of the day.
+3. WOMAN: If you send this by air, which is more expensive than by sea, it'll be 18 euros and 50 cents. MAN: I need to send it by air, so I'll pay the extra.
+4. WOMAN: I lost a pair of black leather gloves at the theatre last night. MAN: We have found a pair this morning, under one of the seats. WOMAN: Oh, now I remember, I put them on my seat when I went to the coffee bar during the interval!
+5. WOMAN: Ooh look … that dress with the spots is really nice. MAN: Hmm, it's a bit expensive, but that white one is really nice... WOMAN: I prefer the spotty one to the white one, don't you?
+6. MARIA: There's a really good programme you might like to watch on TV tonight... That presenter you like, the woman who films elephants in Africa, is doing a special programme where she's visiting the South Pole to study some of the wildlife there.
+7. MAN: Well, he's got a van which he uses for his business, but I suppose he can't really put the children in the back of that, so I might think of buying that sports car, actually.
+NARRATOR: Part 2.
+LINDA: I was an assistant in an expensive cake shop because I wanted to earn extra money for myself as my parents couldn't afford to give us much pocket money. My boss was always polite and never shouted at us. The first week was difficult because I just wanted to eat the cakes, which wasn't allowed. We sold sandwiches at lunchtime, and the shop assistants had to make those. I was surprised because the full-time assistants couldn't add up in their head and used calculators. The best part of the day was lunchtime, when we were busy and time just flew.
+NARRATOR: Part 3.
+MAN: The gardens, still in their original 1921 design, surprise and delight visitors of all ages. The museum contains an important 19th-century English furniture collection as well as a permanent Japanese art exhibition. Our museum shop sells a variety of books, cards and gifts. For visitors travelling by car, parking is available at the hotel next door. There are also buses from the railway station every ten minutes. You can also call 451858 for information about group visits.
+NARRATOR: Part 4.
+SAM: Why weren't you at Mrs Ford's meeting this morning, the one about the school concert? CARLA: Well, I've decided not to take part this year. We're never allowed to select what we play, and her choices are so boring! SAM: I agree that it used to be like that, but the programme she put together for last year's concert was much better. CARLA: Well, the event itself was great, but it's always such hard work getting ready for that with all those hours practising. SAM: But Carla, apart from David in class 10, who's brilliant, nobody else plays the piano as well as you do. If you don't like the music Mrs Ford's decided on, why not say so and suggest something else? CARLA: That's true … anyway, what about you, Sam, aren't you busy at the moment? SAM: Yeah, there's lots of course work and I'm playing in the school football team! You're right, I'll have to give something up, won't I, but not the concert, that's for sure.`,
+        questions: [
+            {id:1, label:"1. Which present will the girl receive?", options:["A. A suitcase", "B. Short stories", "C. A carpet"]},
+            {id:2, label:"2. Where will the tourists go last?", options:["A. River boat", "B. Gardens", "C. Castle"]},
+            {id:3, label:"3. How much does the man pay for the postage?", options:["A. 7.50 euros", "B. 15.50 euros", "C. 18.50 euros"]},
+            {id:4, label:"4. Where in the theatre did the woman leave her gloves?", options:["A. On her seat", "B. At the coffee bar", "C. Under a seat"]},
+            {id:5, label:"5. Which dress does the woman like best?", options:["A. The spotty one", "B. The white one", "C. The one with flowers"]},
+            {id:6, label:"6. What is the television programme about?", options:["A. Elephants in Africa", "B. Wildlife in general", "C. Wildlife at the South Pole"]},
+            {id:7, label:"7. Which vehicle does Steve intend to buy?", options:["A. A van", "B. A sports car", "C. A practical 4-door car"]},
+            {id:8, label:"8. Linda worked in a cake shop because", options:["A. her parents didn't give her enough money", "B. she wanted to give her parents some money", "C. she needed to buy things for college."]},
+            {id:9, label:"9. Linda liked her first boss because he", options:["A. paid her well", "B. was kind to her", "C. sent her on a training course."]},
+            {id:10, label:"10. What did Linda enjoy about working in the shop?", options:["A. eating the cakes", "B. the smell of baking", "C. the clean workplace."]},
+            {id:11, label:"11. In the shop, Linda helped with", options:["A. baking bread", "B. displaying cakes", "C. making sandwiches."]},
+            {id:12, label:"12. Linda says that the full-time shop assistants", options:["A. were friendly to her", "B. hadn't got the same skills as her", "C. didn't work as hard as her."]},
+            {id:13, label:"13. What does Linda say about serving customers?", options:["A. She didn't like dealing with complaints", "B. She liked giving them advice", "C. She enjoyed the busy part of the day."]},
+            {id:14, label:"14. The museum gardens were first created in the year ______ ."},
+            {id:15, label:"15. There are exhibitions of English furniture and ______ art."},
+            {id:16, label:"16. In the museum shop, visitors can buy ______ , cards and books."},
+            {id:17, label:"17. Cars can be parked at the ______ near the museum."},
+            {id:18, label:"18. Regular buses to the museum leave from both the city centre and the ______ ."},
+            {id:19, label:"19. Call 451858 to find out more about ______ visits or room hire."},
+            {id:20, label:"20. Carla is surprised that Mrs Ford wanted her to attend the meeting.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Sam says that last year's concert was an improvement on earlier ones.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Carla enjoyed preparing for last year's concert.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Sam tells Carla that she is the best pianist in the school.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Sam encourages Carla to accept Mrs Ford's choice of music.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Sam realises that he must stop doing one of his activities.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 9, title: "Test 9",
+        answers: {1:"B", 2:"B", 3:"C", 4:"A", 5:"A", 6:"B", 7:"C", 8:"A", 9:"C", 10:"B", 11:"C", 12:"C", 13:"A", 14:"Good Living", 15:"fish", 16:"salad/salads", 17:"rice", 18:"party/parties", 19:"2.49", 20:"B", 21:"A", 22:"A", 23:"B", 24:"B", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. TIM: I know my wife will love this beautiful glass bowl, so it won't be up on a dusty shelf with the cups I've won in the past. And I'll be back next year to win that silver plate!
+2. MAN: When I first left school I spent a month or two cleaning windows, and then I got a job building houses.
+3. MAN: Sorry, there isn't enough time to stop at a café, so I think we'll go straight to the airport. We'll need petrol on the way home, so we can stop for a snack at a service station.
+4. WOMAN: I went to see my old house, which used to have trees in the garden and a hedge in the front. Well, the people who own it now have built another bedroom over the top of the garage, and removed the trees and hedge so they have more room to park their cars.
+5. BOY: Tomorrow I'm going to learn how to dive off the high board in the swimming pool. GIRL: I don't think the pool is for me really, although I'd like to try the riding, so would you be interested in doing that again tomorrow with me, instead of the diving? BOY: Yeah, I suppose so.
+6. ANNOUNCER: His latest series is simply called Earth, and viewers can enjoy some amazing photography, with pictures of the planet shot from cameras in space using the latest satellite technology.
+7. WOMAN: Seat A is next to the window, do you want that one or do you prefer to sit in the middle? MAN: Well, they said the seat on the end seems to be empty too, so I'll take that one instead because I'm not that keen to see outside.
+NARRATOR: Part 2.
+LUCY: Mainly, I work in a theatre, painting the background scenery for plays. I was offered a job in an advertising agency, but the idea of working in a theatre attracted me more. I get the chance to paint something different every day. The only thing that causes me stress is that often I have too many things to do at the same time. Generally, I start work at eight in the morning, and go through until seven. That makes it an eleven-hour day. I could drive to the theatre, but that makes me tired and I get a lot of my best ideas when I'm on my way to work, on the bus or train. In the little spare time I have, I'm doing a course in computer graphics.
+NARRATOR: Part 3.
+ANNOUNCER: An exciting magazine that will be on sale in the shops next week, called Good Living. In the first issue of the magazine, there will be recipes for fish. In addition, you'll also find a special free gift, which is a DVD showing how to prepare summer salads. The second issue also has a special collection of recipes for children, which will show them some interesting things to make with rice. There are also some wonderful recipes designed especially for parties for adults. The first issue will be on sale at £2.49.
+NARRATOR: Part 4.
+KARL: I'm glad to be back, aren't you? JENNY: Not really, I'm sorry our holiday's over. KARL: The weather wasn't as good as I'd hoped, because I thought the forecast was for bright sunshine the whole week! JENNY: Well, most of the week was like that, and we only had a little bit of rain, which they did mention on the forecast. KARL: Anyway, the food in the hotel was delicious, and it was good to be able to help ourselves. JENNY: The only thing I wasn't happy about was the temperature in the room, it was so hot! Still, it was just the same when we went to that other hotel last year. KARL: One of the machines in the gym was broken, too, but I suppose it was a very busy time, so the staff were probably just too busy to check it properly, and it didn't matter to me! JENNY: I was hoping we could go to the coast again, but with all the work I've got at the moment, we'll have to wait and see.`,
+        questions: [
+            {id:1, label:"1. Which prize has the man just won?", options:["A. A silver plate", "B. A glass bowl", "C. A cup"]},
+            {id:2, label:"2. What was the man's first job?", options:["A. Building houses", "B. Cleaning windows", "C. Pilot"]},
+            {id:3, label:"3. Where will they have something to eat?", options:["A. At a café", "B. At the airport", "C. At a service station"]},
+            {id:4, label:"4. What does the woman's house look like now?", options:["A. Garage with a room on top", "B. Hedge in the front", "C. Trees in the garden"]},
+            {id:5, label:"5. Which sport will they do tomorrow?", options:["A. Horse-riding", "B. Diving", "C. Swimming"]},
+            {id:6, label:"6. What can you see on the television programme?", options:["A. People from space", "B. Pictures of the Earth", "C. Satellite technology"]},
+            {id:7, label:"7. Where will the man sit on the plane?", options:["A. Next to the window", "B. In the middle", "C. On the end seat"]},
+            {id:8, label:"8. What does Lucy usually paint?", options:["A. scenery for stage plays", "B. pictures of pop stars", "C. the walls in people's homes."]},
+            {id:9, label:"9. Lucy chose her present job because", options:["A. she enjoys working by herself", "B. she couldn't get a job in advertising", "C. she thought it would be interesting."]},
+            {id:10, label:"10. What does Lucy find difficult about her work?", options:["A. She sometimes misses lunch", "B. Some days are too busy", "C. She always has too much work to do."]},
+            {id:11, label:"11. How many hours a day does Lucy usually work?", options:["A. seven", "B. eight", "C. eleven."]},
+            {id:12, label:"12. How does Lucy travel to work?", options:["A. on foot", "B. by car", "C. by public transport."]},
+            {id:13, label:"13. What does Lucy do in her free time nowadays?", options:["A. She studies", "B. She visits an art gallery", "C. She plays tennis."]},
+            {id:14, label:"14. The name of the magazine is ______"},
+            {id:15, label:"15. First issue of magazine: healthy recipes using ______"},
+            {id:16, label:"16. A DVD about making ______ for summer."},
+            {id:17, label:"17. Second issue of magazine: recipes using ______ for children"},
+            {id:18, label:"18. Special recipes to use for ______ for adults."},
+            {id:19, label:"19. The first issue of the magazine costs £ ______"},
+            {id:20, label:"20. Jenny and Karl are both pleased to be home after their holiday.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Jenny thinks the weather forecast they heard for their holiday week was correct.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Jenny and Karl both liked the way their hotel served meals.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Jenny thinks they had a better room on this holiday than last year.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Karl was angry about the state of the hotel sports equipment.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Jenny and Karl are both keen to plan another holiday immediately.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 10, title: "Test 10",
+        answers: {1:"B", 2:"C", 3:"B", 4:"A", 5:"C", 6:"A", 7:"B", 8:"C", 9:"A", 10:"A", 11:"B", 12:"C", 13:"B", 14:"1 hour 30/one hour/hr 30/thirty/1", 15:"oil", 16:"desert plants", 17:"colourful rocks", 18:"souvenirs", 19:"basket", 20:"B", 21:"B", 22:"A", 23:"A", 24:"B", 25:"A"},
+        transcript: `NARRATOR: Part 1.
+1. WOMAN: Hi, did you buy a new suit yesterday? MAN: Well, I went to the shopping centre, but I had no idea how expensive suits are. WOMAN: I told you it would cost you a lot to buy one. MAN: I know. Anyway, I saw lots of nice shirts and stuff I liked. WOMAN: But you've already got loads of shirts. You don't really need any more. MAN: Actually, I ended up with a rather stylish new sweater. When I've saved enough buy a suit, we'd better go shopping together.
+2. MAN: Hi, Clara – just the person! Look, I'm giving a dinner party for my parents' wedding anniversary and might need a bit of help. WOMAN: I'm not surprised. You can't cook, can you? All you buy is ready-meals from the supermarket. MAN: I know, but I'm going to get everything online from a company that cooks and delivers food to your home. I just want some help with choosing some dishes from their menu. WOMAN: That sounds fun. Can I also choose a nice dessert? So, am I invited to the party? MAN: Of course.
+3. MAN: We need to decide what to get as a present for Anne at the end of our course. WOMAN: Yes, she's such a great teacher … how about chocolates? MAN: That's not very exciting. We could get something to wear, like a scarf? WOMAN: She seems to have loads of those already. What about flowers? She often says how much she loves flowers. MAN: But she told us she had a garden full of them! Let's go with your original idea and buy her the largest box possible!
+4. MAN: We haven't got much time left now. There's still so much to see in this museum. WOMAN: We'll just have to choose one more exhibition. Can I have a look at the plan? MAN: What about Jewellery from the Ancient World? WOMAN: But look at the queue. We'll spend half our time waiting if we go in there. Why not try The Rainforest in Photos? You can wander round and see all the forest animals. MAN: OK – then we won't have time to visit Rescue by Helicopter. There's a real one in there. WOMAN: Maybe next time.
+5. MAN: Hi everyone, and welcome to City Wildlife Park. I'll explain where things are and then you're free to go wherever you want. In front of us are some empty cages where the rabbits live. They're free to run about in the long grass, but come back to their cages when they're hungry! If you're interested in ducks, surprisingly they're not right here in the pond, but over there in one of their favourite places, near the dustbins. And we keep goats in the field here, together with some sheep.
+6. WOMAN: And now for the weather forecast for this Saturday and Sunday. People heading to the music festival starting on Saturday on the south coast should be prepared for different conditions over the next two days. Saturday will bring bright sunshine but cool temperatures for this time of year. Over night, however, clouds are expected to move in and Sunday will see dull skies bringing a further drop in temperatures, and there will be a good chance of rain later on.
+7. MAN: Hello. My name's John Masters. This is a message for the person I spoke to yesterday in Customer Services. You asked me to return the iron I bought from you in its box. I've done this, although as I mentioned to you the box was badly damaged when it arrived. Anyway, that's not the problem and the iron didn't look damaged at all. But when I switched it on, it didn't heat up. My order reference is 01376XB. I hope you'll replace the iron as soon as possible. Thank you.
+NARRATOR: Part 2.
+WOMAN: My guest today is Tim Jones, who organises an international summer course for young musicians. Tim, tell us all about it. TIM: Well, I'm lucky to have such a great job. Basically, young musicians come from all over the world and learn to play together as an orchestra. By the end of the six-week course, they're really good and hearing them play is what gives me most pleasure. Unfortunately, I don't get to know them all that well, as organising every single detail of the course keeps me busy. WOMAN: So, how do you find the young musicians? TIM: We advertise on the Internet. Anyone between the ages of sixteen and twenty can complete the application form and email it to us, along with a short recording of their playing. We're not looking for perfect performances or the stars of tomorrow – just people good enough to play in an orchestra. The course is in English, but only a basic level of spoken language is necessary. WOMAN: And the teachers? TIM: The teachers are well-known musicians. Because they want to help young people, they do this work for a very low salary, which is very kind of them. But it's my job to take care of them and make sure they're happy with their accommodation and so on. They generally have a great time, but some of them can be a bit difficult and sometimes complain about things. WOMAN: So where is the course held? TIM: In different places each year, actually, but it's usually a university during the summer holidays. They have large halls for practising, plus plenty of bedrooms and dining-rooms. Most importantly, though, the place has to have good rail road and air connections, so somewhere in the middle of the countryside's no good. WOMAN: Do the students bring their own instruments? TIM: Mostly, yes. So, another thing to consider is security. Storing instruments in a locked room when they're not being used is essential. Can you imagine a hundred or more musical instruments lying around – violins, trumpets, flutes, cellos – all worth a lot of money. It would be terrible if one got damaged, or even worse stolen! WOMAN: And at the end of the course, there's a concert tour. TIM: That's right. I book concert halls and work out the programmes months in advance. It's important to get it right. Ticket prices aren't high, because we're not a professional orchestra, but lots of people buy them. We don't make a profit, but take enough money to pay for the students' travel and living expenses. It's a fantastic experience for them.
+NARRATOR: Part 3.
+MAN: Hi everyone, I'd like to welcome you aboard our train trip through high desert scenery. The train that you are sitting in was built in 1933, so it's really old – but very comfortable! Our trip today lasts one-and-a-half hours and we will travel at a speed of about fifteen miles an hour. The train climb uphill for the first forty-five minutes and then makes its way down to a town called Oldsville. MAN: In the twentieth century, oil was discovered here and an important industry developed. It didn't last long, however, and tourism is the biggest industry these days. There's lots to see in the town. MAN: On the journey you won't see any animals during the daytime because it's too hot, but you should took out for beautiful desert plants right next to the track, although at this height there are no trees. MAN: At one point, we go over an old wooden bridge. People get worried because it's noisy, but it's quite safe. There's no river under the bridge, but you can see some large colourful rocks – they're fantastic. MAN: We don't make any stops on the trip because all the stations were closed long ago. The route is kept open by local people who love the history of the railway and at the far end of our coach there's a small store. This store is really special and sells souvenirs which you can't buy anywhere else. MAN: The other things which we sell during your ride are drinks and snacks. Unfortunately, the machine selling these is broken, so once we're underway I'll be walking down the coach with everything in a basket. So stop me if you want anything.
+NARRATOR: Part 4.
+GREG: Hi Julie. Wasn't the indoor wildlife centre fantastic? I've never seen such an amazing building, with its glass walls and all those different floors. JULIE: Hi Greg. Didn't you find it tiring though, walking up so many stairs, and it was so hard to find your way round? That's not what I call good design. GREG: I didn't really think about that. JULIE: It was an interesting start down in the basement, where it was so dark that I didn't see the sharks at first in the water behind the glass. GREG: They were quite scary. You must know how dangerous they are. JULIE: Only if you're silly enough to swim with them! Anyway, what did you think of the temperature in the building? GREG: It has to be so high in there because of all those tropical trees growing. They need a lot of heat. JULIE: I suppose so. It felt really uncomfortable to me. I loved the banana trees though. GREG: Those butterflies right at the top of the building were amazing – so huge and colourful. But I thought there would be a lot more insects to see. There were hardly any really. JULIE: Just as well! Who wants to see a load of insects! I don't find them especially interesting at the best of times. Did you manage to see any tree frogs? They're so cute. GREG: I spent ages hunting for them. They manage to hide by having skin that looks like part of a tree and they lie still without moving. I couldn't find a single one. JULIE: Yeah, they're not stupid – making sure they can't be seen by hungry birds! I really can't wait to go back 'cos there was just too much to see. GREG: I'd like to read more about the wildlife before I think of going back there. Don't you think we'd enjoy it more if we knew more about the animals? JULIE: I'm not so sure really.`,
+        questions: [
+            {id:1, label:"1. What did the man buy?", options:["A. A suit", "B. A sweater", "C. Shirts"]},
+            {id:2, label:"2. How will the woman help the man?", options:["A. Cook the dinner", "B. Choose a dessert", "C. Choose some dishes"]},
+            {id:3, label:"3. What will the students buy for their teacher?", options:["A. A scarf", "B. Chocolates", "C. Flowers"]},
+            {id:4, label:"4. Which exhibition is the busiest today?", options:["A. Jewellery", "B. Rainforest", "C. Helicopter"]},
+            {id:5, label:"5. Where can visitors see the ducks?", options:["A. In the pond", "B. In the long grass", "C. Near the dustbins"]},
+            {id:6, label:"6. What will the weather be like when the festival starts?", options:["A. Bright sunshine", "B. Dull skies", "C. Rain"]},
+            {id:7, label:"7. What has the man sent back to the company?", options:["A. A damaged box", "B. An iron", "C. A CD player"]},
+            {id:8, label:"8. What does Tim enjoy most about his job?", options:["A. sorting out all the details", "B. getting to know the musicians", "C. listening to lots of good music"]},
+            {id:9, label:"9. Young musicians who want to do the course", options:["A. need to fill in an online form.", "B. have to perform to a very high level.", "C. must be able to speak English very well."]},
+            {id:10, label:"10. Tim says that the teachers on the course", options:["A. usually enjoy themselves.", "B. are always complaining.", "C. are extremely well-paid."]},
+            {id:11, label:"11. Tim likes to hold the course in a place which", options:["A. is specially designed for musicians.", "B. is convenient for public transport.", "C. is a long way from a big city."]},
+            {id:12, label:"12. What does Tim say about musical instruments?", options:["A. Students cannot bring expensive ones.", "B. Students sometimes lose them.", "C. Students keep them in a special place."]},
+            {id:13, label:"13. What does Tim say about the concert tour after the course?", options:["A. It has to make a lot of money.", "B. It needs to be carefully planned.", "C. It's difficult to sell tickets."]},
+            {id:14, label:"14. The time the trip takes is ______ ."},
+            {id:15, label:"15. In the past, Oldsville had an important ______ industry."},
+            {id:16, label:"16. Passengers can see pretty ______ close to the train."},
+            {id:17, label:"17. There are some attractive ______ to see under an old bridge."},
+            {id:18, label:"18. In a small store on the train, ______ are on sale."},
+            {id:19, label:"19. Today, refreshments will be for sale in a ______ instead of from a machine."},
+            {id:20, label:"20. They agree that the wildlife centre building is well designed.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Julie thought the sharks at the wildlife centre were frightening.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Julie found the building was too warm.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Greg was disappointed with the number of insects.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Greg only managed to see one free frog.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Julie is very keen to return to the wildlife centre.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 11, title: "Test 11",
+        answers: {1:"B", 2:"C", 3:"C", 4:"A", 5:"A", 6:"B", 7:"A", 8:"B", 9:"A", 10:"C", 11:"C", 12:"C", 13:"B", 14:"hills", 15:"sunset", 16:"cushion", 17:"5 / five", 18:"picnic", 19:"CITYENTS", 20:"B", 21:"B", 22:"B", 23:"A", 24:"A", 25:"A"},
+        transcript: `NARRATOR: Part 1.
+1. WOMAN: In the heart of the city the Arts Centre includes a concert hall, cinema and an art gallery. The open-air concert area is the new home to the City Orchestra.
+2. MAN: Excuse me, I bought this sweater here, but when I got home I noticed it had a hole in it. WOMAN: Oh, I'm sorry. Oh yes, I see. Well I can certainly exchange it for you. Or would you like your money back instead? MAN: I'll just have a refund, please.
+3. WOMAN: Hello, it's Maria here. Just to let you know about my health problems again. I saw Dr Jones last week about my knee and he told me to rest. It still hurts.
+4. WOMAN: I'd like to buy some dollars, please. MAN: Do you bank with us? We only sell dollars to customers who have an account at this bank. WOMAN: No, I'm a tourist. What do you suggest I do then? MAN: There's a currency exchange office at the airport.
+5. MAN: Forget about opening tins and think fresh! You can do wonderful things with tomatoes, potatoes – even cabbage. And the essential vegetable in all my recipes is the ordinary onion.
+6. MAN: Do you know where today's meeting with the Theatre Director will be held? WOMAN: I thought it was in his office. Let me check his online diary. MAN: He did say he might hold it outdoors as it's so hot. WOMAN: Ah, here it is in the diary – he's arranged it down by the lake.
+7. MAN: Thinking it'd be simpler, I made the mistake of trying to pay a hotel bill in cash. Well, amazingly they insisted on me using a credit card.
+NARRATOR: Part 2.
+MAN: Today I'm talking to Marta Stanston, who runs her own 'mobile' restaurant. MARTA: I always wanted to open my own restaurant – but had no money. So I got a job as a chef. I had all sorts of ideas for new dishes, but the guy who owned the place wasn't interested. That's when a friend told me about the 'mobile restaurant' idea. The most amazing thing is all the advertising's done through social-networking websites. The greatest advantage, though, is by having a maximum of ten customers, I didn't need to hire a waiter. I did one meal on a beach which almost went wrong because I didn't think about the wind blowing sand into people's food. If the weather's bad, people come to my home instead, but it gets very crowded. I love the temporary feel of the mobile idea, so home's not really what it's about. I think health inspectors will want to check them out. But if someone got ill in a less serious one, we might all get a bad name. So I guess inspections are a good thing.
+NARRATOR: Part 3.
+MAN: Let me tell you about a new outdoor summer cinema that opens later this week. It's been set up in the hills with beautiful views in all directions. What's so amazing is that you can enjoy the sunset at the same time as you're watching a film! There are no seats because members of the audience can sit on the ground wherever they like. I do suggest taking a cushion with you because it can get rather uncomfortable after the first hour or two of sitting there. If you have enough energy for a five-kilometre walk along a narrow path. I saw that some people had brought a picnic with them. Tickets are available from any supermarket in the city, or you can get them online from the website, cityents dot org. That's C-I-T-Y-E-N-T-S dot org. So, have fun …
+NARRATOR: Part 4.
+LAURA: Hello Karl! I haven't seen you since we both went away to study. KARL: Hello Laura, good to see you. I'm just back home for a few days. LAURA: Yeah, me too. How are you finding it studying in a foreign country? KARL: It's taken me a couple of weeks to find somewhere to live. LAURA: Isn't it a problem not being able to speak the language? KARL: Well, there's lots of students from different countries and we all use English. Anyway, my course is taught in English. LAURA: Well, I'm really concentrating on my studies at the moment because I've got an important essay to write. KARL: Have you thought about what you'll do after your university course finishes? LAURA: It's still a long way off. How about you? Do you think you'll come back home to work after your graduation? KARL: I haven't made up my mind actually. I've heard that some employers may not accept qualifications from another country. But my parents would prefer it if I came back here. LAURA: I guess you must feel lonely sometimes. If I saw my parents more often, I'd be happier. KARL: Why don't you come and visit me when you can afford it? LAURA: I'm really curious to see what it's like at your university. I've got more than enough studying to do at the moment though, I'm afraid.`,
+        questions: [
+            {id:1, label:"1. Which part of the Arts Centre only opened recently?", options:["A. Cinema", "B. Open-air concert area", "C. Art gallery"]},
+            {id:2, label:"2. What does the shop assistant give the man?", options:["A. A new sweater", "B. Shirts", "C. A refund"]},
+            {id:3, label:"3. Where does the woman feel pain?", options:["A. Ankle", "B. Head", "C. Knee"]},
+            {id:4, label:"4. Where must the woman go to buy dollars?", options:["A. Airport", "B. Bank", "C. Shopping mall"]},
+            {id:5, label:"5. Which vegetable is used in all today's recipes?", options:["A. Onion", "B. Cabbage", "C. Potatoes"]},
+            {id:6, label:"6. Where is the meeting?", options:["A. Office", "B. By the lake", "C. Staff restaurant"]},
+            {id:7, label:"7. How did the man want to pay?", options:["A. In cash", "B. By credit card", "C. By mobile phone"]},
+            {id:8, label:"8. What did Marta dislike about her first job?", options:["A. It was really badly paid.", "B. The boss didn't listen to her.", "C. She found the staff unfriendly."]},
+            {id:9, label:"9. At first, what did Marta find most surprising about mobile restaurants?", options:["A. They are only advertised online.", "B. Food never gets thrown away.", "C. Menus can be easily changed."]},
+            {id:10, label:"10. For Marta, the best thing about mobile restaurants was", options:["A. knowing she would have customers.", "B. being able to work outdoors.", "C. finding that waiters weren't needed."]},
+            {id:11, label:"11. Marta had difficulty serving food on a beach because of", options:["A. the sun.", "B. the rain.", "C. the wind."]},
+            {id:12, label:"12. Marta tries to avoid serving meals in her home because", options:["A. she doesn't have enough furniture.", "B. the neighbours have complained.", "C. there is a lack of space."]},
+            {id:13, label:"13. What worries Marta about the future?", options:["A. mobile restaurants going out of fashion", "B. the wrong people opening restaurants like hers", "C. health inspectors coming to her restaurant"]},
+            {id:14, label:"14. The cinema is surrounded by ______ and there are beautiful views."},
+            {id:15, label:"15. It's possible to watch the ______ during a film."},
+            {id:16, label:"16. Cinema visitors are advised to take a ______ with them to sit on."},
+            {id:17, label:"17. The cinema is ______ kilometres from the city if you go on foot."},
+            {id:18, label:"18. It's a good idea to have a ______ when the film is over."},
+            {id:19, label:"19. Cinema tickets can be bought online at www. ______ .org."},
+            {id:20, label:"20. Karl says it's been difficult finding somewhere to live.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Karl has had problems studying in another language.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Laura is surprised at how little work there is on her course.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Karl is uncertain whether to return home after his course.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Laura is missing her parents.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Laura feels that she's too busy to visit Karl.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 12, title: "Test 12",
+        answers: {1:"A", 2:"C", 3:"B", 4:"C", 5:"A", 6:"C", 7:"C", 8:"B", 9:"C", 10:"C", 11:"A", 12:"B", 13:"A", 14:"football stadium", 15:"email", 16:"sports bag", 17:"water bottle", 18:"shirt/shirts", 19:"BEATON", 20:"B", 21:"B", 22:"A", 23:"B", 24:"B", 25:"A"},
+        transcript: `NARRATOR: Part 1.
+1. WOMAN: Where shall we go for coffee in town? MAN: How about the café near the station? WOMAN: That's always so crowded. We can try that new one next to the library. MAN: That's quite a long way. WOMAN: We could take our bikes – though we'd have to go back and get them. MAN: I suppose so. Or another possibility would be a walk through the park. WOMAN: That definitely wouldn't be so quick. MAN: But it's so much nicer. WOMAN: Well, if you say no …
+2. MAN: Have you seen my new computer? WOMAN: It looks good. MAN: Only thing is one of the keys I use a lot is in a different position from the keyboard I had before, so I have to take my eyes off the screen and look down to press it.
+3. MAN: I've got to get up early tomorrow. I'm taking my class on a school trip and the coach leaves school at half past seven. WOMAN: What time are you getting up then? MAN: I'll be up at half past six. WOMAN: Are you sure that's going to be early enough? You ought to get up at quarter past. MAN: I don't think I'll need more than an hour, so I'll have enough time.
+4. MAN: What are you going to have? WOMAN: I'm just going to have a coffee and a banana. I had a sandwich earlier. MAN: So did I, so I'm just going to have a coffee and a piece of that chocolate cake. It looks delicious. WOMAN: It's enormous, but look at the price. MAN: It looks worth it though. WOMAN: I might have one after all. That sandwich didn't really fill me up.
+5. WOMAN: Hello, this is Sarah Wright. I arranged to collect a guitar I ordered. I was meant to come this afternoon, but there's a problem. I had to get a book from the library and I've just missed the bus – so I won't be able to get out to the shop before you close. I've got an appointment in the town centre to choose some new glasses tomorrow, so I could come in and pick it up then. I hope that's ok.
+6. MAN: Is there anything good on television this evening? WOMAN: Let's see. There's that science-fiction film called Lost Planet at seven. MAN: That's a brilliant film, but I'd rather watch something I haven't seen before. WOMAN: There's a documentary about tigers at seven-thirty. MAN: Oh, I heard about that and I wanted to see it. WOMAN: Oh but look, it's on at the same time as the live final of the tennis. MAN: Well, I'm sure the documentary will be repeated, and it's no fun watching a tennis match if it isn't live. WOMAN: You're right.
+7. MAN: How can I help? WOMAN: I'm looking for a smart shirt for work. MAN: Well, we have a special offer this week. On these plain shirts you can buy one and get one free. They're excellent quality. WOMAN: How much are they? MAN: Twenty-five pounds and there are several colours. WOMAN: How much are these striped shirts? MAN: They're twenty-six pounds each. WOMAN: I'm not sure. I could take one of each – plain and striped. MAN: You won't benefit from the special offer for two then. WOMAN: In that case, I'll go for two of the ones on offer – in blue, please.
+NARRATOR: Part 2.
+INT: Jack Salter is a young Canadian who has just won the young photographer of the year competition. Jack, is that right – you started out taking photos of street signs? JACK: That's right. My mother tells me it was all down to my being attracted to the bright colours. I guess she's right. INT: Can you tell me a little about the winning photograph? JACK: I decided to go out and play around with some new kit for my camera. I started off in my own yard. INT: Were you happy with the photograph? JACK: I was lucky actually, because on the camera screen the butterfly didn't look terribly amazing. It was only when I saw the picture on the computer that I realised how good it was. INT: What do you think of the other photos from the competition? JACK: I've seen the work on display with mine and the standard is hard to believe. INT: Has anything changed for you since winning the competition? JACK: Before winning I'd been concentrating mainly on taking photos of people, although after coming to London for the exhibition, I intend to get more into doing shorts of landscapes in different countries. INT: Do you have any advice for young people starting out in photography? JACK: Don't make excuses. My method is just to get out there, and do it, and you don't have to go far to get the shot, you'll find something. You'll start to love it.
+NARRATOR: Part 3.
+MAN: If you're a student who wants to keep active over the summer vacation, you'll be interested in this. The Student Running Club meets every week and is open to students from any college in the town. Come to the football stadium every Friday. Registration for the club couldn't be easier. If you were a member last summer, you'll receive a registration form in an email. A five dollar payment will allow you to run in all the Friday races through the summer, and you'll get a sport bag with the club name on it. After each race, all runners will be given a free water bottle. Healthy snacks are available at special prices. Runners are grouped according to experience. Those who are new to running start first, and wear orange shirts; those with more experience follow on afterwards in blue, while the fastest runners wear red. If you need any particular information on the event, or if you would like to volunteer, you can contact Carol Beaton, that's B-E-A-T-O-N, on 8302195.
+NARRATOR: Part 4.
+ANNE: Are you going to the college end-of-term party on Saturday night, Peter? PETER: I want to, Anne. But my sister's coming to visit at the weekend, and she isn't that keen on parties. I hope she won't mind me going without her. ANNE: Oh, I'm sure she won't mind. They're usually great parties, apart from last year's one. PETER: I thought you had such a good time last year. What was wrong with it? ANNE: Well, it was fun, but it's just that there were too many people there. And this one's going to be in the new college hall, so there'll probably be even more people. PETER: I don't mind a lot of people, and it's an improvement on the old hall because there's a lot more space. That should really make a difference. ANNE: I hope there'll be a good DJ – that helps to make a brilliant atmosphere. PETER: There needs to be plenty of good dance music, but I'm not sure we need a DJ. They just play the stuff they like. What about the food? ANNE: I hear there's going to be a special buffet, with a top-quality restaurant providing stuff. I hope the party won't end late though, because it means missing the last bus. PETER: We can always get a taxi if there's a group of us. ANNE: But everyone'll be looking for one at the same time if it ends at midnight. PETER: Don't worry. I've heard it'll definitely go on well after that because we've got permission for an extra hour.`,
+        questions: [
+            {id:1, label:"1. How are they going to get to the café?", options:["A. Walk through the park", "B. Take bikes", "C. By train"]},
+            {id:2, label:"2. What has the man had a problem with?", options:["A. Screen", "B. Mouse", "C. Keyboard"]},
+            {id:3, label:"3. When does the man plan to get up?", options:["A. 7:30", "B. 6:30", "C. 6:15"]},
+            {id:4, label:"4. What are they going to order?", options:["A. Coffee and a banana", "B. A sandwich", "C. Coffee and chocolate cake"]},
+            {id:5, label:"5. What is the woman phoning about?", options:["A. To change collection time", "B. To order a guitar", "C. To buy glasses"]},
+            {id:6, label:"6. What are they going to watch first?", options:["A. Documentary", "B. Tennis", "C. Science-fiction film"]},
+            {id:7, label:"7. What is the woman going to buy?", options:["A. One striped", "B. One plain, one striped", "C. Two plain blue"]},
+            {id:8, label:"8. Why did Jack take photographs of street signs?", options:["A. His mother suggested it.", "B. The colours were exciting.", "C. He liked their different shapes."]},
+            {id:9, label:"9. Why did Jack go into his yard to take his winning photo?", options:["A. He wanted to be out in the sunshine.", "B. He was looking for shots of flowers.", "C. He was trying out some new equipment."]},
+            {id:10, label:"10. When Jack first looked at his winning photo, he felt", options:["A. proud of how good it was.", "B. worried about the background.", "C. unsure how clear the detail was."]},
+            {id:11, label:"11. Jack was surprised by the other photos in the competition because", options:["A. the quality was so high.", "B. the styles were so similar.", "C. the subjects were so unusual."]},
+            {id:12, label:"12. Since winning the competition, Jack now hopes to", options:["A. take more photos of people.", "B. travel to different countries.", "C. get ideas from other photographers."]},
+            {id:13, label:"13. Jack advises other young people interested in photography to", options:["A. have the same attitude as him.", "B. photograph the same things as him.", "C. get the same type of camera as him."]},
+            {id:14, label:"14. The club meets at the ______ in the town."},
+            {id:15, label:"15. Last year's members will be sent a registration form by ______ ."},
+            {id:16, label:"16. Members who pay $5 receive a special ______ that shows the club's name."},
+            {id:17, label:"17. All runners will get a ______ as a free gift."},
+            {id:18, label:"18. You know the runner's level of experience by the colour of their ______ ."},
+            {id:19, label:"19. Contact Carol ______ on 8302195."},
+            {id:20, label:"20. Peter wants to take his sister to the party.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Anne hopes the party will be bigger than the one last year.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Peter thinks the new college hall is big enough for the party.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Peter thinks DJs play a good range of music.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Anne hopes the college cafeteria will supply the food for the party.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Peter is confident the party will end after midnight.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 13, title: "Test 13",
+        answers: {1:"B", 2:"C", 3:"A", 4:"C", 5:"A", 6:"B", 7:"B", 8:"B", 9:"C", 10:"C", 11:"B", 12:"A", 13:"A", 14:"tent", 15:"meals", 16:"path", 17:"map", 18:"rabbits", 19:"flight", 20:"A", 21:"A", 22:"B", 23:"A", 24:"B", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. MAN: Joanna, it's Peter. You left your book behind after the lecture at college. If you need it tonight I could bring it round on my way home. I'm a bit short of time though – I'm working later at the café and I'm just going to my next class now. WOMAN: Oh thanks, Peter. I will need it. I could come and get it from you at your work. There's no need to come round to my place. MAN: Great, I start at 5. WOMAN: I'll see you then.
+2. GIRL: Hi there. It's Lisa. I just wanted to tell you that I went to the market to get a present for my sister's birthday. They have everything there – jewellery, belts, hand-made bags, beautiful clothes in silk. I saw a fantastic box, a painted one, which would be great to keep jewellery in, and I thought about buying that for her. I got a blouse in the end though. It's a beautiful colour … and I saw some great bags. I'll think I'll go back next week and buy one.
+3. WOMAN: … and now for the weather. What's it going to be like for the big race tomorrow morning, Mike? MAN: Well, it's been clear and sunny all week, but it looks as if it's going to turn really cold tonight, and with ice on the track, conditions for racing could be difficult. It doesn't look like there'll be any rain until the weekend though, and later in the afternoon there'll be a bit of sun coming out from behind the clouds.
+4. BOY: Hi Gemma, it's Andy. How are you getting on? GIRL: Hi. I love it here – it's a nice city. There's everything you need just close by. There a big shopping mall with lots of fashion stores, and a supermarket just down the street. There's also a sports centre right near the office where I'm working, which is perfect for me 'cause I can go straight after work if I want to. There are lots of outdoor cafes too, and places to eat. BOY: Sounds great. I'll come and visit. GIRL: That would be awesome.
+5. BOY: Hi Melanie. I saw that film Deep Sea last night. It was amazing. I learnt a lot about the sea too. Have you seen it? GIRL: Yeah, I liked the boat race, it was really exciting – like when the hero almost hit the rocks. BOY: Yeah, he only just missed them. I thought the way the story was told was a bit different too, you know, the man actually talking direct to the camera before each scene. GIRL: And the underwater diving scenes were great – fantastic fish. BOY: Yeah, I really enjoyed it.
+6. WOMAN: Did you go to yesterday's match? MAN: Yes, it was interesting. Jim Simmons had a bag fall near the start, and we all thought he was injured and would have to go off. But he was okay, even scored goal. WOMAN: And I heard a small child caused a few problems by throwing his ball onto the field during the match. MAN: The referee soon removed it. Just near where we were standing a fan tried to run out on to the field too. His friends stopped him, luckily. WOMAN: Right.
+7. MAN: Hi there. It's Paul. I've been to the gallery to get some ideas for my latest project and I got some good ones – you know, for shapes and so on. Now I need to think about using colours, and patterns. I might go back another day and look at paintings. There are some on the first floor of indoor scenes, with vases and bowls in them, like the ones I looked at on display today. Oh, and there's a new sculpture exhibition on, but I didn't get a chance to see it.
+NARRATOR: Part 2.
+INT: My guest today is Amy Rowntree, who's a fashion designer. Amy, when did you decide you wanted a career in fashion? AMY: Well, I started experimenting with the clothes I wore myself while I was still at school. It wasn't until I left school and worked as an assistant in a big store though, that I knew I wanted a career in fashion. INT: So, that skills does a fashion designer need? AMY: The essential thing though is a knowledge of the techniques used in creating clothes. You also have to be patient, especially at the start of your career! INT: What do you find most enjoyable about working in fashion? AMY: It's also great to go from being completely unknown, to fashion stores knowing exactly who you are when you ring up – that's the best thing about it for me. It's hard work selling my designs, but it's good to earn money doing something you love. INT: And what about the current fashion scene? AMY: I feel that the main aim now is to make clothes easy for people to wear. I understand that's important. And actually sports clothes are what make the most money for the fashion industry. But I think you need to design really beautiful clothes too. I'd like to see more of fashion as a kind of art. INT: Do you find it easy to think of new designs? AMY: Oh yes. I get ideas all the time, and I draw them so that I don't forget them. And I take photos too. I often get my ideas from things I see when I'm out in streets and parks. INT: And are you working on any new projects at the moment? AMY: Well, my big ambition is to put on a fashion show in New York, but no luck yet! I've been asked to design the clothes for a film though, so I'm working on that. It'll be out next summer. And I'm talking with a big store in London about the possibility of doing a special range of suits for men. INT: Really!
+NARRATOR: Part 3.
+STEVE: I've always wanted to go to New Zealand. So, when I saw an advertisement asking for people to work in a forest near Auckland, I applied. I was accepted and flew out to New Zealand in January. At the airport, I met other people going to work in the forest and a bus came to collect us and take us there. Eventually, there's going to be a really big tourist centre where we were. I thought I'd be staying in a wooden hut, but in fact I was in a tent, which I shared with four other boys – two American and two Japanese. It was summer, so I was a bit disappointed that the weather was rather wet and windy. But at least you could have hot showers in the evening. There was also a professional cook, and every evening he made us great meals. That's important when you're working outside all day! We always worked as a team, so progress was fast. Our main job was creating a path in the forest to make access easier. They'll need it when the tourist centre opens to groups in another year or two. I also enjoyed getting the information to make a map of the forest area. Something else that was a good experience for me. I'll always remember how quiet the forest was early in the morning. The birds were singing as you'd expect but I couldn't believe I could actually hear the rabbits. They ran around in the long grass early in the morning. If you like nature, and you want a taste of life outside a city, try this trip. You have to find the money for your own flight, but everything else, including special boots, are provided. Anyway …
+NARRATOR: Part 4.
+MARTHA: Hi James, how're you doing? JAMES: Hello Martha, I'm good. Did you watch Madison last night? MARTHA: I did yeah. Great, wasn't it? The whole series has been fantastic. The final show was hard to follow though – there was so much happening. JAMES: You did have to concentrate to keep up, for sure. MARTHA: I wonder if that's why the series is so popular? JAMES: Actually, I think the hero Dr Madison is the reason why it's a hit. He's a really unusual person to have as a central character – sort of brilliant doctor one minute, big kid the next. People fine him interesting. MARTHA: I'm with you on that. I guess the series is about him growing up, accepting he's got to be responsible and follow the rules. JAMES: I hadn't thought of it that way. You could see it as Dr Madison running away from his problems, not dealing with things. MARTHA: Except he can't do that forever, can he? In the next series, he's going to have to sort things out. JAMES: Well, the series has certainly got us talking, hasn't it? MARTHA: Absolutely! I learnt a lot from it too. The personal stories of some of the other characters were fascinating – watching Dr Madison work out how to help them was a bit like watching a detective at work. I'd never thought the two jobs could be at all the same before. JAMES: I thought as a character he was very amusing, too. I know a lot of people were surprised by that. But I don't see what's so strange about finding a doctor funny. I don't think I'll ever find the time to watch it all again unfortunately, though I'd love to. MARTHA: Well, I'm going to buy the boxed set of the series, so I can watch some of the shows whenever I want. JAMES: I'm sure it'll be worth the money.`,
+        questions: [
+            {id:1, label:"1. Where will Peter give Joanna the book?", options:["A. At college", "B. At his work", "C. At her place"]},
+            {id:2, label:"2. What did the girl buy at the market?", options:["A. Painted box", "B. Bags", "C. Blouse"]},
+            {id:3, label:"3. What will the weather be like for the race?", options:["A. Cold and icy", "B. Rain", "C. Sunny"]},
+            {id:4, label:"4. What does the girl like best about the city?", options:["A. Shopping mall", "B. Outdoor cafes", "C. Sports centre near work"]},
+            {id:5, label:"5. What does the boy think was unusual about the film?", options:["A. Hero talking direct to camera", "B. Underwater scenes", "C. Boat race"]},
+            {id:6, label:"6. What happened during the football match?", options:["A. Player injured", "B. Child threw ball", "C. Fan ran onto field"]},
+            {id:7, label:"7. Which part of the gallery did the man visit?", options:["A. New sculpture", "B. Paintings on first floor", "C. Gift shop"]},
+            {id:8, label:"8. Amy decided to become a fashion designer while", options:["A. she was still at school.", "B. she was working in a shop.", "C. she was helping run a fashion show."]},
+            {id:9, label:"9. Amy says the most important skill for a designer is", options:["A. remaining patient in difficult situations.", "B. knowing about different materials.", "C. understanding how clothes are made."]},
+            {id:10, label:"10. What does Amy particularly like about her work?", options:["A. being able to sell her designs.", "B. seeing her clothes on display", "C. having her name recognised"]},
+            {id:11, label:"11. How does Amy feel about today's fashion?", options:["A. She would like clothes to be more practical.", "B. She feels clothes should be more attractive.", "C. She's pleased sports clothes are popular."]},
+            {id:12, label:"12. What helps Amy find new ideas for designs?", options:["A. seeing things around her.", "B. going to visit museums.", "C. looking at photos of clothes."]},
+            {id:13, label:"13. What project is Amy working on at the moment?", options:["A. a collection of clothes for a film", "B. a fashion show in New York", "C. a new range for a London store"]},
+            {id:14, label:"14. Steve had accommodation in a shared ______ ."},
+            {id:15, label:"15. Steve says it was important to have good ______ at the end of each day."},
+            {id:16, label:"16. Steve worked with a team that made a ______ through the forest."},
+            {id:17, label:"17. Steve also collected information needed for a ______ of the forest area."},
+            {id:18, label:"18. In the morning Steve was surprised to hear the sound of ______ in the forest."},
+            {id:19, label:"19. When he did the trip, Steve only had to pay for his ______ ."},
+            {id:20, label:"20. They agree that the last show in the series was complicated.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. James believes that the series is successful because of the main character.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. They both admire the main character's behaviour.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Martha thinks that the main character has similar skills to a detective.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. James was surprised to find the main character so funny.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. They both plan to watch the series again.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 14, title: "Test 14",
+        answers: {1:"A", 2:"B", 3:"C", 4:"B", 5:"A", 6:"C", 7:"B", 8:"C", 9:"A", 10:"B", 11:"C", 12:"A", 13:"B", 14:"Friday", 15:"poster", 16:"science", 17:"10.30/ten thirty", 18:"bus", 19:"notebook", 20:"A", 21:"B", 22:"A", 23:"B", 24:"A", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. WOMAN: Did you finish the math homework? MAN: Yes, I managed to finish it just before the deadline. It was quite difficult though.
+2. GIRL: I think I left my phone at the sports hall. BOY: We can go back and look for it if you want. It might be near the lockers.
+3. MAN: What time are we meeting for the study group? WOMAN: Let's meet at four o'clock in the library. That should give us enough time before it closes.
+4. GIRL: Are you going to the cinema tonight? BOY: I was going to, but I have a lot of history reading to do. I think I'll stay in.
+5. WOMAN: I forgot to bring my lunch today. MAN: You can share some of mine, or we could go to the cafeteria.
+6. BOY: How did you do on the chemistry test? GIRL: Not bad, I think I got most of the formulas right.
+7. MAN: The weather looks like it's going to rain later. WOMAN: I'm glad I brought my umbrella then. We should hurry to the bus stop.
+NARRATOR: Part 2.
+INT: Today I'm talking to Mark, a young athlete who recently won a regional climbing competition. Mark, how did you get into climbing? MARK: My older brother took me to an indoor climbing wall when I was ten. I loved it immediately and started going every weekend. It's a great way to stay fit and challenge yourself. INT: What do you find most difficult about it? MARK: Sometimes you have to figure out a puzzle on the wall. You need physical strength, but planning your route is just as important. INT: Do you ever get scared? MARK: Not really. You are always safely tied to a rope. I feel more scared when I have to give a presentation at school! INT: What's your next goal? MARK: I want to compete at the national level next year. It requires a lot more training, but I'm ready for it.
+NARRATOR: Part 3.
+MAN: Good morning, students. Let me give you some information about our upcoming school trip to the science fair. We will be going this Friday. All students need to prepare a poster about their chosen topic. The fair is a great opportunity to see practical science in action. We will leave the school exactly at ten thirty, so please don't be late. We are traveling by bus because it's the easiest way for such a large group. Finally, make sure to bring a notebook to write down any interesting facts you learn.
+NARRATOR: Part 4.
+LUCY: Are you excited about the summer holiday, Ben? BEN: Definitely! I can't wait to have a break from studying. LUCY: Are you planning to get a part-time job? BEN: I've been looking around, but it's hard to find something that pays well and gives me enough free time. LUCY: I know what you mean. I'm going to help out at my uncle's shop. BEN: That sounds like a good deal. Do you think you'll have time to come to the beach with us? LUCY: I hope so, but I'll have to check my work schedule first. BEN: Let me know as soon as you find out.`,
+        questions: [
+            {id:1, label:"1. Did the man finish his math homework?", options:["A. Yes", "B. No", "C. Not sure"]},
+            {id:2, label:"2. Where does the girl think she left her phone?", options:["A. In the classroom", "B. At the sports hall", "C. At home"]},
+            {id:3, label:"3. What time is the study group meeting?", options:["A. Three o'clock", "B. Five o'clock", "C. Four o'clock"]},
+            {id:4, label:"4. Why is the boy staying in tonight?", options:["A. He is tired", "B. He has history reading", "C. He doesn't like films"]},
+            {id:5, label:"5. What did the woman forget?", options:["A. Her lunch", "B. Her homework", "C. Her umbrella"]},
+            {id:6, label:"6. How does the girl feel about her chemistry test?", options:["A. She failed", "B. She was confused", "C. She thinks she did well"]},
+            {id:7, label:"7. Why is the woman glad she brought her umbrella?", options:["A. It is sunny", "B. It might rain", "C. It is windy"]},
+            {id:8, label:"8. How old was Mark when he started climbing?", options:["A. Eight", "B. Twelve", "C. Ten"]},
+            {id:9, label:"9. What does Mark say is just as important as physical strength?", options:["A. Planning your route", "B. Having good shoes", "C. Listening to the coach"]},
+            {id:10, label:"10. What scares Mark more than climbing?", options:["A. Heights", "B. School presentations", "C. Spiders"]},
+            {id:11, label:"11. What is Mark's next goal?", options:["A. Become a coach", "B. Climb a real mountain", "C. Compete nationally"]},
+            {id:12, label:"12. How does Mark feel about his next goal?", options:["A. He is ready for it", "B. He thinks it's too hard", "C. He is unsure"]},
+            {id:13, label:"13. Who introduced Mark to climbing?", options:["A. His father", "B. His brother", "C. A friend"]},
+            {id:14, label:"14. The school trip to the science fair is on ______ ."},
+            {id:15, label:"15. Students need to prepare a ______ about their topic."},
+            {id:16, label:"16. The fair shows practical ______ in action."},
+            {id:17, label:"17. The school will leave exactly at ______ ."},
+            {id:18, label:"18. The students are traveling by ______ ."},
+            {id:19, label:"19. Students should bring a ______ to write down facts."},
+            {id:20, label:"20. Ben is excited for the summer holiday.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Ben has already found a part-time job.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Lucy is going to work at her uncle's shop.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Ben thinks Lucy's job sounds terrible.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. Lucy wants to go to the beach.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Lucy knows her exact work schedule.", options: ["A. YES", "B. NO"]}
+        ]
+    },
+    {
+        id: 15, title: "Test 15",
+        answers: {1:"C", 2:"A", 3:"B", 4:"B", 5:"A", 6:"C", 7:"A", 8:"B", 9:"C", 10:"A", 11:"C", 12:"B", 13:"A", 14:"library", 15:"laptop", 16:"password", 17:"project", 18:"5 / five", 19:"teacher", 20:"B", 21:"A", 22:"B", 23:"A", 24:"A", 25:"B"},
+        transcript: `NARRATOR: Part 1.
+1. MAN: What time is the football match starting? WOMAN: It was supposed to be at three, but they moved it to four because of the weather.
+2. GIRL: Do you know where my history book is? BOY: I think I saw it on the kitchen table this morning.
+3. WOMAN: I need to buy a birthday present for my sister. MAN: How about a new pair of headphones? She loves music.
+4. BOY: I'm really tired today. GIRL: You should try to get to bed earlier instead of playing video games all night.
+5. MAN: The bus is always late on Fridays. WOMAN: I know, it's so frustrating. We should probably start walking.
+6. GIRL: Are you going to the school dance? BOY: Yes, I already bought my ticket. It should be a lot of fun.
+7. WOMAN: I can't find my keys anywhere. MAN: Did you check inside your jacket pocket? You always leave them there.
+NARRATOR: Part 2.
+INT: I'm here with Sarah, a teenage app developer. Sarah, what made you want to design apps? SARAH: I was always fascinated by how things work on my phone. One day, I decided to try making a simple game, and I just kept learning from there. INT: Was it difficult to learn programming? SARAH: At first, yes. There were a lot of mistakes, but there are so many free tutorials online that really helped me understand the basics. INT: What is your most popular app? SARAH: It's a study timer that helps students focus. It blocks social media for a set amount of time. It's really caught on with my classmates! INT: Do you plan to do this as a career? SARAH: Absolutely. I want to study computer science at university and eventually start my own tech company.
+NARRATOR: Part 3.
+MAN: Hello everyone. Before you use the new school library, there are a few rules I need to explain. The library is a quiet zone for studying. If you need to use a computer, you can borrow a laptop from the front desk. To access the school network, you must enter your student password. Please remember that these computers are for school work, such as your history project, and not for playing games. The library closes at five o'clock every day. If you need a book after that, you must ask a teacher for permission.
+NARRATOR: Part 4.
+DAN: Hi Chloe, how are you feeling about the exams next week? CHLOE: A bit stressed, to be honest. There's just so much to revise. DAN: I know, especially for geography. I feel like I haven't retained anything. CHLOE: Maybe we should study together this weekend? We could test each other. DAN: That's a great idea. It always helps to talk through the topics out loud. CHLOE: Perfect. Let's meet at my house on Saturday morning. DAN: Sounds good. I'll bring some snacks.`,
+        questions: [
+            {id:1, label:"1. What time is the football match starting?", options:["A. Two o'clock", "B. Three o'clock", "C. Four o'clock"]},
+            {id:2, label:"2. Where is the girl's history book?", options:["A. On the kitchen table", "B. In her bag", "C. Under the bed"]},
+            {id:3, label:"3. What does the man suggest for a birthday present?", options:["A. A book", "B. Headphones", "C. Clothes"]},
+            {id:4, label:"4. Why is the boy tired?", options:["A. He was studying", "B. He was playing video games", "C. He was working"]},
+            {id:5, label:"5. Why are they going to walk?", options:["A. The bus is late", "B. They missed the bus", "C. The bus broke down"]},
+            {id:6, label:"6. Is the boy going to the school dance?", options:["A. He is not sure", "B. No", "C. Yes"]},
+            {id:7, label:"7. Where does the man suggest looking for the keys?", options:["A. In her jacket pocket", "B. On the table", "C. In the car"]},
+            {id:8, label:"8. Why did Sarah start designing apps?", options:["A. For a school project", "B. She was fascinated by how things work on her phone", "C. Her parents told her to"]},
+            {id:9, label:"9. How did Sarah learn programming?", options:["A. At school", "B. From a book", "C. From free online tutorials"]},
+            {id:10, label:"10. What is Sarah's most popular app?", options:["A. A study timer", "B. A game", "C. A messaging app"]},
+            {id:11, label:"11. What does Sarah's app block?", options:["A. Phone calls", "B. Text messages", "C. Social media"]},
+            {id:12, label:"12. What does Sarah want to study at university?", options:["A. Business", "B. Computer science", "C. Mathematics"]},
+            {id:13, label:"13. What is Sarah's long-term career goal?", options:["A. Start her own tech company", "B. Become a teacher", "C. Design video games"]},
+            {id:14, label:"14. The ______ is a quiet zone for studying."},
+            {id:15, label:"15. You can borrow a ______ from the front desk."},
+            {id:16, label:"16. You must enter your student ______ to access the network."},
+            {id:17, label:"17. Computers are for school work, such as your history ______ ."},
+            {id:18, label:"18. The library closes at ______ o'clock every day."},
+            {id:19, label:"19. If you need a book after hours, ask a ______ ."},
+            {id:20, label:"20. Chloe is completely relaxed about the exams.", options: ["A. YES", "B. NO"]},
+            {id:21, label:"21. Dan is worried about the geography exam.", options: ["A. YES", "B. NO"]},
+            {id:22, label:"22. Chloe suggests they should study separately.", options: ["A. YES", "B. NO"]},
+            {id:23, label:"23. Dan agrees to study together.", options: ["A. YES", "B. NO"]},
+            {id:24, label:"24. They plan to meet at Chloe's house.", options: ["A. YES", "B. NO"]},
+            {id:25, label:"25. Chloe promises to bring snacks.", options: ["A. YES", "B. NO"]}
+        ]
+    }
+];
+
+const TEST_VOICE_CONFIG = {
+    1: { "NARRATOR": "Brian", "WOMAN": "Emma", "MAN": "Andrew", "GIRL": "Ava", "INTERVIEWER": "Emma", "PAUL": "Brian", "ANNOUNCER": "Seraphina", "FATHER": "William", "ELLA": "Ava" },
+    2: { "NARRATOR": "Brian", "GIRL": "Ava", "BOY": "William", "WOMAN": "Emma", "WOMAN 1": "Emma", "WOMAN 2": "Ava", "MAN": "Andrew", "INTERVIEWER": "Andrew", "ANGELA": "Vivienne", "MARCUS": "William", "CATHERINE": "Ava" },
+    3: { "NARRATOR": "Brian", "MAN": "Andrew", "WOMAN": "Emma", "BOY": "William", "GIRL": "Ava", "INTERVIEWER": "Seraphina", "JACK": "Brian", "MARCO": "William", "SARAH": "Ava" },
+    4: { "NARRATOR": "Brian", "CATHY": "Emma", "DAVID": "William", "WOMAN": "Ava", "GIRL": "Vivienne", "BOY": "Andrew", "MAN": "Brian", "INTERVIEWER": "Andrew", "ELENA": "Seraphina", "TEACHER": "Brian", "MARIA": "Emma", "ROLF": "William" },
+    5: { "NARRATOR": "Brian", "WOMAN": "Emma", "MAN": "Andrew", "BOY": "William", "SARAH": "Seraphina", "DAD": "Brian", "JULIA": "Ava" },
+    6: { "NARRATOR": "Brian", "MAN": "Andrew", "WOMAN": "Emma", "GIRL": "Ava", "MUM": "Seraphina", "TOM": "William", "AMANDA": "Vivienne", "BOY": "Brian", "INT": "Andrew", "ROBIN": "William", "ANNOUNCER": "Brian", "COLIN": "William", "NATASHA": "Ava" },
+    7: { "NARRATOR": "Brian", "BOY": "William", "MAN": "Andrew", "GIRL": "Ava", "WOMAN": "Emma", "DOCTOR": "Seraphina", "INT": "Ava", "HARRY": "Brian", "TOM": "Andrew", "CLAIRE": "Vivienne" },
+    8: { "NARRATOR": "Brian", "MUM": "Emma", "MARIA": "Ava", "GUIDE": "Andrew", "WOMAN": "Seraphina", "MAN": "William", "LINDA": "Ava", "SAM": "Brian", "CARLA": "Vivienne" },
+    9: { "NARRATOR": "Brian", "TIM": "Andrew", "MAN": "William", "WOMAN": "Emma", "BOY": "Brian", "GIRL": "Ava", "ANNOUNCER": "Seraphina", "LUCY": "Vivienne", "KARL": "Andrew", "JENNY": "Ava" },
+    10: { "NARRATOR": "Brian", "WOMAN": "Emma", "MAN": "Andrew", "TIM": "William", "GREG": "Giuseppe", "JULIE": "Vivienne" },
+    11: { "NARRATOR": "Brian", "WOMAN": "Seraphina", "MAN": "Remy", "MARTA": "Ava", "LAURA": "Emma", "KARL": "Florian" },
+    12: { "NARRATOR": "Brian", "WOMAN": "Vivienne", "MAN": "Giuseppe", "INT": "Andrew", "JACK": "William", "ANNE": "Ava", "PETER": "Brian" },
+    13: { "NARRATOR": "Brian", "WOMAN": "Emma", "MAN": "Andrew", "GIRL": "Seraphina", "BOY": "William", "INT": "Florian", "AMY": "Vivienne", "STEVE": "Remy", "MARTHA": "Ava", "JAMES": "Giuseppe" },
+    14: { "NARRATOR": "Brian", "WOMAN": "Emma", "MAN": "Andrew", "GIRL": "Ava", "BOY": "William", "INT": "Seraphina", "MARK": "Brian", "LUCY": "Vivienne", "BEN": "Giuseppe" },
+    15: { "NARRATOR": "Brian", "WOMAN": "Ava", "MAN": "William", "GIRL": "Emma", "BOY": "Andrew", "INT": "Brian", "SARAH": "Seraphina", "DAN": "Giuseppe", "CHLOE": "Vivienne" }
+};
+
+let currentTest = null;
+let voices = [];
+let speechQueues = [[], [], [], []];
+let currentPlayingPart = -1;
+let isPlaying = false;
+let currentScore = 0;
+let hasPrimedTTS = false;
+let assignedVoices = {}; // Tracks which voice belongs to which speaker
+window.currentUtterance = null; 
+
+const menuDiv = document.getElementById('test-grid');
+const testView = document.getElementById('test-view');
+const menuView = document.getElementById('main-menu');
+const studentNameInput = document.getElementById('student-name');
+
+function init() {
+    testsData.forEach((test, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'test-btn';
+        btn.innerText = test.title;
+        btn.onclick = () => loadTest(index);
+        menuDiv.appendChild(btn);
+    });
+
+    const populateVoices = () => {
+        voices = window.speechSynthesis.getVoices();
+    };
+    populateVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoices;
+    }
+    setTimeout(populateVoices, 500);
+}
+
+function showMenu() {
+    stopTTS();
+    testView.style.display = 'none';
+    menuView.style.display = 'block';
+}
+
+function selectOption(btn, qId) {
+    if (btn.classList.contains('locked')) return;
+    
+    const correctAns = currentTest.answers[qId].toUpperCase();
+    const userVal = btn.getAttribute('data-val').toUpperCase();
+    const allBtns = document.querySelectorAll(`.option-btn[data-id="${qId}"]`);
+    
+    allBtns.forEach(b => {
+        b.classList.add('locked');
+        b.disabled = true;
+        if (b.getAttribute('data-val').toUpperCase() === correctAns) {
+            b.classList.add('correct');
+        } else if (b === btn && userVal !== correctAns) {
+            b.classList.add('incorrect');
+        } else {
+            b.style.opacity = '0.5';
+        }
+    });
+
+    if (userVal === correctAns) {
+        currentScore++;
+    }
+    
+    document.getElementById('score-val').innerText = `${currentScore}/${currentTest.questions.length}`;
+}
+
+function checkGapFill(qId) {
+    const input = document.querySelector(`.answer-input[data-id="${qId}"]`);
+    const btn = document.querySelector(`.check-btn[data-id="${qId}"]`);
+    if (input.disabled) return;
+
+    const correctAnsStr = currentTest.answers[qId].toLowerCase().replace(/\.$/, '');
+    const userVal = input.value.trim().toLowerCase().replace(/\.$/, '');
+    
+    let isCorrect = false;
+    let cleanUser = userVal.replace(/[-\s]/g, '');
+    
+    const answerParts = correctAnsStr.split('/');
+    for (let part of answerParts) {
+        let noBrackets = part.replace(/\(.*?\)/g, '').trim();
+        let cleanPart = noBrackets.replace(/[-\s]/g, '');
+        if (cleanUser === cleanPart && cleanUser !== '') { isCorrect = true; break; }
+        if (cleanUser === part.replace(/[-\s()]/g, '') && cleanUser !== '') { isCorrect = true; break; }
+    }
+
+    if (isCorrect) {
+        input.classList.add('correct');
+        currentScore++;
+    } else {
+        input.classList.add('incorrect');
+        const feedback = document.createElement('span');
+        feedback.style.color = 'var(--success)';
+        feedback.style.fontWeight = 'bold';
+        feedback.style.marginLeft = '10px';
+        feedback.innerText = `✓ ${currentTest.answers[qId]}`;
+        input.parentNode.appendChild(feedback);
+    }
+    
+    input.disabled = true;
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    document.getElementById('score-val').innerText = `${currentScore}/${currentTest.questions.length}`;
+}
+
+function parseTranscriptParts(transcript) {
+    return transcript.split(/NARRATOR:\s*Part\s*[234]\.?/i);
+}
+
+function loadTest(index) {
+    currentTest = testsData[index];
+    currentScore = 0;
+    assignedVoices = {}; // Reset voice assignments for the new test
+    
+    const studentName = studentNameInput.value.trim() || "Guest Student";
+    document.getElementById('display-student').innerHTML = `Student: <span>${studentName}</span>`;
+    document.getElementById('display-test').innerHTML = `Test: <span>${currentTest.title}</span>`;
+    document.getElementById('display-score').innerHTML = `Score: <span id="score-val">0/${currentTest.questions.length}</span>`;
+
+    menuView.style.display = 'none';
+    testView.style.display = 'block';
+    
+    document.getElementById('answer-key-box').style.display = 'none';
+    document.getElementById('test-title').innerText = currentTest.title;
+
+    const qContainer = document.getElementById('questions-container');
+    qContainer.innerHTML = '';
+    
+    const partsMapping = [
+        { title: "Part 1 (Questions 1-7)", qStart: 1, qEnd: 7 },
+        { title: "Part 2 (Questions 8-13)", qStart: 8, qEnd: 13 },
+        { title: "Part 3 (Questions 14-19)", qStart: 14, qEnd: 19 },
+        { title: "Part 4 (Questions 20-25)", qStart: 20, qEnd: 25 }
+    ];
+
+    const transcripts = parseTranscriptParts(currentTest.transcript);
+
+    partsMapping.forEach((part, partIndex) => {
+        const partDiv = document.createElement('div');
+        partDiv.className = 'test-part-section';
+        
+        let html = `
+        <div class="part-header-card">
+            <h3>${part.title}</h3>
+            <div class="part-controls">
+                <button class="action-btn btn-play" id="btn-play-${partIndex}" onclick="togglePartTTS(${partIndex})">▶ Play Audio</button>
+                <button class="action-btn btn-transcript" onclick="toggleSection('transcript-box-${partIndex}', this, 'Transcript')">▼ Transcript</button>
+            </div>
+        </div>
+        <div id="transcript-box-${partIndex}" class="hidden-section">
+            <div class="panel-content">
+                <div class="transcript-text" id="transcript-content-${partIndex}"></div>
+            </div>
+        </div>
+        <div class="part-questions">
+        `;
+
+        currentTest.questions.forEach(q => {
+            const qNum = parseInt(q.id);
+            if (qNum >= part.qStart && qNum <= part.qEnd) {
+                html += `<div class="question-block"><div class="question-row">
+                    <label class="question-label">${q.label}</label>
+                    <div class="question-controls">`;
+                    
+                if (q.options) {
+                    if (q.options.length === 2 && q.options[0].includes("YES")) {
+                        html += `<div class="yes-no-group">
+                            <button class="option-btn yes-no-btn" data-id="${q.id}" data-val="A" onclick="selectOption(this, '${q.id}')" title="YES">Y</button>
+                            <button class="option-btn yes-no-btn" data-id="${q.id}" data-val="B" onclick="selectOption(this, '${q.id}')" title="NO">N</button>
+                        </div>`;
+                    } else {
+                        html += `<div class="mcq-group">`;
+                        q.options.forEach((opt, idx) => {
+                            const val = String.fromCharCode(65 + idx);
+                            html += `<button class="option-btn mcq-btn" data-id="${q.id}" data-val="${val}" onclick="selectOption(this, '${q.id}')">${opt}</button>`;
+                        });
+                        html += `</div>`;
+                    }
+                } else {
+                     html += `<div class="answer-input-container">
+                        <input type="text" class="answer-input" data-id="${q.id}" placeholder="Type missing word(s)">
+                        <button class="check-btn" data-id="${q.id}" onclick="checkGapFill('${q.id}')">Check</button>
+                     </div>`;
+                }
+                
+                html += `</div></div></div>`;
+            }
+        });
+
+        html += `</div>`;
+        partDiv.innerHTML = html;
+        qContainer.appendChild(partDiv);
+
+        preparePartTTS(transcripts[partIndex] || "", partIndex);
+    });
+
+    const keyContainer = document.getElementById('answer-key-content');
+    keyContainer.innerHTML = '';
+    for (const [key, value] of Object.entries(currentTest.answers)) {
+        const item = document.createElement('div');
+        item.className = 'answer-key-item';
+        item.innerHTML = `Question ${key}: <span>${value}</span>`;
+        keyContainer.appendChild(item);
+    }
+}
+
+function toggleSection(sectionId, btn, labelName) {
+    const section = document.getElementById(sectionId);
+    if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        btn.innerHTML = `▼ Hide ${labelName}`;
+    } else {
+        section.style.display = 'none';
+        btn.innerHTML = `▶ Show ${labelName}`;
+    }
+}
+
+function toggleGlobalSection(sectionId, btn, labelName) {
+    const section = document.getElementById(sectionId);
+    if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        btn.innerHTML = `▼ Hide ${labelName}`;
+    } else {
+        section.style.display = 'none';
+        btn.innerHTML = `▶ Show ${labelName}`;
+    }
+}
+
+function preparePartTTS(text, partIndex) {
+    const container = document.getElementById(`transcript-content-${partIndex}`);
+    container.innerHTML = '';
+    
+    // FIX: Force inline speakers (e.g. " DAVID:") onto their own new lines.
+    // This regex looks for 1 or more spaces, followed by an ALL CAPS speaker name, followed by a colon.
+    let formattedText = text.replace(/\s+([A-Z][A-Z0-9\s]*):/g, '\n$1:');
+    
+    const lines = formattedText.trim().split('\n');
+    
+    speechQueues[partIndex] = [];
+    
+    const numToWord = {'0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four', '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine'};
+
+    lines.forEach((line, index) => {
+        if (!line.trim()) return;
+        let displaySpeaker = "NARRATOR";
+        let voiceSpeaker = "NARRATOR";
+        let lineText = line;
+
+        if (line.includes(':')) {
+            const parts = line.split(':');
+            displaySpeaker = parts[0].trim();
+            // Remove question number prefixes for voice matching (e.g., "1. CATHY" -> "CATHY")
+            voiceSpeaker = displaySpeaker.replace(/^\d+\.\s*/, '');
+            lineText = parts.slice(1).join(':').trim();
+        }
+
+        const lineId = `trans-line-${partIndex}-${index}`;
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'transcript-line';
+        lineDiv.id = lineId;
+        lineDiv.innerHTML = `<span class="speaker-name">${displaySpeaker}:</span> ${lineText}`;
+        container.appendChild(lineDiv);
+
+        let modifiedText = lineText.replace(/£([0-9.,]+)/g, "$1 pounds");
+
+        // Process text for phone numbers (intelligent digit spacing for TTS)
+        // regex finds typical IELTS phone number formats
+        modifiedText = modifiedText.replace(/(0\d{2}\s\d{3}\s\d{3})/g, match => match.split('').join(' '));
+
+        modifiedText = modifiedText.replace(/01252, double 8, 492/g, "zero one two five two, double eight, four nine two");
+
+        modifiedText = modifiedText.replace(/\b([A-Z](-[A-Z])+)\b/g, match => {
+            return match.split('-').join('. ') + '.';
+        });
+
+        speechQueues[partIndex].push({
+            speaker: voiceSpeaker,
+            text: modifiedText,
+            lineId: lineId
+        });
+    });
+}
+
+// --- choose a voice for a given speaker name ensuring distinct voices for different characters ---
+function getVoiceForSpeaker(speakerName, testId) {
+    // 1. If we already assigned a voice to this character in this test, reuse it
+    if (assignedVoices[speakerName]) {
+        return assignedVoices[speakerName];
+    }
+
+    if (!voices || voices.length === 0) return null;
+
+    // 2. Determine Gender based on name/keywords
+    let isMale = true;
+    const femaleKeywords = ['WOMAN', 'GIRL', 'MUM', 'MOTHER', 'SISTER', 'WIFE', 'FEMALE', 'AUNT'];
+    const maleKeywords = ['MAN', 'BOY', 'DAD', 'FATHER', 'BROTHER', 'HUSBAND', 'MALE', 'UNCLE'];
+    const femaleCharacterNames = ['SARAH', 'CATHERINE', 'ELLA', 'ANGELA', 'MARIA', 'CATHY', 'ELENA', 'JULIA', 'AMANDA', 'NATASHA', 'CLAIRE', 'LINDA', 'CARLA', 'LUCY', 'JENNY', 'CLARA', 'ANNE', 'MARTHA', 'JULIE', 'LAURA', 'AMY', 'CHLOE', 'LISA', 'GEMMA', 'MELANIE'];
+    
+    let upperSpeaker = speakerName.toUpperCase();
+    
+    if (femaleKeywords.some(kw => upperSpeaker.includes(kw)) || femaleCharacterNames.some(name => upperSpeaker.includes(name))) {
+        isMale = false;
+    } else if (maleKeywords.some(kw => upperSpeaker.includes(kw))) {
+        isMale = true;
+    } else {
+        // Fallback to test config if name is ambiguous (e.g., 'INTERVIEWER' or specific names)
+        const config = TEST_VOICE_CONFIG[testId];
+        if (config && config[speakerName]) {
+            const requestedVoice = config[speakerName];
+            if (['Ava', 'Emma', 'Vivienne', 'Seraphina', 'Jenny', 'Aria', 'Sonia'].includes(requestedVoice)) {
+                isMale = false;
+            }
+        }
+    }
+
+    // 3. Priority lists for high-quality Edge Multilingual/Online voices
+    const maleVoiceNames = ['Brian', 'Andrew', 'William', 'Remy', 'Florian', 'Giuseppe', 'Ryan', 'Guy', 'Christopher'];
+    const femaleVoiceNames = ['Emma', 'Ava', 'Vivienne', 'Seraphina', 'Jenny', 'Aria', 'Sonia'];
+    const targetNames = isMale ? maleVoiceNames : femaleVoiceNames;
+
+    // See which voices are already taken by other speakers in this test
+    const usedVoiceNames = Object.values(assignedVoices).map(v => v.name);
+
+    let selectedVoice = null;
+
+    // Helper to find the best quality unused voice
+    const findVoice = (nameToFind) => {
+        let candidates = voices.filter(v => v.name.includes(nameToFind));
+        // Sort to prefer high-quality "Multilingual" or "Online (Natural)" voices
+        candidates.sort((a, b) => {
+            const aHQ = (a.name.includes("Multilingual") || a.name.includes("Online") || a.name.includes("Natural")) ? 1 : 0;
+            const bHQ = (b.name.includes("Multilingual") || b.name.includes("Online") || b.name.includes("Natural")) ? 1 : 0;
+            return bHQ - aHQ;
+        });
+        
+        // Try to find an unused voice to prevent two characters sounding exactly the same
+        let unused = candidates.find(c => !usedVoiceNames.includes(c.name));
+        if (unused) return unused;
+        
+        // Absolute fallback: if all variations of this name are used, return the best one anyway
+        if (candidates.length > 0) return candidates[0];
+        
+        return null;
+    };
+
+    // 4. Try explicit preferred voice from the config first
+    const config = TEST_VOICE_CONFIG[testId];
+    let preferredVoiceName = config ? config[speakerName] : null;
+    if (preferredVoiceName) {
+        selectedVoice = findVoice(preferredVoiceName);
+    }
+
+    // 5. If no config preference or it wasn't found, pick the first unused high-quality voice of the correct gender
+    if (!selectedVoice) {
+        for (let name of targetNames) {
+            selectedVoice = findVoice(name);
+            if (selectedVoice && !usedVoiceNames.includes(selectedVoice.name)) {
+                break; // Found an unused one!
+            }
+        }
+    }
+
+    // 6. Absolute last resort fallback (e.g., non-Edge browsers)
+    if (!selectedVoice) {
+        let fallbackCandidates = voices.filter(v => isMale ? (v.name.includes("Male") || v.name.includes("David")) : (v.name.includes("Female") || v.name.includes("Zira")));
+        let unusedFallback = fallbackCandidates.find(c => !usedVoiceNames.includes(c.name));
+        selectedVoice = unusedFallback || fallbackCandidates[0] || voices[0];
+    }
+
+    // 7. Save this assignment so the character's voice stays consistent
+    if (selectedVoice) {
+        assignedVoices[speakerName] = selectedVoice;
+    }
+    
+    return selectedVoice;
+}
+
+// --- toggle playback (start or stop) ---
+function togglePartTTS(partIndex) {
+    if (isPlaying && currentPlayingPart === partIndex) {
+        stopTTS();
+    } else {
+        if (!hasPrimedTTS) {
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+            hasPrimedTTS = true;
+        }
+        stopTTS();
+        
+        window.speechSynthesis.resume();
+        
+        currentPlayingPart = partIndex;
+        isPlaying = true;
+        setTimeout(() => playTTSQueue(partIndex, 0), 250);
+    }
+}
+
+// --- stop playback, cancel speechSynthesis and clear highlights ---
+function stopTTS() {
+    isPlaying = false; 
+    window.speechSynthesis.resume(); 
+    window.speechSynthesis.cancel();
+    document.querySelectorAll('.btn-play').forEach(btn => {
+        btn.innerText = '▶ Play Audio';
+        btn.classList.remove('playing');
+    });
+    document.querySelectorAll('.transcript-line').forEach(el => el.classList.remove('active'));
+    currentPlayingPart = -1;
+}
+
+// --- play queued items one-by-one, highlight the active transcript line ---
+function playTTSQueue(partIndex, lineIndex) {
+    if (!isPlaying || currentPlayingPart !== partIndex || lineIndex >= speechQueues[partIndex].length) {
+        stopTTS();
+        return;
+    }
+
+    const btn = document.getElementById(`btn-play-${partIndex}`);
+    if(btn) {
+        btn.innerText = '■ Stop Audio';
+        btn.classList.add('playing');
+    }
+
+    const item = speechQueues[partIndex][lineIndex];
+    
+    document.querySelectorAll('.transcript-line').forEach(el => el.classList.remove('active'));
+    const activeLine = document.getElementById(item.lineId);
+    if (activeLine) {
+        activeLine.classList.add('active');
+        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    if (voices.length === 0) {
+        voices = window.speechSynthesis.getVoices();
+    }
+    
+    window.speechSynthesis.resume();
+
+    window.currentUtterance = new SpeechSynthesisUtterance(item.text);
+    
+    const selectedVoice = getVoiceForSpeaker(item.speaker, currentTest.id);
+    if (selectedVoice) {
+        window.currentUtterance.voice = selectedVoice;
+        window.currentUtterance.lang = selectedVoice.lang; 
+    } else {
+        window.currentUtterance.lang = 'en-US'; 
+    }
+    
+    window.currentUtterance.rate = 0.85; 
+    window.currentUtterance.volume = 1;
+
+    window.currentUtterance.onend = () => {
+        if (isPlaying && currentPlayingPart === partIndex) {
+            setTimeout(() => playTTSQueue(partIndex, lineIndex + 1), 250); 
+        }
+    };
+    window.currentUtterance.onerror = (e) => {
+        if (e.error === 'canceled' || e.error === 'interrupted') {
+            return;
+        }
+        console.warn("Speech Synthesis skipped a line or errored:", e);
+        if (isPlaying && currentPlayingPart === partIndex) {
+            setTimeout(() => playTTSQueue(partIndex, lineIndex + 1), 100);
+        }
+    };
+
+    window.speechSynthesis.speak(window.currentUtterance);
+}
+
+init();
+</script>
+</body>
+</html>

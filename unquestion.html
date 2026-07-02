@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded Questions Practice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #059669;
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --question: #9333ea;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 8px;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2.5rem 1.25rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 1.875rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background: var(--surface);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .nav-buttons { 
+            display: flex; 
+            gap: 0.75rem; 
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: var(--surface);
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius); 
+            cursor: pointer; 
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500; 
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            background: #f1f5f9;
+        }
+        
+        .nav-btn.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .nav-btn.primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed; 
+        }
+
+        .score-display {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background: var(--bg);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            display: none; 
+        }
+        
+        .content { 
+            padding: 2.5rem; 
+        }
+        
+        h1 { font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center; }
+        h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+        h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; }
+        
+        .text-center { text-align: center; }
+        .text-muted { color: var(--text-muted); }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        
+        /* Color Coding Utilities */
+        .text-question { color: var(--question); font-weight: 700; } /* Purple for Question Words */
+        .text-verb { color: var(--primary); font-weight: 700; }      /* Blue for Target Verb */
+        .text-subject { color: var(--success); font-weight: 700; }   /* Green for Subject */
+        .text-action { color: #d97706; font-weight: 700; }           /* Amber/Gold for Main Action - distinct from red */
+        .text-danger { color: var(--danger); font-weight: 700; }     /* Red for Errors */
+        
+        .rule-visual {
+            background: #f0fdfa;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #ccfbf1;
+        }
+        
+        .blocks-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .block {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid;
+            position: relative;
+        }
+        
+        .block.question { background: white; color: var(--question); border-color: var(--question); }
+        .block.verb { background: white; color: var(--primary); border-color: var(--primary); }
+        .block.subject { background: white; color: var(--success); border-color: var(--success); }
+        .block.action { background: white; color: #d97706; border-color: #d97706; }
+        
+        .block-label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+            color: var(--text-muted);
+        }
+        
+        .grid-3 {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.875rem; 
+            margin: 1.875rem 0;
+        }
+
+        .grid-2 {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.875rem; 
+            margin: 1.875rem 0;
+        }
+        
+        .card {
+            background: white; 
+            padding: 1.875rem; 
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        
+        .card.clickable { cursor: pointer; }
+        .card.clickable:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-color: var(--primary);
+        }
+        
+        .example-box {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            background: var(--bg);
+            border-left: 3px solid var(--text-muted);
+        }
+        .example-box.switched { 
+            background: var(--success-bg); 
+            border-left-color: var(--success); 
+        }
+        
+        .progress-container {
+            background: var(--border); 
+            border-radius: 999px;
+            height: 6px; 
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: var(--primary);
+            height: 100%; 
+            transition: width 0.3s ease;
+        }
+        
+        .question-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .question-text {
+            font-size: 1.75rem; 
+            font-weight: 500;
+            margin-bottom: 1.875rem; 
+            color: var(--text-main);
+            text-align: center;
+        }
+        
+        .options-grid {
+            display: flex; 
+            flex-direction: row; 
+            flex-wrap: wrap; 
+            gap: 0.75rem; 
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        
+        .option-btn {
+            background: white; 
+            border: 1px solid var(--border);
+            padding: 1rem 1.25rem; 
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 1.3rem; 
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            color: var(--text-main);
+            flex: 1 1 calc(25% - 0.75rem); 
+            min-width: 150px; 
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background: #f1f5f9; 
+            border-color: #cbd5e1;
+        }
+        
+        .option-btn.correct {
+            background: var(--success-bg) !important;
+            border-color: var(--success) !important;
+            color: #065f46 !important; 
+        }
+        
+        .option-btn.incorrect {
+            background: var(--danger-bg) !important;
+            border-color: var(--danger) !important;
+            color: #991b1b !important;
+        }
+        
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        .feedback-box {
+            padding: 1rem; 
+            border-radius: var(--radius);
+            margin-top: 1rem; 
+            display: none;
+        }
+        
+        .feedback-box.show { display: block; }
+        .feedback-box.correct-feedback { background: var(--success-bg); border: 1px solid var(--success-border); color: #065f46; }
+        .feedback-box.incorrect-feedback { background: var(--danger-bg); border: 1px solid var(--danger-border); color: #991b1b; }
+        
+        .feedback-title { font-weight: 600; margin-bottom: 0.25rem; }
+        .feedback-text { font-size: 0.875rem; }
+        
+        .action-btn {
+            background: var(--primary);
+            color: white; 
+            border: none; 
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius); 
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-btn:hover { background: var(--primary-hover); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .action-btn.secondary {
+            background: white;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .action-btn.secondary:hover:not(:disabled) { background: var(--bg); }
+        
+        .hidden { display: none !important; }
+        
+        .final-score-display {
+            font-size: 3rem; 
+            font-weight: 700; 
+            color: var(--text-main);
+            margin: 1rem 0;
+        }
+        
+        /* Modal */
+        .review-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .review-modal.show { display: flex; }
+        
+        .review-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+        
+        .review-item {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 640px) {
+            .header { flex-direction: column; text-align: center; }
+            .nav-buttons { width: 100%; justify-content: center; margin-top: 1rem; }
+            .blocks-container { flex-direction: column; }
+            .option-btn { flex: 1 1 100%; } 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-buttons">
+                <div class="score-display" id="scoreContainer">Score: <span id="scoreText">0</span>/50</div>
+                <button class="nav-btn" id="ttsBtn" onclick="speakQuestion()" style="display: none;" disabled>🔊 Listen</button>
+                <button class="nav-btn" id="backBtn" onclick="goBack()">Back</button>
+                <button class="nav-btn" id="homeBtn" onclick="goHome()">Home</button>
+                <button class="nav-btn primary" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Home Page -->
+            <div class="home-page" id="homePage">
+                <h1>Mastering Embedded Questions</h1>
+                <p class="text-center text-muted mb-6">Learn how word order changes when a question is embedded inside a statement or another question.</p>
+                
+                <div class="rule-visual">
+                    <h3 class="text-center">Rule 1: The "Un-Question Switch"</h3>
+                    <p class="text-center mb-6">When a question is embedded, the word order switches from <strong><span class="text-verb">Verb</span>-<span class="text-subject">Subject</span></strong> to <strong><span class="text-subject">Subject</span>-<span class="text-verb">Verb</span></strong>.</p>
+                    
+                    <div class="blocks-container">
+                        <div class="block question">
+                            <span class="block-label">Question Word</span>
+                            where / what time
+                        </div>
+                        <div class="block verb">
+                            <span class="block-label">Target Verb</span>
+                            is / are / can
+                        </div>
+                        <div style="font-size: 1.5rem; color: #94a3b8;">→</div>
+                        <div class="block question">
+                            <span class="block-label">Question Word</span>
+                            where / what time
+                        </div>
+                        <div class="block subject">
+                            <span class="block-label">Subject</span>
+                            the test / she
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rule-visual" style="background: #fff1f2; border-color: #fecaca;">
+                    <h3 class="text-center">Rule 2: The Disappearing "Do/Does/Did"</h3>
+                    <p class="text-center mb-6">Never use <span class="text-danger">do/does/did</span> in an embedded question! Drop the helper verb entirely and change the <span class="text-action">main action</span> to match the tense.</p>
+                    
+                    <div class="blocks-container">
+                        <div class="block question">
+                            <span class="block-label">Question Word</span>
+                            where
+                        </div>
+                        <div class="block" style="background: white; color: var(--danger); border-color: var(--danger);">
+                            <span class="block-label">Helper Verb</span>
+                            <span style="text-decoration: line-through;">did</span>
+                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; opacity: 0.7;">❌</span>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #94a3b8;">→</div>
+                        <div class="block question">
+                            <span class="block-label">Question Word</span>
+                            where
+                        </div>
+                        <div class="block action">
+                            <span class="block-label">Main Action</span>
+                            drove
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>"Be" Verbs</h4>
+                        <div class="example-box question"><span class="text-question">What time</span> <span class="text-verb">is</span> <span class="text-subject">the exam</span>?</div>
+                        <div class="example-box switched">Do you know <span class="text-question">what time</span> <span class="text-subject">the exam</span> <span class="text-verb">is</span>?</div>
+                    </div>
+                    <div class="card">
+                        <h4>Modal Verbs</h4>
+                        <div class="example-box question"><span class="text-question">Where</span> <span class="text-verb">can</span> <span class="text-subject">I</span> <span class="text-action">park</span>?</div>
+                        <div class="example-box switched">Can you tell me <span class="text-question">where</span> <span class="text-subject">I</span> <span class="text-verb">can</span> <span class="text-action">park</span>?</div>
+                    </div>
+                    <div class="card">
+                        <h4>Do / Does / Did</h4>
+                        <div class="example-box question"><span class="text-question">Where</span> <span class="text-danger" style="text-decoration: line-through;">did</span> <span class="text-subject">he</span> <span class="text-action">drive</span>?</div>
+                        <div class="example-box switched">I don't know <span class="text-question">where</span> <span class="text-subject">he</span> <span class="text-action">drove</span>.</div>
+                    </div>
+                </div>
+                
+                <h3 class="mt-6 mb-6">Select a Pattern to Practice</h3>
+                <div class="grid-2" id="patternGrid"></div>
+            </div>
+
+            <!-- Study Page -->
+            <div class="study-page hidden" id="studyPage">
+                <div id="studyContent" class="mb-6"></div>
+                <div class="text-center mt-6">
+                    <button class="action-btn" onclick="startPractice()">Start Practice Session</button>
+                </div>
+            </div>
+
+            <!-- Practice Page -->
+            <div class="practice-page hidden" id="practicePage">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">
+                    <span id="categoryTitle">Category</span>
+                    <span id="questionNumber">Question 1 of 50</span>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question-text" id="questionText">Loading...</div>
+                    <div class="options-grid" id="optionsGrid"></div>
+                    
+                    <div class="feedback-box" id="feedbackBox">
+                        <div class="feedback-title" id="feedbackTitle"></div>
+                        <div class="feedback-text" id="feedbackText"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div class="results-page hidden" id="resultsPage">
+                <h1 class="mt-6">Practice Complete</h1>
+                <div class="final-score-display" id="finalScore">0/50</div>
+                <p class="text-muted mb-6" id="scoreMessage">Good effort!</p>
+                
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="restartPractice()">Try Again</button>
+                    <button class="action-btn secondary" onclick="goHome()">Return Home</button>
+                    <button class="action-btn secondary" onclick="showReview()" id="reviewBtn">Review Mistakes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="review-modal" id="reviewModal">
+        <div class="review-content">
+            <h2 class="mb-6">Review Session</h2>
+            <div id="reviewItems"></div>
+            <div class="text-center mt-6">
+                <button class="action-btn" onclick="closeReview()">Close</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// === 150 QUESTION BANK (50 per category) ===
+const questionsBank = {
+    beVerbSwitch: [
+        { q: "Do you know what time _____?", options: ["is the exam", "the exam is", "the exam's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know what time the exam is?" },
+        { q: "I don't know where _____.", options: ["is the manager", "the manager is", "the manager's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know where the manager is." },
+        { q: "Can you tell me who _____?", options: ["are those clients", "those clients are", "those clients're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me who those clients are?" },
+        { q: "Do you know why _____ closed?", options: ["is the office", "the office is", "the office's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why the office is closed?" },
+        { q: "I wonder where _____.", options: ["are my documents", "my documents are", "my documents're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder where my documents are." },
+        { q: "Do you know how difficult _____?", options: ["is the procedure", "the procedure is", "the procedure's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know how difficult the procedure is?" },
+        { q: "Can you tell me what _____?", options: ["is that assignment", "that assignment is", "that assignment's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me what that assignment is?" },
+        { q: "I don't know when _____.", options: ["is the meeting", "the meeting is", "the meeting's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know when the meeting is." },
+        { q: "Do you know where _____?", options: ["are the directors", "the directors are", "the directors're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know where the directors are?" },
+        { q: "I wonder why _____ upset.", options: ["is he", "he is", "he's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder why he is upset." },
+        { q: "Do you know where _____?", options: ["is the biology lab", "the biology lab is", "the biology lab's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know where the biology lab is?" },
+        { q: "I don't know who _____.", options: ["is the new principal", "the new principal is", "the new principal's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know who the new principal is." },
+        { q: "Can you tell me when _____?", options: ["is finals week", "finals week is", "finals week's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me when finals week is?" },
+        { q: "Do you know why _____?", options: ["is the cafeteria closed", "the cafeteria is closed", "the cafeteria's closed", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why the cafeteria is closed?" },
+        { q: "I wonder where _____.", options: ["are my textbooks", "my textbooks are", "my textbooks're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder where my textbooks are." },
+        { q: "Can you tell me how long _____?", options: ["is the presentation", "the presentation is", "the presentation's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me how long the presentation is?" },
+        { q: "Do you know when _____?", options: ["is graduation", "graduation is", "graduation's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know when graduation is?" },
+        { q: "I don't know what _____.", options: ["is her username", "her username is", "username's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know what her username is." },
+        { q: "Can you tell me who _____ texting?", options: ["is he", "he is", "he's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me who he is texting?" },
+        { q: "Do you know where _____ going?", options: ["are they", "they are", "they're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know where they are going?" },
+        { q: "I wonder why _____ mad at me.", options: ["is she", "she is", "she's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder why she is mad at me." },
+        { q: "Can you tell me how old _____?", options: ["is his sibling", "his sibling is", "his sibling's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me how old his sibling is?" },
+        { q: "Do you know where _____?", options: ["is everyone", "everyone is", "everyone's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know where everyone is?" },
+        { q: "I don't know what _____ about.", options: ["is the movie", "the movie is", "the movie's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know what the movie is about." },
+        { q: "Can you tell me when _____?", options: ["is the event", "the event is", "the event's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me when the event is?" },
+        { q: "Do you know why _____ laughing?", options: ["are they", "they are", "they're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why they are laughing?" },
+        { q: "I wonder where _____.", options: ["is the gym", "the gym is", "the gym's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder where the gym is." },
+        { q: "Can you tell me when _____?", options: ["is the pep rally", "the pep rally is", "the pep rally's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me when the pep rally is?" },
+        { q: "Do you know who _____?", options: ["is the counselor", "the counselor is", "the counselor's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know who the counselor is?" },
+        { q: "I don't know why _____ locked.", options: ["is the door", "the door is", "the door's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know why the door is locked." },
+        { q: "Can you tell me where _____?", options: ["are the seniors", "the seniors are", "the seniors're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me where the seniors are?" },
+        { q: "Do you know what time _____?", options: ["is the assembly", "the assembly is", "the assembly's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know what time the assembly is?" },
+        { q: "I wonder who _____.", options: ["is the team captain", "the team captain is", "the team captain's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder who the team captain is?" },
+        { q: "Can you tell me why _____ delayed?", options: ["is the game", "the game is", "the game's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me why the game is delayed?" },
+        { q: "Do you know where _____?", options: ["is the cafeteria", "the cafeteria is", "the cafeteria's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know where the cafeteria is?" },
+        { q: "I don't know who _____.", options: ["is the substitute teacher", "the substitute teacher is", "the substitute teacher's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know who the substitute teacher is." },
+        { q: "Can you tell me what time _____?", options: ["is homeroom", "homeroom is", "homeroom's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me what time homeroom is?" },
+        { q: "Do you know why _____ down?", options: ["is the WiFi", "the WiFi is", "the WiFi's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why the WiFi is down?" },
+        { q: "I wonder how difficult _____.", options: ["is the AP exam", "the AP exam is", "the AP exam's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder how difficult the AP exam is." },
+        { q: "Can you tell me what _____?", options: ["is the homework assignment", "the homework assignment is", "the homework assignment's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me what the homework assignment is?" },
+        { q: "Do you know who _____?", options: ["is the valedictorian", "the valedictorian is", "the valedictorian's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know who the valedictorian is?" },
+        { q: "I don't know where _____.", options: ["is my locker", "my locker is", "my locker's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know where my locker is." },
+        { q: "Can you tell me how late _____ open?", options: ["is the library", "the library is", "the library's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me how late the library is open?" },
+        { q: "I wonder why _____ here.", options: ["is the principal", "the principal is", "the principal's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder why the principal is here." },
+        { q: "Do you know where _____?", options: ["is the pep rally", "the pep rally is", "the pep rally's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know where the pep rally is?" },
+        { q: "I don't know what time _____.", options: ["is the dance", "the dance is", "the dance's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know what time the dance is." },
+        { q: "Can you tell me who _____?", options: ["is your lab partner", "your lab partner is", "your lab partner's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me who your lab partner is?" },
+        { q: "I wonder how long _____.", options: ["is the essay", "the essay is", "the essay's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder how long the essay is." },
+        { q: "Do you know why _____ yelling?", options: ["is the coach", "the coach is", "the coach's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why the coach is yelling?" },
+        { q: "Can you tell me where _____?", options: ["is the counselor", "the counselor is", "the counselor's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me where the counselor is?" }
+    ],
+    modalSwitch: [
+        { q: "Can you tell me where _____ get the forms?", options: ["can I", "I can", "I'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me where I can get the forms?" },
+        { q: "Do you know how much _____ cost?", options: ["will the service", "the service will", "the service'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know how much the service will cost?" },
+        { q: "I wonder when _____ publish the report?", options: ["will they", "they will", "they'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder when they will publish the report?" },
+        { q: "Do you know where _____ park?", options: ["can we", "we can", "we'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know where we can park?" },
+        { q: "Can you tell me what _____ review?", options: ["should I", "I should", "I'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me what I should review?" },
+        { q: "I don't know how _____ complete this.", options: ["can we", "we can", "we'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know how we can complete this." },
+        { q: "Do you know when _____ arrive?", options: ["will the delivery", "the delivery will", "the delivery'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know when the delivery will arrive?" },
+        { q: "Can you tell me who _____ contact?", options: ["should I", "I should", "I'll", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me who I should contact?" },
+        { q: "I wonder where _____ find information?", options: ["can applicants", "applicants can", "applicants'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder where applicants can find information?" },
+        { q: "Do you know how long _____ take?", options: ["will the process", "the process will", "the process'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know how long the process will take?" },
+        { q: "Can you tell me where _____ submit the essay?", options: ["can I", "I can", "I'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me where I can submit the essay?" },
+        { q: "Do you know when _____ have our next pop quiz?", options: ["will we", "we will", "we'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know when we will have our next pop quiz?" },
+        { q: "I wonder when _____ finish grading the projects?", options: ["will the teacher", "the teacher will", "the teacher'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder when the teacher will finish grading the projects?" },
+        { q: "Do you know where _____ eat off-campus?", options: ["can we", "we can", "we'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know where we can eat off-campus?" },
+        { q: "Can you tell me what classes _____ take next year?", options: ["should I", "I should", "I'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me what classes I should take next year?" },
+        { q: "I don't know how _____ remember all these formulas.", options: ["can I", "I can", "I'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know how I can remember all these formulas." },
+        { q: "Do you know when _____ ring?", options: ["will the bell", "the bell will", "the bell'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know when the bell will ring?" },
+        { q: "Can you tell me who _____ ask for an extension?", options: ["should I", "I should", "I'll", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me who I should ask for an extension?" },
+        { q: "I wonder where _____ find the counselor's office?", options: ["can new students", "new students can", "new students'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder where new students can find the counselor's office?" },
+        { q: "Do you know how long _____ take to write the paper?", options: ["will it", "it will", "it'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know how long it will take to write the paper?" },
+        { q: "Do you know where _____ leave my backpack?", options: ["can I", "I can", "I'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know where I can leave my backpack?" },
+        { q: "I wonder when _____ announce the team.", options: ["will the coach", "the coach will", "the coach'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder when the coach will announce the team." },
+        { q: "Can you tell me what _____ bring to the field trip?", options: ["should we", "we should", "we'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me what we should bring to the field trip?" },
+        { q: "Do you know how _____ drive so well?", options: ["can she", "she can", "she'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know how she can drive so well?" },
+        { q: "I don't know when _____ open.", options: ["will the library", "the library will", "the library'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know when the library will open." },
+        { q: "Can you tell me who _____ invite to prom?", options: ["should we", "we should", "we'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me who we should invite to prom?" },
+        { q: "Do you know where _____ plug in my laptop?", options: ["can I", "I can", "I'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know where I can plug in my laptop?" },
+        { q: "I wonder how _____ grade the final.", options: ["will they", "they will", "they'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder how they will grade the final." },
+        { q: "Can you tell me what _____ be?", options: ["will the prompt", "the prompt will", "the prompt'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me what the prompt will be?" },
+        { q: "Do you know when _____ apply for college?", options: ["should I", "I should", "I'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know when I should apply for college?" },
+        { q: "I don't know where _____ sit at lunch.", options: ["can we", "we can", "we'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know where we can sit at lunch." },
+        { q: "Can you tell me how _____ afford that car?", options: ["can he", "he can", "he'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me how he can afford that car?" },
+        { q: "Do you know where _____ print this?", options: ["can we", "we can", "we'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know where we can print this?" },
+        { q: "I wonder when _____ announce the winner.", options: ["will they", "they will", "they'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder when they will announce the winner." },
+        { q: "Can you tell me what _____ wear to prom?", options: ["should I", "I should", "I'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me what I should wear to prom?" },
+        { q: "Do you know how _____ improve my grade?", options: ["can I", "I can", "I'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know how I can improve my grade?" },
+        { q: "I don't know where _____ go to college.", options: ["will she", "she will", "she'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know where she will go to college." },
+        { q: "Can you tell me when _____ ring?", options: ["will the bell", "the bell will", "the bell'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me when the bell will ring?" },
+        { q: "I wonder who _____ ask for help.", options: ["should we", "we should", "we'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder who we should ask for help." },
+        { q: "Do you know what _____ do in class today?", options: ["will we", "we will", "we'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know what we will do in class today?" },
+        { q: "Can you tell me how much _____ cost?", options: ["will the tickets", "the tickets will", "the tickets'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me how much the tickets will cost?" },
+        { q: "I don't know where _____ sit.", options: ["should I", "I should", "I'll", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know where I should sit." },
+        { q: "Do you know when _____ start?", options: ["will the game", "the game will", "the game'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know when the game will start?" },
+        { q: "I wonder how _____ run so fast.", options: ["can he", "he can", "he'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder how he can run so fast." },
+        { q: "Can you tell me what _____ write about?", options: ["should I", "I should", "I'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me what I should write about?" },
+        { q: "Do you know who _____ elect?", options: ["will they", "they will", "they'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know who they will elect?" },
+        { q: "I don't know where _____ meet.", options: ["should we", "we should", "we'd", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I don't know where we should meet." },
+        { q: "Can you tell me when _____ leave?", options: ["will the bus", "the bus will", "the bus'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me when the bus will leave?" },
+        { q: "I wonder what _____ say.", options: ["will the teacher", "the teacher will", "the teacher'll", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder what the teacher will say." },
+        { q: "Do you know where _____ practice today?", options: ["can they", "they can", "they'll", "can"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Do you know where they can practice today?" }
+    ],
+    mixedSwitch: [
+        { q: "Do you know what _____?", options: ["is your score", "your score is", "your score's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know what your score is?" },
+        { q: "I don't know where _____.", options: ["did he drive", "he did drive", "he drove", "do"], correct: 2, feedback: "Simple past tense questions drop the 'did' and use the regular past tense verb.", fullSentence: "I don't know where he drove." },
+        { q: "Can you tell me who _____?", options: ["is that person", "that person is", "that person's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me who that person is?" },
+        { q: "Do you know how _____?", options: ["old are they", "old they are", "they're old", "old"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know how old they are?" },
+        { q: "I wonder when _____?", options: ["will the event start", "the event will start", "the event'll start", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder when the event will start?" },
+        { q: "Do you know why _____?", options: ["is she preparing", "she is preparing", "she's preparing", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why she is preparing?" },
+        { q: "Can you tell me where _____?", options: ["are my files", "my files are", "my files're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me where my files are?" },
+        { q: "I don't know how _____?", options: ["much does it cost", "much it costs", "it costs much", "much"], correct: 1, feedback: "'How much' simple present questions drop the 'does' and use the standard verb form.", fullSentence: "I don't know how much it costs." },
+        { q: "Do you know who _____?", options: ["is attending", "attending is", "is attend", "is"], correct: 0, feedback: "When 'who' is the subject of the question, no word order change happens.", fullSentence: "Do you know who is attending?" },
+        { q: "I wonder what _____?", options: ["time is the appointment", "time the appointment is", "appointment's time", "time"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I wonder what time the appointment is?" },
+        { q: "Do you know what _____ for lunch?", options: ["is today", "today is", "today's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know what today is for lunch?" },
+        { q: "I don't know where _____.", options: ["did the sub go", "the sub did go", "the sub went", "does"], correct: 2, feedback: "Simple past drops the 'did'.", fullSentence: "I don't know where the sub went." },
+        { q: "Can you tell me who _____?", options: ["is the valedictorian", "the valedictorian is", "the valedictorian's", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me who the valedictorian is?" },
+        { q: "Do you know how _____?", options: ["many credits are needed", "many are credits needed", "credits are needed many", "many"], correct: 0, feedback: "When asking 'how many [noun] are...', the word order does not switch.", fullSentence: "Do you know how many credits are needed?" },
+        { q: "I wonder when _____?", options: ["will we graduate", "we will graduate", "we'll graduate", "will"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "I wonder when we will graduate?" },
+        { q: "Do you know why _____?", options: ["is volunteering important", "volunteering is important", "volunteering's important", "is"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why volunteering is important?" },
+        { q: "Can you tell me where _____?", options: ["are the assigned seats", "the assigned seats are", "the assigned seats're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me where the assigned seats are?" },
+        { q: "I don't know how _____?", options: ["long does the exam last", "long the exam lasts", "the exam lasts long", "long"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "I don't know how long the exam lasts." },
+        { q: "Do you know who _____?", options: ["is organizing the pep rally", "organizing the pep rally is", "is organize the pep rally", "is"], correct: 0, feedback: "No switch needed when 'who' is the subject.", fullSentence: "Do you know who is organizing the pep rally?" },
+        { q: "I wonder what time _____?", options: ["does the period end", "the period ends", "the period does end", "does"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "I wonder what time the period ends?" },
+        { q: "Do you know where _____?", options: ["does the bus stop", "the bus stops", "the bus does stop", "did"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "Do you know where the bus stops?" },
+        { q: "I don't know when _____.", options: ["did she leave", "she did leave", "she left", "do"], correct: 2, feedback: "Simple past drops 'did' and uses past verb.", fullSentence: "I don't know when she left." },
+        { q: "Can you tell me who _____?", options: ["will be the speaker", "the speaker will be", "will the speaker be", "will"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me who the speaker will be?" },
+        { q: "Do you know why _____ AP Physics?", options: ["are you taking", "you are taking", "you taking are", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Do you know why you are taking AP Physics?" },
+        { q: "I wonder how much _____.", options: ["homework do we have", "homework we have", "we have homework", "homework"], correct: 1, feedback: "Drop the 'do' for simple present embedded questions.", fullSentence: "I wonder how much homework we have." },
+        { q: "Can you tell me when _____ due?", options: ["are the permission slips", "the permission slips are", "the permission slips're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me when the permission slips are due?" },
+        { q: "I don't know where _____ my phone.", options: ["did I put", "I did put", "I put", "does"], correct: 2, feedback: "Simple past drops 'did'.", fullSentence: "I don't know where I put my phone." },
+        { q: "Do you know who _____?", options: ["brought the snacks", "did bring the snacks", "bringing the snacks", "the snacks brought"], correct: 0, feedback: "When 'who' is the subject, no switch occurs.", fullSentence: "Do you know who brought the snacks?" },
+        { q: "I wonder what time _____.", options: ["does the bell ring", "the bell rings", "the bell does ring", "do"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "I wonder what time the bell rings." },
+        { q: "Can you tell me how _____ home?", options: ["are you getting", "you are getting", "you getting are", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "Can you tell me how you are getting home?" },
+        { q: "Do you know why _____ the schedule?", options: ["did they change", "they did change", "they changed", "do"], correct: 2, feedback: "Simple past drops 'did'.", fullSentence: "Do you know why they changed the schedule?" },
+        { q: "I don't know where _____.", options: ["are the keys", "the keys are", "the keys're", "are"], correct: 1, feedback: "Subject comes before verb.", fullSentence: "I don't know where the keys are." },
+        { q: "Can you tell me who _____ talk to?", options: ["should I", "I should", "I'll", "should"], correct: 1, feedback: "Subject comes before modal verb.", fullSentence: "Can you tell me who I should talk to?" },
+        { q: "Do you know how much _____?", options: ["does this cost", "this costs", "this does cost", "do"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "Do you know how much this costs?" },
+        { q: "I don't know where _____ after school.", options: ["did she go", "she did go", "she went", "does"], correct: 2, feedback: "Simple past drops 'did' and uses past verb.", fullSentence: "I don't know where she went after school." },
+        { q: "Can you tell me what time _____?", options: ["does the movie start", "the movie starts", "the movie does start", "did"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "Can you tell me what time the movie starts?" },
+        { q: "I wonder why _____ early.", options: ["did he leave", "he did leave", "he left", "does"], correct: 2, feedback: "Simple past drops 'did' and uses past verb.", fullSentence: "I wonder why he left early." },
+        { q: "Do you know who _____?", options: ["got the highest score", "did get the highest score", "getting the highest score", "the highest score got"], correct: 0, feedback: "When 'who' is the subject of the sentence, no word order change is needed.", fullSentence: "Do you know who got the highest score?" },
+        { q: "Can you tell me what _____?", options: ["does this word mean", "this word means", "this word does mean", "do"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "Can you tell me what this word means?" },
+        { q: "I don't know where _____.", options: ["do they practice", "they practice", "they do practice", "does"], correct: 1, feedback: "Simple present drops 'do'.", fullSentence: "I don't know where they practice." },
+        { q: "Do you know how many pages _____ to write?", options: ["do we need", "we need", "we do need", "does"], correct: 1, feedback: "Simple present drops 'do'.", fullSentence: "Do you know how many pages we need to write?" },
+        { q: "I wonder what _____ to the WiFi.", options: ["happened", "did happen", "happening", "does happen"], correct: 0, feedback: "When 'what' is the subject of the sentence, no word order change is needed.", fullSentence: "I wonder what happened to the WiFi." },
+        { q: "Can you tell me how _____ that equation?", options: ["did you solve", "you did solve", "you solved", "do"], correct: 2, feedback: "Simple past drops 'did'.", fullSentence: "Can you tell me how you solved that equation?" },
+        { q: "I don't know why _____ the class.", options: ["did she drop", "she did drop", "she dropped", "does"], correct: 2, feedback: "Simple past drops 'did'.", fullSentence: "I don't know why she dropped the class." },
+        { q: "Do you know what time _____?", options: ["does the cafeteria open", "the cafeteria opens", "the cafeteria does open", "do"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "Do you know what time the cafeteria opens?" },
+        { q: "I wonder who _____ the snacks.", options: ["is bringing", "bringing is", "is bring", "bringing"], correct: 0, feedback: "When 'who' is the subject, no word order change is needed.", fullSentence: "I wonder who is bringing the snacks." },
+        { q: "Can you tell me where _____ that jacket?", options: ["did he buy", "he did buy", "he bought", "does"], correct: 2, feedback: "Simple past drops 'did' and uses past verb.", fullSentence: "Can you tell me where he bought that jacket?" },
+        { q: "I don't know how long _____.", options: ["does the commute take", "the commute takes", "the commute does take", "did"], correct: 1, feedback: "Simple present drops 'does'.", fullSentence: "I don't know how long the commute takes." },
+        { q: "Do you know who _____ the match?", options: ["won", "did win", "winning", "was won"], correct: 0, feedback: "When 'who' is the subject, no word order change is needed.", fullSentence: "Do you know who won the match?" },
+        { q: "I wonder why _____ the field trip.", options: ["did they cancel", "they did cancel", "they canceled", "do"], correct: 2, feedback: "Simple past drops 'did'.", fullSentence: "I wonder why they canceled the field trip." }
+    ]
+};
+
+// --- Color Coding Logic ---
+const questionWordsList = ["who", "what", "where", "when", "why", "how"];
+const subjectsList = [
+    "the assigned seats", "the biology lab", "the new principal", "the team captain",
+    "the permission slips", "the cafeteria", "the presentation", "the valedictorian",
+    "the prompt", "the tournament", "the counselor", "the directors", "the procedure",
+    "the substitute teacher", "homeroom", "the WiFi", "the AP exam", "the homework assignment",
+    "my locker", "the principal", "the pep rally", "the dance", "your lab partner",
+    "the essay", "the coach", "this word", "that equation", "the commute", "the field trip",
+    "the winner", "this", "my documents", "the schedule", "the delivery", "the semester",
+    "the service", "the projects", "the manager", "the meeting", "the seniors", "the library",
+    "the office", "the tickets", "the process", "the teacher", "the event", "the movie",
+    "the exam", "the door", "the game", "the gym", "the bell", "the bus", "the sub",
+    "the SAT", "my textbooks", "my phone", "my files", "my notes", "my keys", "her username",
+    "your score", "that assignment", "that person", "those clients", "finals week",
+    "new students", "AP Physics", "graduation", "volunteering", "applicants", "homework",
+    "everyone", "classes", "today", "the speaker", "she", "he", "they", "we", "I", "you",
+    "it", "his sibling", "the appointment", "the period"
+];
+
+const targetVerbsList = ["should", "could", "would", "shall", "will", "can", "may", "might", "were", "was", "are", "is", "am"];
+const dangerVerbsList = ["does", "did", "do"];
+const actionsList = [
+    "organizing", "attending", "preparing", "reviewing", "grading", "volunteering", 
+    "publish", "contact", "complete", "remember", "announce", "getting", "changed", 
+    "submit", "arrive", "afford", "review", "drove", "drive", "parked", "park", 
+    "study", "studied", "find", "take", "have", "finish", "eat", "ring", "ask", "win", 
+    "leave", "bring", "apply", "sit", "left", "put", "talk", "cost", "playing", 
+    "laughing", "going", "texting", "closed", "locked", "upset", "delayed", "print",
+    "wear", "improve", "go", "start", "run", "write", "elect", "meet", "say", "costs",
+    "went", "starts", "got", "means", "practice", "need", "happened", "solved",
+    "dropped", "opens", "bringing", "bought", "takes", "won", "canceled"
+];
+
+function colorizeOption(text) {
+    if (!text) return text;
+    let res = text;
+    
+    const qWords = [...questionWordsList].sort((a,b) => b.length - a.length);
+    const subjects = [...subjectsList].sort((a,b) => b.length - a.length);
+    const actions = [...actionsList].sort((a,b) => b.length - a.length);
+    const targets = [...targetVerbsList].sort((a,b) => b.length - a.length);
+    const dangers = [...dangerVerbsList].sort((a,b) => b.length - a.length);
+
+    qWords.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-question">$1</span>'));
+    subjects.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-subject">$1</span>'));
+    actions.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-action">$1</span>'));
+    targets.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-verb">$1</span>'));
+    dangers.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-danger">$1</span>')); // NO strikethrough here
+    
+    // Contractions
+    res = res.replace(/'s\b/gi, `'<span class="text-verb">s</span>`);
+    res = res.replace(/'re\b/gi, `'<span class="text-verb">re</span>`);
+    res = res.replace(/'ll\b/gi, `'<span class="text-verb">ll</span>`);
+    res = res.replace(/'d\b/gi, `'<span class="text-verb">d</span>`);
+
+    return res;
+}
+
+function colorizePrompt(text) {
+    if (!text) return text;
+    let res = text;
+    
+    const qWords = [...questionWordsList].sort((a,b) => b.length - a.length);
+    qWords.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-question">$1</span>'));
+
+    const actions = [...actionsList].sort((a,b) => b.length - a.length);
+    actions.forEach(w => res = res.replace(new RegExp(`\\b(${w})\\b`, 'gi'), '<span class="text-action">$1</span>'));
+    return res;
+}
+
+// --- App Logic ---
+const patternCategories = [
+    { id: 'beVerbSwitch', title: '"Be" Verb Switch', desc: 'is/are/was/were word order changes' },
+    { id: 'modalSwitch', title: 'Modal Switch', desc: 'can/will/should word order changes' },
+    { id: 'mixedSwitch', title: 'Mixed Assessment', desc: 'Test all embedding rules simultaneously' }
+];
+
+let state = {
+    page: 'home',
+    category: null,
+    questions: [],
+    current: 0,
+    score: 0,
+    answered: false,
+    history: ['home'],
+    incorrectAnswers: [],
+    usedQuestions: new Set(),
+    currentShuffledOptions: [],
+    currentCorrectIndex: -1
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderGrid();
+    updateNav();
+});
+
+function renderGrid() {
+    const grid = document.getElementById('patternGrid');
+    grid.innerHTML = '';
+    patternCategories.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'card clickable';
+        card.innerHTML = `<h3>${cat.title}</h3><p class="text-muted" style="font-size:0.875rem;">${cat.desc}</p><div style="margin-top: 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--primary);">50 Questions</div>`;
+        card.onclick = () => selectCategory(cat.id);
+        grid.appendChild(card);
+    });
+}
+
+function selectCategory(id) {
+    state.category = patternCategories.find(c => c.id === id);
+    state.history.push('study');
+    showPage('study');
+    renderStudy();
+    updateNav();
+}
+
+function renderStudy() {
+    const cat = state.category;
+    const content = document.getElementById('studyContent');
+    
+    let html = `<h2 class="mb-6">${cat.title} Guidelines</h2>`;
+    
+    const rules = {
+        beVerbSwitch: [
+            { title: 'The "Be" Verb Rule', content: 'When a question with is/are/was/were is embedded inside a statement or another question, the word order switches.', pattern: 'Normal: <span class="text-question">What time</span> <span class="text-verb">IS</span> <span class="text-subject">THE EXAM</span>? <br>→ Embedded: Do you know <span class="text-question">what time</span> <span class="text-subject">THE EXAM</span> <span class="text-verb">IS</span>?' },
+            { title: 'Identifying the Switch', content: 'First identify the <span class="text-verb">verb (blue)</span>, then identify the <span class="text-subject">subject (green)</span>. Switch their placement.', pattern: 'Block A (Verb) + Block B (Subject) → Block B (Subject) + Block A (Verb)' }
+        ],
+        modalSwitch: [
+            { title: 'The Modal Verb Rule', content: 'When a question with can/will/should is embedded, the word order switches.', pattern: 'Normal: <span class="text-question">Where</span> <span class="text-verb">CAN</span> <span class="text-subject">I</span> <span class="text-action">study</span>? <br>→ Embedded: Can you tell me <span class="text-question">where</span> <span class="text-subject">I</span> <span class="text-verb">CAN</span> <span class="text-action">study</span>?' },
+            { title: 'Identifying the Switch', content: 'First identify the <span class="text-verb">modal (blue)</span>, then identify the <span class="text-subject">subject (green)</span>. Switch their placement.', pattern: 'Modal [A] + Subject [B] → Subject [B] + Modal [A]' }
+        ],
+        mixedSwitch: [
+            { title: 'The Disappearing Do/Does/Did', content: 'Never use do, does, or did in an embedded question! Drop the helper verb entirely and change the <span class="text-action">main action verb</span> to match the tense.', pattern: 'Normal: <span class="text-question">Where</span> <span class="text-danger" style="text-decoration: line-through;">DID</span> <span class="text-subject">they</span> <span class="text-action">go</span>? ❌ <br>→ Embedded: I don\'t know <span class="text-question">where</span> <span class="text-subject">they</span> <span class="text-action">went</span>. ✅' },
+            { title: 'Exceptions', content: 'Questions beginning with "How many" or "How much", or questions where "Who" is the subject, do not switch order.', pattern: 'Example: Do you know <span class="text-question">who</span> <span class="text-verb">is</span> <span class="text-action">arriving</span>?' }
+        ]
+    };
+    
+    rules[cat.id].forEach(rule => {
+        html += `
+            <div class="card mb-6">
+                <h4>${rule.title}</h4>
+                <p class="text-muted mb-6" style="font-size:0.875rem;">${rule.content}</p>
+                <div style="background: var(--bg); padding: 1rem; border-radius: var(--radius); font-size: 0.875rem; border-left: 3px solid var(--primary);">${rule.pattern}</div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="card">
+            <h4>Context Examples</h4>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div class="example-box switched" style="flex: 1;"><strong>Correct:</strong><br/>${getExample(cat.id, true)}</div>
+                <div class="example-box" style="flex: 1; border-left: 3px solid var(--danger); background: var(--danger-bg);"><strong>Incorrect:</strong><br/>${getExample(cat.id, false)}</div>
+            </div>
+        </div>
+    `;
+    
+    content.innerHTML = html;
+}
+
+function getExample(catId, correct) {
+    if (catId === 'beVerbSwitch') {
+        return correct ? "Do you know <span class='text-question'>where</span> <span class='text-subject'>the library</span> <span class='text-verb'>is</span>? ✅" : "Do you know <span class='text-question'>where</span> <span class='text-verb'>is</span> <span class='text-subject'>the library</span>? ❌";
+    } else if (catId === 'modalSwitch') {
+        return correct ? "Can you tell me <span class='text-question'>where</span> <span class='text-subject'>I</span> <span class='text-verb'>can</span> <span class='text-action'>park</span>? ✅" : "Can you tell me <span class='text-question'>where</span> <span class='text-verb'>can</span> <span class='text-subject'>I</span> <span class='text-action'>park</span>? ❌";
+    } else {
+        return correct ? "I don't know <span class='text-question'>where</span> <span class='text-subject'>he</span> <span class='text-action'>drove</span>. ✅" : "I don't know <span class='text-question'>where</span> <span class='text-danger' style='text-decoration: line-through;'>did</span> <span class='text-subject'>he</span> <span class='text-action'>drive</span>. ❌";
+    }
+}
+
+function startPractice() {
+    const catId = state.category.id;
+    const bank = questionsBank[catId];
+    
+    let availableQuestions = bank.filter(q => !state.usedQuestions.has(q.q));
+    
+    if (availableQuestions.length < 50) {
+        state.usedQuestions.clear();
+        availableQuestions = [...bank];
+    }
+    
+    state.questions = shuffleArray(availableQuestions).slice(0, 50);
+    state.questions.forEach(q => state.usedQuestions.add(q.q));
+    
+    state.current = 0;
+    state.answered = false;
+    state.score = 0;
+    state.incorrectAnswers = [];
+    state.history.push('practice');
+    
+    updateScoreText();
+    showPage('practice');
+    renderQuestion();
+    updateNav();
+}
+
+function renderQuestion() {
+    const q = state.questions[state.current];
+    document.getElementById('questionNumber').textContent = `Question ${state.current + 1} of 50`;
+    document.getElementById('questionText').innerHTML = colorizePrompt(q.q);
+    document.getElementById('categoryTitle').textContent = state.category.title;
+    document.getElementById('progressBar').style.width = `${((state.current + 1) / 50) * 100}%`;
+    
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    
+    const originalCorrectText = q.options[q.correct];
+    const shuffledOptions = shuffleArray([...q.options]);
+    state.currentCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
+    state.currentShuffledOptions = shuffledOptions;
+    
+    shuffledOptions.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = colorizeOption(opt);
+        btn.onclick = () => selectAnswer(i);
+        grid.appendChild(btn);
+    });
+    
+    document.getElementById('feedbackBox').classList.remove('show', 'correct-feedback', 'incorrect-feedback');
+    document.getElementById('ttsBtn').disabled = true;
+    state.answered = false;
+    updateNav();
+}
+
+function selectAnswer(index) {
+    if (state.answered) return;
+    state.answered = true;
+    
+    const q = state.questions[state.current];
+    const correctIndex = state.currentCorrectIndex;
+    const buttons = document.querySelectorAll('.option-btn');
+    
+    buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === correctIndex) btn.classList.add('correct');
+        else if (i === index) btn.classList.add('incorrect');
+    });
+    
+    const feedback = document.getElementById('feedbackBox');
+    const title = document.getElementById('feedbackTitle');
+    const text = document.getElementById('feedbackText');
+    const ttsBtn = document.getElementById('ttsBtn');
+    
+    if (index === correctIndex) {
+        state.score++;
+        feedback.classList.add('correct-feedback');
+        title.textContent = 'Correct';
+        ttsBtn.disabled = false;
+        ttsBtn.dataset.fullSentence = q.fullSentence;
+    } else {
+        feedback.classList.add('incorrect-feedback');
+        title.textContent = 'Incorrect';
+        
+        state.incorrectAnswers.push({
+            question: q.q,
+            userAnswer: state.currentShuffledOptions[index],
+            correctAnswer: state.currentShuffledOptions[correctIndex],
+            feedback: q.feedback,
+            fullSentence: q.fullSentence
+        });
+        
+        ttsBtn.disabled = false;
+        ttsBtn.dataset.fullSentence = q.fullSentence;
+    }
+    
+    text.innerHTML = colorizePrompt(q.feedback); 
+    feedback.classList.add('show');
+    
+    updateScoreText();
+    updateNav();
+}
+
+function speakQuestion() {
+    const ttsBtn = document.getElementById('ttsBtn');
+    if (!ttsBtn.dataset.fullSentence) return;
+    
+    const text = ttsBtn.dataset.fullSentence;
+    
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85; 
+        
+        const voices = window.speechSynthesis.getVoices();
+        const targetVoices = ['Giuseppe', 'Remy', 'Vivienne', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
+        let selectedVoice = voices.find(v => targetVoices.some(tv => v.name.toLowerCase().includes(tv.toLowerCase())));
+        
+        if (selectedVoice) utterance.voice = selectedVoice;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function nextQuestion() {
+    if (state.current < 49) {
+        state.current++;
+        state.answered = false;
+        renderQuestion();
+    } else {
+        showResults();
+    }
+    updateNav();
+}
+
+function showResults() {
+    state.history.push('results');
+    showPage('results');
+    const pct = (state.score / 50) * 100;
+    document.getElementById('finalScore').textContent = `${state.score}/50`;
+    
+    let msg = '';
+    if (pct >= 90) msg = 'Excellent comprehension.';
+    else if (pct >= 70) msg = 'Good work. Reviewing mistakes will help.';
+    else msg = 'Keep practicing the rules.';
+    
+    document.getElementById('scoreMessage').textContent = msg;
+    document.getElementById('reviewBtn').style.display = state.incorrectAnswers.length > 0 ? 'inline-block' : 'none';
+    updateNav();
+}
+
+function showReview() {
+    const modal = document.getElementById('reviewModal');
+    const reviewItems = document.getElementById('reviewItems');
+    
+    if (state.incorrectAnswers.length === 0) {
+        reviewItems.innerHTML = '<p class="text-center">No mistakes to review.</p>';
+    } else {
+        reviewItems.innerHTML = state.incorrectAnswers.map((item, index) => `
+            <div class="review-item">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; font-size:1.125rem;">${colorizePrompt(item.question)}</div>
+                <div style="color: var(--danger); margin-bottom: 0.25rem;">Selected: <strong>${colorizeOption(item.userAnswer)}</strong></div>
+                <div style="color: var(--success); margin-bottom: 0.75rem;">Correct: <strong>${colorizeOption(item.correctAnswer)}</strong></div>
+                <div style="font-size: 0.875rem; color: var(--text-muted); background: var(--bg); padding: 0.75rem; border-radius: 6px;">${colorizePrompt(item.feedback)}</div>
+                <div style="margin-top: 1rem;">
+                    <button class="action-btn secondary" onclick="speakReviewSentence(${index})" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Listen to Correct Sentence</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    modal.classList.add('show');
+}
+
+function speakReviewSentence(index) {
+    const item = state.incorrectAnswers[index];
+    if (!item || !item.fullSentence) return;
+    
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(item.fullSentence);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85; 
+        
+        const voices = window.speechSynthesis.getVoices();
+        const targetVoices = ['Giuseppe', 'Remy', 'Vivienne', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
+        let selectedVoice = voices.find(v => targetVoices.some(tv => v.name.toLowerCase().includes(tv.toLowerCase())));
+        
+        if (selectedVoice) utterance.voice = selectedVoice;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function closeReview() {
+    document.getElementById('reviewModal').classList.remove('show');
+}
+
+function restartPractice() {
+    startPractice();
+}
+
+function goBack() {
+    if (state.history.length > 1) {
+        state.history.pop();
+        showPage(state.history[state.history.length - 1]);
+        updateNav();
+    }
+}
+
+function goHome() {
+    state.history = ['home'];
+    state.category = null;
+    showPage('home');
+    updateNav();
+}
+
+function showPage(name) {
+    ['homePage', 'studyPage', 'practicePage', 'resultsPage'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById(name + 'Page').classList.remove('hidden');
+    state.page = name;
+    
+    document.getElementById('scoreContainer').style.display = (name === 'practice') ? 'inline-block' : 'none';
+    document.getElementById('ttsBtn').style.display = (name === 'practice') ? 'inline-flex' : 'none';
+    
+    if (name !== 'results') {
+        document.getElementById('reviewModal').classList.remove('show');
+    }
+}
+
+function updateNav() {
+    document.getElementById('backBtn').disabled = state.history.length <= 1;
+    const next = document.getElementById('nextBtn');
+    if (state.page === 'practice') {
+        next.disabled = !state.answered;
+        next.textContent = state.current < 49 ? 'Next Question' : 'View Results';
+    } else {
+        next.disabled = true;
+    }
+}
+
+function updateScoreText() {
+    document.getElementById('scoreText').textContent = state.score;
+}
+
+function shuffleArray(array) {
+    const a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+</script>
+</body>
+</html>

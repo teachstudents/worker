@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German Phonics, Grammar & Topics</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel for compiling JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Essential styles for the 3D flashcard flip and clean scrollbars */
+        body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .perspective-1000 { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 selection:bg-amber-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- 1. PHONICS DATA (Levels 1 to 6) ---
+        const phonicsData = {
+          1: {
+            title: "Level 1: Basic Consonant Sounds",
+            desc: "German consonants are mostly similar to English, with several important differences. Pay special attention to W [v], Z [ts], J [j], and R [ʁ].",
+            items: [
+              { spelling: "B", ipa: "[b]", notes: "Initial / medial", words: "Ball, Baum, Buch, Birne", sentence: "Der Ball ist rot." },
+              { spelling: "B (final)", ipa: "[p]", notes: "Final (Auslautverhärtung)", words: "Grab, Dieb, Stab", sentence: "Das Grab ist im Garten." },
+              { spelling: "D", ipa: "[d]", notes: "Initial / medial", words: "Dank, Dose, Drei, Daumen", sentence: "Die Dose ist blau." },
+              { spelling: "D (final)", ipa: "[t]", notes: "Final (Auslautverhärtung)", words: "Hund, Wald, Rad", sentence: "Der Hund spielt im Park." },
+              { spelling: "F", ipa: "[f]", notes: "All positions", words: "Fisch, Freund, Farbe, Fenster", sentence: "Der Fisch schwimmt im See." },
+              { spelling: "G", ipa: "[ɡ]", notes: "Initial / medial", words: "Garten, Glas, Gut, Gabel", sentence: "Der Garten ist grün." },
+              { spelling: "G (final)", ipa: "[k]", notes: "Final (Auslautverhärtung)", words: "Tag, Weg, Zug", sentence: "Der Tag war schön." },
+              { spelling: "H", ipa: "[h]", notes: "Initial only", words: "Haus, Hund, Hand, Hase", sentence: "Der Hase läuft schnell." },
+              { spelling: "J", ipa: "[j]", notes: "Initial", words: "Ja, Jahr, Junge, Jacke", sentence: "Der Junge hat eine Jacke." },
+              { spelling: "W", ipa: "[v]", notes: "Initial / medial", words: "Wasser, Wald, Wolke, Wind", sentence: "Der Wind weht durch den Wald." },
+              { spelling: "Z", ipa: "[ts]", notes: "All positions", words: "Zeit, Zug, Zimmer, Zahn", sentence: "Der Zug fährt schnell." }
+            ]
+          },
+          2: {
+            title: "Level 2: Vowel Families, Umlauts & Diphthongs",
+            desc: "Every vowel comes in a short and long version. German also has three special vowels called umlauts (Ä, Ö, Ü) and three diphthongs.",
+            items: [
+              { spelling: "A (Short)", ipa: "[a]", notes: "Base Vowel", words: "Mann, Katze, Kamm", sentence: "Der Vater hat eine Katze." },
+              { spelling: "A (Long)", ipa: "[aː]", notes: "Base Vowel", words: "Vater, Nase, Schaf", sentence: "Der Vater hat eine Katze." },
+              { spelling: "Ä (Short)", ipa: "[ɛ]", notes: "Umlaut", words: "Männer, Hände, Kälte", sentence: "Das Mädchen isst Käse." },
+              { spelling: "Ä (Long)", ipa: "[ɛː]", notes: "Umlaut", words: "spät, Käse, Mädchen", sentence: "Das Mädchen isst Käse." },
+              { spelling: "Ö (Long)", ipa: "[øː]", notes: "Umlaut", words: "schön, Vögel, böse", sentence: "Die Vögel singen schön." },
+              { spelling: "Ü (Long)", ipa: "[yː]", notes: "Umlaut", words: "über, Tür, grün", sentence: "Die Tür ist grün." },
+              { spelling: "EI / AI", ipa: "[aɪ]", notes: "Diphthong", words: "Ei, Reis, Mai, Seite, klein", sentence: "Das Ei ist klein." },
+              { spelling: "AU", ipa: "[aʊ]", notes: "Diphthong", words: "Haus, Maus, Baum, Frau, blau", sentence: "Die Maus ist im Haus." },
+              { spelling: "EU / ÄU", ipa: "[ɔʏ]", notes: "Diphthong", words: "heute, neu, Häuser, Bäume", sentence: "Heute spielen wir im Freien." }
+            ]
+          },
+          3: {
+            title: "Level 3: Long and Short Vowel Spelling Rules",
+            desc: "Knowing whether a German vowel is long or short is essential. Spelling patterns (like double consonants or 'ie') provide reliable clues.",
+            items: [
+              { spelling: "aa, ee, oo", ipa: "Long", notes: "Double vowel", words: "Meer, Haar, Boot, Aal", sentence: "Das Meer ist blau und das Boot ist weiß." },
+              { spelling: "ie", ipa: "[iː]", notes: "Long I sound", words: "Liebe, Biene, spielen, Wiese", sentence: "Die Biene fliegt über die Wiese." },
+              { spelling: "Vh", ipa: "Long", notes: "Silent 'h' (Dehnungs-h)", words: "Schuh, Zahn, Mehl, Uhr", sentence: "Die Uhr zeigt zehn." },
+              { spelling: "V + CC", ipa: "Short", notes: "Double consonant", words: "Mutter, Bett, Sonne, rennen", sentence: "Die Sonne scheint auf das Bett." },
+              { spelling: "V + ck", ipa: "Short", notes: "Before 'ck'", words: "Brücke, Stück, Rücken, Decke", sentence: "Die Brücke ist aus Holz." }
+            ]
+          },
+          4: {
+            title: "Level 4: Digraphs and Consonant Clusters",
+            desc: "Digraphs represent a single sound. German has several important combinations (CH, SCH, SP, ST, PF) that differ from English.",
+            items: [
+              { spelling: "CH (ich)", ipa: "[ç]", notes: "After front vowels", words: "ich, Milch, Licht, echt", sentence: "Ich lese ein Buch in der Küche." },
+              { spelling: "CH (ach)", ipa: "[x]", notes: "After back vowels", words: "Bach, Buch, Koch, Dach", sentence: "Der Koch steht unter dem Dach." },
+              { spelling: "SCH", ipa: "[ʃ]", notes: "Always one sound", words: "Schule, Schaf, Schiff, Tasche", sentence: "Das Schaf steht auf der Wiese." },
+              { spelling: "SP (initial)", ipa: "[ʃp]", notes: "Start of word/syllable", words: "spielen, Spaß, sprechen", sentence: "Wir spielen gern Sport." },
+              { spelling: "ST (initial)", ipa: "[ʃt]", notes: "Start of word/syllable", words: "Stein, Stern, Straße", sentence: "Der Stern leuchtet über der Straße." },
+              { spelling: "PF", ipa: "[pf]", notes: "Affricate", words: "Pferd, Pflanze, Apfel, Kopf", sentence: "Das Pferd frisst einen Apfel." },
+              { spelling: "QU", ipa: "[kv]", notes: "Not like English 'kw'", words: "Quelle, Quark, Qualität", sentence: "Die Quelle im Wald ist klar." }
+            ]
+          },
+          5: {
+            title: "Level 5: Minimal Pairs and Advanced Patterns",
+            desc: "Refine pronunciation using minimal pairs. Master advanced rules like final devoicing (Auslautverhärtung), the Schwa [ə], and vocalized R [ɐ].",
+            items: [
+              { spelling: "Staat vs Stadt", ipa: "[ʃtaːt] / [ʃtat]", notes: "Length Minimal Pair", words: "Staat (state), Stadt (city)", sentence: "Der Staat hat viele große Städte." },
+              { spelling: "schon vs schön", ipa: "[ʃoːn] / [ʃøːn]", notes: "Umlaut Minimal Pair", words: "schon (already), schön (beautiful)", sentence: "Das Bild ist schön — ich habe es schon gesehen." },
+              { spelling: "Final Devoicing", ipa: "[d] → [t]", notes: "Auslautverhärtung", words: "Hunde [hʊndə] → Hund [hʊnt]", sentence: "Der Hund spielt mit anderen Hunden." },
+              { spelling: "Schwa", ipa: "[ə]", notes: "Unstressed -e / prefixes", words: "Lampe, Schule, bitte", sentence: "Die Lampe steht auf dem Tisch." },
+              { spelling: "Vocalized R", ipa: "[ɐ]", notes: "-er endings", words: "Mutter, Kinder, Wasser", sentence: "Die Mutter liest ein Buch." }
+            ]
+          },
+          6: {
+            title: "Level 6: Reimfamilien (Rhyming Word Families)",
+            desc: "German spelling is incredibly consistent. Mastering rhyme families helps secondary students decode and memorize vocabulary rapidly.",
+            items: [
+              { spelling: "-all / -and", ipa: "[al] / [ant]", notes: "Short Vowel Rhymes", words: "Ball, Fall, Halle | Hand, Sand, Wand", sentence: "Wir spielen Basketball in der Halle." },
+              { spelling: "-itz / -und", ipa: "[ɪts] / [ʊnt]", notes: "Short Vowel Rhymes", words: "Blitz, Sitz, Witz | Hund, Mund, rund", sentence: "Das war ein guter Witz!" },
+              { spelling: "-ahn / -uch", ipa: "[aːn] / [uːx]", notes: "Long Vowel Rhymes", words: "Bahn, Zahn, Hahn | Buch, Tuch, Spruch", sentence: "Das Physikbuch ist schwer." },
+              { spelling: "-ut / -ose", ipa: "[uːt] / [oːzə]", notes: "Long Vowel Rhymes", words: "Hut, Mut, absolut | Hose, Dose, Rose", sentence: "Ich brauche Mut für die Prüfung." },
+              { spelling: "-ein / -aus", ipa: "[aɪn] / [aʊs]", notes: "Diphthong Rhymes", words: "Bein, Stein, nein | Haus, Maus, raus", sentence: "Nein, ich gehe nicht raus." },
+              { spelling: "-aut / -eit", ipa: "[aʊt] / [aɪt]", notes: "Diphthong Rhymes", words: "laut, Haut, Braut | Zeit, weit, bereit", sentence: "Bist du bereit für den Test?" },
+              { spelling: "-ür / -ühl", ipa: "[yːɐ] / [yːl]", notes: "Umlaut Rhymes", words: "Tür, für, spüren | kühl, Gefühl, Mühle", sentence: "Die Tür zur Aula ist zu." }
+            ]
+          }
+        };
+
+        // --- 2. VOCABULARY DATA (A1 Basics) ---
+        const numbersData = [
+          { num: "0", word: "null" }, { num: "1", word: "eins" }, { num: "2", word: "zwei" }, 
+          { num: "3", word: "drei" }, { num: "4", word: "vier" }, { num: "5", word: "fünf" },
+          { num: "6", word: "sechs" }, { num: "7", word: "sieben" }, { num: "8", word: "acht" },
+          { num: "9", word: "neun" }, { num: "10", word: "zehn" }, { num: "11", word: "elf" },
+          { num: "12", word: "zwölf" }, { num: "13", word: "dreizehn" }, { num: "20", word: "zwanzig" },
+          { num: "30", word: "dreißig" }, { num: "50", word: "fünfzig" }, { num: "100", word: "hundert" }
+        ];
+
+        const colorsData = [
+          { color: "red", hex: "#ef4444", word: "rot", example: "Mein Textmarker ist rot." },
+          { color: "blue", hex: "#3b82f6", word: "blau", example: "Der Kuli ist blau." },
+          { color: "green", hex: "#22c55e", word: "grün", example: "Die Tafel ist grün." },
+          { color: "yellow", hex: "#eab308", word: "gelb", example: "Mein Notizbuch ist gelb." },
+          { color: "black", hex: "#1e293b", word: "schwarz", example: "Mein Rucksack ist schwarz." },
+          { color: "white", hex: "#f8fafc", word: "weiß", example: "Das Papier ist weiß." },
+          { color: "gray", hex: "#64748b", word: "grau", example: "Mein Laptop ist grau." },
+          { color: "brown", hex: "#78350f", word: "braun", example: "Der Schreibtisch ist braun." }
+        ];
+
+        const pronounsData = [
+          { pro: "ich", meaning: "I", sentence: "Ich habe morgen ein Referat." },
+          { pro: "du", meaning: "you (informal)", sentence: "Hast du mein Ladekabel?" },
+          { pro: "er", meaning: "he", sentence: "Er schreibt eine gute Note." },
+          { pro: "sie", meaning: "she", sentence: "Sie lernt in der Bibliothek." },
+          { pro: "es", meaning: "it", sentence: "Es klingelt gleich zur Pause." },
+          { pro: "wir", meaning: "we", sentence: "Wir haben gleich Sportunterricht." },
+          { pro: "ihr", meaning: "you all (informal)", sentence: "Habt ihr die Hausaufgabe gemacht?" },
+          { pro: "sie / Sie", meaning: "they / you (formal)", sentence: "Sie gehen in die Mensa." }
+        ];
+
+        // --- 3. TOPICS DATA (New Multi-Page Content) ---
+        const topicsData = {
+          food: {
+            title: "Essen & Trinken",
+            desc: "Food and drinks. Perfect for the cafeteria (die Mensa) or lunch break.",
+            vocab: [
+              { emoji: "🍕", word: "die Pizza", eng: "pizza" },
+              { emoji: "☕", word: "der Kaffee", eng: "coffee" },
+              { emoji: "🍎", word: "der Apfel", eng: "apple" },
+              { emoji: "🥤", word: "das Wasser", eng: "water" },
+              { emoji: "🥪", word: "das Pausenbrot", eng: "sandwich" },
+              { emoji: "🍟", word: "die Pommes", eng: "fries" },
+              { emoji: "🍫", word: "die Schokolade", eng: "chocolate" },
+              { emoji: "🥗", word: "der Salat", eng: "salad" }
+            ],
+            sentences: [
+              "Ich esse gern Pizza in der Mensa.",
+              "Ich brauche Kaffee vor der Prüfung.",
+              "Hast du einen Apfel für die Pause?",
+              "Wir essen heute Pommes mit Ketchup."
+            ],
+            qa: [
+              { q: "Was isst du gern?", qEng: "What do you like to eat?", a: "Ich esse gern Pizza.", aEng: "I like to eat pizza." },
+              { q: "Trinkst du Kaffee?", qEng: "Do you drink coffee?", a: "Ja, ich brauche Kaffee am Morgen.", aEng: "Yes, I need coffee in the morning." },
+              { q: "Hast du Hunger?", qEng: "Are you hungry?", a: "Ja, ich möchte ein Pausenbrot.", aEng: "Yes, I would like a sandwich." }
+            ]
+          },
+          school: {
+            title: "Schulsachen",
+            desc: "School supplies and classroom essentials.",
+            vocab: [
+              { emoji: "🖊️", word: "der Kuli", eng: "pen" },
+              { emoji: "💻", word: "der Laptop", eng: "laptop" },
+              { emoji: "📚", word: "das Buch", eng: "book" },
+              { emoji: "🎒", word: "der Rucksack", eng: "backpack" },
+              { emoji: "📝", word: "die Prüfung", eng: "exam / test" },
+              { emoji: "📱", word: "das Handy", eng: "cellphone" },
+              { emoji: "🔌", word: "das Ladekabel", eng: "charger" },
+              { emoji: "📒", word: "das Heft", eng: "notebook" }
+            ],
+            sentences: [
+              "Kannst du mir einen Kuli leihen?",
+              "Wir machen die Präsentation auf dem Laptop.",
+              "Das Mathebuch ist sehr schwer!",
+              "Mein Rucksack ist voll mit Hausaufgaben."
+            ],
+            qa: [
+              { q: "Was hast du im Rucksack?", qEng: "What do you have in your backpack?", a: "Ich habe einen Laptop und Bücher.", aEng: "I have a laptop and books." },
+              { q: "Hast du einen Kuli?", qEng: "Do you have a pen?", a: "Ja, hier bitte.", aEng: "Yes, here you go." },
+              { q: "Wann schreiben wir die Prüfung?", qEng: "When are we writing the exam?", a: "Wir schreiben die Prüfung am Freitag.", aEng: "We are writing the exam on Friday." }
+            ]
+          },
+          hobbies: {
+            title: "Freizeit",
+            desc: "Hobbies, free time, and hanging out after school.",
+            vocab: [
+              { emoji: "🎮", word: "Videospiele spielen", eng: "to play video games" },
+              { emoji: "⚽", word: "Sport machen", eng: "to do sports" },
+              { emoji: "🎧", word: "Musik hören", eng: "to listen to music" },
+              { emoji: "🍿", word: "ins Kino gehen", eng: "to go to the movies" },
+              { emoji: "📱", word: "chatten", eng: "to chat/text" },
+              { emoji: "🚲", word: "Fahrrad fahren", eng: "to ride a bike" },
+              { emoji: "🎸", word: "Gitarre spielen", eng: "to play guitar" },
+              { emoji: "😴", word: "schlafen", eng: "to sleep" }
+            ],
+            sentences: [
+              "Wir spielen am Wochenende Videospiele.",
+              "Nach der Schule mache ich Sport.",
+              "Ich höre Musik beim Lernen.",
+              "Gehen wir am Freitag ins Kino?"
+            ],
+            qa: [
+              { q: "Was machst du in der Freizeit?", qEng: "What do you do in your free time?", a: "Ich spiele gern Videospiele.", aEng: "I like to play video games." },
+              { q: "Hörst du gern Musik?", qEng: "Do you like listening to music?", a: "Ja, besonders Hip-Hop.", aEng: "Yes, especially hip-hop." },
+              { q: "Machst du Sport?", qEng: "Do you play sports?", a: "Ja, ich spiele Fußball.", aEng: "Yes, I play soccer." }
+            ]
+          },
+          clothes: {
+            title: "Kleidung",
+            desc: "Talking about clothes and what to wear.",
+            vocab: [
+              { emoji: "🧥", word: "der Kapuzenpulli", eng: "hoodie" },
+              { emoji: "👟", word: "die Turnschuhe", eng: "sneakers" },
+              { emoji: "👖", word: "die Jeans", eng: "jeans" },
+              { emoji: "👕", word: "das T-Shirt", eng: "t-shirt" },
+              { emoji: "🧦", word: "die Socken", eng: "socks" },
+              { emoji: "🧢", word: "die Kappe", eng: "cap" },
+              { emoji: "🕶️", word: "die Sonnenbrille", eng: "sunglasses" },
+              { emoji: "🎒", word: "die Tasche", eng: "bag" }
+            ],
+            sentences: [
+              "Mein Kapuzenpulli ist sehr bequem.",
+              "Ich brauche neue Turnschuhe für Sport.",
+              "Ich trage heute eine blaue Jeans.",
+              "Das Band-T-Shirt ist cool!"
+            ],
+            qa: [
+              { q: "Was trägst du heute?", qEng: "What are you wearing today?", a: "Ich trage eine Jeans und einen Kapuzenpulli.", aEng: "I am wearing jeans and a hoodie." },
+              { q: "Wie findest du das T-Shirt?", qEng: "How do you like the t-shirt?", a: "Ich finde es sehr cool.", aEng: "I find it very cool." },
+              { q: "Sind die Turnschuhe neu?", qEng: "Are the sneakers new?", a: "Ja, ich habe sie gestern gekauft.", aEng: "Yes, I bought them yesterday." }
+            ]
+          }
+        };
+
+        // --- 4. GRAMMAR ROADMAP ---
+        const grammarRoadmap = [
+          {
+            step: 1, title: "Core Vocabulary", why: "You need words before grammar rules.", concept: "High-frequency words for secondary students.",
+            example: "der Rucksack (backpack), die Prüfung (exam)", sentence: "Ich lerne für die Prüfung auf meinem Handy."
+          },
+          {
+            step: 2, title: "Articles & Gender", why: "Every noun needs an article (der/die/das).", concept: "3 genders; memorize the article WITH each noun.",
+            example: "der Lehrer (teacher), das Gymnasium (high school)", sentence: "Das Gymnasium ist groß und die Note ist wichtig."
+          },
+          {
+            step: 3, title: "Present Tense Verbs", why: "You need verbs to make sentences.", concept: "Regular conjugation (ich mache) + sein & haben.",
+            example: "ich lerne (I study), wir haben (we have)", sentence: "Wir haben heute viel Hausaufgabe."
+          },
+          {
+            step: 4, title: "Sentence Structure", why: "German has strict word-order rules.", concept: "V2 Rule: the conjugated verb is ALWAYS in position 2.",
+            example: "Heute spiele ich Fußball.", sentence: "Nach der Schule treffe ich meine Freunde."
+          },
+          {
+            step: 5, title: "Cases (Nom & Acc)", why: "Cases show who does what to whom.", concept: "Nominative = subject (der), Accusative = direct object (den).",
+            example: "Der Schüler liest den Roman.", sentence: "Der Lehrer gibt den Test zurück."
+          },
+          {
+            step: 6, title: "Questions & Negation", why: "Essential for actual conversation.", concept: "W-Fragen (wer, was, wo), nicht vs. kein.",
+            example: "Wann? (When?), kein WLAN (no WiFi)", sentence: "Warum haben wir hier kein WLAN?"
+          }
+        ];
+
+        // --- NEW: CORE VERBS DATA ---
+        const coreVerbsData = [
+          {
+            infinitive: "sein", translation: "to be",
+            conjugation: "ich bin, du bist, er/sie/es ist, wir sind, ihr seid, sie/Sie sind",
+            sentence: "Ich bin heute in der Bibliothek."
+          },
+          {
+            infinitive: "haben", translation: "to have",
+            conjugation: "ich habe, du hast, er/sie/es hat, wir haben, ihr habt, sie/Sie haben",
+            sentence: "Hast du morgen eine Prüfung?"
+          },
+          {
+            infinitive: "spielen", translation: "to play",
+            conjugation: "ich spiele, du spielst, er/sie/es spielt, wir spielen, ihr spielt, sie/Sie spielen",
+            sentence: "Wir spielen nach der Schule Videospiele."
+          },
+          {
+            infinitive: "machen", translation: "to do / make",
+            conjugation: "ich mache, du machst, er/sie/es macht, wir machen, ihr macht, sie/Sie machen",
+            sentence: "Ich mache jetzt meine Mathe-Hausaufgaben."
+          },
+          {
+            infinitive: "hören", translation: "to listen / hear",
+            conjugation: "ich höre, du hörst, er/sie/es hört, wir hören, ihr hört, sie/Sie hören",
+            sentence: "Er hört beim Lernen oft Musik."
+          },
+          {
+            infinitive: "gehen", translation: "to go",
+            conjugation: "ich gehe, du gehst, er/sie/es geht, wir gehen, ihr geht, sie/Sie gehen",
+            sentence: "Wir gehen in der Pause in die Mensa."
+          }
+        ];
+
+        // --- 5. ALPHABET DATA ---
+        const alphabetData = [
+          { letter: 'A', tts: 'A' }, { letter: 'B', tts: 'B' }, { letter: 'C', tts: 'C' }, { letter: 'D', tts: 'D' },
+          { letter: 'E', tts: 'E' }, { letter: 'F', tts: 'F' }, { letter: 'G', tts: 'G' }, { letter: 'H', tts: 'H' },
+          { letter: 'I', tts: 'I' }, { letter: 'J', tts: 'J' }, { letter: 'K', tts: 'K' }, { letter: 'L', tts: 'L' },
+          { letter: 'M', tts: 'M' }, { letter: 'N', tts: 'N' }, { letter: 'O', tts: 'O' }, { letter: 'P', tts: 'P' },
+          { letter: 'Q', tts: 'Q' }, { letter: 'R', tts: 'R' }, { letter: 'S', tts: 'S' }, { letter: 'T', tts: 'T' },
+          { letter: 'U', tts: 'U' }, { letter: 'V', tts: 'V' }, { letter: 'W', tts: 'W' }, { letter: 'X', tts: 'X' },
+          { letter: 'Y', tts: 'Y' }, { letter: 'Z', tts: 'Z' },
+          { letter: 'Ä', tts: 'Ä' }, { letter: 'Ö', tts: 'Ö' }, { letter: 'Ü', tts: 'Ü' }, { letter: 'ß', tts: 'Eszett' }
+        ];
+
+        const twoLetterBlends = [
+          { blend: 'ei', example: 'Eis' }, { blend: 'eu', example: 'Eule' }, { blend: 'au', example: 'Auto' },
+          { blend: 'ch', example: 'Buch' }, { blend: 'sp', example: 'Sport' }, { blend: 'st', example: 'Stern' },
+          { blend: 'pf', example: 'Pferd' }, { blend: 'qu', example: 'Qualle' }
+        ];
+
+        const threeLetterBlends = [
+          { blend: 'sch', example: 'Schule' }, { blend: 'str', example: 'Straße' },
+          { blend: 'spr', example: 'Sprache' }, { blend: 'pfl', example: 'Pflanze' }
+        ];
+
+        // --- MAIN APPLICATION COMPONENT ---
+        const App = () => {
+          const [activeTab, setActiveTab] = useState('grammar');
+          const [activeLevel, setActiveLevel] = useState(1);
+          const [activeTopic, setActiveTopic] = useState('food');
+          const [activeGrammar, setActiveGrammar] = useState('roadmap'); // For sub-navigation in Grammar Tab
+
+          // TTS Logic locked to 85% speed, prioritizing Microsoft Online Ingrid
+          const playTTS = (text) => {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            const cleanText = text.replace(/\[.*?\]/g, '');
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'de-DE';
+            utterance.rate = 0.85; 
+            
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Ingrid'))
+              || voices.find(v => v.lang.startsWith('de') && (v.name.includes('Microsoft') || v.name.includes('Online')))
+              || voices.find(v => v.lang.startsWith('de'));
+              
+            if (preferredVoice) {
+              utterance.voice = preferredVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+          };
+
+          return (
+            <div className="min-h-screen">
+              {/* Header */}
+              <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center text-amber-950 font-black shadow-inner shrink-0">
+                      Ä
+                    </div>
+                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600 hidden xl:block shrink-0">
+                      German Phonics & Topics
+                    </h1>
+                  </div>
+                  <nav className="flex gap-1 bg-slate-100 p-1.5 rounded-xl overflow-x-auto no-scrollbar w-full xl:w-auto ml-0 xl:ml-8">
+                    <button onClick={() => setActiveTab('alphabet')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'alphabet' ? 'bg-white shadow-sm text-amber-600 ring-1 ring-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+                      <i className="fa-solid fa-font"></i> Alphabet & Blends
+                    </button>
+                    <button onClick={() => setActiveTab('learn')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'learn' ? 'bg-white shadow-sm text-amber-600 ring-1 ring-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+                      <i className="fa-solid fa-book-open"></i> Phonics Levels
+                    </button>
+                    <button onClick={() => setActiveTab('vocab')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'vocab' ? 'bg-white shadow-sm text-amber-600 ring-1 ring-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+                      <i className="fa-solid fa-spell-check"></i> A1 Basics
+                    </button>
+                    <button onClick={() => setActiveTab('topics')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'topics' ? 'bg-white shadow-sm text-amber-600 ring-1 ring-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+                      <i className="fa-solid fa-layer-group"></i> A1 Topics
+                    </button>
+                    <button onClick={() => setActiveTab('grammar')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'grammar' ? 'bg-white shadow-sm text-amber-600 ring-1 ring-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+                      <i className="fa-solid fa-building-columns"></i> Grammar (A1)
+                    </button>
+                  </nav>
+                </div>
+              </header>
+
+              {/* Main Content */}
+              <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
+                
+                {/* 1. ALPHABET TAB */}
+                {activeTab === 'alphabet' && (
+                  <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <section>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 justify-between bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div>
+                          <h2 className="text-2xl font-bold text-slate-800">The German Alphabet</h2>
+                          <p className="text-slate-600 mt-1">Click any letter to hear its pronunciation. Speed is slowed to 85% for clarity.</p>
+                        </div>
+                        <button onClick={() => playTTS("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z Ä Ö Ü Eszett")} className="px-6 py-3 rounded-xl bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors font-bold text-sm shrink-0 shadow-sm active:scale-95">
+                          Listen to Full Alphabet
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
+                        {alphabetData.map((item, idx) => (
+                          <button key={idx} onClick={() => playTTS(item.tts)} className="flex flex-col items-center justify-center p-6 bg-white border-2 border-slate-100 rounded-xl shadow-sm hover:shadow-md hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition-all cursor-pointer" title="Click to listen">
+                            <span className="text-3xl font-black text-slate-700">{item.letter}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                    <section>
+                      <div className="mb-6 px-2">
+                        <h2 className="text-2xl font-bold text-slate-800">Two-Letter Blends</h2>
+                        <p className="text-slate-600 mt-1">Common digraphs and diphthongs. Click to hear the blend and example.</p>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {twoLetterBlends.map((item, idx) => (
+                          <button key={idx} onClick={() => playTTS(`${item.blend}, wie in ${item.example}`)} className="flex items-center justify-center p-6 bg-white border-2 border-slate-100 rounded-xl shadow-sm hover:shadow-md hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition-all cursor-pointer" title="Click to listen">
+                            <div className="text-center">
+                              <span className="block text-3xl font-black text-slate-700">{item.blend}</span>
+                              <span className="block text-sm font-medium text-slate-500 mt-2 tracking-wide">{item.example}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                    <section>
+                      <div className="mb-6 px-2">
+                        <h2 className="text-2xl font-bold text-slate-800">Three-Letter Blends</h2>
+                        <p className="text-slate-600 mt-1">Advanced consonant clusters for precise articulation.</p>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {threeLetterBlends.map((item, idx) => (
+                          <button key={idx} onClick={() => playTTS(`${item.blend}, wie in ${item.example}`)} className="flex items-center justify-center p-6 bg-white border-2 border-slate-100 rounded-xl shadow-sm hover:shadow-md hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition-all cursor-pointer" title="Click to listen">
+                            <div className="text-center">
+                              <span className="block text-3xl font-black text-slate-700">{item.blend}</span>
+                              <span className="block text-sm font-medium text-slate-500 mt-2 tracking-wide">{item.example}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                  </div>
+                )}
+
+                {/* 2. PHONICS TAB */}
+                {activeTab === 'learn' && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex flex-wrap gap-2">
+                      {[1, 2, 3, 4, 5, 6].map((level) => (
+                        <button key={level} onClick={() => setActiveLevel(level)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${activeLevel === level ? 'bg-amber-400 text-amber-950 shadow-md ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-50' : 'bg-white text-slate-600 border-2 border-slate-200 hover:bg-slate-100'}`}>
+                          Level {level}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                      <h2 className="text-2xl font-bold text-slate-800 mb-2">{phonicsData[activeLevel].title}</h2>
+                      <p className="text-slate-600 flex items-start gap-2">
+                        <i className="fa-solid fa-circle-info text-amber-500 shrink-0 mt-1"></i>
+                        <span>{phonicsData[activeLevel].desc}</span>
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {phonicsData[activeLevel].items.map((item, idx) => (
+                        <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full">
+                          <div className="flex justify-between items-start mb-5">
+                            <h3 className="text-3xl font-black text-amber-500 tracking-tight">{item.spelling}</h3>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 font-mono">{item.ipa}</span>
+                          </div>
+                          <div className="space-y-4 flex-grow flex flex-col">
+                            <div>
+                              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Context / Rule</p>
+                              <p className="text-sm text-slate-700 font-medium">{item.notes}</p>
+                            </div>
+                            <div className="flex-grow">
+                              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Examples (Click to hear)</p>
+                              <button onClick={() => playTTS(item.words)} className="w-full text-left p-3 -ml-3 rounded-xl hover:bg-amber-50 transition-colors active:scale-[0.98]" title="Click to hear examples">
+                                <p className="text-base text-slate-800 font-semibold leading-snug">{item.words}</p>
+                              </button>
+                            </div>
+                            <div className="pt-4 border-t border-slate-100 mt-auto">
+                              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Sentence (Click to hear)</p>
+                              <button onClick={() => playTTS(item.sentence)} className="w-full text-left p-3 -ml-3 rounded-xl hover:bg-amber-50 transition-colors active:scale-[0.98]" title="Click to hear sentence">
+                                <p className="text-sm italic font-medium text-slate-600 group-hover:text-amber-800 transition-colors">"{item.sentence}"</p>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. VOCABULARY TAB */}
+                {activeTab === 'vocab' && (
+                  <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <section>
+                      <div className="flex items-center gap-3 mb-6 px-2 border-b border-slate-200 pb-4">
+                        <div className="bg-slate-800 text-white p-2 rounded-lg"><i className="fa-solid fa-hashtag text-xl"></i></div>
+                        <div>
+                          <h2 className="text-2xl font-bold text-slate-800">Numbers (Zahlen)</h2>
+                          <p className="text-slate-600 text-sm mt-1">Click to hear the numbers 1-20, plus tens.</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                        {numbersData.map((item, idx) => (
+                          <button key={idx} onClick={() => playTTS(item.word)} className="flex flex-col items-center justify-center p-4 bg-white border-2 border-slate-100 rounded-xl shadow-sm hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition-all">
+                            <span className="text-2xl font-black text-slate-800">{item.num}</span>
+                            <span className="text-sm font-semibold text-amber-600 mt-1">{item.word}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                    <section>
+                      <div className="flex items-center gap-3 mb-6 px-2 border-b border-slate-200 pb-4">
+                        <div className="bg-slate-800 text-white p-2 rounded-lg"><i className="fa-solid fa-palette text-xl"></i></div>
+                        <div>
+                          <h2 className="text-2xl font-bold text-slate-800">Colors (Farben)</h2>
+                          <p className="text-slate-600 text-sm mt-1">Click to hear the color and a school-related sentence.</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {colorsData.map((item, idx) => (
+                          <button key={idx} onClick={() => playTTS(`${item.word}. ${item.example}`)} className="text-left p-5 bg-white border-2 border-slate-100 rounded-xl shadow-sm hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition-all group">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-6 h-6 rounded-full border border-slate-200 shadow-inner" style={{ backgroundColor: item.hex }}></div>
+                              <span className="text-xl font-bold text-slate-800 capitalize">{item.word}</span>
+                            </div>
+                            <p className="text-sm italic font-medium text-slate-500 group-hover:text-slate-700">"{item.example}"</p>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                    <section>
+                      <div className="flex items-center gap-3 mb-6 px-2 border-b border-slate-200 pb-4">
+                        <div className="bg-slate-800 text-white p-2 rounded-lg"><i className="fa-solid fa-users text-xl"></i></div>
+                        <div>
+                          <h2 className="text-2xl font-bold text-slate-800">Pronouns (Pronomen)</h2>
+                          <p className="text-slate-600 text-sm mt-1">The foundation of sentences. Click to hear.</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {pronounsData.map((item, idx) => (
+                          <button key={idx} onClick={() => playTTS(`${item.pro}. ${item.sentence}`)} className="text-left p-5 bg-white border-2 border-slate-100 rounded-xl shadow-sm hover:border-amber-300 hover:bg-amber-50 active:scale-95 transition-all group">
+                            <div className="mb-2 flex justify-between items-baseline">
+                              <span className="text-2xl font-bold text-amber-600">{item.pro}</span>
+                              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{item.meaning}</span>
+                            </div>
+                            <p className="text-sm italic font-medium text-slate-600 group-hover:text-slate-800 mt-2 border-t border-slate-100 pt-3">"{item.sentence}"</p>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                  </div>
+                )}
+
+                {/* --- 4. TOPICS TAB --- */}
+                {activeTab === 'topics' && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap gap-2 justify-center">
+                      <button onClick={() => setActiveTopic('food')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeTopic === 'food' ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                        🍕 Food & Drinks
+                      </button>
+                      <button onClick={() => setActiveTopic('school')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeTopic === 'school' ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                        📚 School Supplies
+                      </button>
+                      <button onClick={() => setActiveTopic('hobbies')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeTopic === 'hobbies' ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                        🎮 Hobbies
+                      </button>
+                      <button onClick={() => setActiveTopic('clothes')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeTopic === 'clothes' ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                        🧥 Clothing
+                      </button>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+                      <div className="mb-8 border-b border-slate-100 pb-6">
+                        <h2 className="text-3xl font-extrabold text-slate-800">{topicsData[activeTopic].title}</h2>
+                        <p className="text-slate-600 mt-2 font-medium">{topicsData[activeTopic].desc}</p>
+                      </div>
+
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i className="fa-solid fa-list text-amber-500"></i> Vocabulary (Click to hear)
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                        {topicsData[activeTopic].vocab.map((v, i) => (
+                          <button key={i} onClick={() => playTTS(v.word)} className="flex items-center gap-4 p-4 bg-slate-50 border-2 border-slate-100 rounded-xl hover:border-amber-300 hover:bg-amber-50 transition-all active:scale-95 text-left group">
+                            <span className="text-3xl group-hover:scale-110 transition-transform">{v.emoji}</span>
+                            <div>
+                              <p className="font-bold text-slate-800">{v.word}</p>
+                              <p className="text-xs text-slate-500 uppercase font-semibold">{v.eng}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i className="fa-solid fa-comment-dots text-amber-500"></i> Example Sentences
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                        {topicsData[activeTopic].sentences.map((s, i) => (
+                          <button key={i} onClick={() => playTTS(s)} className="p-4 bg-slate-50 border-2 border-slate-100 rounded-xl hover:border-amber-300 hover:bg-amber-50 transition-all active:scale-95 text-left">
+                            <p className="font-semibold text-slate-800">"{s}"</p>
+                          </button>
+                        ))}
+                      </div>
+
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i className="fa-solid fa-comments text-amber-500"></i> Questions & Answers
+                      </h3>
+                      <div className="space-y-4">
+                        {topicsData[activeTopic].qa.map((qa, i) => (
+                          <div key={i} className="flex flex-col md:flex-row gap-4">
+                            <button onClick={() => playTTS(qa.q)} className="flex-1 p-5 bg-slate-100 border-2 border-slate-200 rounded-xl hover:border-amber-300 hover:bg-amber-100 transition-all active:scale-95 text-left relative overflow-hidden group">
+                              <div className="absolute top-0 left-0 w-1 h-full bg-slate-400 group-hover:bg-amber-500 transition-colors"></div>
+                              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Question</p>
+                              <p className="font-bold text-slate-800 text-lg mb-1">{qa.q}</p>
+                              <p className="text-sm text-slate-500 italic">{qa.qEng}</p>
+                            </button>
+                            <button onClick={() => playTTS(qa.a)} className="flex-1 p-5 bg-amber-50 border-2 border-amber-100 rounded-xl hover:border-amber-400 hover:bg-amber-100 transition-all active:scale-95 text-left relative overflow-hidden group">
+                              <div className="absolute top-0 left-0 w-1 h-full bg-amber-400 group-hover:bg-amber-600 transition-colors"></div>
+                              <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Answer</p>
+                              <p className="font-bold text-amber-900 text-lg mb-1">{qa.a}</p>
+                              <p className="text-sm text-amber-700 italic">{qa.aEng}</p>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. GRAMMAR TAB (Roadmap & Verbs) */}
+                {activeTab === 'grammar' && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    
+                    {/* Grammar Sub-Navigation */}
+                    <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap gap-2 justify-center mb-8">
+                      <button onClick={() => setActiveGrammar('roadmap')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeGrammar === 'roadmap' ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                        <i className="fa-solid fa-map"></i> 1. Survival Roadmap
+                      </button>
+                      <button onClick={() => setActiveGrammar('verbs')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeGrammar === 'verbs' ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>
+                        <i className="fa-solid fa-bolt"></i> 2. Core Verbs
+                      </button>
+                    </div>
+
+                    {activeGrammar === 'roadmap' && (
+                      <div>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                          <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Stage 1: Survival Grammar (A1)</h2>
+                          <p className="text-slate-600 mt-2 font-medium">After phonics, follow this 6-step roadmap. Examples are tailored for secondary student vocabulary. Click any example to hear the pronunciation!</p>
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {grammarRoadmap.map((step, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl border-2 border-slate-100 p-6 shadow-sm hover:border-amber-200 transition-all flex flex-col h-full">
+                              <div className="flex items-center gap-4 mb-4 border-b border-slate-100 pb-4">
+                                <div className="w-10 h-10 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center shrink-0">{step.step}</div>
+                                <div>
+                                  <h3 className="text-xl font-bold text-slate-800">{step.title}</h3>
+                                  <p className="text-sm font-medium text-amber-600">{step.why}</p>
+                                </div>
+                              </div>
+                              <div className="space-y-4 flex-grow flex flex-col">
+                                <div>
+                                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">The Rule</p>
+                                  <p className="text-sm font-medium text-slate-700">{step.concept}</p>
+                                </div>
+                                <div className="flex-grow bg-slate-50 rounded-xl p-1 border border-slate-100">
+                                  <button onClick={() => playTTS(step.example)} className="w-full text-left p-4 rounded-lg hover:bg-amber-100 transition-colors active:scale-[0.98]" title="Click to hear vocabulary">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vocabulary Focus</p>
+                                    <p className="text-base text-slate-800 font-semibold">{step.example}</p>
+                                  </button>
+                                </div>
+                                <div className="bg-slate-800 rounded-xl p-1 text-white">
+                                  <button onClick={() => playTTS(step.sentence)} className="w-full text-left p-4 rounded-lg hover:bg-slate-700 transition-colors active:scale-[0.98]" title="Click to hear sentence">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">In Practice</p>
+                                    <p className="text-sm font-medium italic">"{step.sentence}"</p>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeGrammar === 'verbs' && (
+                      <div>
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                          <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Stage 2: Core Verbs (A1)</h2>
+                          <p className="text-slate-600 mt-2 font-medium">Here are the essential A1 verbs you need to speak right away. Click any card to hear the conjugations and example sentences!</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {coreVerbsData.map((verb, idx) => (
+                            <div key={idx} className="bg-white rounded-2xl border-2 border-slate-100 p-6 shadow-sm hover:border-amber-300 transition-all">
+                              <div className="flex items-baseline justify-between mb-4 border-b border-slate-100 pb-3">
+                                <h3 className="text-2xl font-black text-amber-600">{verb.infinitive}</h3>
+                                <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">{verb.translation}</span>
+                              </div>
+                              <div className="space-y-3">
+                                <button onClick={() => playTTS(verb.infinitive + ". " + verb.conjugation)} className="w-full text-left p-4 bg-slate-50 rounded-xl hover:bg-amber-100 transition-colors active:scale-[0.98] group">
+                                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Conjugation</p>
+                                  <p className="text-slate-800 font-semibold leading-relaxed group-hover:text-amber-900">{verb.conjugation}</p>
+                                </button>
+                                <button onClick={() => playTTS(verb.sentence)} className="w-full text-left p-4 bg-slate-800 text-white rounded-xl hover:bg-slate-700 transition-colors active:scale-[0.98]">
+                                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Example Sentence</p>
+                                  <p className="text-sm font-medium italic">"{verb.sentence}"</p>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              </main>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

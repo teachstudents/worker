@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice 12 - Advanced</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #388e3c;
+            --success: #43a047;
+            --error: #c62828;
+            --warning: #ef6c00;
+            --light: #e8f5e9;
+            --dark: #1b5e20;
+            --gray: #455a64;
+            --border: #a5d6a7;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #263238;
+            background-color: #eceff1;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: visible;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #ffcc80;
+        }
+        
+        .score-display {
+            font-weight: bold;
+        }
+        
+        .difficulty-badge {
+            background: #ff5722;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .start-screen h2 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .difficulty-warning {
+            background: #fff3e0;
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #e65100;
+        }
+        
+        .name-input-group {
+            margin: 30px 0;
+        }
+        
+        .name-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .error-message {
+            color: var(--error);
+            margin-top: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .start-btn:hover {
+            background: #2e7d32;
+        }
+        
+        .start-btn:disabled {
+            background: #90a4ae;
+            cursor: not-allowed;
+        }
+        
+        .instructions {
+            background: var(--light);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        /* Two-Column Layout for Test Content */
+        .test-layout {
+            display: none;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .test-layout.active {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            animation: fadeIn 0.4s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Left Column: Passage Text */
+        .passage-column {
+            padding-right: 15px;
+            border-right: 1px solid var(--border);
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        
+        .passage-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .passage-text {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .passage-text p {
+            margin-bottom: 15px;
+        }
+        
+        /* Right Column: Questions */
+        .questions-column {
+            padding-left: 15px;
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+            padding-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .question-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .skill-tag {
+            background: #c8e6c9;
+            color: var(--secondary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .option-btn {
+            padding: 10px 15px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-btn:hover {
+            background: #f5f5f5;
+            border-color: var(--secondary);
+        }
+        
+        .option-btn.correct {
+            background: #c8e6c9;
+            border-color: var(--success);
+            color: #1b5e20;
+            font-weight: 500;
+        }
+        
+        .option-btn.incorrect {
+            background: #ffcdd2;
+            border-color: var(--error);
+            color: #b71c1c;
+            font-weight: 500;
+        }
+        
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .option-btn.correct .option-letter {
+            background: var(--success);
+        }
+        
+        .option-btn.incorrect .option-letter {
+            background: var(--error);
+        }
+        
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #c8e6c9;
+            border: 1px solid var(--success);
+            color: #1b5e20;
+        }
+        
+        .feedback.incorrect {
+            background: #ffcdd2;
+            border: 1px solid var(--error);
+            color: #b71c1c;
+        }
+        
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+        
+        /* Navigation */
+        .navigation {
+            padding: 15px 25px;
+            background: var(--light);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev {
+            background: #78909c;
+            color: white;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            background: #2e7d32;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .passage-indicator {
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            padding: 30px;
+            display: none;
+            text-align: center;
+        }
+        
+        .results-screen.active {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 25px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        
+        .results-header {
+            margin-bottom: 30px;
+        }
+        
+        .results-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .results-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .meta-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+        
+        .skills-summary {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .skills-summary h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: var(--light);
+        }
+        
+        .skill-item.missed {
+            background: #ffebee;
+            border-left: 4px solid var(--error);
+        }
+        
+        .skill-item.mastered {
+            border-left: 4px solid var(--success);
+        }
+        
+        .export-section {
+            margin: 35px 0;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-wechat {
+            background: #07c160;
+            color: white;
+        }
+        
+        .btn-email {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn-lms {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-download {
+            background: #5e35b1;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(200px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .test-layout.active {
+                grid-template-columns: 1fr;
+            }
+            
+            .passage-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+                max-height: none;
+            }
+            
+            .questions-column {
+                padding-left: 0;
+                max-height: none;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .header-stats {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .passage-text {
+                padding: 20px 15px;
+                font-size: 1rem;
+            }
+            
+            .question-box {
+                padding: 12px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .export-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                Reading Practice 12
+                <span class="difficulty-badge">ADVANCED</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span>⏱️</span>
+                    <span class="timer" id="timer">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span>✅</span>
+                    <span class="score-display" id="score-display">0/20</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <h2>Welcome to Reading Practice 12</h2>
+            <p class="difficulty-warning">⚠️ <strong>Advanced Difficulty Level</strong><br>
+            This practice test features longer passages, complex vocabulary, and challenging question types. Recommended for students who have completed Practices 01-11.</p>
+            
+            <div class="name-input-group">
+                <label for="tester-name">Your Name (Pinyin or English only)</label>
+                <input type="text" id="tester-name" class="name-input" placeholder="e.g., Chen Yu or Michael Zhang">
+                <div class="error-message" id="name-error">Please use Pinyin or English characters only. Chinese characters are not accepted.</div>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Test Instructions:</strong></p>
+                <ul>
+                    <li>Read each passage carefully before answering questions</li>
+                    <li>Select the best answer for each question</li>
+                    <li>You will receive immediate feedback after each answer</li>
+                    <li>The test has 20 questions across 5 passages</li>
+                    <li>Estimated time: 40-45 minutes</li>
+                    <li>Passages contain complex sentence structures and advanced vocabulary</li>
+                </ul>
+            </div>
+            
+            <button class="start-btn" id="start-btn">Start Test</button>
+        </div>
+        
+        <!-- Test Layout: Two Columns -->
+        <div class="test-layout" id="test-layout">
+            <!-- Left Column: Passage Text -->
+            <div class="passage-column">
+                <!-- Passage 1: Green Development in China -->
+                <div class="passage-section active" data-passage="1">
+                    <h2 class="passage-title">Passage 1: China's Path to Sustainable Development</h2>
+                    <div class="passage-text">
+                        <p>China's commitment to sustainable development represents a significant shift in national policy, balancing economic growth with environmental protection. This approach recognizes that long-term prosperity depends on preserving natural resources and ecological systems for future generations.</p>
+                        <p><strong>🌱 Policy Framework:</strong> The concept of "ecological civilization" has been integrated into China's national development strategy. This framework emphasizes that economic progress should not come at the expense of environmental degradation. Key policies include carbon emission reduction targets, renewable energy investments, and strict environmental regulations for industries.</p>
+                        <p><strong>⚡ Energy Transition:</strong> China has become the world's largest investor in renewable energy, leading in solar panel and wind turbine production. The country aims to peak carbon emissions before 2030 and achieve carbon neutrality by 2060. This transition requires technological innovation, infrastructure development, and changes in consumption patterns.</p>
+                        <p><strong>🏙️ Urban Sustainability:</strong> Many Chinese cities are implementing green urban planning strategies. These include expanding public transportation, creating green spaces, promoting energy-efficient buildings, and developing circular economy models that minimize waste. Such initiatives improve residents' quality of life while reducing environmental impact.</p>
+                        <p><strong>🤝 Global Cooperation:</strong> China actively participates in international environmental agreements and shares green technologies with developing countries. This cooperation recognizes that environmental challenges transcend national borders and require collective solutions.</p>
+                        <p><strong>💭 Challenges and Opportunities:</strong> Achieving sustainable development involves complex trade-offs between immediate economic needs and long-term environmental goals. However, green development also creates new industries, jobs, and innovation opportunities. The path forward requires continued commitment, adaptive policies, and public participation.</p>
+                        <p><em>Key Vocabulary: sustainable, degradation, transition, infrastructure, circular, transcend, adaptive</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 2: The Power of Reading Habits -->
+                <div class="passage-section" data-passage="2">
+                    <h2 class="passage-title">Passage 2: Cultivating a Lifelong Love of Reading</h2>
+                    <div class="passage-text">
+                        <p>Developing strong reading habits in youth has profound implications for academic success, personal growth, and lifelong learning. Research consistently demonstrates that regular reading enhances cognitive abilities, emotional intelligence, and cultural understanding.</p>
+                        <p><strong>🧠 Cognitive Benefits:</strong> Reading complex texts strengthens neural pathways associated with language processing, critical thinking, and memory retention. Unlike passive screen consumption, active reading requires sustained attention, imagination, and analytical engagement—skills that transfer to other academic and professional contexts.</p>
+                        <p><strong>🌍 Cultural and Emotional Development:</strong> Literature exposes readers to diverse perspectives, historical contexts, and human experiences beyond their immediate environment. This exposure fosters empathy, reduces prejudice, and develops nuanced understanding of complex social issues. Characters' struggles and triumphs help readers process their own emotions and challenges.</p>
+                        <p><strong>📚 Practical Strategies for Developing Reading Habits:</strong> 
+                        • Start with accessible, engaging materials that match interests and reading level
+                        • Establish consistent reading times integrated into daily routines
+                        • Create comfortable, distraction-free reading environments
+                        • Join book clubs or discussion groups to enhance comprehension and motivation
+                        • Model reading behavior as parents and educators</p>
+                        <p><strong>⚠️ Addressing Modern Challenges:</strong> Digital distractions and shortened attention spans present obstacles to deep reading. However, technology can also support reading development through e-books, audiobooks, and literacy apps. The key is intentional use that complements rather than replaces traditional reading practices.</p>
+                        <p><strong>💡 Long-term Impact:</strong> Individuals who develop strong reading habits in youth tend to maintain them throughout life. This continuous engagement with texts supports ongoing learning, adaptability in changing job markets, and enriched personal lives. Investing in reading development yields compounding returns across the lifespan.</p>
+                        <p><em>Key Vocabulary: implications, cognitive, retention, nuanced, accessible, intentional, compounding</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 3: Innovation and Entrepreneurship -->
+                <div class="passage-section" data-passage="3">
+                    <h2 class="passage-title">Passage 3: Fostering Innovation in Young Minds</h2>
+                    <div class="passage-text">
+                        <p>Innovation and entrepreneurship have become essential competencies in today's rapidly evolving global economy. Educational systems worldwide are adapting to cultivate these skills in students, recognizing that future success depends not just on knowledge acquisition but on creative problem-solving and initiative.</p>
+                        <p><strong>💡 Defining Innovation and Entrepreneurship:</strong> Innovation involves generating novel ideas and implementing creative solutions to existing problems. Entrepreneurship extends this by taking calculated risks to bring innovations to market or address community needs. Both require critical thinking, resilience, and adaptability.</p>
+                        <p><strong>🎓 Educational Approaches:</strong> Effective innovation education moves beyond theoretical instruction to hands-on, project-based learning. Students identify real-world problems, research solutions, prototype ideas, and iterate based on feedback. This process develops not only technical skills but also collaboration, communication, and perseverance.</p>
+                        <p><strong>🌱 Supporting Young Innovators:</strong> Successful programs provide resources such as mentorship, access to tools and technology, and opportunities to present ideas to authentic audiences. Importantly, they create safe environments where failure is viewed as a learning opportunity rather than a setback.</p>
+                        <p><strong>⚖️ Balancing Structure and Freedom:</strong> Effective innovation education balances guided instruction with open-ended exploration. Too much structure stifles creativity; too little direction leaves students unsupported. The optimal approach scaffolds learning while encouraging independent thinking and risk-taking.</p>
+                        <p><strong>🌏 Broader Implications:</strong> Cultivating innovation skills prepares students not only for specific careers but for navigating uncertainty and driving positive change in any field. As technological and social challenges grow more complex, the ability to think creatively and act entrepreneurially becomes increasingly valuable for individuals and societies.</p>
+                        <p><em>Key Vocabulary: competencies, evolving, novel, resilience, prototype, scaffolds, uncertainty</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 4: Mental Health Awareness -->
+                <div class="passage-section" data-passage="4">
+                    <h2 class="passage-title">Passage 4: Understanding and Supporting Mental Well-being</h2>
+                    <div class="passage-text">
+                        <p>Mental health awareness has gained significant attention in recent years, particularly among young people. Understanding mental well-being, recognizing signs of distress, and knowing how to seek support are crucial skills for navigating modern life's pressures.</p>
+                        <p><strong>🧠 What is Mental Well-being?</strong> Mental well-being encompasses emotional, psychological, and social health. It affects how we think, feel, and act; how we handle stress; how we relate to others; and how we make choices. Good mental well-being doesn't mean absence of difficulties but rather having resources and strategies to cope with life's challenges.</p>
+                        <p><strong>⚠️ Common Challenges for Youth:</strong> Academic pressure, social media influences, identity development, and future uncertainties can contribute to stress, anxiety, or depression. Recognizing that these experiences are common and treatable reduces stigma and encourages help-seeking behavior.</p>
+                        <p><strong>🤝 Support Strategies:</strong> 
+                        • Maintain open communication with trusted adults, friends, or counselors
+                        • Practice self-care routines including adequate sleep, physical activity, and mindfulness
+                        • Limit exposure to negative social media content and comparison triggers
+                        • Learn and use stress-management techniques like deep breathing or journaling
+                        • Seek professional help when needed—this is a sign of strength, not weakness</p>
+                        <p><strong>🏫 School and Community Roles:</strong> Educational institutions and communities play vital roles in promoting mental health. This includes providing accessible counseling services, training staff to recognize distress signs, creating supportive environments, and integrating mental health education into curricula.</p>
+                        <p><strong>💭 Reducing Stigma:</strong> Open conversations about mental health normalize seeking help and challenge misconceptions. When communities treat mental health with the same seriousness as physical health, individuals feel safer accessing support. Collective awareness and compassion create environments where everyone can thrive.</p>
+                        <p><em>Key Vocabulary: encompasses, psychological, stigma, mindfulness, accessible, misconceptions, compassion</em></p>
+                    </div>
+                </div>
+                
+                <!-- Passage 5: Global Citizenship -->
+                <div class="passage-section" data-passage="5">
+                    <h2 class="passage-title">Passage 5: Developing Global Citizenship in a Connected World</h2>
+                    <div class="passage-text">
+                        <p>In an increasingly interconnected world, the concept of global citizenship has gained prominence. Global citizenship involves recognizing our shared humanity, understanding global issues, and taking responsible action to contribute to a more just and sustainable world.</p>
+                        <p><strong>🌍 Core Principles:</strong> Global citizenship emphasizes respect for diversity, commitment to human rights, environmental stewardship, and peaceful conflict resolution. It encourages individuals to think beyond national boundaries while appreciating local cultures and contexts.</p>
+                        <p><strong>📚 Educational Foundations:</strong> Developing global citizenship begins with education that fosters critical thinking about global issues, cultural empathy, and ethical reasoning. Students learn about interconnected challenges like climate change, inequality, and migration, exploring how local actions have global consequences.</p>
+                        <p><strong>🤝 Practical Engagement:</strong> Global citizenship extends beyond awareness to action. This might include participating in community service, supporting ethical consumption, engaging in respectful cross-cultural dialogue, or advocating for policies that promote global justice. Small individual actions, multiplied across communities, create meaningful change.</p>
+                        <p><strong>⚖️ Balancing Local and Global:</strong> Effective global citizenship doesn't diminish local identity or responsibilities. Rather, it recognizes that local and global concerns are interconnected. Addressing community needs while considering broader impacts creates more sustainable and equitable solutions.</p>
+                        <p><strong>💡 Challenges and Opportunities:</strong> Developing global citizenship requires navigating complex information, overcoming cultural biases, and maintaining hope amid daunting global challenges. However, it also offers profound rewards: deeper understanding of our world, meaningful connections across differences, and the satisfaction of contributing to positive change.</p>
+                        <p><strong>🌱 Lifelong Journey:</strong> Global citizenship is not a destination but an ongoing process of learning, reflection, and action. As the world evolves, so too must our understanding and approaches to responsible global engagement. Each generation has the opportunity to build on previous progress while addressing emerging challenges.</p>
+                        <p><em>Key Vocabulary: interconnected, stewardship, empathy, ethical, equitable, daunting, engagement</em></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Questions -->
+            <div class="questions-column">
+                <!-- Questions for Passage 1 -->
+                <div class="questions-section active" data-passage="1">
+                    <div class="question-box" id="qbox-1">
+                        <div class="question-meta">
+                            <span>Q1</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is the goal of China's carbon emission targets?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(1, 'A', this)">
+                                <span class="option-letter">A</span> To eliminate all carbon emissions immediately
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'B', this)">
+                                <span class="option-letter">B</span> To peak emissions before 2030 and achieve carbon neutrality by 2060
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'C', this)">
+                                <span class="option-letter">C</span> To increase carbon emissions for economic growth
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(1, 'D', this)">
+                                <span class="option-letter">D</span> To focus only on renewable energy without emission targets
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-1"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-2">
+                        <div class="question-meta">
+                            <span>Q2</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "circular" (in "circular economy models") most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(2, 'A', this)">
+                                <span class="option-letter">A</span> linear and wasteful
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'B', this)">
+                                <span class="option-letter">B</span> designed to minimize waste by reusing and recycling materials
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'C', this)">
+                                <span class="option-letter">C</span> focused only on manufacturing
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(2, 'D', this)">
+                                <span class="option-letter">D</span> temporary and short-term
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-2"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-3">
+                        <div class="question-meta">
+                            <span>Q3</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can be inferred about China's approach to environmental challenges from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(3, 'A', this)">
+                                <span class="option-letter">A</span> China addresses environmental issues only domestically
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'B', this)">
+                                <span class="option-letter">B</span> China recognizes that environmental challenges require both national action and international cooperation
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'C', this)">
+                                <span class="option-letter">C</span> China prioritizes economic growth over all environmental concerns
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(3, 'D', this)">
+                                <span class="option-letter">D</span> China avoids participating in global environmental agreements
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-3"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-4">
+                        <div class="question-meta">
+                            <span>Q4</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message of this passage about sustainable development?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(4, 'A', this)">
+                                <span class="option-letter">A</span> Sustainable development is impossible to achieve
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'B', this)">
+                                <span class="option-letter">B</span> China is pursuing sustainable development through policy frameworks, energy transition, urban planning, and global cooperation, recognizing both challenges and opportunities
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'C', this)">
+                                <span class="option-letter">C</span> Only technological solutions can achieve sustainability
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(4, 'D', this)">
+                                <span class="option-letter">D</span> Sustainable development requires sacrificing economic growth completely
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-4"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 2 -->
+                <div class="questions-section" data-passage="2">
+                    <div class="question-box" id="qbox-5">
+                        <div class="question-meta">
+                            <span>Q5</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is one cognitive benefit of reading?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(5, 'A', this)">
+                                <span class="option-letter">A</span> It weakens neural pathways
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'B', this)">
+                                <span class="option-letter">B</span> It strengthens neural pathways associated with language processing, critical thinking, and memory
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'C', this)">
+                                <span class="option-letter">C</span> It reduces attention span
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(5, 'D', this)">
+                                <span class="option-letter">D</span> It makes imagination less active
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-5"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-6">
+                        <div class="question-meta">
+                            <span>Q6</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">What can we infer about the relationship between reading and empathy from the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(6, 'A', this)">
+                                <span class="option-letter">A</span> Reading decreases empathy by isolating readers
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'B', this)">
+                                <span class="option-letter">B</span> Reading literature exposes readers to diverse perspectives, which can foster empathy and reduce prejudice
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'C', this)">
+                                <span class="option-letter">C</span> Only non-fiction reading develops empathy
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(6, 'D', this)">
+                                <span class="option-letter">D</span> Empathy is unrelated to reading habits
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-6"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-7">
+                        <div class="question-meta">
+                            <span>Q7</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "nuanced" most probably means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(7, 'A', this)">
+                                <span class="option-letter">A</span> simple and one-dimensional
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'B', this)">
+                                <span class="option-letter">B</span> showing subtle differences or layers of meaning; complex and refined
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'C', this)">
+                                <span class="option-letter">C</span> confused and unclear
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(7, 'D', this)">
+                                <span class="option-letter">D</span> exaggerated and extreme
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-7"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-8">
+                        <div class="question-meta">
+                            <span>Q8</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message about reading habits?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(8, 'A', this)">
+                                <span class="option-letter">A</span> Reading is only important for academic success
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'B', this)">
+                                <span class="option-letter">B</span> Developing strong reading habits in youth provides cognitive, emotional, and cultural benefits that support lifelong learning and personal growth
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'C', this)">
+                                <span class="option-letter">C</span> Digital reading is inferior to print reading
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(8, 'D', this)">
+                                <span class="option-letter">D</span> Only certain types of books are worth reading
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 3 -->
+                <div class="questions-section" data-passage="3">
+                    <div class="question-box" id="qbox-9">
+                        <div class="question-meta">
+                            <span>Q9</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is a key component of effective innovation education?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(9, 'A', this)">
+                                <span class="option-letter">A</span> Only theoretical lectures without practical application
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'B', this)">
+                                <span class="option-letter">B</span> Hands-on, project-based learning where students identify problems and prototype solutions
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'C', this)">
+                                <span class="option-letter">C</span> Avoiding all risk and failure
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(9, 'D', this)">
+                                <span class="option-letter">D</span> Focusing only on individual work without collaboration
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-9"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-10">
+                        <div class="question-meta">
+                            <span>Q10</span>
+                            <span class="skill-tag">Reference</span>
+                        </div>
+                        <p class="question-text">In paragraph 4, what does "this process" refer to?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(10, 'A', this)">
+                                <span class="option-letter">A</span> theoretical instruction only
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'B', this)">
+                                <span class="option-letter">B</span> students identifying problems, researching solutions, prototyping ideas, and iterating based on feedback
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'C', this)">
+                                <span class="option-letter">C</span> avoiding failure at all costs
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(10, 'D', this)">
+                                <span class="option-letter">D</span> working alone without feedback
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-10"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-11">
+                        <div class="question-meta">
+                            <span>Q11</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, why might viewing failure as a learning opportunity be important for innovation?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(11, 'A', this)">
+                                <span class="option-letter">A</span> Because failure should be avoided completely
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'B', this)">
+                                <span class="option-letter">B</span> Because innovation involves experimentation and iteration, where setbacks provide valuable insights for improvement
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'C', this)">
+                                <span class="option-letter">C</span> Because failure guarantees success
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(11, 'D', this)">
+                                <span class="option-letter">D</span> Because failure is the only way to learn
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-11"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-12">
+                        <div class="question-meta">
+                            <span>Q12</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the main purpose of this passage about innovation education?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(12, 'A', this)">
+                                <span class="option-letter">A</span> To argue that innovation cannot be taught
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'B', this)">
+                                <span class="option-letter">B</span> To explain how educational approaches can foster innovation and entrepreneurship skills in students through project-based learning and supportive environments
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'C', this)">
+                                <span class="option-letter">C</span> To promote specific innovation programs
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(12, 'D', this)">
+                                <span class="option-letter">D</span> To criticize traditional education methods
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-12"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 4 -->
+                <div class="questions-section" data-passage="4">
+                    <div class="question-box" id="qbox-13">
+                        <div class="question-meta">
+                            <span>Q13</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what does mental well-being encompass?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(13, 'A', this)">
+                                <span class="option-letter">A</span> Only the absence of mental illness
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'B', this)">
+                                <span class="option-letter">B</span> Emotional, psychological, and social health that affects how we think, feel, act, and relate to others
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'C', this)">
+                                <span class="option-letter">C</span> Only physical health
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(13, 'D', this)">
+                                <span class="option-letter">D</span> Only academic performance
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-13"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-14">
+                        <div class="question-meta">
+                            <span>Q14</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "stigma" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(14, 'A', this)">
+                                <span class="option-letter">A</span> praise and recognition
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'B', this)">
+                                <span class="option-letter">B</span> negative association or disgrace attached to something, often leading to discrimination
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'C', this)">
+                                <span class="option-letter">C</span> medical treatment
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(14, 'D', this)">
+                                <span class="option-letter">D</span> scientific research
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-14"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-15">
+                        <div class="question-meta">
+                            <span>Q15</span>
+                            <span class="skill-tag">Text Structure</span>
+                        </div>
+                        <p class="question-text">How is paragraph 5 related to paragraph 4 in the passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(15, 'A', this)">
+                                <span class="option-letter">A</span> Paragraph 5 contradicts the support strategies in paragraph 4
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'B', this)">
+                                <span class="option-letter">B</span> Paragraph 5 expands on how institutions and communities can implement the individual support strategies mentioned in paragraph 4
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'C', this)">
+                                <span class="option-letter">C</span> Paragraph 5 repeats the same information as paragraph 4
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(15, 'D', this)">
+                                <span class="option-letter">D</span> Paragraph 5 introduces a completely unrelated topic
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-15"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-16">
+                        <div class="question-meta">
+                            <span>Q16</span>
+                            <span class="skill-tag">Author's Purpose</span>
+                        </div>
+                        <p class="question-text">What is the writer's main purpose in writing this passage?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(16, 'A', this)">
+                                <span class="option-letter">A</span> To argue that mental health problems are untreatable
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'B', this)">
+                                <span class="option-letter">B</span> To explain mental well-being concepts, common youth challenges, support strategies, and the importance of reducing stigma
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'C', this)">
+                                <span class="option-letter">C</span> To promote specific mental health products
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(16, 'D', this)">
+                                <span class="option-letter">D</span> To criticize young people for mental health struggles
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-16"></div>
+                    </div>
+                </div>
+                
+                <!-- Questions for Passage 5 -->
+                <div class="questions-section" data-passage="5">
+                    <div class="question-box" id="qbox-17">
+                        <div class="question-meta">
+                            <span>Q17</span>
+                            <span class="skill-tag">Detail</span>
+                        </div>
+                        <p class="question-text">According to the passage, what is one principle of global citizenship?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(17, 'A', this)">
+                                <span class="option-letter">A</span> Disrespect for cultural diversity
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'B', this)">
+                                <span class="option-letter">B</span> Respect for diversity, commitment to human rights, environmental stewardship, and peaceful conflict resolution
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'C', this)">
+                                <span class="option-letter">C</span> Prioritizing national interests above all else
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(17, 'D', this)">
+                                <span class="option-letter">D</span> Avoiding engagement with global issues
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-17"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-18">
+                        <div class="question-meta">
+                            <span>Q18</span>
+                            <span class="skill-tag">Inference</span>
+                        </div>
+                        <p class="question-text">Based on the passage, what might be a result of developing global citizenship?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(18, 'A', this)">
+                                <span class="option-letter">A</span> Increased cultural prejudice and isolation
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'B', this)">
+                                <span class="option-letter">B</span> Deeper understanding of our world, meaningful connections across differences, and contribution to positive change
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'C', this)">
+                                <span class="option-letter">C</span> Loss of local identity and community ties
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(18, 'D', this)">
+                                <span class="option-letter">D</span> Avoidance of complex global challenges
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-18"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-19">
+                        <div class="question-meta">
+                            <span>Q19</span>
+                            <span class="skill-tag">Vocabulary</span>
+                        </div>
+                        <p class="question-text">In the passage, "equitable" most nearly means:</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(19, 'A', this)">
+                                <span class="option-letter">A</span> unfair and biased
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'B', this)">
+                                <span class="option-letter">B</span> fair, just, and impartial; ensuring equal opportunities and outcomes
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'C', this)">
+                                <span class="option-letter">C</span> expensive and exclusive
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(19, 'D', this)">
+                                <span class="option-letter">D</span> temporary and unstable
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-19"></div>
+                    </div>
+                    
+                    <div class="question-box" id="qbox-20">
+                        <div class="question-meta">
+                            <span>Q20</span>
+                            <span class="skill-tag">Main Idea</span>
+                        </div>
+                        <p class="question-text">What is the central message about global citizenship?</p>
+                        <div class="options">
+                            <button class="option-btn" onclick="checkAnswer(20, 'A', this)">
+                                <span class="option-letter">A</span> Global citizenship means abandoning local responsibilities
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'B', this)">
+                                <span class="option-letter">B</span> Global citizenship involves recognizing shared humanity, understanding global issues, and taking responsible action while balancing local and global concerns
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'C', this)">
+                                <span class="option-letter">C</span> Global citizenship is only for experts and leaders
+                            </button>
+                            <button class="option-btn" onclick="checkAnswer(20, 'D', this)">
+                                <span class="option-letter">D</span> Global citizenship is too complex for individuals to impact
+                            </button>
+                        </div>
+                        <div class="feedback" id="feedback-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="navigation" id="navigation">
+            <button class="nav-btn prev" onclick="prevSection()" id="prev-btn" disabled>← Previous</button>
+            <span class="passage-indicator" id="passage-indicator">Passage 1 of 5</span>
+            <button class="nav-btn next" onclick="nextSection()" id="next-btn">Next →</button>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="results-screen" id="results-screen">
+            <div class="results-header">
+                <h2>Test Completed!</h2>
+                <p>Here are your results for Reading Practice 12 (Advanced)</p>
+            </div>
+            
+            <div class="score-circle" id="final-score">0/20</div>
+            
+            <div class="results-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Tester Name</div>
+                    <div class="meta-value" id="result-name">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Date & Time</div>
+                    <div class="meta-value" id="result-datetime">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Time Taken</div>
+                    <div class="meta-value" id="result-duration">-</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Accuracy</div>
+                    <div class="meta-value" id="result-accuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="skills-summary">
+                <h3>Reading Skills Analysis</h3>
+                <div id="skills-breakdown">
+                    <!-- Skills breakdown inserted by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <h3>Share Your Results</h3>
+                <div class="export-buttons">
+                    <button class="export-btn btn-wechat" onclick="copyForWeChat()">
+                        💬 Copy for WeChat
+                    </button>
+                    <button class="export-btn btn-email" onclick="emailResults()">
+                        📧 Email Results
+                    </button>
+                    <button class="export-btn btn-lms" onclick="downloadForLMS()">
+                        📤 Download for LMS
+                    </button>
+                    <button class="export-btn btn-download" onclick="downloadPDF()">
+                        📄 Save as PDF
+                    </button>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="restartTest()" style="margin-top: 20px;">
+                🔄 Take Another Practice Test
+            </button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Results copied to clipboard!</div>
+    
+    <script>
+        // Answer Key with Advanced vocabulary explanations
+        const answers = {
+            1: { 
+                correct: 'B', 
+                explanation: '✅ Correct! The passage states: "The country aims to peak carbon emissions before 2030 and achieve carbon neutrality by 2060."<br><br>❌ A: Immediate elimination isn\'t stated as the goal.<br>❌ C: Opposite of emission reduction goals.<br>❌ D: Emission targets are explicitly mentioned alongside renewable energy.',
+                skill: 'Detail Comprehension'
+            },
+            2: { 
+                correct: 'B', 
+                explanation: '✅ Correct! "Circular economy models" are described as those that "minimize waste"—circular refers to systems designed to reuse and recycle materials rather than following a linear take-make-dispose pattern.<br><br>❌ A: Opposite meaning.<br>❌ C: Circular economy applies beyond manufacturing.<br>❌ D: Circular economy is long-term sustainability strategy.',
+                skill: 'Vocabulary in Context'
+            },
+            3: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage discusses national policies AND states: "China actively participates in international environmental agreements and shares green technologies with developing countries. This cooperation recognizes that environmental challenges transcend national borders..."<br><br>❌ A: Contradicted by international cooperation section.<br>❌ C: Passage emphasizes balancing growth with environmental protection.<br>❌ D: Directly contradicted by participation in agreements.',
+                skill: 'Inference'
+            },
+            4: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage covers policy frameworks, energy transition, urban sustainability, global cooperation, and acknowledges challenges while highlighting opportunities—comprehensive overview of China\'s multifaceted approach to sustainable development.<br><br>❌ A: Passage presents sustainability as achievable with commitment.<br>❌ C: Passage mentions multiple approaches beyond technology.<br>❌ D: Passage emphasizes balancing, not sacrificing, economic growth.',
+                skill: 'Main Idea'
+            },
+            5: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 2 states: "Reading complex texts strengthens neural pathways associated with language processing, critical thinking, and memory retention."<br><br>❌ A: Opposite of stated benefit.<br>❌ C: Reading requires sustained attention, doesn\'t reduce span.<br>❌ D: Reading requires imagination, doesn\'t reduce it.',
+                skill: 'Detail Comprehension'
+            },
+            6: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 3 states: "Literature exposes readers to diverse perspectives... This exposure fosters empathy, reduces prejudice, and develops nuanced understanding of complex social issues."<br><br>❌ A: Opposite of stated effect.<br>❌ C: Passage doesn\'t limit empathy development to non-fiction.<br>❌ D: Direct connection is explicitly stated.',
+                skill: 'Inference'
+            },
+            7: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: "develops nuanced understanding of complex social issues"—nuanced means showing subtle differences or layers of meaning; complex and refined understanding.<br><br>❌ A: Opposite meaning.<br>❌ C: Nuanced understanding is clear, not confused.<br>❌ D: Nuanced is balanced, not extreme.',
+                skill: 'Vocabulary in Context'
+            },
+            8: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage covers cognitive benefits, cultural/emotional development, practical strategies, addressing modern challenges, and long-term impact—comprehensive message about reading\'s multifaceted value for lifelong development.<br><br>❌ A: Benefits extend beyond academics.<br>❌ C: Passage acknowledges technology can support reading.<br>❌ D: Passage encourages reading diverse, engaging materials.',
+                skill: 'Main Idea'
+            },
+            9: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 3 states: "Effective innovation education moves beyond theoretical instruction to hands-on, project-based learning. Students identify real-world problems, research solutions, prototype ideas, and iterate based on feedback."<br><br>❌ A: Passage emphasizes moving beyond theoretical only.<br>❌ C: Passage views failure as learning opportunity.<br>❌ D: Collaboration is listed as a developed skill.',
+                skill: 'Detail Comprehension'
+            },
+            10: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Previous sentence describes: "Students identify real-world problems, research solutions, prototype ideas, and iterate based on feedback. This process develops not only technical skills but also collaboration, communication, and perseverance." — "this process" refers to the project-based learning cycle just described.<br><br>❌ A, C, D: Not the process referenced in context.',
+                skill: 'Reference'
+            },
+            11: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage states programs create "safe environments where failure is viewed as a learning opportunity rather than a setback" and that innovation involves "iterating based on feedback"—implying experimentation and learning from setbacks are inherent to innovation.<br><br>❌ A: Contradicts "failure is viewed as a learning opportunity."<br>❌ C: Failure doesn\'t guarantee success but provides insights.<br>❌ D: Failure is one learning path among others.',
+                skill: 'Inference'
+            },
+            12: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage defines innovation/entrepreneurship, explains educational approaches, support strategies, balancing structure/freedom, and broader implications—comprehensive explanation of how education can foster these competencies.<br><br>❌ A: Passage argues innovation CAN be taught effectively.<br>❌ C: No specific programs promoted.<br>❌ D: Passage builds on, doesn\'t criticize, traditional methods.',
+                skill: 'Main Idea'
+            },
+            13: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 2 states: "Mental well-being encompasses emotional, psychological, and social health. It affects how we think, feel, and act; how we handle stress; how we relate to others; and how we make choices."<br><br>❌ A: Passage explicitly states well-being isn\'t just absence of difficulties.<br>❌ C: Mental well-being is broader than physical health.<br>❌ D: Academic performance is one aspect, not the definition.',
+                skill: 'Detail Comprehension'
+            },
+            14: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: "Recognizing that these experiences are common and treatable reduces stigma and encourages help-seeking behavior"—stigma refers to negative associations or disgrace that discourage people from seeking help.<br><br>❌ A: Opposite meaning.<br>❌ C: Stigma is a social barrier, not treatment.<br>❌ D: Stigma relates to social attitudes, not research.',
+                skill: 'Vocabulary in Context'
+            },
+            15: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 4 lists individual support strategies; paragraph 5 begins "Educational institutions and communities play vital roles..." expanding to how systems can implement and support those individual strategies at institutional level.<br><br>❌ A: Paragraph 5 complements, doesn\'t contradict.<br>❌ C: New content about institutional roles.<br>❌ D: Directly related as scaling up support.',
+                skill: 'Text Structure'
+            },
+            16: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage defines mental well-being, discusses youth challenges, provides support strategies, explains institutional roles, and emphasizes stigma reduction—comprehensive, informative approach to mental health awareness.<br><br>❌ A: Passage emphasizes treatability and support.<br>❌ C: No products promoted.<br>❌ D: Tone is supportive and destigmatizing.',
+                skill: 'Author\'s Purpose'
+            },
+            17: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Paragraph 2 states: "Global citizenship emphasizes respect for diversity, commitment to human rights, environmental stewardship, and peaceful conflict resolution."<br><br>❌ A: Opposite of respect for diversity.<br>❌ C: Global citizenship balances local and global, doesn\'t prioritize one above all.<br>❌ D: Engagement with global issues is central.',
+                skill: 'Detail Comprehension'
+            },
+            18: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Final paragraph states global citizenship offers "profound rewards: deeper understanding of our world, meaningful connections across differences, and the satisfaction of contributing to positive change."<br><br>❌ A: Opposite of stated outcomes.<br>❌ C: Passage states global citizenship doesn\'t diminish local identity.<br>❌ D: Passage emphasizes individual actions create meaningful change.',
+                skill: 'Inference'
+            },
+            19: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Context: "Addressing community needs while considering broader impacts creates more sustainable and equitable solutions"—equitable means fair, just, and impartial; ensuring equal opportunities and outcomes.<br><br>❌ A: Opposite meaning.<br>❌ C: Equitable is about fairness, not cost.<br>❌ D: Equitable solutions are designed to be lasting.',
+                skill: 'Vocabulary in Context'
+            },
+            20: { 
+                correct: 'B', 
+                explanation: '✅ Correct! Passage defines global citizenship principles, educational foundations, practical engagement, balancing local/global, challenges/opportunities, and lifelong journey—comprehensive message about responsible global engagement that integrates local and global concerns.<br><br>❌ A: Directly contradicted; passage emphasizes balancing local and global.<br>❌ C: Passage presents global citizenship as accessible to all.<br>❌ D: Passage emphasizes individual actions create meaningful change.',
+                skill: 'Main Idea'
+            }
+        };
+
+        const questionToPassage = {
+            1:1, 2:1, 3:1, 4:1,
+            5:2, 6:2, 7:2, 8:2,
+            9:3, 10:3, 11:3, 12:3,
+            13:4, 14:4, 15:4, 16:4,
+            17:5, 18:5, 19:5, 20:5
+        };
+
+        let currentSection = 1, score = 0, answered = {}, timerSeconds = 0, timerInterval, testerName = '', testStartTime, testEndTime;
+
+        const startScreen = document.getElementById('start-screen'), testLayout = document.getElementById('test-layout'), resultsScreen = document.getElementById('results-screen'), nameInput = document.getElementById('tester-name'), nameError = document.getElementById('name-error'), startBtn = document.getElementById('start-btn'), timerDisplay = document.getElementById('timer'), scoreDisplay = document.getElementById('score-display'), passageIndicator = document.getElementById('passage-indicator'), toast = document.getElementById('toast');
+
+        document.addEventListener('DOMContentLoaded', () => { startBtn.addEventListener('click', startTest); nameInput.addEventListener('input', validateName); });
+
+        function validateName() {
+            const name = nameInput.value.trim();
+            const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\uf900-\ufaff\u3300-\u33ff\ufe30-\ufe4f\uf900-\ufaff\u{2f800}-\u{2fa1f}]/u.test(name);
+            if (hasChinese) { nameError.classList.add('show'); startBtn.disabled = true; } else { nameError.classList.remove('show'); startBtn.disabled = name === ''; }
+        }
+
+        function startTest() {
+            testerName = nameInput.value.trim() || 'Anonymous';
+            testStartTime = new Date();
+            startScreen.style.display = 'none';
+            testLayout.classList.add('active');
+            document.querySelector(`[data-passage="1"]`).classList.add('active');
+            document.querySelector(`.questions-section[data-passage="1"]`).classList.add('active');
+            startTimer();
+            updateHeader();
+        }
+
+        function startTimer() { timerInterval = setInterval(() => { timerSeconds++; const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0'); const secs = (timerSeconds % 60).toString().padStart(2, '0'); timerDisplay.textContent = `${mins}:${secs}`; }, 1000); }
+
+        function checkAnswer(questionNum, selected, btn) {
+            if (answered[questionNum]) return;
+            answered[questionNum] = selected;
+            const feedback = document.getElementById(`feedback-${questionNum}`);
+            const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === answers[questionNum].correct) { score++; btn.classList.add('correct'); feedback.classList.add('correct'); feedback.innerHTML = `<div class="feedback-title">✅ Correct!</div>${answers[questionNum].explanation}`; } else { btn.classList.add('incorrect'); feedback.classList.add('incorrect'); feedback.innerHTML = `<div class="feedback-title">❌ Incorrect</div>${answers[questionNum].explanation}`; allBtns.forEach(b => { if (b.textContent.trim().startsWith(answers[questionNum].correct + '.')) { b.classList.add('correct'); } }); }
+            feedback.style.display = 'block';
+            updateScoreDisplay();
+            checkPassageComplete();
+        }
+
+        function checkPassageComplete() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (allAnswered && currentSection < 5) { document.getElementById('next-btn').textContent = 'Next Passage →'; }
+        }
+
+        function nextSection() {
+            const currentPassageQuestions = [];
+            for (let q = 1; q <= 20; q++) { if (questionToPassage[q] === currentSection) { currentPassageQuestions.push(q); } }
+            const allAnswered = currentPassageQuestions.every(q => answered[q]);
+            if (!allAnswered) { alert(`Please answer all ${currentPassageQuestions.length} questions in this passage before continuing.`); return; }
+            if (Object.keys(answered).length === 20) { showResults(); return; }
+            if (currentSection < 5) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection++;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('prev-btn').disabled = false;
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 1) {
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.remove('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.remove('active');
+                currentSection--;
+                document.querySelector(`[data-passage="${currentSection}"]`).classList.add('active');
+                document.querySelector(`.questions-section[data-passage="${currentSection}"]`).classList.add('active');
+                updateHeader();
+                document.getElementById('next-btn').textContent = 'Next →';
+                if (currentSection === 1) { document.getElementById('prev-btn').disabled = true; }
+                document.querySelector('.questions-column').scrollTop = 0;
+                document.querySelector('.passage-column').scrollTop = 0;
+            }
+        }
+
+        function updateHeader() { passageIndicator.textContent = `Passage ${currentSection} of 5`; updateScoreDisplay(); }
+        function updateScoreDisplay() { scoreDisplay.textContent = `${score}/${Object.keys(answered).length}`; }
+
+        function showResults() {
+            testEndTime = new Date();
+            clearInterval(timerInterval);
+            testLayout.classList.remove('active');
+            document.getElementById('navigation').style.display = 'none';
+            resultsScreen.classList.add('active');
+            document.getElementById('result-name').textContent = testerName;
+            document.getElementById('result-datetime').textContent = testEndTime.toLocaleString();
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            document.getElementById('result-duration').textContent = `${durationMins}m ${durationSecs.toString().padStart(2, '0')}s`;
+            document.getElementById('final-score').textContent = `${score}/20`;
+            document.getElementById('result-accuracy').textContent = `${Math.round((score / 20) * 100)}%`;
+            generateSkillsBreakdown();
+        }
+
+        function generateSkillsBreakdown() {
+            const skillsBreakdown = document.getElementById('skills-breakdown');
+            skillsBreakdown.innerHTML = '';
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) {
+                const skill = answers[q].skill;
+                if (!skillGroups[skill]) { skillGroups[skill] = { total: 0, correct: 0, questions: [] }; }
+                skillGroups[skill].total++;
+                if (answered[q] === answers[q].correct) { skillGroups[skill].correct++; } else { skillGroups[skill].questions.push(q); }
+            }
+            Object.entries(skillGroups).forEach(([skill, data]) => {
+                const isMastered = data.correct === data.total;
+                const skillItem = document.createElement('div');
+                skillItem.className = `skill-item ${isMastered ? 'mastered' : 'missed'}`;
+                let missedInfo = '';
+                if (!isMastered && data.questions.length > 0) { missedInfo = `<br><small style="color: #b71c1c">Missed: Q${data.questions.join(', Q')}</small>`; }
+                skillItem.innerHTML = `<div><strong>${skill}</strong><div style="font-size: 0.9rem; color: #616161">${data.correct}/${data.total} correct</div>${missedInfo}</div><div style="font-weight: bold; color: ${isMastered ? '#2e7d32' : '#c62828'}">${isMastered ? '✓ Mastered' : '⚠ Review'}</div>`;
+                skillsBreakdown.appendChild(skillItem);
+            });
+        }
+
+        function copyForWeChat() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 20) * 100);
+            let text = `📚 Reading Practice 12 Results (ADVANCED)\n\n👤 Name: ${testerName}\n📅 Date: ${testEndTime.toLocaleDateString()}\n⏱️ Time: ${durationMins}m ${durationSecs}s\n✅ Score: ${score}/20 (${accuracy}%)\n\n📊 Skills Review:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { const status = data.correct === data.total ? '✓' : '⚠'; text += `${status} ${skill}: ${data.correct}/${data.total}\n`; });
+            text += `\n💡 Focus on skills marked with ⚠ for improvement.`;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); showToast('Results copied! Paste in WeChat to share.'); } catch (err) { alert('Please manually copy these results:\n\n' + text); }
+            document.body.removeChild(textArea);
+        }
+
+        function emailResults() {
+            const durationMs = testEndTime - testStartTime;
+            const durationMins = Math.floor(durationMs / 60000);
+            const durationSecs = Math.floor((durationMs % 60000) / 1000);
+            const accuracy = Math.round((score / 20) * 100);
+            let emailBody = `Reading Practice 12 Results (ADVANCED)\n\nStudent: ${testerName}\nDate Completed: ${testEndTime.toLocaleString()}\nTime Taken: ${durationMins} minutes, ${durationSecs} seconds\nScore: ${score} out of 20 questions (${accuracy}% accuracy)\n\nDetailed Results:\n----------------\n`;
+            for (let q = 1; q <= 20; q++) { const isCorrect = answered[q] === answers[q].correct; emailBody += `Q${q} [${answers[q].skill}]: ${isCorrect ? '✓ Correct' : '✗ Incorrect'}\n`; }
+            emailBody += `\nSkills Analysis:\n`;
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) skillGroups[skill] = { total: 0, correct: 0 }; skillGroups[skill].total++; if (answered[q] === answers[q].correct) skillGroups[skill].correct++; }
+            Object.entries(skillGroups).forEach(([skill, data]) => { emailBody += `- ${skill}: ${data.correct}/${data.total} correct\n`; });
+            const subject = encodeURIComponent(`Reading Practice 12 Results - ${testerName}`);
+            const body = encodeURIComponent(emailBody);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function downloadForLMS() {
+            const resultsData = { testName: "Reading Practice 12 - Advanced", studentName: testerName, completedAt: testEndTime.toISOString(), durationSeconds: timerSeconds, totalQuestions: 20, correctAnswers: score, accuracyPercent: Math.round((score / 20) * 100), questionResults: [], skillsAnalysis: {} };
+            for (let q = 1; q <= 20; q++) { resultsData.questionResults.push({ questionNumber: q, skill: answers[q].skill, selectedAnswer: answered[q], correctAnswer: answers[q].correct, isCorrect: answered[q] === answers[q].correct }); }
+            const skillGroups = {};
+            for (let q = 1; q <= 20; q++) { const skill = answers[q].skill; if (!skillGroups[skill]) { skillGroups[skill] = { totalQuestions: 0, correctAnswers: 0, missedQuestions: [] }; } skillGroups[skill].totalQuestions++; if (answered[q] === answers[q].correct) { skillGroups[skill].correctAnswers++; } else { skillGroups[skill].missedQuestions.push(q); } }
+            resultsData.skillsAnalysis = skillGroups;
+            const dataStr = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resultsData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `reading_practice_12_advanced_${testerName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Results downloaded for LMS upload!');
+        }
+
+        function downloadPDF() { alert(`PDF generation requires additional libraries. For this demo:\n\n1. Copy your results using the "Copy for WeChat" button\n2. Paste into a document\n3. Save as PDF using your browser's print function (Ctrl+P → Save as PDF)\n\nIn a production version, this would generate a professional PDF report automatically.`); }
+        function showToast(message) { toast.textContent = message; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+
+        function restartTest() {
+            currentSection = 1; score = 0; answered = {}; timerSeconds = 0; testerName = '';
+            nameInput.value = ''; nameError.classList.remove('show'); startBtn.disabled = true;
+            document.getElementById('next-btn').textContent = 'Next →'; document.getElementById('prev-btn').disabled = true;
+            document.getElementById('passage-indicator').textContent = 'Passage 1 of 5';
+            document.querySelectorAll('.feedback').forEach(fb => { fb.style.display = 'none'; fb.classList.remove('correct', 'incorrect'); });
+            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('correct', 'incorrect'); btn.disabled = false; });
+            resultsScreen.classList.remove('active'); startScreen.style.display = 'block';
+            timerDisplay.textContent = '00:00'; scoreDisplay.textContent = '0/0';
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>

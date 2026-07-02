@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beijing ZhongKao Grade 9 English Grammar Practice</title>
+    <style>
+        /* Modern UI Foundations - Compacted for no-scroll */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 5px;
+            line-height: 1.3;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 10px);
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .nav-buttons { display: flex; gap: 8px; align-items: center; }
+        .nav-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white; border: none; padding: 8px 16px;
+            border-radius: 8px; cursor: pointer; font-size: 14px;
+            font-weight: 600; transition: all 0.2s ease;
+        }
+        .nav-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .nav-btn:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.5; }
+
+        .header-next-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            font-size: 15px;
+        }
+        
+        .header-read-btn {
+            background: #9b59b6;
+        }
+        .header-read-btn:hover:not(:disabled) {
+            background: #8e44ad;
+        }
+
+        .score-container { display: flex; align-items: center; gap: 10px; }
+        .trophy-btn {
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            color: white; border: none; padding: 8px 15px;
+            border-radius: 50px; cursor: pointer; font-size: 15px;
+            font-weight: 700; box-shadow: 0 2px 10px rgba(243, 156, 18, 0.4);
+        }
+
+        .dashboard-summary { background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 13px; color: white; }
+
+        /* Main Content Grid */
+        .content { padding: 15px; flex-grow: 1; overflow-y: auto; }
+        .grammar-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .grammar-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 20px; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .grammar-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+
+        /* Practice Elements - Compacted */
+        .practice-page, .results-page, .review-page { display: none; }
+        .category-banner {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .category-banner h2 { font-size: 1.2em; margin: 0; }
+        
+        .progress-bar {
+            height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 10px;
+        }
+        .progress-fill {
+            height: 100%; background: #667eea; width: 0%; transition: width 0.4s ease;
+        }
+
+        .question-container { background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #ddd; }
+        
+        /* Question Font increased significantly, padding reduced to fit screen */
+        .question-text {
+            font-size: 2.2em; 
+            color: #2c3e50; 
+            margin: 0 0 15px 0;
+            padding: 15px 20px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+            border-left: 8px solid #667eea;
+            font-weight: bold;
+        }
+
+        /* Speaking Prompts Grid */
+        .speaking-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 15px; 
+        }
+        .speaking-card {
+            background: white; 
+            border: 2px solid #e0e0e0; 
+            padding: 15px; 
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: border-color 0.2s;
+        }
+        .speaking-card:hover { border-color: #3498db; }
+        
+        .prompt-label {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        /* Sentence Stem Scaffolding in Different Color */
+        .sentence-stem {
+            color: #2980b9; 
+            font-style: italic;
+            font-size: 1.1em;
+            padding-top: 8px;
+            border-top: 1px solid #f1f3f5;
+            margin-top: 5px;
+        }
+
+        /* Review List */
+        .review-item {
+            background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px;
+            border-left: 5px solid #3498db; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .student-context { background: #e8f4f8; padding: 8px; border-radius: 6px; margin-top: 8px; font-size: 0.9em; color: #2980b9; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-buttons">
+                <button class="nav-btn" id="homeBtn" onclick="goHome()">🏠 Home</button>
+                <button class="nav-btn header-read-btn" id="readBtn" onclick="speakQuestion()" style="display: none;">Read</button>
+                <button class="nav-btn header-next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Prompt →</button>
+            </div>
+            <div class="score-container">
+                <div class="dashboard-summary" id="overallMastery">Progress: 0%</div>
+                <button class="trophy-btn" onclick="addManualPoints()">
+                    🏆 <span id="scoreDisplay">0</span> pts
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Home Dashboard -->
+            <div class="home-page" id="homePage">
+                <div class="grammar-grid" id="grammarGrid"></div>
+            </div>
+
+            <!-- Practice Page (Speaking Activity) -->
+            <div class="practice-page" id="practicePage">
+                <div class="category-banner">
+                    <h2 id="categoryTitle">Speaking Practice</h2>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="question-container">
+                    <div class="question-text" id="questionText">Loading...</div>
+                    <div style="margin-bottom: 10px; color: #7f8c8d; font-weight: bold; text-transform: uppercase; font-size: 0.85em; letter-spacing: 1px;">Suggested Sentence Stems:</div>
+                    <div class="speaking-grid" id="optionsGrid"></div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div class="results-page" id="resultsPage">
+                <div style="text-align: center; padding: 20px;">
+                    <h1 style="font-size: 2.5em; color: #667eea;">🎉 Session Complete!</h1>
+                    <p id="scoreMessage" style="font-size: 1.2em; margin: 15px 0 30px 0; color: #2c3e50;"></p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button class="nav-btn" onclick="showReview()" style="background: #f39c12; padding: 12px 25px;">📝 Language Review</button>
+                        <button class="nav-btn" onclick="goHome()" style="background: #667eea; padding: 12px 25px;">📊 Dashboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Page -->
+            <div class="review-page" id="reviewPage">
+                <div class="category-banner">
+                    <h2>📝 Topic Review</h2>
+                    <p style="font-size: 0.9em;">Review the context and structures we focused on.</p>
+                </div>
+                <div id="reviewContainer"></div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="nav-btn" onclick="goHome()" style="background: #667eea; padding: 10px 30px;">Back to Dashboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// === PERSONALIZED QUESTION BANKS (Converted to Speaking Scaffolds) ===
+const verifiedQuestions = {
+    who: {
+        stem: "I would say that...",
+        default: [
+            { q: "Who can help you with your math homework?", options: ["My desk-mate", "The math monitor", "A smart classmate"], context: "When you're stuck on a geometry problem and need a classmate's help, use 'who' to ask for them." },
+            { q: "Who do you want to invite to your graduation party?", options: ["My best friend", "My whole class", "The guest list"], context: "Planning for the end of Grade 9! 'Who' is perfect for asking about your guest list." },
+            { q: "Who has the best ideas for our science project?", options: ["The group leader", "My partner", "The science wiz"], context: "Group work in science class requires finding out 'who' has the winning idea." },
+            { q: "Who is playing basketball on the court?", options: ["The school team", "Some students", "My friends"], context: "During PE class or afternoon break, use 'who' to identify the players." },
+            { q: "Who is singing that English song so well?", options: ["The singer", "The girl in front", "My talented friend"], context: "Perfect for the school talent show or an English Corner activity." },
+            { q: "Who is the student who won the speech competition?", options: ["The speaker", "The winner", "Our classmate"], context: "In the Monday morning school assembly, we describe the winner using 'who'." },
+            { q: "Who is your favorite teacher?", options: ["My favorite teacher", "Mr. Li / Ms. Wang", "The teacher I like"], context: "Think about homeroom! When asking about Mr. Li or Ms. Wang, always use 'who'." },
+            { q: "Who should we ask for directions to the new library?", options: ["A teacher", "The librarian", "A senior student"], context: "When navigating a new high school campus, asking 'who' gets you the right guide." },
+            { q: "Who will represent our class in the sports meet?", options: ["The athlete", "The fast runner", "Our class monitor"], context: "Every autumn sports meet starts with deciding 'who' runs the relay race!" },
+            { q: "Who wrote this beautiful essay?", options: ["The winner", "A talented student", "My classmate"], context: "If you see a great essay pinned on the classroom bulletin board, you'd ask this!" }
+        ]
+    },
+    there: {
+        stem: "Yes, in my school there is/are...",
+        default: [
+            { q: "Are there any clubs you want to join this semester?", options: ["The Drama club", "The Robotics club", "Many interesting clubs"], context: "When discussing extracurriculars like Drama or Robotics, use 'Are there'." },
+            { q: "Are there any questions about today's English grammar?", options: ["Some questions", "A few doubts", "Many inquiries"], context: "What your teacher asks right before the bell rings!" },
+            { q: "Are there enough desks for the new classmates?", options: ["Extra desks", "New seating", "Enough furniture"], context: "When a new semester starts and the classroom seating is rearranged." },
+            { q: "Are there many students in the school cafeteria?", options: ["A crowd of students", "Many hungry classmates", "Plenty of people"], context: "Lunch rush hour! You can count students, so it's 'Are there'." },
+            { q: "Are there several ways to solve this math equation?", options: ["Two different ways", "Multiple methods", "Various solutions"], context: "Math teachers love showing multiple methods. Use 'Are there' for plural 'ways'." },
+            { q: "Is there a bus stop close to the campus gate?", options: ["A bus stop", "A transit station", "Public transport"], context: "Essential for students commuting home after evening self-study." },
+            { q: "Is there a library near your middle school?", options: ["A big library", "A local bookstore", "A reading room"], context: "Schools don't 'have' a nearby library in English grammar; 'there is' states its existence." },
+            { q: "Is there any chalk left on the blackboard?", options: ["White chalk", "Some chalk pieces", "No chalk left"], context: "When the class monitor needs to clean the board before the next lesson." },
+            { q: "Is there anything important on the exam syllabus?", options: ["The syllabus", "Important topics", "Key points"], context: "Reviewing for the ZhongKao requires focusing on the syllabus." },
+            { q: "Is there enough time to finish the mock exam?", options: ["Enough time", "A few minutes left", "A tight schedule"], context: "A classic ZhongKao worry! Since time can't be counted (1 time, 2 times doesn't mean minutes), use 'Is there'." }
+        ]
+    },
+    opinions: {
+        stem: "In my opinion, I think that...",
+        default: [
+            { q: "Do you agree that practice makes perfect?", options: ["Constant practice", "The golden rule", "Effort and result"], context: "A classic proverb you can use in your speaking test!" },
+            { q: "Do you believe that everyone should learn a second language?", options: ["Global skills", "Language learning", "Effective communication"], context: "Short, crisp answers get full points in listening/speaking tests." },
+            { q: "Do you think morning reading sessions are helpful?", options: ["Good practice", "Very helpful", "Essential sessions"], context: "Those 7:30 AM reading sessions actually help your pronunciation!" },
+            { q: "From your perspective, is P.E. class important?", options: ["Healthy exercise", "Physical fitness", "Outdoor time"], context: "Physical Education helps reduce ZhongKao stress. It's highly important!" },
+            { q: "In your opinion, is it better to type or handwrite notes?", options: ["Handwriting notes", "Traditional writing", "Pen and paper"], context: "Handwriting notes is proven to help students remember facts better." },
+            { q: "In your view, is memorizing vocabulary essential?", options: ["Key vocabulary", "Word building", "Language foundation"], context: "Vocabulary is the building block of your Grade 9 exams." },
+            { q: "What do you think about the new school uniforms?", options: ["Comfortable uniforms", "Simple designs", "School clothes"], context: "A common topic among classmates when the seasons change." },
+            { q: "What do you think of online learning?", options: ["Convenient learning", "Flexible study", "Modern education"], context: "Great for writing the ZhongKao English essay when stating your stance on technology." },
+            { q: "What is your opinion about group study?", options: ["Useful study", "Team learning", "Group activities"], context: "Explaining why you and your friends study together at the library." },
+            { q: "What is your view on evening self-study classes?", options: ["Focused study", "Quiet time", "Wanzi classes"], context: "Evening self-study (Wanzi) is a staple of Chinese middle school life." }
+        ]
+    },
+    comparatives: {
+        stem: "I believe that [Subject] is more... than...",
+        default: [
+            { q: "Are your grades better than last semester?", options: ["My grades", "Better results", "Improved scores"], context: "Reflecting on your midterm report card!" },
+            { q: "Is taking the subway faster than riding a bike to school?", options: ["The subway", "Faster travel", "Efficient transport"], context: "Calculating the best commute to avoid being late for first period." },
+            { q: "Is the final exam harder than the midterms?", options: ["The final", "Tougher exams", "Harder tests"], context: "The final exam covers the whole year's knowledge, so it usually feels tougher." },
+            { q: "Is this dictionary more helpful than that app?", options: ["The dictionary", "Helpful tools", "Study resources"], context: "Comparing study tools on your desk." },
+            { q: "Is your reading speed faster than your friend's?", options: ["My speed", "Faster reading", "Quick scanning"], context: "Skimming and scanning reading comprehension passages is a race against the clock." },
+            { q: "Which is easier, multiple-choice or fill-in-the-blanks?", options: ["Multiple-choice", "Easier tasks", "Selection questions"], context: "Exam strategies! Most students prefer having options to guess from." },
+            { q: "Which is more difficult, Physics or Chemistry?", options: ["Physics", "Chemistry", "Both subjects"], context: "A very common debate among Grade 9 science students!" },
+            { q: "Which is more important, listening or speaking?", options: ["Listening", "Speaking skills", "Oral communication"], context: "Both are tested in the ZhongKao English speaking/listening computer test!" },
+            { q: "Which sport is more popular, ping pong or badminton?", options: ["Ping pong", "Popular sports", "School games"], context: "Look at the school courtyard during recess—which tables are always full?" },
+            { q: "Which subject is more interesting, History or Geography?", options: ["History", "Geography", "Social studies"], context: "Both help you understand the world, but which textbook do you prefer?" }
+        ]
+    },
+    frequency: {
+        stem: "I can say that I...",
+        default: [
+            { q: "Do you always double-check your exam answers?", options: ["Always check them", "Usually check twice", "Try to always review"], context: "The golden rule of ZhongKao: If you finish early, check your work again!" },
+            { q: "Do you always pay attention to the teacher?", options: ["Always pay attention", "Usually focus well", "Try to always listen"], context: "Staying focused for 45 minutes straight is tough but necessary." },
+            { q: "Do you never skip breakfast before school?", options: ["Never skip it", "Always eat breakfast", "Rarely skip it"], context: "You need energy for those 4 morning classes!" },
+            { q: "Do you sometimes chat with classmates during class?", options: ["Never chat during class", "Always pay attention", "Rarely whisper"], context: "The only right answer if the teacher is asking you!" },
+            { q: "Do you usually raise your hand to answer?", options: ["Usually try to", "Always raise my hand", "Sometimes volunteer"], context: "Participation shows the teacher you are actively learning." },
+            { q: "Do you usually review your notes before a quiz?", options: ["Usually review them", "Always check my notes", "Sometimes forget to review"], context: "A 5-minute review before the teacher passes out the papers can save a point or two." },
+            { q: "How often do you forget your textbooks?", options: ["Rarely forget them", "Never forget my books", "Sometimes leave them"], context: "Leaving your math book at home means sharing with your desk-mate!" },
+            { q: "How often do you go to the school library?", options: ["Sometimes go after lunch", "Usually go on Fridays", "Rarely go there"], context: "The library is the quietest place on campus during the noon break." },
+            { q: "How often do you hand in your homework on time?", options: ["Always hand it in", "Usually finish it early", "Never hand it in late"], context: "Teachers love students who say 'always' to this question!" },
+            { q: "How often do you practice English listening?", options: ["Usually practice in the morning", "Always practice at night", "Sometimes listen to podcasts"], context: "Playing English audio while brushing your teeth is a great habit." }
+        ]
+    },
+    countable: {
+        stem: "In my experience, there is/are...",
+        default: [
+            { q: "Are there any notes on the whiteboard?", options: ["Some notes", "A few notes", "Many important points"], context: "Copying the teacher's board work before the monitor erases it." },
+            { q: "Do you have any advice for learning grammar?", options: ["Some good advice", "A lot of tips", "A little advice"], context: "Asking senior students for their ZhongKao tips is very helpful." },
+            { q: "Do you need some paper for the essay?", options: ["Some paper", "A few sheets", "A little bit"], context: "When your desk-mate runs out of loose-leaf paper." },
+            { q: "How many classmates are absent today?", options: ["Many classmates", "A few students", "No one is absent"], context: "The monitor has to report this to the homeroom teacher every morning." },
+            { q: "How many mistakes did you make on the test?", options: ["A few mistakes", "Many careless errors", "Only one mistake"], context: "Analyzing your test paper is how you improve from 85 to 95." },
+            { q: "How many subjects do you study this year?", options: ["Many subjects", "Seven subjects", "A few core subjects"], context: "Chinese, Math, English, Physics, Chemistry, PE, Politics, History..." },
+            { q: "How much pressure do you feel before exams?", options: ["A lot of pressure", "Some stress", "Not much pressure"], context: "Grade 9 is stressful! Remember to take deep breaths." },
+            { q: "How much progress did you make this month?", options: ["A lot of progress", "Some progress", "Much improvement"], context: "Moving up 10 ranks in the class is great progress!" },
+            { q: "Is there any homework for the weekend?", options: ["Some homework", "A lot of homework", "Too much homework"], context: "The question every student dreads asking on a Friday afternoon." },
+            { q: "Is there enough vocabulary in this unit?", options: ["A lot of vocabulary", "Some new words", "Enough vocabulary"], context: "Usually there's a list of 30+ words at the back of the module." }
+        ]
+    },
+    would: {
+        stem: "Well, I would...",
+        default: [
+            { q: "If there were no tests, would you still learn?", options: ["Still learn", "Learn for fun", "Read more"], context: "Learning for knowledge vs. learning for the ZhongKao." },
+            { q: "If you could choose your seat, where would you sit?", options: ["Sit in the front", "Choose the back", "Sit near the window"], context: "Front row for focus, or back row for relaxing? A classic student dilemma." },
+            { q: "If you scored 100%, would you celebrate?", options: ["Definitely celebrate", "Be so happy", "Tell my parents"], context: "A perfect score in English deserves a hotpot dinner!" },
+            { q: "When preparing for the midterms, would you stay up late?", options: ["Study until midnight", "Often stay up", "Try not to stay up"], context: "Midnight studying (burning the midnight oil) is common, but get some sleep!" },
+            { q: "When you first learned English, would you find pronunciation hard?", options: ["Struggle with it", "Find it difficult", "Think it was very hard"], context: "Everyone struggles with 'th' sounds at first!" },
+            { q: "When you were in primary school, would you play outside every day?", options: ["Play outside", "Used to play", "Always play outside"], context: "Nostalgia for the days before middle school homework piled up!" },
+            { q: "Would you like to join our study group?", options: ["Love to", "Like that", "Think that sounds great"], context: "Collaborative learning helps everyone improve." },
+            { q: "Would you mind closing the classroom window?", options: ["Not mind at all", "Do it right now", "Be happy to"], context: "When the winter wind blows into the classroom during self-study." },
+            { q: "Would you please pass me the eraser?", options: ["Be happy to", "Gladly pass it", "Give it to you now"], context: "Polite English is essential when borrowing stationery from classmates." },
+            { q: "Would you recommend this tutor to others?", options: ["Highly recommend", "Tell my friends", "Definitely do that"], context: "Sharing good educational resources with your peers." }
+        ]
+    }
+};
+
+const grammarCategories = [
+    { id: 'who', title: '👥 WHO Prompts', desc: 'Speaking about people and roles in school.' },
+    { id: 'there', title: '📍 THERE IS/ARE', desc: 'Describing locations and classroom existence.' },
+    { id: 'opinions', title: '💭 OPINIONS', desc: 'Sharing viewpoints on school life topics.' },
+    { id: 'comparatives', title: '⚖️ COMPARISONS', desc: 'Comparing subjects and study habits.' },
+    { id: 'frequency', title: '⏱️ FREQUENCY', desc: 'Talking about how often you do things.' },
+    { id: 'countable', title: '🔢 COUNTABLES', desc: 'Discussing quantities like homework and mistakes.' },
+    { id: 'would', title: '🤝 WOULD', desc: 'Making polite requests and expressing habits.' }
+];
+
+// App State
+let categoryStats = JSON.parse(localStorage.getItem('zhongkaoStats')) || {};
+grammarCategories.forEach(c => { if(!categoryStats[c.id]) categoryStats[c.id] = { attempts: 0 }; });
+
+let state = {
+    page: 'home',
+    category: null,
+    questions: [],
+    current: 0,
+    points: parseInt(localStorage.getItem('zhongkaoPoints')) || 0
+};
+
+// Initial Load
+document.addEventListener('DOMContentLoaded', () => {
+    updateScoreUI();
+    renderGrid();
+    showPage('home');
+});
+
+function renderGrid() {
+    const grid = document.getElementById('grammarGrid');
+    grid.innerHTML = '';
+    grammarCategories.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'grammar-card';
+        card.innerHTML = `
+            <div>
+                <h3 style="margin-bottom:5px;">${cat.title}</h3>
+                <p style="font-size:0.9em; opacity:0.9;">${cat.desc}</p>
+            </div>
+            <div style="font-weight: bold; margin-top: 10px; font-size:0.9em;">Start Speaking Activity →</div>
+        `;
+        card.onclick = () => selectCategory(cat.id);
+        grid.appendChild(card);
+    });
+}
+
+function selectCategory(id) {
+    state.category = grammarCategories.find(c => c.id === id);
+    startPractice();
+}
+
+function startPractice() {
+    const bank = verifiedQuestions[state.category.id];
+    const topicBank = bank.default;
+    
+    state.questions = [...topicBank].slice(0, 10);
+    state.current = 0;
+    
+    showPage('practice');
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const q = state.questions[state.current];
+    const catData = verifiedQuestions[state.category.id];
+    
+    document.getElementById('questionText').textContent = q.q;
+    
+    const pct = ((state.current) / state.questions.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('overallMastery').textContent = `Progress: ${Math.round(pct)}%`;
+
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    
+    q.options.forEach((opt) => {
+        const card = document.createElement('div');
+        card.className = 'speaking-card';
+        // Generate stem based on context
+        let stemText = catData.stem.replace('[Subject]', opt);
+        card.innerHTML = `
+            <span class="prompt-label">${opt}</span>
+            <div class="sentence-stem">Stem: ${stemText}</div>
+        `;
+        grid.appendChild(card);
+    });
+
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('nextBtn').textContent = (state.current < state.questions.length - 1) ? "Next Prompt →" : "Finish Session 🏁";
+}
+
+function nextQuestion() {
+    if (state.current < state.questions.length - 1) {
+        state.current++;
+        state.points += 5; // Reward for participation
+        updateScoreUI();
+        renderQuestion();
+    } else {
+        // Complete the final progress bar
+        document.getElementById('progressFill').style.width = '100%';
+        setTimeout(showResults, 300);
+    }
+}
+
+function showResults() {
+    categoryStats[state.category.id].attempts++;
+    localStorage.setItem('zhongkaoStats', JSON.stringify(categoryStats));
+    showPage('results');
+    document.getElementById('scoreMessage').textContent = "Excellent verbal practice! Use these sentence stems in your next oral exam to sound more natural.";
+}
+
+function showReview() {
+    showPage('review');
+    const container = document.getElementById('reviewContainer');
+    container.innerHTML = '';
+    
+    state.questions.forEach((q, i) => {
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        item.innerHTML = `
+            <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">${i+1}. ${q.q}</div>
+            <div style="font-size: 0.9em; color: #555;"><strong>Keywords:</strong> ${q.options.join(' | ')}</div>
+            <div class="student-context">🎒 <strong>Study Focus:</strong> ${q.context}</div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function showPage(name) {
+    const pages = ['homePage', 'practicePage', 'resultsPage', 'reviewPage'];
+    pages.forEach(p => document.getElementById(p).style.display = 'none');
+    document.getElementById(name + 'Page').style.display = 'block';
+    
+    // Header Buttons Visibility
+    document.getElementById('homeBtn').style.display = (name === 'home') ? 'none' : 'block';
+    document.getElementById('readBtn').style.display = (name === 'practice') ? 'block' : 'none';
+    document.getElementById('nextBtn').style.display = (name === 'practice') ? 'block' : 'none';
+    
+    state.page = name;
+}
+
+function goHome() {
+    renderGrid();
+    showPage('home');
+}
+
+function updateScoreUI() {
+    document.getElementById('scoreDisplay').textContent = state.points;
+    localStorage.setItem('zhongkaoPoints', state.points);
+}
+
+function addManualPoints() {
+    state.points += 5;
+    updateScoreUI();
+}
+
+function speakQuestion() {
+    const text = document.getElementById('questionText').textContent;
+    if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        
+        // Edge Multilingual Selection Logic
+        const voices = speechSynthesis.getVoices();
+        // Priority: Microsoft Online (Natural) > Google > Default
+        const edgeVoice = voices.find(v => v.name.includes('Microsoft') && v.name.includes('Natural') && v.lang.startsWith('en')) ||
+                          voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+                          voices.find(v => v.lang.startsWith('en'));
+        
+        if (edgeVoice) utter.voice = edgeVoice;
+        utter.lang = 'en-US';
+        utter.rate = 0.85; // Personalized slow speech
+        speechSynthesis.speak(utter);
+    } else {
+        alert("Text-to-Speech is not supported in your browser.");
+    }
+}
+</script>
+</body>
+</html>

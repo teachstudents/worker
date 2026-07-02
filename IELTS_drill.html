@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Detail Drills - Secondary Edition</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100px) rotate(720deg); opacity: 0; }
+        }
+        .animate-confetti {
+            animation-name: confetti;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards;
+        }
+
+        .animate-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 overflow-hidden h-screen w-screen">
+
+    <div id="root" class="h-full w-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // --- INLINE ICONS ---
+        const Icon = ({ children, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
+        );
+
+        const Play = (p) => <Icon {...p}><polygon points="5 3 19 12 5 21 5 3"></polygon></Icon>;
+        const Square = (p) => <Icon {...p}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></Icon>;
+        const RefreshCw = (p) => <Icon {...p}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 21h-5v-5"></path></Icon>;
+        const Check = (p) => <Icon {...p}><polyline points="20 6 9 17 4 12"></polyline></Icon>;
+        const X = (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></Icon>;
+        const MapIcon = (p) => <Icon {...p}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></Icon>;
+        const BookOpen = (p) => <Icon {...p}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></Icon>;
+        const Clock = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></Icon>;
+        const Calendar = (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></Icon>;
+        const Phone = (p) => <Icon {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></Icon>;
+        const DollarSign = (p) => <Icon {...p}><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></Icon>;
+        const Navigation = (p) => <Icon {...p}><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></Icon>;
+        const Mail = (p) => <Icon {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></Icon>;
+        const Ruler = (p) => <Icon {...p}><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0l12.6 12.6z"></path><line x1="13" y1="5.7" x2="15.3" y2="8"></line><line x1="9" y1="9.7" x2="11.3" y2="12"></line><line x1="5" y1="13.7" x2="7.3" y2="16"></line></Icon>;
+        const Users = (p) => <Icon {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></Icon>;
+        const List = (p) => <Icon {...p}><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></Icon>;
+        const MessageCircle = (p) => <Icon {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></Icon>;
+        const Trophy = (p) => <Icon {...p}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17"></path><path d="M14 14.66V17"></path><path d="M18 2h-5.5a5.5 5.5 0 1 0 0 11h5.5a8 8 0 0 0 0-16z"></path><path d="M10 0v4"></path><path d="M14 0v4"></path></Icon>;
+        const Sparkles = (p) => <Icon {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M9 3v4"></path><path d="M3 5h4"></path><path d="M3 9h4"></path></Icon>;
+        const HelpCircle = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></Icon>;
+        const Zap = (p) => <Icon {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></Icon>;
+        const Flame = (p) => <Icon {...p}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></Icon>;
+
+        // --- CONFIGURATION ---
+        const TOTAL_QUESTIONS_PER_ROUND = 20;
+        const FIXED_SPEECH_RATE = 0.85; // Locked strictly to 85% for secondary student comprehension
+
+        // --- AUDIO FX ---
+        const playSoundFx = (type) => {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            if (type === 'correct') {
+                const now = ctx.currentTime;
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); 
+                osc.frequency.setValueAtTime(659.25, now + 0.1); 
+                osc.frequency.setValueAtTime(783.99, now + 0.2); 
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'hint') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(400, ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.2);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            }
+        };
+
+        // --- UTILITIES ---
+        const PRAISES = ["Brilliant!", "Spot on!", "Excellent!", "Perfect!", "Well done!", "Fantastic!"];
+
+        const getOrdinal = (n) => {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        };
+
+        const checkAnswer = (user, correct, type) => {
+            if (!user) return false;
+            const u = user.toLowerCase().trim().replace(/[\s-]/g, '');
+            const c = correct.toString().toLowerCase().trim().replace(/[\s-]/g, '');
+            if (u === c) return true;
+            if (type === 'price') return u.includes(c) || c.includes(u);
+            if (type === 'time') return u.replace('.',':') === c.replace('.',':');
+            if (type === 'measurement') return u === c || u === c.replace(/meters|cms|kgs|cm/, '').trim();
+            return false;
+        };
+
+        const generateHint = (answer) => {
+            return answer.toString().split('').map((char, index) => {
+                if (index === 0) return char;
+                if (char === ' ' || char === ':' || char === '.' || char === '@') return char; 
+                return '_';
+            }).join(' ');
+        };
+
+        // --- SECONDARY SCHOOL DATA BANKS ---
+        const NAMES = ['Weston', 'Bailey', 'Patterson', 'Jenkins', 'Martinez', 'Sutherland', 'Blackwood', 'Yates', 'Oliver', 'Franklin', 'Davidson', 'Holloway', 'Fitzgerald', 'Montgomery', 'Henderson', 'Caldwell', 'Donovan', 'Gallagher', 'Harrington', 'Lancaster'];
+        const STREETS = ['Green', 'Broad', 'Church', 'Kings', 'Queens', 'North', 'West', 'Oak', 'Pine', 'Cedar', 'Maple', 'High', 'Station', 'River', 'Meadow', 'Spring', 'Valley', 'Hillcrest'];
+        const EVENTS = ['assembly', 'science fair', 'drama club meeting', 'football tryout', 'math tutoring', 'school dance', 'field trip', 'graduation rehearsal', 'choir concert', 'debate tournament', 'history presentation', 'pe exam'];
+        const FURNITURE = ['locker', 'whiteboard', 'lab desk', 'bookshelf', 'cafeteria table', 'gym mat', 'bulletin board', 'display case', 'art easel', 'trophy cabinet'];
+        const BUS_ROUTES = ['Northside', 'Southside', 'Eastwood', 'Westlake', 'Downtown', 'Suburban Route', 'Express Route', 'Valley District', 'Hilltop', 'Riverside'];
+        const PRICE_ITEMS = ['prom ticket', 'yearbook', 'cafeteria pass', 'field trip fee', 'club registration', 'gym uniform', 'art supplies', 'parking permit', 'graduation cap', 'school hoodie'];
+        const TRANSPORT = ['school bus', 'city bus', 'bicycle', 'skateboard', 'carpool', 'train', 'walking'];
+        const DESTINATIONS = ['principal\'s office', 'science lab', 'gymnasium', 'counselor\'s room', 'library', 'auditorium', 'sports field', 'cafeteria', 'music room', 'detention hall'];
+
+        // --- QUESTION GENERATOR WITH WIDE VARIETY OF TRAPS & STEMS ---
+        const generateQuestion = (category) => {
+            const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            const trapType = Math.random() > 0.5 ? 1 : 2; // Randomly choose between two distinct trap templates
+
+            let q = { category, type: category.id };
+
+            switch (category.id) {
+                case 1: // Names & Spelling
+                    const surname = rand(NAMES);
+                    q.answer = surname;
+                    
+                    if (trapType === 1) { // Typo Trap
+                        const spellingAudio = surname.toUpperCase().split('').join(', ');
+                        const wrongSurname = surname.replace(/[aeiou]/i, 'O');
+                        const wrongSpellingAudio = wrongSurname.toUpperCase().split('').join(', ');
+                        q.stem = rand([
+                            "Write the correct spelling of the student's surname.",
+                            "How do you spell the student's last name?",
+                            "Record the exact spelling of the surname."
+                        ]);
+                        q.script = [
+                            { speaker: 'A', text: `Can I have your surname for the homeroom list, please?` },
+                            { speaker: 'B', text: `Yes, it's ${surname}.` },
+                            { speaker: 'A', text: `Could you spell that for me? Is it ${wrongSpellingAudio}?` },
+                            { speaker: 'B', text: `No, sorry, that's not right. It is ${spellingAudio}.` },
+                            { speaker: 'A', text: `Thank you, I've got it correct now.` } 
+                        ];
+                    } else { // First Letter Misheard Trap
+                        const spellingAudio = surname.toUpperCase().split('').join(', ');
+                        const firstChar = surname.charAt(0);
+                        const wrongChar = firstChar === 'B' ? 'P' : firstChar === 'D' ? 'T' : 'M';
+                        q.stem = rand([
+                            "What is the actual spelling of the new student's surname?",
+                            "Listen carefully and type the student's surname.",
+                            "Capture the correct spelling of the name."
+                        ]);
+                        q.script = [
+                            { speaker: 'A', text: `Are you the new transfer student? What's your last name?` },
+                            { speaker: 'B', text: `Yes, it's ${surname}.` },
+                            { speaker: 'A', text: `Did you say it starts with a ${wrongChar}?` },
+                            { speaker: 'B', text: `No, it starts with ${firstChar}. The full spelling is ${spellingAudio}.` },
+                            { speaker: 'A', text: `Got it, welcome to the school.` } 
+                        ];
+                    }
+                    break;
+                case 2: // Phone / ID
+                    const p1 = randInt(100, 999);
+                    const digitA = randInt(0, 9), digitB = randInt(0, 9), digitC = randInt(0, 9), digitD = randInt(0, 9);
+                    const p2_str = `${digitA}${digitB}${digitC}${digitD}`; 
+                    const spokenP2 = `${digitA}, ${digitB}, ${digitC}, ${digitD}`;
+                    const p1_split = p1.toString().split('').join(' ');
+
+                    if (trapType === 1) { // Old vs New number
+                        const wrongLast = (parseInt(p2_str[3]) + 1) % 10;
+                        const wrongP2_str = p2_str.substring(0, 3) + wrongLast;
+                        q.stem = rand([
+                            "Write the emergency contact number.",
+                            "What is the new phone number?",
+                            "Note down the current contact number."
+                        ]);
+                        q.answer = `07${p1} ${p2_str}`;
+                        q.script = [
+                            { speaker: 'A', text: `What's the best contact number for your parents?` },
+                            { speaker: 'B', text: `Well, my mum's old number ended in ${wrongP2_str}, but she just changed it yesterday.` },
+                            { speaker: 'A', text: `Oh, I see. So what is the current one we should put on file?` },
+                            { speaker: 'B', text: `It is oh seven ${p1_split}, ${spokenP2}.` },
+                            { speaker: 'A', text: `Got it, I'll update the records.` } 
+                        ];
+                    } else { // Work vs Mobile
+                        const workP2 = `${digitB}${digitA}${digitC}${digitC}`;
+                        const spokenWork = `${digitB}, ${digitA}, double ${digitC}`;
+                        q.stem = rand([
+                            "What is the parent's direct mobile number?",
+                            "Write down the mobile phone number.",
+                            "Which number is the parent's mobile?"
+                        ]);
+                        q.answer = `07${p1} ${p2_str}`;
+                        q.script = [
+                            { speaker: 'A', text: `We need a number to reach your dad during the day.` },
+                            { speaker: 'B', text: `His office number is oh seven ${p1_split}, ${spokenWork}, but he's rarely at his desk.` },
+                            { speaker: 'A', text: `Is there a better mobile number to use?` },
+                            { speaker: 'B', text: `Yes, his mobile is oh seven ${p1_split}, ${spokenP2}. Use that one.` },
+                            { speaker: 'A', text: `Perfect, I'll make the mobile the primary contact.` } 
+                        ];
+                    }
+                    break;
+                case 3: // Dates
+                    const month = rand(['September', 'October', 'November', 'December', 'January', 'February', 'March', 'April', 'May']);
+                    const day = randInt(10, 20);
+                    const event = rand(EVENTS);
+                    
+                    if (trapType === 1) { // Reschedule Trap
+                        const wrongDay = day + 3;
+                        q.stem = rand([
+                            `On what date will the ${event} take place?`,
+                            `When is the ${event} officially scheduled?`,
+                            `What is the new date for the ${event}?`
+                        ]);
+                        q.answer = `${getOrdinal(day)} ${month}`;
+                        q.script = [
+                            { speaker: 'A', text: `Shall we schedule the auditorium for the ${getOrdinal(wrongDay)} of ${month}?` },
+                            { speaker: 'B', text: `Actually, the principal has a meeting then. We had to move it to an earlier date.` },
+                            { speaker: 'A', text: `Oh, I didn't realize. When is it happening now?` },
+                            { speaker: 'B', text: `The new confirmed date for the ${event} is the ${getOrdinal(day)} of ${month}.` },
+                            { speaker: 'A', text: `Okay, let's mark the calendar then.` } 
+                        ];
+                    } else { // June vs July Trap
+                        const trapMonth = "June";
+                        const trueMonth = "July";
+                        q.stem = rand([
+                            `When exactly is the ${event}?`,
+                            `Provide the date of the ${event}.`,
+                            `For what date is the ${event} planned?`
+                        ]);
+                        q.answer = `${getOrdinal(day)} ${trueMonth}`;
+                        q.script = [
+                            { speaker: 'A', text: `Is the ${event} going to be on the ${getOrdinal(day)} of ${trapMonth}?` },
+                            { speaker: 'B', text: `No, we wanted that month, but the venue was totally booked out.` },
+                            { speaker: 'A', text: `So did you push it back?` },
+                            { speaker: 'B', text: `Yes, it's now officially set for the ${getOrdinal(day)} of ${trueMonth}.` },
+                            { speaker: 'A', text: `Alright, the ${getOrdinal(day)} of ${trueMonth}. Thanks for clarifying.` } 
+                        ];
+                    }
+                    break;
+                case 4: // Times
+                    const dest = rand(BUS_ROUTES);
+                    
+                    if (trapType === 1) { // Old vs New Schedule Trap
+                        const hr = randInt(2, 4); // pm
+                        const min = 30;
+                        let spokenTime = `half past ${hr}`;
+                        q.stem = rand([
+                            `What time does the ${dest} school bus leave?`,
+                            `When does the bus to ${dest} depart?`,
+                            `At what time should students catch the ${dest} bus?`
+                        ]);
+                        q.answer = `${hr}:30`;
+                        q.script = [
+                            { speaker: 'A', text: `Does the ${dest} bus still leave at ${hr} o'clock sharp?` },
+                            { speaker: 'B', text: `No, that was last semester's schedule.` },
+                            { speaker: 'A', text: `Oh, so it leaves at a different time now?` },
+                            { speaker: 'B', text: `Actually, they pushed it back a bit. The regular bus now departs at ${spokenTime}.` },
+                            { speaker: 'A', text: `Right, I'll let the students know the new time.` } 
+                        ];
+                    } else { // Arrival vs Departure Trap
+                        const hr = randInt(7, 9); // am
+                        const min = 15;
+                        let spokenTime = `quarter past ${hr}`;
+                        q.stem = rand([
+                            `What time does the bus arrive at the school?`,
+                            `At what time is the bus supposed to get to school?`,
+                            `Note the exact arrival time of the bus.`
+                        ]);
+                        q.answer = `${hr}:15`;
+                        q.script = [
+                            { speaker: 'A', text: `The students need to know when the morning bus gets in.` },
+                            { speaker: 'B', text: `Well, it departs the main station at ${hr} o'clock exactly.` },
+                            { speaker: 'A', text: `Yes, but what time does it actually arrive here?` },
+                            { speaker: 'B', text: `With normal traffic, the arrival time is ${spokenTime}.` },
+                            { speaker: 'A', text: `Perfect, I'll write that down.` } 
+                        ];
+                    }
+                    break;
+                case 5: // Schedules
+                    const facility = rand(['library', 'computer lab', 'cafeteria', 'gymnasium', 'counseling office']);
+                    
+                    if (trapType === 1) { // Regular vs Special half-day
+                        const normalClose = randInt(4, 6);
+                        const earlyClose = normalClose - 2;
+                        q.stem = rand([
+                            `When does the ${facility} close today?`,
+                            `What time will the ${facility} shut?`,
+                            `At what time is the ${facility} closing today?`
+                        ]);
+                        q.answer = `${earlyClose} pm`;
+                        q.script = [
+                            { speaker: 'A', text: `I need to use the ${facility} after classes to finish my project.` },
+                            { speaker: 'B', text: `Well, it usually stays open until ${normalClose} pm on regular weekdays.` },
+                            { speaker: 'A', text: `Great, I'll head over there around ${earlyClose} pm then.` },
+                            { speaker: 'B', text: `Actually, wait! Today is a half-day for staff training, so it closes early at exactly ${earlyClose} pm.` },
+                            { speaker: 'A', text: `Oh wow, good thing I asked.` } 
+                        ];
+                    } else { // Open vs Close trap
+                        const openTime = randInt(7, 8);
+                        const closeTime = randInt(3, 5);
+                        q.stem = rand([
+                            `At what time does the ${facility} open?`,
+                            `When can students first enter the ${facility}?`,
+                            `What is the opening time for the ${facility}?`
+                        ]);
+                        q.answer = `${openTime} am`;
+                        q.script = [
+                            { speaker: 'A', text: `Do you know the hours for the ${facility}?` },
+                            { speaker: 'B', text: `Yes, they lock the doors and close for the day at ${closeTime} pm.` },
+                            { speaker: 'A', text: `Okay, but I need to go in the morning before class. When does it open?` },
+                            { speaker: 'B', text: `Ah, for the morning, the doors open right at ${openTime} am.` },
+                            { speaker: 'A', text: `Great, I'll be there bright and early.` } 
+                        ];
+                    }
+                    break;
+                case 6: // Prices
+                    const item = rand(PRICE_ITEMS);
+                    
+                    if (trapType === 1) { // Base vs Discount
+                        const basePrice = randInt(40, 80);
+                        const wrongPrice = basePrice - 10;
+                        const correctPrice = basePrice - 20;
+                        q.stem = rand([
+                            `How much does the ${item} cost for an honor roll senior?`,
+                            `What is the final price of the ${item}?`,
+                            `Calculate the cost of the ${item} with the special discount.`
+                        ]);
+                        q.answer = `£${correctPrice}`;
+                        q.script = [
+                            { speaker: 'A', text: `How much is the ${item} this year?` },
+                            { speaker: 'B', text: `The standard price is £${basePrice}.` },
+                            { speaker: 'A', text: `I'm a senior, do we get the usual discount?` },
+                            { speaker: 'B', text: `Yes, seniors generally pay £${wrongPrice}.` },
+                            { speaker: 'A', text: `Oh, and I also have this honor roll voucher.` },
+                            { speaker: 'B', text: `Ah, in that case, it drops down even further to £${correctPrice}.` },
+                            { speaker: 'A', text: `Lovely, here is the money.` } 
+                        ];
+                    } else { // 15 vs 50 misheard trap
+                        const tens = rand([30, 40, 50, 60]);
+                        const teens = tens / 10 + 10; // 50 -> 15
+                        q.stem = rand([
+                            `How much is the fee for the ${item}?`,
+                            `Write down the exact cost of the ${item}.`,
+                            `What price does the student have to pay for the ${item}?`
+                        ]);
+                        q.answer = `£${teens}`;
+                        q.script = [
+                            { speaker: 'A', text: `I need to pay the fee for the ${item}. How much is it?` },
+                            { speaker: 'B', text: `Sure, that will be £${teens}, please.` },
+                            { speaker: 'A', text: `Wow, £${tens}? That seems really expensive for a school item.` },
+                            { speaker: 'B', text: `No, no, not ${tens}. I said ${teens}. One-five.` },
+                            { speaker: 'A', text: `Oh, that makes much more sense. Here you go.` } 
+                        ];
+                    }
+                    break;
+                case 7: // Travel
+                    const destPlace = rand(['away game', 'museum field trip', 'science center', 'state championship']);
+                    
+                    if (trapType === 1) { // Fast vs Slow transport
+                        const fastMins = rand([15, 20, 25]);
+                        const slowMins = fastMins + 25;
+                        const transport = rand(['express bus', 'train']);
+                        q.stem = rand([
+                            `How long does it take to get to the ${destPlace} by ${transport}?`,
+                            `What is the travel time using the ${transport}?`,
+                            `How many minutes will the ${transport} take?`
+                        ]);
+                        q.answer = `${fastMins} minutes`;
+                        q.script = [
+                            { speaker: 'A', text: `Is it far to the ${destPlace}?` },
+                            { speaker: 'B', text: `Well, if we take the regular city bus with all the stops, it takes about ${slowMins} minutes.` },
+                            { speaker: 'A', text: `That's too long. What about taking the ${transport}?` },
+                            { speaker: 'B', text: `The ${transport} is much quicker since it's direct. It only takes about ${fastMins} minutes.` },
+                            { speaker: 'A', text: `Okay, that means we won't miss our next class.` } 
+                        ];
+                    } else { // Old route vs New route
+                        const oldMins = 45;
+                        const newMins = 30;
+                        q.stem = rand([
+                            `How long does the journey to the ${destPlace} take now?`,
+                            `What is the current travel time to the ${destPlace}?`,
+                            `Note the new journey duration.`
+                        ]);
+                        q.answer = `${newMins} minutes`;
+                        q.script = [
+                            { speaker: 'A', text: `I remember the drive to the ${destPlace} used to take forever.` },
+                            { speaker: 'B', text: `Yeah, it used to be ${oldMins} minutes because we had to go through the city center.` },
+                            { speaker: 'A', text: `Did the new highway change that?` },
+                            { speaker: 'B', text: `Absolutely. Now it only takes ${newMins} minutes flat.` },
+                            { speaker: 'A', text: `That's a huge improvement.` } 
+                        ];
+                    }
+                    break;
+                case 8: // Addresses
+                    const street = rand(STREETS);
+                    
+                    if (trapType === 1) { // Road vs Street trap
+                        const num = randInt(1, 99);
+                        const type = rand(['Road', 'Avenue', 'Drive']);
+                        const wrongType = 'Street';
+                        q.stem = rand([
+                            "What is the student's home address?",
+                            "Write down the correct delivery address.",
+                            "Note the exact street address."
+                        ]);
+                        q.answer = `${num} ${street} ${type}`;
+                        q.script = [
+                            { speaker: 'A', text: `Where should we mail the report card?` },
+                            { speaker: 'B', text: `Please send it to number ${num}, ${street} ${type}.` },
+                            { speaker: 'A', text: `Let me write that down. Number ${num}, ${street} ${wrongType}?` },
+                            { speaker: 'B', text: `No, not ${wrongType}. It's ${street} ${type}.` },
+                            { speaker: 'A', text: `Ah, my mistake. I've noted it on your file.` } 
+                        ];
+                    } else { // Number confusion trap
+                        const correctNum = rand([14, 15, 16, 17]);
+                        const wrongNum = correctNum * 10 - 100; // e.g., 14 -> 40
+                        q.stem = rand([
+                            "What is the exact house number?",
+                            "Provide the correct building number.",
+                            "Write down the student's house number."
+                        ]);
+                        q.answer = `${correctNum}`;
+                        q.script = [
+                            { speaker: 'A', text: `I have the street name down, but I couldn't read the house number.` },
+                            { speaker: 'B', text: `Oh, it's number ${correctNum}.` },
+                            { speaker: 'A', text: `Did you say number ${wrongNum}?` },
+                            { speaker: 'B', text: `No, ${correctNum}. With a one at the front.` },
+                            { speaker: 'A', text: `Okay, got it now.` } 
+                        ];
+                    }
+                    break;
+                case 9: // Emails
+                    const correctName = rand(['drama', 'debate', 'soccer', 'science', 'robotics']);
+                    const domain = rand(['school', 'academy', 'highschool']);
+                    const tld = rand(['com', 'org', 'uk']);
+                    
+                    if (trapType === 1) { // General vs Direct
+                        const wrongName = rand(['info', 'admin', 'helpdesk']);
+                        q.stem = rand([
+                            "Write down the club's specific email address.",
+                            "What email address should be used?",
+                            "Provide the correct email address."
+                        ]);
+                        q.answer = `${correctName}@${domain}.${tld}`;
+                        const spellName = correctName.toUpperCase().split('').join('-');
+                        q.script = [
+                            { speaker: 'A', text: `Where should I send my audition tape? The website says ${wrongName}@${domain}.${tld}.` },
+                            { speaker: 'B', text: `Don't use that one, the main office takes forever to forward things.` },
+                            { speaker: 'A', text: `Oh, okay. What's the direct club account then?` },
+                            { speaker: 'B', text: `Please email it directly to ${correctName} at ${domain} dot ${tld}.` },
+                            { speaker: 'A', text: `Let me guess how to spell it... ${spellName}?` },
+                            { speaker: 'B', text: `Exactly right.` } 
+                        ];
+                    } else { // Underscore vs Hyphen
+                        const complexName = `${correctName}_club`;
+                        const wrongName = `${correctName}-club`;
+                        q.stem = rand([
+                            "What is the exact email address for the club?",
+                            "Write down the email carefully.",
+                            "Note the specific email format."
+                        ]);
+                        q.answer = `${complexName}@${domain}.${tld}`;
+                        q.script = [
+                            { speaker: 'A', text: `I tried to email you guys but it bounced back.` },
+                            { speaker: 'B', text: `What address did you use?` },
+                            { speaker: 'A', text: `I used ${wrongName} with a hyphen, at ${domain} dot ${tld}.` },
+                            { speaker: 'B', text: `Ah, that's why. It's an underscore, not a hyphen. So it's ${complexName}@${domain}.${tld}.` },
+                            { speaker: 'A', text: `Oh, I see. I'll resend it now.` } 
+                        ];
+                    }
+                    break;
+                case 10: // Measurements
+                    const obj = rand(FURNITURE);
+                    
+                    if (trapType === 1) { // Width vs Height
+                        const correctVal = rand([15, 24, 38, 52, 75, 90]);
+                        const wrongVal = correctVal + 12;
+                        const dimension = rand(['width', 'height']);
+                        const wrongDimension = dimension === 'width' ? 'height' : 'width';
+                        q.stem = rand([
+                            `What is the ${dimension} of the ${obj}?`,
+                            `Write down the exact ${dimension}.`,
+                            `How many centimeters is the ${dimension}?`
+                        ]);
+                        q.answer = `${correctVal} cm`;
+                        q.script = [
+                            { speaker: 'A', text: `Will my gym bag fit inside this ${obj}?` },
+                            { speaker: 'B', text: `It's actually quite a tight space.` },
+                            { speaker: 'B', text: `I just measured it. The ${wrongDimension} is ${wrongVal} centimeters...` },
+                            { speaker: 'A', text: `Wait, my bag is tall. I need the ${dimension}, not the ${wrongDimension}.` },
+                            { speaker: 'B', text: `Oh, sorry! Let me check again. The ${dimension} is exactly ${correctVal} centimeters.` },
+                            { speaker: 'A', text: `Okay, it might just fit.` } 
+                        ];
+                    } else { // Cm vs Mm Trap
+                        const val = rand([45, 60, 85]);
+                        const mm = val * 10;
+                        q.stem = rand([
+                            `What is the measurement in centimeters?`,
+                            `Record the length of the ${obj} in cm.`,
+                            `How many centimeters long is the ${obj}?`
+                        ]);
+                        q.answer = `${val} cm`;
+                        q.script = [
+                            { speaker: 'A', text: `I need to know the length of the new ${obj} for the classroom.` },
+                            { speaker: 'B', text: `The manual says it is ${mm} millimeters long.` },
+                            { speaker: 'A', text: `The order form asks for centimeters though.` },
+                            { speaker: 'B', text: `Right, so that would just be ${val} centimeters.` },
+                            { speaker: 'A', text: `Thanks, writing that down.` } 
+                        ];
+                    }
+                    break;
+                case 11: // Quantities
+                    if (trapType === 1) { // Expected vs Actual (Subtraction)
+                        const totalExpected = randInt(50, 150);
+                        const sick = randInt(3, 8);
+                        const forgot = randInt(1, 4);
+                        const present = totalExpected - sick - forgot;
+                        const group = rand(['freshmen', 'parents', 'volunteers']);
+                        q.stem = rand([
+                            `How many ${group} actually attended the event?`,
+                            `What was the final attendance count?`,
+                            `Calculate the number of ${group} who showed up.`
+                        ]);
+                        q.answer = `${present}`;
+                        q.script = [
+                            { speaker: 'A', text: `Did the back-to-school night go well?` },
+                            { speaker: 'B', text: `Yes, we had exactly ${totalExpected} ${group} RSVP initially.` },
+                            { speaker: 'A', text: `That's a fantastic turnout. Did everyone show up?` },
+                            { speaker: 'B', text: `Not quite. Unfortunately, ${sick} got sick, and ${forgot} simply forgot to come.` },
+                            { speaker: 'A', text: `Ah, so only ${present} made it. Still a great number.` } 
+                        ];
+                    } else { // Sub-groups (Addition)
+                        const boys = randInt(10, 30);
+                        const girls = randInt(10, 30);
+                        const total = boys + girls;
+                        const club = rand(['debate team', 'choir', 'robotics club']);
+                        q.stem = rand([
+                            `What is the total number of students in the ${club}?`,
+                            `How many members does the ${club} have overall?`,
+                            `Calculate the total club size.`
+                        ]);
+                        q.answer = `${total}`;
+                        q.script = [
+                            { speaker: 'A', text: `I need to order snacks for the ${club}. How many members are there?` },
+                            { speaker: 'B', text: `Well, we have ${boys} boys currently signed up.` },
+                            { speaker: 'A', text: `Okay, what about the girls?` },
+                            { speaker: 'B', text: `There are ${girls} girls on the roster this year.` },
+                            { speaker: 'A', text: `So I need to buy snacks for ${total} students in total. Got it.` } 
+                        ];
+                    }
+                    break;
+                case 12: // Map Locations
+                    const locations = ['Cafeteria', 'Library', 'Gymnasium', 'Main Office'];
+                    const target = rand(locations);
+                    const locs = locations.filter(l => l !== target);
+                    const ref = locs[0];
+                    
+                    if (trapType === 1) { // Correction Trap
+                        const wrongRef = locs[1];
+                        q.stem = rand([
+                            `Where is the ${target} located?`,
+                            `Where can the student find the ${target}?`,
+                            `What is the location of the ${target}?`
+                        ]);
+                        q.answer = `Next to ${ref}`;
+                        q.isMap = true;
+                        q.script = [
+                            { speaker: 'A', text: `Excuse me, I'm a new student. I'm looking for the ${target}.` },
+                            { speaker: 'B', text: `Welcome! Okay, so you want to head past the ${wrongRef}...` },
+                            { speaker: 'A', text: `Past the ${wrongRef}, okay.` },
+                            { speaker: 'B', text: `Wait, no, that's the long way. The quickest way is to find the ${ref}.` },
+                            { speaker: 'A', text: `I see the sign for the ${ref} right over there.` },
+                            { speaker: 'B', text: `Perfect. It is immediately Next to the ${ref}, just down that hall.` } 
+                        ];
+                    } else { // Opposite vs Next To Trap
+                        q.stem = rand([
+                            `What is the exact location of the ${target}?`,
+                            `Describe where the ${target} is on the map.`,
+                            `Where exactly is the ${target}?`
+                        ]);
+                        q.answer = `Opposite ${ref}`;
+                        q.isMap = true;
+                        q.script = [
+                            { speaker: 'A', text: `Can you point me to the ${target}? Is it next to the ${ref}?` },
+                            { speaker: 'B', text: `A lot of people think that, but no.` },
+                            { speaker: 'A', text: `Oh, where is it then?` },
+                            { speaker: 'B', text: `If you stand at the ${ref}, you have to look across the hallway. It is directly opposite the ${ref}.` },
+                            { speaker: 'A', text: `Ah, Opposite the ${ref}. Thank you!` } 
+                        ];
+                    }
+                    break;
+                case 13: // Options
+                    const opts = ['A', 'B', 'C'];
+                    const choice = rand(opts);
+                    const subject = rand(['lunch menu', 'field trip destination', 'science project topic']);
+                    
+                    if (trapType === 1) { // Option Full trap
+                        const wrongChoice = opts.filter(o => o !== choice)[0];
+                        q.stem = rand([
+                            `Which ${subject} (A, B, or C) does the student ultimately choose?`,
+                            `What is the final choice for the ${subject}?`,
+                            `Which option does the student select?`
+                        ]);
+                        q.answer = choice;
+                        q.script = [
+                            { speaker: 'A', text: `We have three options for the ${subject} this week.` },
+                            { speaker: 'B', text: `I think I'll sign up for Option ${wrongChoice}. It looks easy.` },
+                            { speaker: 'A', text: `Are you sure? Option ${wrongChoice} is full, actually.` },
+                            { speaker: 'B', text: `Oh really? What about Option ${choice}?` },
+                            { speaker: 'A', text: `Option ${choice} is still open, and it's a good balance of fun and learning.` },
+                            { speaker: 'B', text: `Alright, put my name down for Option ${choice} instead.` } 
+                        ];
+                    } else { // Peer pressure trap
+                        const wrongChoice = opts.filter(o => o !== choice)[0];
+                        q.stem = rand([
+                            `Which option does the student decide to go with?`,
+                            `Select the option chosen by the student.`,
+                            `What is the student's final decision for the ${subject}?`
+                        ]);
+                        q.answer = choice;
+                        q.script = [
+                            { speaker: 'A', text: `Have you picked an option for the ${subject}?` },
+                            { speaker: 'B', text: `I was originally leaning towards Option ${wrongChoice} because the topic is cool.` },
+                            { speaker: 'A', text: `Yeah, but all your friends signed up for Option ${choice}.` },
+                            { speaker: 'B', text: `I know, I saw the list. You know what, I'll switch and do Option ${choice} too so we can work together.` },
+                            { speaker: 'A', text: `Great, I'll update your form to Option ${choice}.` } 
+                        ];
+                    }
+                    break;
+                case 14: // Facts & Opinions
+                    const topics = ['cafeteria food', 'new math teacher', 'history textbook', 'school assembly'];
+                    const topic = rand(topics);
+                    
+                    if (trapType === 1) { // Mixed feelings trap
+                        const isPositive = Math.random() > 0.5;
+                        q.stem = rand([
+                            `What is the student's overall opinion of the ${topic}? (Good/Bad)`,
+                            `Did the student have a Good or Bad impression of the ${topic}?`,
+                            `Is the student's final verdict Good or Bad?`
+                        ]);
+                        q.answer = isPositive ? "Good" : "Bad";
+                        let text = isPositive 
+                            ? "Well, the first few minutes were pretty boring, but then it got really interesting. It's way better than last year's."
+                            : "Some of the seniors hyped it up, and the intro wasn't awful, but honestly, it dragged on forever. Pretty terrible.";
+                        q.script = [
+                            { speaker: 'A', text: `Hey, what did you think of the ${topic}?` },
+                            { speaker: 'B', text: text },
+                            { speaker: 'A', text: `So despite the mixed feelings, you think it was ${isPositive ? 'good' : 'bad'} overall?` }, 
+                            { speaker: 'B', text: `Yeah, definitely.` }
+                        ];
+                    } else { // Peer vs Speaker opinion trap
+                        const speakerPos = Math.random() > 0.5;
+                        const peerPos = !speakerPos; // Peer has opposite opinion
+                        q.stem = rand([
+                            `What is the speaker's own opinion of the ${topic}? (Good/Bad)`,
+                            `Does the speaker themselves think the ${topic} is Good or Bad?`,
+                            `State the speaker's opinion: Good or Bad?`
+                        ]);
+                        q.answer = speakerPos ? "Good" : "Bad";
+                        let peerText = peerPos ? "Everyone else thought it was amazing and really helpful" : "Most people complained that it was too difficult";
+                        let speakerText = speakerPos ? "but honestly, I really enjoyed it." : "but I have to say, I found it completely useless.";
+                        q.script = [
+                            { speaker: 'A', text: `Did you have a chance to look at the ${topic}?` },
+                            { speaker: 'B', text: `Yes I did. ${peerText}, ${speakerText}` },
+                            { speaker: 'A', text: `So your personal opinion is that it's ${speakerPos ? 'good' : 'bad'}?` }, 
+                            { speaker: 'B', text: `Yes, exactly.` }
+                        ];
+                    }
+                    break;
+                default: break;
+            }
+            return q;
+        };
+
+        const CATEGORIES = [
+            { id: 1, name: "Names & Spelling", icon: <BookOpen className="w-5 h-5" /> },
+            { id: 2, name: "Phone / ID", icon: <Phone className="w-5 h-5" /> },
+            { id: 3, name: "Dates", icon: <Calendar className="w-5 h-5" /> },
+            { id: 4, name: "Times", icon: <Clock className="w-5 h-5" /> },
+            { id: 5, name: "Schedules", icon: <List className="w-5 h-5" /> },
+            { id: 6, name: "Prices", icon: <DollarSign className="w-5 h-5" /> },
+            { id: 7, name: "Travel Details", icon: <Navigation className="w-5 h-5" /> },
+            { id: 8, name: "Addresses", icon: <MapIcon className="w-5 h-5" /> },
+            { id: 9, name: "Emails", icon: <Mail className="w-5 h-5" /> },
+            { id: 10, name: "Measurements", icon: <Ruler className="w-5 h-5" /> },
+            { id: 11, name: "Quantities", icon: <Users className="w-5 h-5" /> },
+            { id: 12, name: "Map Locations", icon: <MapIcon className="w-5 h-5" /> },
+            { id: 13, name: "Options", icon: <Check className="w-5 h-5" /> },
+            { id: 14, name: "Facts & Opinions", icon: <MessageCircle className="w-5 h-5" /> },
+        ];
+
+        const MapVisual = () => (
+            <div className="bg-slate-100 border-2 border-slate-300 rounded-xl p-4 mb-4 relative h-64 w-full">
+                <div className="absolute top-2 left-2 text-xs font-bold text-slate-400">NORTH ↑</div>
+                <div className="grid grid-cols-2 gap-8 h-full">
+                    <div className="bg-blue-100 border-2 border-blue-300 rounded flex items-center justify-center font-bold text-blue-800 text-center px-2">Gymnasium</div>
+                    <div className="bg-red-100 border-2 border-red-300 rounded flex items-center justify-center font-bold text-red-800 text-center px-2">Cafeteria</div>
+                    <div className="bg-green-100 border-2 border-green-300 rounded flex items-center justify-center font-bold text-green-800 text-center px-2">Library</div>
+                    <div className="bg-purple-100 border-2 border-purple-300 rounded flex items-center justify-center font-bold text-purple-800 text-center px-2">Main Office</div>
+                </div>
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div className="bg-white px-2 py-1 rounded border border-slate-200 shadow-sm text-xs font-bold text-slate-500">Hallway</div>
+                </div>
+            </div>
+        );
+
+        const App = () => {
+            const [activeCat, setActiveCat] = useState(CATEGORIES[0]);
+            const [question, setQuestion] = useState(null);
+            const [input, setInput] = useState('');
+            const [status, setStatus] = useState('idle'); 
+            const [feedback, setFeedback] = useState('');
+            const [praisePhrase, setPraisePhrase] = useState('');
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [voices, setVoices] = useState([]);
+            const [roundScore, setRoundScore] = useState(0);
+            const [streak, setStreak] = useState(0); 
+            const [questionsLeft, setQuestionsLeft] = useState(TOTAL_QUESTIONS_PER_ROUND);
+            const [showHint, setShowHint] = useState(false);
+            const isCancelled = useRef(false);
+            const utteranceRef = useRef(null); // Prevents Safari/Chrome garbage collection bugs
+
+            useEffect(() => {
+                const initVoices = () => {
+                    const availableVoices = window.speechSynthesis.getVoices();
+                    if (availableVoices.length > 0) {
+                        setVoices(availableVoices);
+                    }
+                };
+                initVoices();
+                window.speechSynthesis.onvoiceschanged = initVoices;
+            }, []);
+
+            // Safely fetch voices and gracefully fallback if specific ones aren't installed
+            const getVoicePair = () => {
+                let currentVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+                
+                const maleTargets = ['Remy', 'Giuseppe', 'Florian', 'Brian', 'Andrew'];
+                const femaleTargets = ['Vivienne', 'Seraphina', 'Emma'];
+                
+                // Try strict Microsoft targets first
+                const msFemales = currentVoices.filter(v => v.name.includes('Microsoft') && femaleTargets.some(t => v.name.includes(t)));
+                const msMales = currentVoices.filter(v => v.name.includes('Microsoft') && maleTargets.some(t => v.name.includes(t)));
+
+                // Fallback targets (useful for iPads/Chromebooks in high schools)
+                const engVoices = currentVoices.filter(v => v.lang.startsWith('en'));
+                
+                let female = msFemales.length > 0 ? msFemales[Math.floor(Math.random() * msFemales.length)] : 
+                             (engVoices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen')) || engVoices[0] || currentVoices[0]);
+                             
+                let male = msMales.length > 0 ? msMales[Math.floor(Math.random() * msMales.length)] : 
+                           (engVoices.find(v => v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('Fred')) || engVoices[1] || engVoices[0] || currentVoices[0]);
+
+                return Math.random() > 0.5 ? { A: female, B: male } : { A: male, B: female };
+            };
+
+            const speakScript = async (script) => {
+                isCancelled.current = false;
+                setIsPlaying(true);
+                window.speechSynthesis.cancel();
+                
+                // Give browser a tiny window to clear previous speech queue
+                await new Promise(resolve => setTimeout(resolve, 50));
+                if (isCancelled.current) return;
+                
+                const { A, B } = getVoicePair();
+                let activeVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+
+                if (!A && !B && activeVoices.length === 0) {
+                    alert("Voices are still loading or not supported on this browser. Please check device settings.");
+                    setIsPlaying(false);
+                    return;
+                }
+                
+                for (let line of script) {
+                    if (isCancelled.current) break;
+                    await new Promise(resolve => {
+                        const utt = new SpeechSynthesisUtterance(line.text);
+                        utteranceRef.current = utt; // Prevents Safari/Chrome garbage collection bug!
+
+                        if (line.speaker === 'A' && A) utt.voice = A;
+                        if (line.speaker === 'B' && B) utt.voice = B;
+                        
+                        utt.rate = FIXED_SPEECH_RATE; // Strictly locked to 85% for secondary students
+                        utt.pitch = 1;
+                        if (utt.voice) utt.lang = utt.voice.lang;
+                        
+                        utt.onend = () => {
+                            setTimeout(resolve, 500); 
+                        };
+                        utt.onerror = (e) => {
+                            console.error("TTS Error:", e);
+                            resolve(); // Resolve anyway so it doesn't hang
+                        };
+                        
+                        window.speechSynthesis.speak(utt);
+                    });
+                }
+                setIsPlaying(false);
+            };
+
+            const stopAudio = () => {
+                isCancelled.current = true;
+                window.speechSynthesis.cancel();
+                setIsPlaying(false);
+            };
+
+            const newQuestion = () => {
+                stopAudio();
+                if (questionsLeft <= 0) {
+                    setRoundScore(0);
+                    setStreak(0);
+                    setQuestionsLeft(TOTAL_QUESTIONS_PER_ROUND);
+                }
+                const q = generateQuestion(activeCat);
+                setQuestion(q);
+                setInput('');
+                setStatus('idle');
+                setFeedback('');
+                setPraisePhrase('');
+                setShowHint(false);
+            };
+
+            const switchCategory = (cat) => {
+                stopAudio();
+                setActiveCat(cat);
+                setRoundScore(0);
+                setStreak(0);
+                setQuestionsLeft(TOTAL_QUESTIONS_PER_ROUND);
+                setShowHint(false);
+            };
+
+            const handleCheck = (e) => {
+                e.preventDefault();
+                stopAudio();
+                const isCorrect = checkAnswer(input, question.answer, question.type === 6 ? 'price' : (question.type === 4 ? 'time' : 'text'));
+                
+                if (isCorrect) {
+                    setStatus('correct');
+                    setRoundScore(prev => prev + 1);
+                    setStreak(prev => prev + 1);
+                    playSoundFx('correct');
+                    setPraisePhrase(PRAISES[Math.floor(Math.random() * PRAISES.length)]);
+                } else {
+                    setStatus('incorrect');
+                    setStreak(0); 
+                    playSoundFx('incorrect');
+                }
+                setQuestionsLeft(prev => Math.max(0, prev - 1));
+            };
+
+            useEffect(() => { newQuestion(); }, [activeCat]);
+            useEffect(() => () => stopAudio(), []);
+
+            const progress = ((TOTAL_QUESTIONS_PER_ROUND - questionsLeft) / TOTAL_QUESTIONS_PER_ROUND) * 100;
+            const currentQuestionNum = TOTAL_QUESTIONS_PER_ROUND - questionsLeft + (questionsLeft === 0 ? 0 : 1);
+
+            return (
+                <div className="flex flex-col md:flex-row h-full w-full">
+                    {/* SIDEBAR */}
+                    <div className="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 md:h-full h-auto max-h-[30vh] md:max-h-full overflow-y-auto z-20 shadow-lg md:shadow-none">
+                        <div className="p-2 space-y-1">
+                            {CATEGORIES.map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => switchCategory(cat)}
+                                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-all ${activeCat.id === cat.id ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm' : 'text-slate-600 hover:bg-slate-50 border border-transparent'}`}
+                                >
+                                    {cat.icon}
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* MAIN AREA */}
+                    <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-slate-50">
+                        <div className="h-2 w-full bg-slate-200 shrink-0">
+                            <div className="h-full bg-blue-500 transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
+                        </div>
+
+                        <header className="bg-white border-b border-slate-200 p-4 flex justify-between items-center shadow-sm z-10 shrink-0 flex-wrap gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">{activeCat.icon}</div>
+                                    <h2 className="font-bold text-xl leading-none">{activeCat.name}</h2>
+                                </div>
+                                {question && (
+                                    <div className="flex items-center gap-2 border-l-2 border-slate-200 pl-4">
+                                        {!isPlaying ? (
+                                            <button onClick={() => speakScript(question.script)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-500 text-white w-10 h-10 rounded-full shadow-[0_3px_0_rgb(29,78,216)] active:shadow-none active:translate-y-1 transition-all" title="Play Audio">
+                                                <Play className="fill-current w-5 h-5 ml-1" />
+                                            </button>
+                                        ) : (
+                                            <button onClick={stopAudio} className="flex items-center justify-center bg-red-500 hover:bg-red-400 text-white w-10 h-10 rounded-full shadow-[0_3px_0_rgb(185,28,28)] active:shadow-none active:translate-y-1 transition-all" title="Stop Audio">
+                                                <Square className="fill-current w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-3 ml-auto">
+                                <div className="bg-blue-600 text-white px-4 py-1.5 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2">
+                                    <List className="w-4 h-4" />
+                                    Question {currentQuestionNum} of {TOTAL_QUESTIONS_PER_ROUND}
+                                </div>
+                                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${streak >= 3 ? 'bg-orange-50 border-orange-200 text-orange-600 animate-pulse' : streak > 0 ? 'bg-orange-50 border-orange-200 text-orange-600' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+                                    <Flame className={`w-4 h-4 ${streak > 0 ? 'fill-current' : ''}`} />
+                                    <div className="flex flex-col leading-none">
+                                        <span className="text-[10px] font-bold uppercase">Streak</span>
+                                        <span className="text-lg font-black">{streak}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">
+                                    <Trophy className="w-4 h-4 text-green-600" />
+                                    <div className="flex flex-col leading-none">
+                                        <span className="text-[10px] font-bold text-green-600 uppercase">Score</span>
+                                        <span className="text-lg font-black text-green-800">{roundScore}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-3xl mx-auto w-full pb-32">
+                            {questionsLeft > 0 && question ? (
+                                <div className="space-y-6 animate-in">
+                                    <div className="bg-white rounded-2xl shadow-sm border-2 border-slate-200 p-6 md:p-8 relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+                                        {status === 'correct' && <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
+                                            {[...Array(20)].map((_, i) => (
+                                                <div key={i} className="absolute w-2 h-2 bg-yellow-400 rounded-full animate-confetti" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 50}%`, backgroundColor: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1'][Math.floor(Math.random() * 4)], animationDelay: `${Math.random() * 0.5}s`, animationDuration: `${0.5 + Math.random()}s` }} />
+                                            ))}
+                                        </div>}
+                                        
+                                        <div className="flex justify-end mb-4">
+                                            <button 
+                                                onClick={newQuestion}
+                                                className="md:hidden flex items-center gap-2 text-slate-400 hover:text-slate-600"
+                                                title="Skip Question"
+                                            >
+                                                <RefreshCw className="w-4 h-4" />
+                                            </button>
+                                        </div>
+
+                                        <h3 className="text-2xl font-black text-slate-800 mb-8 leading-tight">
+                                            "{question.stem}"
+                                        </h3>
+                                        {question.type === 12 && <MapVisual />}
+                                        
+                                        <form onSubmit={handleCheck} className="relative mt-8">
+                                            <input 
+                                                type="text" 
+                                                value={input}
+                                                onChange={(e) => setInput(e.target.value)}
+                                                placeholder={showHint ? generateHint(question.answer) : "Type your answer..."}
+                                                disabled={status === 'correct' || status === 'incorrect'}
+                                                className={`w-full bg-slate-50 border-2 rounded-xl px-5 py-4 text-xl font-bold outline-none transition-all ${status === 'correct' ? 'border-green-500 text-green-700 bg-green-50' : status === 'incorrect' ? 'border-red-500 text-red-700 bg-red-50' : 'border-slate-300 focus:border-blue-500 focus:bg-white'}`}
+                                            />
+                                            <button type="submit" disabled={!input || status !== 'idle'} className="absolute right-2 top-2 bottom-2 bg-slate-800 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-slate-700 text-white px-6 rounded-lg font-bold transition-all">
+                                                Check
+                                            </button>
+                                        </form>
+                                        
+                                        {status === 'idle' && !showHint && (
+                                            <div className="mt-2 flex justify-end">
+                                                <button type="button" onClick={() => { setShowHint(true); playSoundFx('hint'); }} className="text-xs font-bold text-slate-400 hover:text-blue-500 flex items-center gap-1 transition-colors">
+                                                    <HelpCircle className="w-3 h-3" /> Need a hint?
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {status !== 'idle' && (
+                                            <div className={`mt-6 p-4 rounded-xl border-2 flex items-start gap-3 animate-in ${status === 'correct' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                                                {status === 'correct' ? <div className="bg-green-200 p-2 rounded-full"><Sparkles className="w-6 h-6 shrink-0 text-green-700" /></div> : <X className="w-6 h-6 shrink-0 mt-1" />}
+                                                <div className="flex-1">
+                                                    <p className="font-black text-xl flex items-center gap-2">{status === 'correct' ? praisePhrase : 'Incorrect'}</p>
+                                                    <p className="text-sm opacity-90 mt-1 font-medium">{status === 'correct' ? 'Great job! Moving to transcript...' : `The correct answer was: ${question.answer}`}</p>
+                                                    <button onClick={newQuestion} className={`mt-3 text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${status === 'correct' ? 'bg-green-200 hover:bg-green-300 text-green-900' : 'bg-red-200 hover:bg-red-300 text-red-900'}`}>
+                                                        Next Question <RefreshCw className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {(status === 'correct' || status === 'incorrect') && (
+                                        <div className="bg-slate-100 rounded-2xl border-2 border-slate-200 p-6 md:p-8 animate-in">
+                                            <div className="flex items-center gap-2 mb-4 text-slate-400">
+                                                <MessageCircle className="w-4 h-4" />
+                                                <span className="text-xs font-black uppercase tracking-widest">Transcript (Notice the Trap!)</span>
+                                            </div>
+                                            <div className="space-y-4">
+                                                {question.script.map((line, idx) => (
+                                                    <div key={idx} className="flex gap-4">
+                                                        <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-sm ${line.speaker === 'A' ? 'bg-white border-2 border-slate-200 text-slate-600' : 'bg-slate-800 text-white'}`}>
+                                                            {line.speaker}
+                                                        </div>
+                                                        <div className="bg-white p-3 rounded-lg rounded-tl-none border border-slate-200 shadow-sm">
+                                                            <p className="text-slate-700 font-medium leading-relaxed">{line.text}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full py-12 text-center animate-in">
+                                    <div className="bg-yellow-100 p-6 rounded-full mb-6">
+                                        <Trophy className="w-16 h-16 text-yellow-600" />
+                                    </div>
+                                    <h2 className="text-3xl font-black text-slate-800 mb-2">Round Complete!</h2>
+                                    <p className="text-slate-500 font-medium mb-8">You scored {roundScore} out of {TOTAL_QUESTIONS_PER_ROUND}</p>
+                                    <button onClick={newQuestion} className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-500 shadow-xl transition-all">
+                                        Start New Round
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

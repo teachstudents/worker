@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate English Practice Platform</title>
+    <!-- Tailwind CSS for rapid, beautiful UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Confetti for Gamification -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Premium Typography */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka:wght@500;600;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8fafc; /* Very light slate */
+            user-select: none;
+            overflow: hidden; /* NO SCROLLING ALLOWED on main body */
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex; /* Using flex for layout control */
+            opacity: 1;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Interactive Elements */
+        .hover-lift {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        }
+        
+        .hover-lift:hover:not(:disabled) {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hover-lift:active:not(:disabled) {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Options Grid Styling */
+        .option-btn {
+            transition: all 0.2s;
+            border-bottom-width: 4px;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #f1f5f9;
+            transform: translateY(-2px);
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+            margin-top: 2px; /* Compensate for border shrink */
+        }
+        .option-btn.selected-correct {
+            background-color: #22c55e !important;
+            color: white !important;
+            border-color: #16a34a !important;
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+            z-index: 10;
+        }
+        .option-btn.selected-incorrect {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .blank-space {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 4px solid #3b82f6;
+            margin: 0 8px;
+            vertical-align: baseline;
+        }
+
+        /* Custom Scrollbar for inner scrollable areas */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Shimmer effect for points */
+        .shimmer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+            transform: skewX(-20deg) translateX(-150%);
+            animation: shimmerMove 3s infinite;
+        }
+        @keyframes shimmerMove {
+            0% { transform: skewX(-20deg) translateX(-150%); }
+            50%, 100% { transform: skewX(-20deg) translateX(150%); }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden text-slate-800 relative">
+
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" style="background-image: radial-gradient(#334155 2px, transparent 2px); background-size: 30px 30px;"></div>
+
+    <!-- Header (Fixed Top) -->
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-lg z-20 flex-none h-16">
+        <div class="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <!-- Navigation -->
+            <div class="flex items-center space-x-3">
+                <button onclick="goHome()" class="hover-lift bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition">
+                    <i class="fas fa-home text-lg"></i> <span class="hidden sm:inline">Dashboard</span>
+                </button>
+            </div>
+
+            <!-- Branding -->
+            <div class="font-display text-xl sm:text-2xl font-bold tracking-wide flex-1 text-center truncate px-4">
+                <i class="fas fa-graduation-cap text-yellow-400 mr-2 drop-shadow-md"></i> English Mastery Hub
+            </div>
+
+            <!-- Gamification Status -->
+            <div class="flex items-center">
+                <div class="flex flex-col items-end cursor-pointer hover-lift relative overflow-hidden bg-white/10 px-3 py-1 rounded-xl" onclick="addManualPoints()" title="Click for a small bonus!">
+                    <div class="shimmer"></div>
+                    <span id="rank-display" class="text-[10px] font-black text-yellow-300 uppercase tracking-widest leading-none mb-1 drop-shadow-sm">Novice</span>
+                    <div class="font-black text-sm shadow-inner flex items-center gap-1 leading-none">
+                        <i class="fas fa-star text-yellow-400"></i> <span id="score-display" class="drop-shadow-md">0 pts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area (Calculated remaining height, flex container) -->
+    <main class="flex-1 w-full h-[calc(100vh-4rem)] flex flex-col justify-center relative z-10 px-2 sm:px-4 py-4 overflow-hidden">
+        
+        <!-- DASHBOARD SCREEN -->
+        <div id="screen-dashboard" class="screen active w-full max-w-6xl mx-auto h-full flex-col">
+            
+            <div class="text-center mb-6 flex-none">
+                <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl text-slate-800 font-black mb-2 tracking-tight">Choose Your Learning Path</h1>
+                <p class="text-slate-500 font-medium max-w-2xl mx-auto">Select a curriculum level, adjust your context, and pick a module to begin.</p>
+            </div>
+
+            <!-- Configuration Bar -->
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 mb-6 flex-none flex flex-col md:flex-row justify-center items-center gap-4">
+                
+                <!-- Curriculum Toggle -->
+                <div class="flex bg-slate-100 p-1 rounded-2xl w-full md:w-auto">
+                    <button id="tab-grade5" onclick="setAppVersion('grade5')" class="flex-1 md:w-48 py-2.5 px-4 rounded-xl font-bold text-sm sm:text-base transition-all bg-white text-blue-600 shadow border border-slate-200">
+                        Grade 5 (A2)
+                    </button>
+                    <button id="tab-grade9" onclick="setAppVersion('grade9')" class="flex-1 md:w-48 py-2.5 px-4 rounded-xl font-bold text-sm sm:text-base text-slate-500 hover:text-slate-700 transition-all">
+                        Grade 9 (ZhongKao)
+                    </button>
+                </div>
+
+                <div class="hidden md:block w-px h-8 bg-slate-300"></div>
+
+                <!-- Mode & Topic Selectors -->
+                <div class="flex gap-4 w-full md:w-auto">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-1">Practice Mode</label>
+                        <select id="mode-select" class="w-full bg-white border border-slate-300 text-slate-700 rounded-xl py-2 px-3 font-bold text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition cursor-pointer">
+                            <option value="quiz">📝 Written Quiz</option>
+                            <option value="speaking">🗣️ Speaking Out Loud</option>
+                        </select>
+                    </div>
+
+                    <div id="topic-container" class="flex-1">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-1">Context (Grade 5)</label>
+                        <select id="topic-select" class="w-full bg-white border border-slate-300 text-slate-700 rounded-xl py-2 px-3 font-bold text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition cursor-pointer">
+                            <option value="default">Everyday Routine</option>
+                            <option value="school">School Life</option>
+                            <option value="digital">Technology</option>
+                            <option value="science">Science & Nature</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Banners -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 flex-none">
+                <div onclick="generateMixedPractice()" class="hover-lift cursor-pointer bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-3xl p-5 text-white shadow-md border-b-4 border-violet-700 flex items-center gap-4">
+                    <div class="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"><i class="fas fa-random"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold font-display leading-tight">Mixed Challenge</h3>
+                        <p class="text-xs font-medium text-violet-100 opacity-90 mt-1">10 random questions from all topics</p>
+                    </div>
+                </div>
+                <div onclick="generateMistakeReview()" class="hover-lift cursor-pointer bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl p-5 text-white shadow-md border-b-4 border-orange-600 flex items-center gap-4 relative overflow-hidden">
+                    <div class="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"><i class="fas fa-hammer"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold font-display leading-tight">Spaced Repetition</h3>
+                        <p class="text-xs font-medium text-orange-100 opacity-90 mt-1">Review <span id="mistake-count" class="font-black bg-white/20 px-1.5 rounded">0</span> weak areas</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Categories Grid -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10">
+                <h3 class="font-display text-xl text-slate-700 font-bold mb-3 ml-1">Grammar Modules</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="category-grid">
+                    <!-- Cards injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PRACTICE SCREEN (NO SCROLLING) -->
+        <div id="screen-practice" class="screen w-full max-w-4xl mx-auto h-full flex-col">
+            
+            <!-- Top Status Bar -->
+            <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200 flex justify-between items-center mb-3 flex-none">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                        <i id="practice-icon" class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Current Module</div>
+                        <h2 id="practice-title" class="font-display text-base sm:text-lg font-bold text-slate-800 leading-none">Practice</h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold font-mono text-sm border border-slate-200">
+                        <span id="q-current">1</span> / <span id="q-total">10</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="h-2 bg-slate-200 rounded-full mb-4 overflow-hidden flex-none">
+                <div id="progress-bar" class="h-full bg-blue-500 w-0 transition-all duration-500 ease-out"></div>
+            </div>
+
+            <!-- Main Interactive Area (Takes remaining height) -->
+            <div class="flex-1 flex flex-col relative w-full h-full min-h-0 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                
+                <!-- Question Section (Top Half) -->
+                <div class="flex-none min-h-[30%] sm:min-h-[40%] flex flex-col items-center justify-center p-6 relative bg-slate-50 border-b border-slate-100">
+                    <button onclick="speakCurrentText()" class="absolute top-4 right-4 text-slate-400 hover:text-blue-500 transition text-2xl" title="Listen">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <div id="question-instruction" class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-3">Complete the sentence</div>
+                    <div id="question-text" class="font-display text-2xl sm:text-3xl md:text-4xl text-slate-800 font-bold leading-tight text-center max-w-3xl">
+                        Loading...
+                    </div>
+                </div>
+
+                <!-- Answer/Action Section (Bottom Half) -->
+                <div class="flex-1 flex flex-col p-4 sm:p-6 overflow-y-auto custom-scrollbar relative">
+                    <!-- Options Grid (Quiz Mode) or Speaking Setup -->
+                    <div id="answer-area" class="w-full flex-1 flex flex-col justify-center max-w-3xl mx-auto">
+                        <!-- Content injected via JS -->
+                    </div>
+
+                    <!-- Fixed Action/Feedback Bar (Appears after answer) -->
+                    <div id="action-area" class="w-full mt-4 flex-none min-h-[80px]">
+                        <!-- Feedback and Next Button injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="screen-results" class="screen w-full max-w-2xl mx-auto h-full flex-col justify-center items-center">
+            <div class="bg-white rounded-[2rem] p-8 sm:p-12 w-full text-center shadow-xl border border-slate-200 relative overflow-hidden">
+                <!-- Decorative background -->
+                <div class="absolute -top-20 -right-20 w-48 h-48 bg-blue-50 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-20 -left-20 w-48 h-48 bg-green-50 rounded-full blur-3xl"></div>
+                
+                <div class="relative z-10">
+                    <div class="text-6xl mb-4"><i class="fas fa-award text-yellow-400 drop-shadow-md"></i></div>
+                    <h2 class="font-display text-4xl sm:text-5xl text-slate-800 font-black mb-2" id="result-greeting">Session Complete!</h2>
+                    <p class="text-slate-500 text-lg font-medium mb-8" id="result-message">Great effort today.</p>
+                    
+                    <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 mb-8 inline-block min-w-[200px] shadow-inner">
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-2">Final Score</p>
+                        <div class="font-display text-6xl sm:text-7xl text-blue-600 font-black" id="final-score">0/10</div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-md mx-auto">
+                        <button onclick="showReview()" class="hover-lift flex-1 bg-slate-100 text-slate-700 border border-slate-300 px-6 py-4 rounded-2xl font-bold transition text-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-list-check"></i> Review
+                        </button>
+                        <button onclick="goHome()" class="hover-lift flex-1 bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md shadow-blue-200 transition text-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-arrow-right"></i> Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEW SCREEN -->
+        <div id="screen-review" class="screen w-full max-w-4xl mx-auto h-full flex-col">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex justify-between items-center mb-4 flex-none">
+                <div class="flex items-center gap-3">
+                    <div class="bg-slate-100 text-slate-600 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h2 class="font-display text-lg sm:text-xl font-bold text-slate-800">Detailed Review</h2>
+                </div>
+                <button onclick="goHome()" class="text-slate-400 hover:text-slate-600 transition bg-slate-100 hover:bg-slate-200 w-10 h-10 rounded-xl flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="review-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2 pb-10">
+                <!-- Review items injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-200 flex flex-col items-center text-center" id="modal-content">
+            <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4 border-4 border-white shadow-sm" id="modal-icon-container">
+                <i class="fas fa-info-circle text-2xl text-blue-500" id="modal-icon"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-800 font-display mb-2 leading-tight" id="modal-title">Alert</h3>
+            <p class="text-slate-500 font-medium mb-6 text-sm" id="modal-desc">Message goes here.</p>
+            <button onclick="closeModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-md">
+                Understood
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN LOGIC SCRIPT -->
+    <script>
+        let state = {
+            version: 'grade5', // 'grade5' or 'grade9'
+            mode: 'quiz',      // 'quiz' or 'speaking'
+            topic: 'default',
+            currentCategory: null,
+            questions: [],
+            currentIndex: 0,
+            score: 0,
+            points: parseInt(localStorage.getItem('emhPoints')) || 0,
+            mistakes: JSON.parse(localStorage.getItem('emhMistakes')) || [],
+            progress: JSON.parse(localStorage.getItem('emhProgress')) || {},
+            answered: false,
+            userAnswers: []
+        };
+
+        // TTS setup - ensuring specific voices load
+        let preferredVoice = null;
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            const targetNames = ["Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William", "Remy"];
+            
+            // Look for Microsoft Online/Multilingual first
+            preferredVoice = voices.find(v => targetNames.some(n => v.name.includes(n)) && (v.name.includes('Online') || v.name.includes('Multilingual')));
+            // Fallback to local versions of target names
+            if(!preferredVoice) preferredVoice = voices.find(v => targetNames.some(n => v.name.includes(n)));
+            // Generic Fallback
+            if(!preferredVoice) preferredVoice = voices.find(v => v.lang.startsWith('en-US'));
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+        }
+
+        // Massive Vocab Bank for infinite variation
+        const g5Vocab = {
+            default: { noun: ['assignments', 'tasks', 'chores', 'books', 'notes'], verb: ['finish', 'start', 'do', 'read', 'write'], person: ['teacher', 'friend', 'brother', 'mother', 'sister'], place: ['classroom', 'home', 'park', 'library', 'yard'] },
+            school: { noun: ['projects', 'exams', 'essays', 'pencils', 'rulers'], verb: ['study', 'review', 'write', 'bring', 'use'], person: ['classmate', 'principal', 'tutor', 'student', 'monitor'], place: ['library', 'study hall', 'desk', 'lab', 'gym'] },
+            digital: { noun: ['tablets', 'apps', 'screens', 'laptops', 'games'], verb: ['code', 'program', 'debug', 'play', 'download'], person: ['programmer', 'hacker', 'gamer', 'user', 'designer'], place: ['computer lab', 'server room', 'office', 'bedroom', 'studio'] },
+            science: { noun: ['robots', 'chemicals', 'plants', 'samples', 'microscopes'], verb: ['test', 'mix', 'observe', 'measure', 'heat'], person: ['scientist', 'researcher', 'doctor', 'assistant', 'biologist'], place: ['science lab', 'greenhouse', 'clinic', 'hospital', 'field'] }
+        };
+
+        // Helper functions for grammar rules
+        const rules = {
+            ing: (v) => {
+                if (['run', 'win', 'swim', 'sit', 'get'].includes(v)) return v + v.slice(-1) + 'ing';
+                if (v.endsWith('e') && v !== 'see') return v.slice(0, -1) + 'ing';
+                return v + 'ing';
+            },
+            ed: (v) => {
+                if (v === 'study') return 'studied';
+                if (v.endsWith('e')) return v + 'd';
+                if (['plan', 'stop', 'drop'].includes(v)) return v + v.slice(-1) + 'ed';
+                return v + 'ed';
+            },
+            cap: (s) => s.charAt(0).toUpperCase() + s.slice(1)
+        };
+
+        const g5Templates = {
+            present_cont: [
+                { q: "Look! The {person} ___ walking to the {place}.", opts: ['is', 'are', 'am'], ans: 0, f: "Use 'is' for singular third-person subjects." },
+                { q: "The {person}s ___ {verb_ing} right now.", opts: ['are', 'is', 'am'], ans: 0, f: "Use 'are' for plural subjects." },
+                { q: "What ___ you doing with the {noun}?", opts: ['are', 'is', 'do'], ans: 0, f: "Use 'are' with the pronoun 'you'." },
+                { q: "I ___ looking for my {noun}.", opts: ['am', 'is', 'are'], ans: 0, f: "Use 'am' exclusively with the pronoun 'I'." },
+                { q: "___ the {person} {verb_ing} today?", opts: ['Is', 'Are', 'Does'], ans: 0, f: "Start the question with 'Is' for a singular subject." }
+            ],
+            simple_past: [
+                { q: "___ you {verb} the {noun} yesterday?", opts: ['Did', 'Do', 'Are'], ans: 0, f: "Use the auxiliary 'Did' for simple past questions." },
+                { q: "I ___ not see the {person} this morning.", opts: ['did', 'do', 'am'], ans: 0, f: "Use 'did not' (didn't) to make a past tense sentence negative." },
+                { q: "She ___ to the {place} two hours ago.", opts: ['went', 'go', 'goes'], ans: 0, f: "'Went' is the irregular past tense of 'go'." },
+                { q: "They ___ happy with their {noun}.", opts: ['were', 'was', 'are'], ans: 0, f: "'Were' is the past tense of 'are'." },
+                { q: "The {person} ___ me a gift.", opts: ['gave', 'give', 'gives'], ans: 0, f: "'Gave' is the irregular past tense of 'give'." }
+            ],
+            comparatives: [
+                { q: "This {noun} is ___ than that one.", opts: ['bigger', 'big', 'biggest'], ans: 0, f: "Double the consonant and add '-er' for short adjectives ending in CVC." },
+                { q: "I think {verb_ing} is ___ than reading.", opts: ['more interesting', 'interesting', 'most interesting'], ans: 0, f: "Use 'more' for adjectives with three or more syllables." },
+                { q: "The {place} is ___ than I remember.", opts: ['nicer', 'nice', 'more nice'], ans: 0, f: "Just add '-r' if the short adjective already ends in 'e'." },
+                { q: "My {noun} are ___ than yours.", opts: ['better', 'good', 'gooder'], ans: 0, f: "'Good' is an irregular adjective. The comparative is 'better'." },
+                { q: "The {person} is ___ than my brother.", opts: ['taller', 'tall', 'more tall'], ans: 0, f: "Add '-er' to one-syllable adjectives." }
+            ],
+            prepositions: [
+                { q: "We usually {verb} ___ the morning.", opts: ['in', 'on', 'at'], ans: 0, f: "Use 'in' for parts of the day (in the morning/afternoon/evening)." },
+                { q: "I will meet the {person} ___ Monday.", opts: ['on', 'in', 'at'], ans: 0, f: "Use 'on' for specific days of the week." },
+                { q: "The {noun} are ___ the table.", opts: ['on', 'in', 'at'], ans: 0, f: "Use 'on' when something is resting on a surface." },
+                { q: "Class starts ___ 8:00 AM.", opts: ['at', 'in', 'on'], ans: 0, f: "Use 'at' for specific clock times." },
+                { q: "She is waiting ___ the {place}.", opts: ['at', 'in', 'on'], ans: 0, f: "Use 'at' for specific locations or points." }
+            ],
+            modals: [
+                { q: "___ you help me with these {noun}?", opts: ['Can', 'Must', 'Should'], ans: 0, f: "'Can' is used to politely ask for help or ability." },
+                { q: "You ___ listen to the {person}.", opts: ['must', 'can', 'are'], ans: 0, f: "'Must' indicates a strong rule or obligation." },
+                { q: "We ___ not run in the {place}.", opts: ['must', 'can', 'should'], ans: 0, f: "'Must not' (mustn't) is used for strict prohibitions." },
+                { q: "___ I open the window?", opts: ['May', 'Must', 'Am'], ans: 0, f: "'May' is a polite way to ask for permission." },
+                { q: "You ___ {verb} every day to improve.", opts: ['should', 'can', 'must'], ans: 0, f: "'Should' is used to give good advice." }
+            ]
+        };
+
+        const g9Bank = {
+            who: [
+                { q: "___ is your favorite teacher?", opts: ["Who", "Which", "Whom"], ans: 0, f: "'Who' refers to people as the subject.", c: "Think about homeroom! When asking about Mr. Li, use 'who'." },
+                { q: "___ can help you with your homework?", opts: ["Who", "Which", "Whom"], ans: 0, f: "'Who' is used for people performing an action.", c: "Asking a classmate for help." },
+                { q: "___ is playing basketball?", opts: ["Who", "Which", "Whose"], ans: 0, f: "'Who' asks about the person doing the action.", c: "During PE class." },
+                { q: "She is the student ___ won the competition.", opts: ["who", "which", "whose"], ans: 0, f: "'Who' introduces a relative clause describing a person.", c: "Describing a winner." },
+                { q: "___ jacket is this?", opts: ["Whose", "Who", "Whom"], ans: 0, f: "'Whose' asks about possession.", c: "Finding lost items." }
+            ],
+            there: [
+                { q: "___ a library near the school.", opts: ["There is", "There are", "There has"], ans: 0, f: "'There is' is used with singular countable nouns.", c: "Stating existence, not possession." },
+                { q: "___ many clubs you can join.", opts: ["There are", "There is", "There have"], ans: 0, f: "'There are' is used with plural countable nouns.", c: "Discussing extracurriculars." },
+                { q: "___ enough time to finish.", opts: ["There is", "There are", "There has"], ans: 0, f: "'Time' is uncountable, so we use 'There is'.", c: "Exam worries." },
+                { q: "___ some chalk left.", opts: ["There is", "There are", "There has"], ans: 0, f: "'Chalk' is an uncountable noun.", c: "Cleaning the board." },
+                { q: "___ going to be a sports meet.", opts: ["There is", "There are", "It is"], ans: 0, f: "Future tense of 'there is'.", c: "Planning events." }
+            ],
+            opinions: [
+                { q: "___, online learning is helpful.", opts: ["In my opinion", "I am opinion", "My opinion"], ans: 0, f: "Standard phrase for stating views.", c: "Writing essays." },
+                { q: "Is reading helpful? Yes, ___.", opts: ["I think so", "I am think", "I thought"], ans: 0, f: "Natural agreement response.", c: "Conversations." },
+                { q: "Is vocabulary essential? ___.", opts: ["I believe it is", "I believe it does", "I believe it has"], ans: 0, f: "Completing 'be' verb thoughts.", c: "Study habits." },
+                { q: "What is your opinion? ___.", opts: ["I think it's useful", "I think it useful", "I think it's use"], ans: 0, f: "Need the 'be' verb: 'it is useful'.", c: "Expressing thoughts." },
+                { q: "Should everyone learn English? Yes, ___.", opts: ["I do", "I am", "I have"], ans: 0, f: "Match the auxiliary: 'Yes, I do (think so)'.", c: "Debates." }
+            ],
+            frequency: [
+                { q: "How often do you study? ___.", opts: ["I always study", "I study always", "I always studying"], ans: 0, f: "Frequency adverbs go BEFORE the main verb.", c: "Study habits." },
+                { q: "Do you chat in class? No, ___.", opts: ["I never do", "I do never", "I never doing"], ans: 0, f: "Use 'never' to deny.", c: "Classroom rules." },
+                { q: "He is ___ late for school.", opts: ["never", "never is", "is never"], ans: 0, f: "Adverbs of frequency go AFTER the 'be' verb.", c: "Exceptions to the rule." },
+                { q: "Do you raise your hand? Yes, ___.", opts: ["I usually try to", "I try usually to", "I usually trying to"], ans: 0, f: "'Usually' + main verb.", c: "Participation." },
+                { q: "How often do you forget books? ___.", opts: ["I rarely forget", "I forget rarely", "I rarely forgetting"], ans: 0, f: "'Rarely' goes before the main verb.", c: "Organization." }
+            ],
+            would: [
+                { q: "___ you please pass the eraser?", opts: ["Would", "Will", "Do"], ans: 0, f: "'Would you please' is the most polite request.", c: "Polite classroom English." },
+                { q: "I ___ play outside every day when I was young.", opts: ["would", "will", "can"], ans: 0, f: "'Would' expresses past habits.", c: "Nostalgia." },
+                { q: "If you scored 100%, ___ you celebrate?", opts: ["would", "will", "can"], ans: 0, f: "Second conditional for hypothetical situations.", c: "Imagining success." },
+                { q: "___ you like to join our group?", opts: ["Would", "Will", "Do"], ans: 0, f: "Polite offer/invitation.", c: "Making friends." },
+                { q: "___ you mind closing the window?", opts: ["Would", "Will", "Do"], ans: 0, f: "'Would you mind' + gerund is highly polite.", c: "Asking favors." }
+            ]
+        };
+
+        // Scaffolds for Speaking Mode
+        const speakingScaffolds = {
+            grade5: {
+                present_cont: "The correct form is...",
+                simple_past: "In the past tense, I use...",
+                comparatives: "To compare them, I say...",
+                prepositions: "For this specific time/place, I use...",
+                modals: "To show ability or rules, I choose..."
+            },
+            grade9: {
+                who: "I'm talking about a person, so...",
+                there: "To state it exists, I say...",
+                opinions: "To express my view, I start with...",
+                frequency: "This happens often, so the adverb goes...",
+                would: "To be polite or show past habit, I use..."
+            }
+        };
+
+        // Category UI Data
+        const categories = {
+            grade5: [
+                { id: 'present_cont', title: 'Present Continuous', icon: 'fa-running', color: 'from-blue-400 to-indigo-500' },
+                { id: 'simple_past', title: 'Simple Past', icon: 'fa-history', color: 'from-purple-400 to-pink-500' },
+                { id: 'comparatives', title: 'Comparatives', icon: 'fa-balance-scale', color: 'from-teal-400 to-emerald-500' },
+                { id: 'prepositions', title: 'Prepositions', icon: 'fa-map-marker-alt', color: 'from-orange-400 to-red-500' },
+                { id: 'modals', title: 'Modal Verbs', icon: 'fa-gavel', color: 'from-cyan-500 to-blue-600' }
+            ],
+            grade9: [
+                { id: 'who', title: 'WHO Clauses', icon: 'fa-users', color: 'from-blue-500 to-indigo-600' },
+                { id: 'there', title: 'THERE IS / ARE', icon: 'fa-location-crosshairs', color: 'from-purple-500 to-fuchsia-600' },
+                { id: 'opinions', title: 'Expressing Opinions', icon: 'fa-comments', color: 'from-emerald-500 to-teal-600' },
+                { id: 'frequency', title: 'Frequency Adverbs', icon: 'fa-clock', color: 'from-rose-500 to-red-600' },
+                { id: 'would', title: 'WOULD & Requests', icon: 'fa-handshake-angle', color: 'from-amber-500 to-orange-600' }
+            ]
+        };
+
+        function updateScoreDisplay() {
+            document.getElementById('score-display').innerText = `${state.points} pts`;
+            const rankEl = document.getElementById('rank-display');
+            if (state.points > 1000) { rankEl.innerText = "Master Scholar"; rankEl.className = "text-[10px] font-black text-rose-300 uppercase tracking-widest leading-none mb-1 drop-shadow-sm"; }
+            else if (state.points > 500) { rankEl.innerText = "Advanced"; rankEl.className = "text-[10px] font-black text-emerald-300 uppercase tracking-widest leading-none mb-1 drop-shadow-sm"; }
+            else if (state.points > 200) { rankEl.innerText = "Intermediate"; rankEl.className = "text-[10px] font-black text-blue-300 uppercase tracking-widest leading-none mb-1 drop-shadow-sm"; }
+            else { rankEl.innerText = "Novice"; rankEl.className = "text-[10px] font-black text-yellow-300 uppercase tracking-widest leading-none mb-1 drop-shadow-sm"; }
+            
+            document.getElementById('mistake-count').innerText = state.mistakes.length;
+            localStorage.setItem('emhPoints', state.points);
+            localStorage.setItem('emhMistakes', JSON.stringify(state.mistakes));
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (id === 'screen-dashboard') renderCategories();
+        }
+
+        function goHome() { showScreen('screen-dashboard'); }
+
+        function showModal(title, desc, icon = 'fa-info-circle', iconColor = 'text-blue-500', bg = 'bg-blue-50') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-icon').className = `fas ${icon} text-2xl ${iconColor}`;
+            document.getElementById('modal-icon-container').className = `w-16 h-16 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm ${bg}`;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0'), 10);
+        }
+
+        function closeModal() {
+            document.getElementById('modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => document.getElementById('custom-modal').classList.add('hidden'), 200);
+        }
+
+        function setAppVersion(version) {
+            state.version = version;
+            const activeClass = 'flex-1 md:w-48 py-2.5 px-4 rounded-xl font-bold text-sm sm:text-base transition-all bg-white text-blue-600 shadow border border-slate-200';
+            const inactiveClass = 'flex-1 md:w-48 py-2.5 px-4 rounded-xl font-bold text-sm sm:text-base text-slate-500 hover:text-slate-700 transition-all';
+            
+            document.getElementById('tab-grade5').className = version === 'grade5' ? activeClass : inactiveClass;
+            document.getElementById('tab-grade9').className = version === 'grade9' ? activeClass : inactiveClass;
+            
+            document.getElementById('topic-container').style.display = version === 'grade5' ? 'block' : 'none';
+            renderCategories();
+        }
+
+        function renderCategories() {
+            state.mode = document.getElementById('mode-select').value;
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = '';
+
+            categories[state.version].forEach((cat, index) => {
+                const isCompleted = state.progress[`${state.version}_${cat.id}`];
+                // Logical Progression: Lock if previous category isn't completed
+                const prevCat = index > 0 ? categories[state.version][index - 1] : null;
+                const isLocked = prevCat && !state.progress[`${state.version}_${prevCat.id}`] && !isCompleted;
+
+                const card = document.createElement('div');
+                card.className = `hover-lift cursor-pointer bg-gradient-to-br ${cat.color} rounded-3xl p-5 text-white shadow-md relative overflow-hidden group ${isLocked ? 'opacity-50 grayscale' : ''}`;
+                
+                const statusBadge = isCompleted 
+                    ? `<div class="absolute top-3 right-3 bg-white/30 px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-md uppercase tracking-wider"><i class="fas fa-check text-green-200"></i> Mastered</div>` 
+                    : (isLocked ? `<div class="absolute top-3 right-3 bg-black/30 px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-md uppercase tracking-wider"><i class="fas fa-lock"></i> Locked</div>` : '');
+
+                card.innerHTML = `
+                    ${statusBadge}
+                    <div class="absolute -right-4 -bottom-4 text-white/10 text-7xl group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas ${cat.icon}"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 backdrop-blur-sm">
+                            <i class="fas ${cat.icon}"></i>
+                        </div>
+                        <p class="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Step ${index + 1}</p>
+                        <h3 class="font-display text-xl font-bold leading-tight">${cat.title}</h3>
+                    </div>
+                `;
+                card.onclick = () => {
+                    if (!isLocked) generatePractice(cat);
+                    else showModal("Module Locked", "Please achieve at least 70% on the previous module to unlock this logical progression step.", "fa-lock", "text-slate-500", "bg-slate-100");
+                };
+                grid.appendChild(card);
+            });
+            updateScoreDisplay();
+        }
+
+        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+        function generatePractice(category) {
+            state.currentCategory = category;
+            state.topic = document.getElementById('topic-select').value;
+            let rawQuestions = [];
+
+            if (state.version === 'grade5') {
+                const vBank = g5Vocab[state.topic];
+                const templates = g5Templates[category.id];
+                
+                // Procedurally generate 10 unique questions by looping templates and injecting random vocab
+                for(let i=0; i<10; i++) {
+                    const t = templates[i % templates.length];
+                    const v = { n: getRandom(vBank.noun), v: getRandom(vBank.verb), p: getRandom(vBank.person), pl: getRandom(vBank.place) };
+                    
+                    let qText = t.q.replace(/{noun}/g, v.n).replace(/{person}/g, v.p).replace(/{place}/g, v.pl)
+                                   .replace(/{verb}/g, v.v).replace(/{verb_ing}/g, rules.ing(v.v)).replace(/{verb_ed}/g, rules.ed(v.v));
+                    let fText = t.f;
+
+                    const correctWord = t.opts[t.ans];
+                    const shuffledOpts = shuffle(t.opts);
+                    rawQuestions.push({
+                        q: rules.cap(qText), options: shuffledOpts, correct: shuffledOpts.indexOf(correctWord), 
+                        feedback: fText, scaffold: speakingScaffolds.grade5[category.id]
+                    });
+                }
+            } else {
+                // Grade 9 uses static verified bank, but we shuffle options
+                const bank = g9Bank[category.id];
+                for(let i=0; i<10; i++) {
+                    const q = bank[i % bank.length];
+                    const correctWord = q.opts[q.ans];
+                    const shuffledOpts = shuffle(q.opts);
+                    rawQuestions.push({
+                        q: q.q, options: shuffledOpts, correct: shuffledOpts.indexOf(correctWord), 
+                        feedback: q.f, context: q.c, scaffold: speakingScaffolds.grade9[category.id]
+                    });
+                }
+            }
+
+            setupSession(shuffle(rawQuestions).slice(0, 10), category.title, category.icon);
+        }
+
+        function generateMixedPractice() {
+            let pool = [];
+            if (state.version === 'grade5') {
+                const vBank = g5Vocab[document.getElementById('topic-select').value];
+                Object.keys(g5Templates).forEach(k => {
+                    g5Templates[k].forEach(t => {
+                        const v = { n: getRandom(vBank.noun), v: getRandom(vBank.verb), p: getRandom(vBank.person), pl: getRandom(vBank.place) };
+                        let qText = rules.cap(t.q.replace(/{noun}/g, v.n).replace(/{person}/g, v.p).replace(/{place}/g, v.pl).replace(/{verb}/g, v.v).replace(/{verb_ing}/g, rules.ing(v.v)).replace(/{verb_ed}/g, rules.ed(v.v)));
+                        pool.push({ q: qText, opts: t.opts, ans: t.ans, f: t.f, scaffold: speakingScaffolds.grade5[k] });
+                    });
+                });
+            } else {
+                Object.keys(g9Bank).forEach(k => {
+                    g9Bank[k].forEach(q => pool.push({ ...q, scaffold: speakingScaffolds.grade9[k] }));
+                });
+            }
+            
+            let formatted = shuffle(pool).slice(0, 10).map(q => {
+                const correctWord = q.opts[q.ans];
+                const shuffledOpts = shuffle(q.opts);
+                return { q: q.q, options: shuffledOpts, correct: shuffledOpts.indexOf(correctWord), feedback: q.f, context: q.c, scaffold: q.scaffold };
+            });
+            setupSession(formatted, "Mixed Challenge", "fa-random");
+        }
+
+        function generateMistakeReview() {
+            if (state.mistakes.length === 0) {
+                showModal("All Caught Up!", "You don't have any mistakes to review right now. Keep practicing to find weak spots!", "fa-check", "text-green-500", "bg-green-50");
+                return;
+            }
+            // In review, we re-shuffle options so they don't memorize position
+            let formatted = shuffle([...state.mistakes]).slice(0, 10).map(q => {
+                const correctWord = q.options[q.correct];
+                const shuffledOpts = shuffle(q.options);
+                return { ...q, options: shuffledOpts, correct: shuffledOpts.indexOf(correctWord) };
+            });
+            setupSession(formatted, "Mistake Review", "fa-hammer");
+        }
+
+        function setupSession(questions, title, icon) {
+            state.questions = questions;
+            state.currentIndex = 0;
+            state.score = 0;
+            state.answered = false;
+            state.userAnswers = new Array(questions.length).fill(null);
+            
+            document.getElementById('practice-title').innerText = title;
+            document.getElementById('practice-icon').className = `fas ${icon}`;
+            document.getElementById('q-total').innerText = questions.length;
+            
+            showScreen('screen-practice');
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const q = state.questions[state.currentIndex];
+            state.answered = false;
+            
+            document.getElementById('q-current').innerText = state.currentIndex + 1;
+            document.getElementById('progress-bar').style.width = `${(state.currentIndex / state.questions.length) * 100}%`;
+            
+            const area = document.getElementById('answer-area');
+            const actionArea = document.getElementById('action-area');
+            area.innerHTML = '';
+            actionArea.innerHTML = '';
+
+            if (state.mode === 'quiz') {
+                document.getElementById('question-instruction').innerText = "Complete the sentence";
+                document.getElementById('question-text').innerHTML = q.q.replace('___', '<span class="blank-space"></span>');
+                
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-3 w-full";
+                
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn bg-white border border-slate-300 text-slate-700 font-bold text-lg py-4 px-3 rounded-2xl outline-none shadow-sm flex items-center justify-center break-words';
+                    btn.innerText = opt;
+                    btn.onclick = () => handleQuizAnswer(idx, btn);
+                    grid.appendChild(btn);
+                });
+                area.appendChild(grid);
+
+            } else {
+                // Speaking Mode Layout
+                document.getElementById('question-instruction').innerText = "Read out loud & Answer";
+                document.getElementById('question-text').innerHTML = q.q.replace('___', '...');
+                
+                const targetPhrase = `${q.scaffold} ${q.options[q.correct]}`;
+                
+                area.innerHTML = `
+                    <div class="bg-white border-2 border-slate-200 rounded-3xl p-6 text-center w-full transition shadow-sm flex flex-col items-center justify-center min-h-[200px]">
+                        <button id="mic-btn" onclick="startSpeechRecognition('${targetPhrase.replace(/'/g, "\\'")}', event)" class="w-20 h-20 bg-rose-500 hover:bg-rose-400 text-white rounded-full text-3xl shadow-[0_6px_0_#be123c] active:translate-y-1 active:shadow-none transition flex items-center justify-center mb-4 focus:outline-none flex-none">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <p id="speech-feedback" class="text-sm font-bold text-slate-500 mb-2">Tap the microphone and speak your answer</p>
+                        <div id="speak-reveal" class="hidden flex-col items-center w-full mt-4 pt-4 border-t border-slate-100 animate-[slideUp_0.3s_ease-out]">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target Answer:</p>
+                            <p class="text-lg sm:text-xl font-bold text-indigo-700">"${q.scaffold} <span class="text-green-600 underline decoration-2 underline-offset-4">${q.options[q.correct]}</span>"</p>
+                        </div>
+                    </div>
+                `;
+                
+                showSpeakingManualGrading();
+            }
+        }
+
+        function handleQuizAnswer(idx, btnElement) {
+            if (state.answered) return;
+            state.answered = true;
+            state.userAnswers[state.currentIndex] = idx;
+
+            const q = state.questions[state.currentIndex];
+            const isCorrect = (idx === q.correct);
+            const ptsAwarded = state.version === 'grade9' ? 15 : 10;
+
+            document.querySelectorAll('.option-btn').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:-translate-y-1', 'hover:bg-slate-50');
+                if (i === q.correct) b.classList.add('selected-correct');
+            });
+
+            const actionArea = document.getElementById('action-area');
+            const nextBtnHTML = `<button onclick="handleNext()" class="shrink-0 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold shadow-md active:translate-y-1 active:shadow-none transition w-full sm:w-auto ml-auto">${state.currentIndex === state.questions.length - 1 ? 'Finish <i class="fas fa-flag-checkered"></i>' : 'Next <i class="fas fa-arrow-right"></i>'}</button>`;
+
+            if (isCorrect) {
+                btnElement.classList.add('selected-correct');
+                state.score++;
+                state.points += ptsAwarded;
+                fireConfetti();
+                state.mistakes = state.mistakes.filter(m => m.q !== q.q); // Remove from mistakes if correct
+                
+                actionArea.innerHTML = `
+                    <div class="w-full flex flex-col sm:flex-row items-center justify-between p-4 rounded-2xl bg-green-50 border border-green-200 animate-[slideUp_0.3s_ease-out] gap-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-2xl text-green-500 mt-0.5 shrink-0"></i>
+                            <div>
+                                <p class="text-green-800 font-bold text-sm sm:text-base leading-tight">${q.feedback}</p>
+                                ${q.context ? `<p class="text-green-600 text-xs font-semibold mt-1"><i class="fas fa-lightbulb"></i> Tip: ${q.context}</p>` : ''}
+                            </div>
+                        </div>
+                        ${nextBtnHTML}
+                    </div>
+                `;
+            } else {
+                btnElement.classList.add('selected-incorrect');
+                if (!state.mistakes.some(m => m.q === q.q)) {
+                    state.mistakes.push(q);
+                    if(state.mistakes.length > 50) state.mistakes.shift();
+                }
+                
+                actionArea.innerHTML = `
+                    <div class="w-full flex flex-col sm:flex-row items-center justify-between p-4 rounded-2xl bg-red-50 border border-red-200 animate-[slideUp_0.3s_ease-out] gap-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-times-circle text-2xl text-red-500 mt-0.5 shrink-0"></i>
+                            <div>
+                                <p class="text-red-800 font-bold text-sm sm:text-base leading-tight">${q.feedback}</p>
+                                ${q.context ? `<p class="text-red-600 text-xs font-semibold mt-1"><i class="fas fa-lightbulb"></i> Tip: ${q.context}</p>` : ''}
+                            </div>
+                        </div>
+                        ${nextBtnHTML}
+                    </div>
+                `;
+            }
+
+            updateScoreDisplay();
+            if(isCorrect) setTimeout(() => speakText(q.q.replace('___', q.options[q.correct])), 400);
+        }
+
+        function showSpeakingManualGrading() {
+            document.getElementById('action-area').innerHTML = `
+                <div class="flex gap-3 w-full justify-center relative animate-[slideUp_0.3s_ease-out]">
+                    <button onclick="handleSpeakingResult(false, event)" class="flex-1 max-w-[200px] bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold py-3 px-4 rounded-xl transition border border-slate-300">Needs Work</button>
+                    <button onclick="handleSpeakingResult(true, event)" class="flex-1 max-w-[200px] bg-green-500 text-white hover:bg-green-400 font-bold py-3 px-4 rounded-xl shadow-[0_4px_0_#16a34a] active:translate-y-1 active:shadow-none transition">I Spoke Well!</button>
+                </div>
+            `;
+        }
+
+        function startSpeechRecognition(targetPhrase, event) {
+            if(event) event.stopPropagation();
+            if (state.answered) return;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showModal("Microphone Unavailable", "Speech recognition is not supported in this browser. Please use Chrome/Edge, or use the manual grading buttons.", "fa-microphone-slash", "text-rose-500", "bg-rose-50");
+                document.getElementById('speak-reveal').classList.replace('hidden', 'flex');
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const btn = document.getElementById('mic-btn');
+            const feedbackEl = document.getElementById('speech-feedback');
+
+            recognition.onstart = () => {
+                btn.classList.add('animate-pulse', 'ring-4', 'ring-rose-200');
+                feedbackEl.innerText = "Listening... Speak your answer now.";
+                document.getElementById('speak-reveal').classList.replace('hidden', 'flex'); // Reveal answer to read
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                
+                // Active Assessment Algorithm (Word Overlap)
+                const cleanTarget = targetPhrase.replace(/[.,!?]/g, '').toLowerCase().trim();
+                const cleanTranscript = transcript.replace(/[.,!?]/g, '').toLowerCase().trim();
+                const targetWords = cleanTarget.split(' ');
+                const transcriptWords = cleanTranscript.split(' ');
+                
+                let matches = 0;
+                targetWords.forEach(w => { if (transcriptWords.includes(w)) matches++; });
+                const accuracy = matches / targetWords.length;
+
+                if (accuracy >= 0.5) { // 50% overlap triggers success for ESL
+                    feedbackEl.innerText = `Great! Heard: "${transcript}"`;
+                    feedbackEl.className = "text-sm font-bold text-green-600 mb-2";
+                    btn.className = "w-20 h-20 bg-green-500 text-white rounded-full text-3xl shadow-[0_4px_0_#16a34a] flex items-center justify-center mb-4 flex-none";
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    handleSpeakingResult(true, null, true); // Auto-grade success
+                } else {
+                    feedbackEl.innerText = `Heard: "${transcript}". Try again or self-grade.`;
+                    feedbackEl.className = "text-sm font-bold text-orange-500 mb-2";
+                }
+            };
+
+            recognition.onerror = () => { feedbackEl.innerText = "Mic error. Use manual buttons."; };
+            recognition.onend = () => { btn.classList.remove('animate-pulse', 'ring-4', 'ring-rose-200'); };
+            recognition.start();
+        }
+
+        function handleSpeakingResult(success, event, autoGraded = false) {
+            if(event) event.stopPropagation();
+            if (state.answered) return;
+            state.answered = true;
+            
+            document.getElementById('speak-reveal').classList.replace('hidden', 'flex'); // Ensure revealed
+
+            if (success) {
+                state.score++;
+                state.points += autoGraded ? 25 : 15; // Bonus for AI verifying
+                fireConfetti();
+            } else {
+                const q = state.questions[state.currentIndex];
+                if (!state.mistakes.some(m => m.q === q.q)) {
+                    state.mistakes.push(q);
+                    if(state.mistakes.length > 50) state.mistakes.shift();
+                }
+            }
+            updateScoreDisplay();
+            
+            const nextBtnText = state.currentIndex === state.questions.length - 1 ? 'Finish <i class="fas fa-flag-checkered"></i>' : 'Next <i class="fas fa-arrow-right"></i>';
+            document.getElementById('action-area').innerHTML = `
+                <div class="w-full flex items-center justify-center animate-[slideUp_0.3s_ease-out]">
+                    <button onclick="handleNext()" class="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl font-bold shadow-md active:translate-y-1 active:shadow-none transition w-full sm:w-auto">
+                        ${nextBtnText}
+                    </button>
+                </div>
+            `;
+        }
+
+        function handleNext() {
+            if (state.currentIndex < state.questions.length - 1) {
+                state.currentIndex++;
+                renderCurrentQuestion();
+            } else {
+                document.getElementById('progress-bar').style.width = '100%';
+                setTimeout(showResults, 300);
+            }
+        }
+
+        function showResults() {
+            showScreen('screen-results');
+            document.getElementById('final-score').innerText = `${state.score}/${state.questions.length}`;
+            const pct = state.score / state.questions.length;
+            const msg = document.getElementById('result-message');
+            
+            // Logical Progression unlock
+            if (pct >= 0.7 && state.currentCategory) {
+                state.progress[`${state.version}_${state.currentCategory.id}`] = true;
+                localStorage.setItem('emhProgress', JSON.stringify(state.progress));
+            }
+
+            if (state.mode === 'speaking') msg.innerText = "Excellent speaking practice! Fluency takes time.";
+            else {
+                if (pct === 1) msg.innerText = "Flawless! You're a grammar master!";
+                else if (pct >= 0.7) msg.innerText = "Great job! Module unlocked.";
+                else msg.innerText = "Good effort. Review mistakes and try again.";
+            }
+            updateScoreDisplay();
+        }
+
+        function showReview() {
+            showScreen('screen-review');
+            const list = document.getElementById('review-list');
+            list.innerHTML = '';
+
+            state.questions.forEach((q, i) => {
+                const isCorrect = state.mode === 'speaking' ? true : (state.userAnswers[i] === q.correct);
+                const item = document.createElement('div');
+                item.className = `bg-white p-5 rounded-2xl border-l-4 shadow-sm flex flex-col ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                let ansHTML = "";
+                if(state.mode === 'quiz') {
+                    const uAns = state.userAnswers[i] !== null ? q.options[state.userAnswers[i]] : "Skipped";
+                    ansHTML = `
+                        <div class="flex flex-wrap gap-2 mt-2 mb-2">
+                            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">Your Answer: <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${uAns}</span></span>
+                            ${!isCorrect ? `<span class="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-bold border border-green-200">Correct: ${q.options[q.correct]}</span>` : ''}
+                        </div>
+                    `;
+                }
+
+                item.innerHTML = `
+                    <div class="font-display text-lg font-bold text-slate-800 leading-tight">${i+1}. ${q.q.replace('___', '_____')}</div>
+                    ${ansHTML}
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 mt-2">
+                        <p class="text-sm text-slate-600 font-medium"><strong>Rule:</strong> ${q.feedback}</p>
+                        ${q.context ? `<p class="text-xs text-blue-600 font-semibold mt-1">💡 Tip: ${q.context}</p>` : ''}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function speakCurrentText() { speakText(state.questions[state.currentIndex].q.replace('___', 'blank')); }
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(text.replace(/<[^>]*>?/gm, ''));
+                utter.lang = 'en-US';
+                utter.rate = 0.85; // Locked pedagogical speed
+                if (preferredVoice) utter.voice = preferredVoice;
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        function fireConfetti() {
+            if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ['#3b82f6', '#22c55e', '#f59e0b', '#ec4899'] });
+        }
+
+        function addManualPoints() {
+            state.points += 2;
+            updateScoreDisplay();
+        }
+
+        // Initialize App
+        window.onload = () => {
+            updateScoreDisplay();
+            setAppVersion('grade5');
+        };
+
+    </script>
+</body>
+</html>

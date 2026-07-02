@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Learning Dashboard - Part 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .animate-pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .sentence-span { transition: all 0.2s ease-in-out; cursor: pointer; border-radius: 4px; padding: 2px 0; }
+        .sentence-span:hover { background-color: #e0e7ff; }
+        .sentence-span.active { background-color: #c7d2fe; color: #312e81; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const unitData = [
+          {
+            id: 13, title: "Technology", icon: "fa-solid fa-laptop", skills: ["Matching features", "Diagram labelling"],
+            content: "The impact of digital evolution on daily life and identifying technical processes.",
+            secondaryExample: "Secondary Context: Writing a computer science report on how algorithms affect social media feeds.",
+            outcomes: { listening: "Label technical diagrams.", reading: "Match features of new software.", writing: "Discuss advantages of tech.", speaking: "Talk about your favorite device.", grammarVocab: "Relative clauses." },
+            practiceActivity: { type: "writing", task: "Does technology isolate us or bring us together?" },
+            keyVocabSummary: "Digital systems, computing terms, and modern networking.",
+            vocabulary: [
+              { word: "Algorithm", chinese: "算法", definition: "A set of rules to be followed in calculations." },
+              { word: "Device", chinese: "设备", definition: "A piece of mechanical or electronic equipment." },
+              { word: "Interface", chinese: "界面", definition: "A point where two systems or subjects interact." },
+              { word: "Automate", chinese: "自动化", definition: "Convert to largely automatic operation." },
+              { word: "Cyber", chinese: "网络的", definition: "Relating to the culture of computers." },
+              { word: "Innovate", chinese: "创新", definition: "Make changes in something established." },
+              { word: "Virtual", chinese: "虚拟的", definition: "Not physically existing as such but made by software." },
+              { word: "Hardware", chinese: "硬件", definition: "The physical parts of a computer." },
+              { word: "Software", chinese: "软件", definition: "The programs used by a computer." },
+              { word: "Bandwidth", chinese: "带宽", definition: "The capacity for data transfer." }
+            ],
+            mcqs: [
+              { q: "A set of rules for calculations is an...", options: ["Interface", "Algorithm", "Hardware", "Virtual"], answer: 1 },
+              { q: "Programs used by a computer are...", options: ["Bandwidth", "Software", "Cyber", "Device"], answer: 1 },
+              { q: "Making something operate automatically is to...", options: ["Innovate", "Automate", "Virtual", "Cyber"], answer: 1 },
+              { q: "Physical computer parts are called...", options: ["Software", "Bandwidth", "Hardware", "Algorithm"], answer: 2 },
+              { q: "The capacity for data transfer is...", options: ["Cyber", "Virtual", "Interface", "Bandwidth"], answer: 3 },
+              { q: "The phone ___ I bought is fast.", options: ["who", "where", "which", "when"], answer: 2 },
+              { q: "The man ___ fixed my PC is here.", options: ["which", "who", "whom", "whose"], answer: 1 },
+              { q: "I like software ___ is easy to use.", options: ["who", "that", "whose", "where"], answer: 1 },
+              { q: "The device ___ screen is broken is mine.", options: ["who", "which", "whose", "that"], answer: 2 },
+              { q: "This is the lab ___ we innovate.", options: ["when", "where", "who", "which"], answer: 1 },
+              { q: "Relating to computer networks is...", options: ["Cyber", "Hardware", "Bandwidth", "Automate"], answer: 0 },
+              { q: "A new electronic equipment is a...", options: ["Algorithm", "Device", "Software", "Cyber"], answer: 1 },
+              { q: "A point of interaction is an...", options: ["Interface", "Bandwidth", "Innovate", "Virtual"], answer: 0 },
+              { q: "Not physically existing is...", options: ["Virtual", "Hardware", "Automate", "Device"], answer: 0 },
+              { q: "To make changes to a system is to...", options: ["Automate", "Cyber", "Innovate", "Software"], answer: 2 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["What device do you use most?"], stems: ["The device I use the most is..."],
+                example: "The device I use most is my phone. It has a great interface and strong hardware that can automate my daily tasks without cyber risks. It has enough bandwidth for virtual reality apps."
+              },
+              {
+                type: "Part 2", questions: ["Describe a piece of software you like."], stems: ["The software I like is..."],
+                example: "I use software that relies on a complex algorithm. The creators innovate constantly, updating the interface and optimizing bandwidth usage. It protects against cyber threats while giving me a virtual workspace."
+              }
+            ],
+            reading: {
+              text: "Every modern device relies on an advanced algorithm. A clean interface helps users interact with both hardware and software. Companies constantly innovate to automate systems, reducing cyber threats. High bandwidth is essential for rendering a seamless virtual environment.",
+              questions: ["1. What does every modern device rely on?", "2. What reduces cyber threats?"]
+            },
+            listening: {
+              text: "Tutor: To automate the factory, we need a new device. \nStudent: Yes, the software and hardware must integrate through a simple interface. \nTutor: We must innovate our algorithm to prevent a cyber attack. Also, upgrade the bandwidth so the virtual simulation runs smoothly.",
+              questions: ["1. What must integrate through a simple interface?", "2. What prevents a cyber attack?"]
+            },
+            grammar: {
+              topic: "Relative Clauses", focus: "Use who, which, that, where, and whose to connect ideas.",
+              examples: [
+                "The algorithm which powers the software is complex.",
+                "This is the device that has the new interface.",
+                "He is the programmer who helped automate the system.",
+                "Cyber attacks are threats that we must innovate against.",
+                "The virtual world is a place where bandwidth matters.",
+                "The laptop, whose hardware is outdated, crashed.",
+                "Software that uses low bandwidth is preferred.",
+                "The device which has a touch interface is popular.",
+                "People who innovate push the cyber industry forward.",
+                "This is the algorithm that can automate the virtual server."
+              ],
+              model: "The device which I bought yesterday uses advanced software."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Relative Pronouns", text: "The man ___ wrote the software is my teacher.", questions: ["Which pronoun fits here?"] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Does technology isolate us?", questions: [], modelAnswer: "While a device can isolate us, the software and bandwidth available today connect us in virtual spaces." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Technology has made our lives too complex. Do you agree?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, technology simplifies life when a device has a user-friendly interface. I agree that poor hardware or buggy software causes frustration. However, when engineers innovate and write a smart algorithm, they can automate tedious chores. For example, high bandwidth internet allows seamless virtual meetings, eliminating the need to commute. Furthermore, strong cyber security protocols keep our personal data safe online. I believe that rather than complicating life, modern technology streamlines our daily tasks.",
+                  sentences: [
+                    { text: "In my opinion, technology simplifies life when a device has a user-friendly interface.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "device / interface", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree that poor hardware or buggy software causes frustration.", breakdown: [{type: "grammar", text: "causes", note: "present simple"}, {type: "lexical", text: "hardware / software", note: "vocab"}], ieltsValue: "Strong contrast." },
+                    { text: "However, when engineers innovate and write a smart algorithm, they can automate tedious chores.", breakdown: [{type: "lexical", text: "innovate / algorithm / automate", note: "vocab"}, {type: "structure", text: "when... they can", note: "conditional"}], ieltsValue: "Complex sentence." },
+                    { text: "For example, high bandwidth internet allows seamless virtual meetings, eliminating the need to commute.", breakdown: [{type: "marker", text: "For example", note: "marker"}, {type: "lexical", text: "bandwidth / virtual", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "Furthermore, strong cyber security protocols keep our personal data safe online.", breakdown: [{type: "lexical", text: "cyber", note: "vocab"}, {type: "marker", text: "Furthermore", note: "addition"}], ieltsValue: "Good cohesion." },
+                    { text: "I believe that rather than complicating life, modern technology streamlines our daily tasks.", breakdown: [{type: "marker", text: "I believe that", note: "conclusion"}, {type: "structure", text: "rather than", note: "contrast"}], ieltsValue: "Strong summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while an algorithm can automate work, the constant need for new hardware complicates our lives. The software on a modern device requires immense bandwidth to function properly. Consequently, people must constantly learn a new interface just to access a simple virtual service. Moreover, the constant threat of a cyber attack adds severe psychological stress. Even when companies innovate, the rapid pace leaves older generations behind. I believe that technological dependence has created unnecessary complexity.",
+                  sentences: [
+                    { text: "In my view, while an algorithm can automate work, the constant need for new hardware complicates our lives.", breakdown: [{type: "lexical", text: "algorithm / automate / hardware", note: "vocab"}, {type: "structure", text: "while...", note: "concession"}], ieltsValue: "Nuanced thesis." },
+                    { text: "The software on a modern device requires immense bandwidth to function properly.", breakdown: [{type: "lexical", text: "software / device / bandwidth", note: "vocab"}], ieltsValue: "Dense vocabulary." },
+                    { text: "Consequently, people must constantly learn a new interface just to access a simple virtual service.", breakdown: [{type: "marker", text: "Consequently", note: "result"}, {type: "lexical", text: "interface / virtual", note: "vocab"}], ieltsValue: "Logical flow." },
+                    { text: "Moreover, the constant threat of a cyber attack adds severe psychological stress.", breakdown: [{type: "marker", text: "Moreover", note: "addition"}, {type: "lexical", text: "cyber", note: "vocab"}], ieltsValue: "Adds weight." },
+                    { text: "Even when companies innovate, the rapid pace leaves older generations behind.", breakdown: [{type: "lexical", text: "innovate", note: "vocab"}, {type: "structure", text: "Even when", note: "dependent clause"}], ieltsValue: "Shows broader impact." },
+                    { text: "I believe that technological dependence has created unnecessary complexity.", breakdown: [{type: "marker", text: "I believe that", note: "opinion"}], ieltsValue: "Clear wrap-up." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 14, title: "Crime", icon: "fa-solid fa-gavel", skills: ["Understanding arguments", "Summary completion"],
+            content: "Exploring the justice system and causes of crime.",
+            secondaryExample: "Secondary Context: Debating school disciplinary actions.",
+            outcomes: { listening: "Follow legal arguments.", reading: "Complete summaries.", writing: "Write problem/solution essays.", speaking: "Discuss rules.", grammarVocab: "Advanced Passive Voice." },
+            practiceActivity: { type: "writing", task: "Should juvenile offenders face the same penalties as adults?" },
+            keyVocabSummary: "Legal terms, policing, and justice.",
+            vocabulary: [
+              { word: "Offence", chinese: "罪行", definition: "A breach of a law or rule; an illegal act." },
+              { word: "Penalty", chinese: "处罚", definition: "A punishment imposed for breaking a law." },
+              { word: "Deterrent", chinese: "威慑", definition: "A thing that discourages someone from doing something." },
+              { word: "Juvenile", chinese: "青少年的", definition: "Relating to young people." },
+              { word: "Enforce", chinese: "执行", definition: "Compel observance of a law." },
+              { word: "Convict", chinese: "定罪", definition: "Declare someone to be guilty of a criminal offense." },
+              { word: "Rehabilitate", chinese: "改造", definition: "Restore someone to health or normal life." },
+              { word: "Jury", chinese: "陪审团", definition: "A body of people sworn to give a verdict." },
+              { word: "Legislation", chinese: "立法", definition: "Laws, considered collectively." },
+              { word: "Violate", chinese: "违反", definition: "Break or fail to comply with a rule." }
+            ],
+            mcqs: [
+              { q: "A punishment for breaking a law is a...", options: ["Jury", "Penalty", "Offence", "Juvenile"], answer: 1 },
+              { q: "To compel observance of a law is to...", options: ["Violate", "Enforce", "Rehabilitate", "Convict"], answer: 1 },
+              { q: "A breach of a law is an...", options: ["Offence", "Deterrent", "Legislation", "Jury"], answer: 0 },
+              { q: "Relating to young people is...", options: ["Convict", "Juvenile", "Violate", "Enforce"], answer: 1 },
+              { q: "Laws considered collectively are...", options: ["Legislation", "Penalty", "Deterrent", "Rehabilitate"], answer: 0 },
+              { q: "The law ___ by the police.", options: ["enforces", "is enforced", "enforcing", "enforce"], answer: 1 },
+              { q: "The criminal ___ to prison.", options: ["sent", "was sent", "sending", "sends"], answer: 1 },
+              { q: "A new deterrent ___ created.", options: ["has been", "have been", "is be", "are be"], answer: 0 },
+              { q: "The juvenile ___ rehabilitated.", options: ["will be", "will", "is will", "be"], answer: 0 },
+              { q: "The rules must not be ___.", options: ["violate", "violating", "violated", "violates"], answer: 2 },
+              { q: "A thing that discourages bad actions is a...", options: ["Jury", "Deterrent", "Convict", "Penalty"], answer: 1 },
+              { q: "To restore to normal life is to...", options: ["Rehabilitate", "Violate", "Enforce", "Offence"], answer: 0 },
+              { q: "A body sworn to give a verdict is a...", options: ["Jury", "Juvenile", "Legislation", "Convict"], answer: 0 },
+              { q: "To declare someone guilty is to...", options: ["Convict", "Rehabilitate", "Enforce", "Penalty"], answer: 0 },
+              { q: "To break a rule is to...", options: ["Violate", "Enforce", "Deterrent", "Jury"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["Do you think rules are important?"], stems: ["Yes, legislation is necessary to..."],
+                example: "Yes, without legislation, people would violate laws constantly. A strict penalty acts as a deterrent so that an offence is not committed. A jury is also important to convict people fairly."
+              },
+              {
+                type: "Part 2", questions: ["Talk about a rule at your school."], stems: ["A rule they enforce is..."],
+                example: "Teachers enforce a rule against phones. If a juvenile breaks it, the penalty is detention. It acts as a deterrent. The goal is to rehabilitate our focus, not just to convict us for a minor offence."
+              }
+            ],
+            reading: {
+              text: "When a juvenile commits an offence, the penalty should focus on how to rehabilitate them. New legislation acts as a deterrent so citizens do not violate laws. A jury must review the evidence before they convict someone. Police must enforce these rules fairly.",
+              questions: ["1. What should the penalty for a juvenile focus on?", "2. What must a jury review?"]
+            },
+            listening: {
+              text: "Judge: The jury must decide if he will be a convict. \nLawyer: This is a minor offence. The penalty should be light. \nJudge: But we must enforce the legislation. It acts as a deterrent so others do not violate the law. We hope to rehabilitate this juvenile.",
+              questions: ["1. What must the jury decide?", "2. Why must the judge enforce the legislation?"]
+            },
+            grammar: {
+              topic: "Advanced Passive Voice", focus: "Use 'must be', 'should be', 'can be' + past participle for formal legal contexts.",
+              examples: [
+                "The new legislation must be enforced immediately.",
+                "A severe penalty should be applied as a deterrent.",
+                "The juvenile can be rehabilitated with proper care.",
+                "The convict was found guilty of a serious offence by the jury.",
+                "Laws must not be violated by any citizen.",
+                "The offence was reported to the authorities.",
+                "The deterrent will be established by the new rules.",
+                "The penalty is being enforced by the court.",
+                "A jury should be selected carefully.",
+                "The juvenile was convicted yesterday."
+              ],
+              model: "The new legislation must be enforced to protect society."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Passive Modals", text: "The law (must / obey) by everyone.", questions: ["Change to passive: The law must be obeyed."] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Should prison be about punishment or rehabilitation?", questions: [], modelAnswer: "Prison must rehabilitate the convict so they do not commit another offence." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Prisons are the best deterrent for crime. Do you agree?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, while prison is a strong deterrent, the justice system must do more to rehabilitate a convict. I agree that a strict penalty is required when someone commits a violent offence. For example, a jury must ensure that dangerous criminals are removed from society to enforce public safety. However, new legislation should focus on why people violate the law in the first place. Especially for a juvenile, education and therapy are more effective than simple confinement. As a result, I believe a balanced approach prevents future crimes.",
+                  sentences: [
+                    { text: "In my opinion, while prison is a strong deterrent, the justice system must do more to rehabilitate a convict.", breakdown: [{type: "lexical", text: "deterrent / rehabilitate / convict", note: "vocab"}, {type: "grammar", text: "must do", note: "modal"}], ieltsValue: "Strong thesis." },
+                    { text: "I agree that a strict penalty is required when someone commits a violent offence.", breakdown: [{type: "lexical", text: "penalty / offence", note: "vocab"}], ieltsValue: "Clear reasoning." },
+                    { text: "For example, a jury must ensure that dangerous criminals are removed from society to enforce public safety.", breakdown: [{type: "lexical", text: "jury / enforce", note: "vocab"}, {type: "grammar", text: "are removed", note: "passive"}], ieltsValue: "Concrete example." },
+                    { text: "However, new legislation should focus on why people violate the law in the first place.", breakdown: [{type: "lexical", text: "legislation / violate", note: "vocab"}], ieltsValue: "Good contrast." },
+                    { text: "Especially for a juvenile, education and therapy are more effective than simple confinement.", breakdown: [{type: "lexical", text: "juvenile", note: "vocab"}, {type: "grammar", text: "more effective than", note: "comparative"}], ieltsValue: "Specific demographic focus." },
+                    { text: "As a result, I believe a balanced approach prevents future crimes.", breakdown: [{type: "marker", text: "As a result", note: "result"}], ieltsValue: "Logical conclusion." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "I firmly believe that a harsh penalty is the only way to enforce the law and prevent a severe offence. When legislation acts as a genuine deterrent, citizens are less likely to violate societal rules. For instance, if a jury knows that a convict will face a long sentence, the public feels safer. While attempts to rehabilitate offenders are noble, they often fail for a repeat juvenile offender. Prisons protect the innocent from those who refuse to change. Therefore, strict incarceration remains the most reliable foundation of justice.",
+                  sentences: [
+                    { text: "I firmly believe that a harsh penalty is the only way to enforce the law and prevent a severe offence.", breakdown: [{type: "lexical", text: "penalty / enforce / offence", note: "vocab"}], ieltsValue: "Direct thesis." },
+                    { text: "When legislation acts as a genuine deterrent, citizens are less likely to violate societal rules.", breakdown: [{type: "lexical", text: "legislation / deterrent / violate", note: "vocab"}], ieltsValue: "Complex condition." },
+                    { text: "For instance, if a jury knows that a convict will face a long sentence, the public feels safer.", breakdown: [{type: "lexical", text: "jury / convict", note: "vocab"}], ieltsValue: "Conditional example." },
+                    { text: "While attempts to rehabilitate offenders are noble, they often fail for a repeat juvenile offender.", breakdown: [{type: "lexical", text: "rehabilitate / juvenile", note: "vocab"}, {type: "marker", text: "While", note: "concession"}], ieltsValue: "Nuanced contrast." },
+                    { text: "Prisons protect the innocent from those who refuse to change.", breakdown: [{type: "structure", text: "protect... from", note: "verb pattern"}], ieltsValue: "Strong supportive statement." },
+                    { text: "Therefore, strict incarceration remains the most reliable foundation of justice.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 15, title: "Transport", icon: "fa-solid fa-train", skills: ["Map reading", "Data interpretation"],
+            content: "Analyzing urban infrastructure and commuting patterns.",
+            secondaryExample: "Secondary Context: Complaining about the school bus route.",
+            outcomes: { listening: "Follow map directions.", reading: "Analyze transport charts.", writing: "Compare line graphs.", speaking: "Discuss local travel.", grammarVocab: "Present Perfect Continuous." },
+            practiceActivity: { type: "writing", task: "How can we solve city traffic?" },
+            keyVocabSummary: "Vehicles, roads, and environmental impact.",
+            vocabulary: [
+              { word: "Commute", chinese: "通勤", definition: "Travel some distance between home and work." },
+              { word: "Congestion", chinese: "拥堵", definition: "The state of being crowded and full of traffic." },
+              { word: "Pedestrian", chinese: "行人", definition: "A person walking along a road." },
+              { word: "Transit", chinese: "运输", definition: "The carrying of people or goods from one place to another." },
+              { word: "Infrastructure", chinese: "基础设施", definition: "The basic physical structures needed for a society." },
+              { word: "Freight", chinese: "货运", definition: "Goods transported by truck, train, ship, or aircraft." },
+              { word: "Emission", chinese: "排放", definition: "The production and discharge of gas or radiation." },
+              { word: "Vehicle", chinese: "车辆", definition: "A thing used for transporting people or goods." },
+              { word: "Intersection", chinese: "十字路口", definition: "A point where two or more roads cross." },
+              { word: "Route", chinese: "路线", definition: "A way or course taken from a starting point." }
+            ],
+            mcqs: [
+              { q: "A person walking is a...", options: ["Vehicle", "Pedestrian", "Freight", "Commute"], answer: 1 },
+              { q: "Crowded traffic is called...", options: ["Congestion", "Transit", "Emission", "Route"], answer: 0 },
+              { q: "Basic physical structures like roads are...", options: ["Infrastructure", "Intersection", "Commute", "Freight"], answer: 0 },
+              { q: "Goods transported by truck are...", options: ["Transit", "Freight", "Vehicle", "Emission"], answer: 1 },
+              { q: "A point where roads cross is an...", options: ["Intersection", "Route", "Commute", "Pedestrian"], answer: 0 },
+              { q: "I have been ___ for hours.", options: ["drive", "drove", "driving", "driven"], answer: 2 },
+              { q: "They have been ___ the new route.", options: ["built", "builds", "building", "build"], answer: 2 },
+              { q: "Traffic has been ___ worse.", options: ["got", "gets", "getting", "gotten"], answer: 2 },
+              { q: "We have been ___ for the bus.", options: ["waits", "waiting", "waited", "wait"], answer: 1 },
+              { q: "She has been ___ on her commute.", options: ["read", "reads", "reading", "readed"], answer: 2 },
+              { q: "Discharge of gas is...", options: ["Emission", "Transit", "Vehicle", "Infrastructure"], answer: 0 },
+              { q: "A thing used for transport is a...", options: ["Pedestrian", "Vehicle", "Route", "Intersection"], answer: 1 },
+              { q: "Traveling between home and work is a...", options: ["Commute", "Freight", "Emission", "Transit"], answer: 0 },
+              { q: "Public transportation is often called public...", options: ["Transit", "Congestion", "Route", "Vehicle"], answer: 0 },
+              { q: "The way taken to a destination is a...", options: ["Intersection", "Infrastructure", "Route", "Freight"], answer: 2 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["How do you travel to school?"], stems: ["I usually commute by..."],
+                example: "I usually commute by bus. The route is good, but there is always heavy congestion at the main intersection. The transit system needs better infrastructure to lower the emission from every vehicle. It's unsafe for a pedestrian."
+              },
+              {
+                type: "Part 2", questions: ["Talk about a journey you take often."], stems: ["A journey I take frequently is..."],
+                example: "My daily commute involves taking a public transit vehicle. We pass a busy intersection where freight trucks cause massive congestion. The city has been building new infrastructure to create a safer route for every pedestrian and reduce emission."
+              }
+            ],
+            reading: {
+              text: "Modern infrastructure is struggling with urban congestion. Every day, a pedestrian must dodge a vehicle at a dangerous intersection. A new transit route for freight trucks could lower toxic emission levels and improve the daily commute.",
+              questions: ["1. What is modern infrastructure struggling with?", "2. What must a pedestrian dodge?"]
+            },
+            listening: {
+              text: "Mayor: Our city's commute is ruined by congestion. \nPlanner: We need new infrastructure. A better transit route for each vehicle will help. \nMayor: Yes, and moving freight away from the pedestrian intersection will lower the emission rate.",
+              questions: ["1. What is ruined by congestion?", "2. What will lower the emission rate?"]
+            },
+            grammar: {
+              topic: "Present Perfect Continuous", focus: "Use 'has/have been + -ing' for actions starting in the past and continuing now.",
+              examples: [
+                "I have been driving on this congested route for an hour.",
+                "They have been building new infrastructure for months.",
+                "The vehicle has been producing a dark emission.",
+                "He has been walking as a pedestrian to avoid the commute.",
+                "The city has been struggling with freight congestion.",
+                "We have been waiting at this intersection all morning.",
+                "Public transit has been improving recently.",
+                "She has been planning a new route.",
+                "The cars have been causing severe congestion.",
+                "I have been utilizing public transit for my commute."
+              ],
+              model: "The government has been investing in new infrastructure."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Continuous action", text: "They (build) the road since 2010.", questions: ["Change to present perfect continuous: They have been building..."] }
+            ],
+            practiceTests: [
+              { type: "Task 1", text: "Describe a map of proposed road changes.", questions: [], modelAnswer: "The map shows a new route designed to reduce congestion at the intersection." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Should cars be banned from city centers?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, banning cars from city centers is necessary to improve urban infrastructure. I agree because heavy congestion makes the daily commute miserable. For example, when a pedestrian tries to cross a busy intersection, they are constantly threatened by a speeding vehicle. Furthermore, replacing cars with a clean public transit route drastically reduces toxic emission levels. While shops need freight deliveries, these can be scheduled at night. As a result, cities become cleaner and safer. I believe prioritizing people over cars is essential.",
+                  sentences: [
+                    { text: "In my opinion, banning cars from city centers is necessary to improve urban infrastructure.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "infrastructure", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because heavy congestion makes the daily commute miserable.", breakdown: [{type: "lexical", text: "congestion / commute", note: "vocab"}], ieltsValue: "Strong cause and effect." },
+                    { text: "For example, when a pedestrian tries to cross a busy intersection, they are constantly threatened by a speeding vehicle.", breakdown: [{type: "lexical", text: "pedestrian / intersection / vehicle", note: "vocab"}], ieltsValue: "Vivid example." },
+                    { text: "Furthermore, replacing cars with a clean public transit route drastically reduces toxic emission levels.", breakdown: [{type: "marker", text: "Furthermore", note: "addition"}, {type: "lexical", text: "transit / route / emission", note: "vocab"}], ieltsValue: "Excellent vocabulary density." },
+                    { text: "While shops need freight deliveries, these can be scheduled at night.", breakdown: [{type: "lexical", text: "freight", note: "vocab"}, {type: "marker", text: "While", note: "concession"}], ieltsValue: "Addresses a counter-argument." },
+                    { text: "As a result, cities become cleaner and safer. I believe prioritizing people over cars is essential.", breakdown: [{type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Logical summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, upgrading infrastructure is a better solution than a total ban on the private vehicle. A ban harms the daily commute for those who do not live near a transit route. For instance, redirecting heavy freight trucks away from the main pedestrian intersection immediately solves the worst congestion. Additionally, introducing electric cars can lower the emission rate without removing personal freedom. A total ban would severely hurt local retail economies. Therefore, I believe smart road management is the most balanced approach.",
+                  sentences: [
+                    { text: "In my view, upgrading infrastructure is a better solution than a total ban on the private vehicle.", breakdown: [{type: "lexical", text: "infrastructure / vehicle", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "A ban harms the daily commute for those who do not live near a transit route.", breakdown: [{type: "lexical", text: "commute / transit / route", note: "vocab"}], ieltsValue: "Valid reasoning." },
+                    { text: "For instance, redirecting heavy freight trucks away from the main pedestrian intersection immediately solves the worst congestion.", breakdown: [{type: "lexical", text: "freight / pedestrian / intersection / congestion", note: "vocab"}], ieltsValue: "Highly detailed example." },
+                    { text: "Additionally, introducing electric cars can lower the emission rate without removing personal freedom.", breakdown: [{type: "lexical", text: "emission", note: "vocab"}], ieltsValue: "Proposes a technological solution." },
+                    { text: "A total ban would severely hurt local retail economies.", breakdown: [{type: "grammar", text: "would severely hurt", note: "modal of hypothetical result"}], ieltsValue: "Economic counter-point." },
+                    { text: "Therefore, I believe smart road management is the most balanced approach.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Strong summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 16, title: "Food", icon: "fa-solid fa-wheat-awn", skills: ["Identifying information", "Describing processes"],
+            content: "Agriculture, diet, and global food supply chains.",
+            secondaryExample: "Secondary Context: Researching organic farming for biology class.",
+            outcomes: { listening: "Understand food production.", reading: "Scan for facts.", writing: "Describe a farming process.", speaking: "Discuss diet.", grammarVocab: "Quantifiers." },
+            practiceActivity: { type: "writing", task: "Describe the process of producing cheese." },
+            keyVocabSummary: "Farming, nutrition, and food processing.",
+            vocabulary: [
+              { word: "Harvest", chinese: "收获", definition: "The process or period of gathering in crops." },
+              { word: "Cultivate", chinese: "耕作", definition: "Prepare and use land for crops or gardening." },
+              { word: "Organic", chinese: "有机的", definition: "Produced without the use of chemical fertilizers." },
+              { word: "Pesticide", chinese: "杀虫剂", definition: "A substance used for destroying insects." },
+              { word: "Malnutrition", chinese: "营养不良", definition: "Lack of proper nutrition." },
+              { word: "Yield", chinese: "产量", definition: "An amount produced of an agricultural product." },
+              { word: "Livestock", chinese: "家畜", definition: "Farm animals regarded as an asset." },
+              { word: "Preservative", chinese: "防腐剂", definition: "A substance used to preserve foodstuffs." },
+              { word: "Nutrient", chinese: "营养素", definition: "A substance that provides nourishment." },
+              { word: "Consume", chinese: "消耗/食用", definition: "Eat, drink, or ingest." }
+            ],
+            mcqs: [
+              { q: "Gathering in crops is called...", options: ["Livestock", "Harvest", "Pesticide", "Nutrient"], answer: 1 },
+              { q: "Produced without chemicals is...", options: ["Organic", "Yield", "Preservative", "Consume"], answer: 0 },
+              { q: "A substance for destroying insects is a...", options: ["Nutrient", "Pesticide", "Harvest", "Livestock"], answer: 1 },
+              { q: "Lack of proper nutrition is...", options: ["Yield", "Malnutrition", "Cultivate", "Preservative"], answer: 1 },
+              { q: "Farm animals are called...", options: ["Livestock", "Organic", "Consume", "Harvest"], answer: 0 },
+              { q: "There are ___ apples left.", options: ["much", "a few", "a little", "any"], answer: 1 },
+              { q: "I don't have ___ time.", options: ["many", "much", "few", "a lot"], answer: 1 },
+              { q: "We need ___ of water.", options: ["a lot", "many", "few", "much"], answer: 0 },
+              { q: "There is ___ sugar in this.", options: ["a little", "a few", "many", "few"], answer: 0 },
+              { q: "She has ___ friends.", options: ["much", "a little", "many", "any"], answer: 2 },
+              { q: "To prepare land for crops is to...", options: ["Consume", "Cultivate", "Yield", "Harvest"], answer: 1 },
+              { q: "An amount of crop produced is a...", options: ["Pesticide", "Yield", "Nutrient", "Organic"], answer: 1 },
+              { q: "A substance that keeps food fresh is a...", options: ["Preservative", "Livestock", "Malnutrition", "Harvest"], answer: 0 },
+              { q: "A substance providing nourishment is a...", options: ["Nutrient", "Pesticide", "Yield", "Cultivate"], answer: 0 },
+              { q: "To eat or drink is to...", options: ["Consume", "Cultivate", "Harvest", "Organic"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["What kind of food do you like?"], stems: ["I like to consume..."],
+                example: "I prefer to consume organic food without any pesticide or preservative. A good nutrient profile prevents malnutrition. My uncle has a farm where they cultivate crops and raise livestock for a good yield at harvest."
+              },
+              {
+                type: "Part 2", questions: ["Talk about a healthy meal."], stems: ["A healthy meal I enjoy is..."],
+                example: "I love fresh salads. They are packed with every essential nutrient. We buy organic vegetables straight from the harvest so there is no pesticide or preservative. It yields great health benefits and prevents malnutrition."
+              }
+            ],
+            reading: {
+              text: "To maximize the yield during a harvest, farmers cultivate the land carefully. While using a pesticide prevents insect damage, organic farming relies on natural methods. Feeding livestock properly ensures high nutrient levels, combating global malnutrition. Consumers must be aware of every artificial preservative they consume.",
+              questions: ["1. What prevents insect damage?", "2. What combats global malnutrition?"]
+            },
+            listening: {
+              text: "Farmer: We cultivate organic crops and do not use a pesticide. \nBuyer: Does that affect your harvest yield? \nFarmer: Slightly, but the nutrient quality is higher. We also avoid any artificial preservative so when people consume it, it fights malnutrition. We also raise healthy livestock.",
+              questions: ["1. What does the farmer avoid using?", "2. What is higher in organic crops?"]
+            },
+            grammar: {
+              topic: "Quantifiers", focus: "Use 'much/a little' with uncountable nouns and 'many/a few' with countable nouns.",
+              examples: [
+                "There is not much pesticide used in organic farming.",
+                "A few farmers cultivate their crops without machines.",
+                "Many people suffer from malnutrition.",
+                "They produced a large yield during the harvest.",
+                "She consumes a little sugar every day.",
+                "There are many nutrients in this vegetable.",
+                "We need a lot of livestock for the farm.",
+                "He doesn't use much preservative in his food.",
+                "Only a few apples were ready for harvest.",
+                "A lot of organic food is expensive."
+              ],
+              model: "Many organic farmers avoid using a lot of pesticides."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Countable vs Uncountable", text: "We don't have (many / much) time before the harvest.", questions: ["Which quantifier is correct?"] }
+            ],
+            practiceTests: [
+              { type: "Task 1", text: "Describe the process of growing organic tomatoes.", questions: [], modelAnswer: "First, the farmers cultivate the soil without any pesticide..." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Should organic food be cheaper?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, governments should subsidize organic farming to make it cheaper. I agree because food grown without a toxic pesticide provides a far better nutrient profile. For example, when farmers cultivate a clean harvest, consumers avoid ingesting a harmful chemical preservative. While raising natural livestock may produce a smaller yield, the health benefits drastically reduce national healthcare costs. As a result, affordable organic food could eradicate diet-related malnutrition. I believe that ensuring everyone can consume healthy food is a public necessity.",
+                  sentences: [
+                    { text: "In my opinion, governments should subsidize organic farming to make it cheaper.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "organic", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because food grown without a toxic pesticide provides a far better nutrient profile.", breakdown: [{type: "lexical", text: "pesticide / nutrient", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, when farmers cultivate a clean harvest, consumers avoid ingesting a harmful chemical preservative.", breakdown: [{type: "lexical", text: "cultivate / harvest / preservative", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "While raising natural livestock may produce a smaller yield, the health benefits drastically reduce national healthcare costs.", breakdown: [{type: "lexical", text: "livestock / yield", note: "vocab"}, {type: "marker", text: "While", note: "concession"}], ieltsValue: "Addresses drawbacks." },
+                    { text: "As a result, affordable organic food could eradicate diet-related malnutrition.", breakdown: [{type: "marker", text: "As a result", note: "result"}, {type: "lexical", text: "malnutrition", note: "vocab"}], ieltsValue: "Logical outcome." },
+                    { text: "I believe that ensuring everyone can consume healthy food is a public necessity.", breakdown: [{type: "lexical", text: "consume", note: "vocab"}], ieltsValue: "Strong conclusion." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while organic food is ideal, mass agriculture is necessary to feed a growing population. Producing a massive yield during harvest is the only way to combat global malnutrition. For instance, using a carefully regulated pesticide ensures that crops are not destroyed before people can consume them. Cultivating enough livestock and adding a safe preservative allows food to be shipped worldwide. Without these modern methods, essential nutrients would simply not reach enough people. Therefore, affordable conventional food is currently more practical than expensive organic options.",
+                  sentences: [
+                    { text: "In my view, while organic food is ideal, mass agriculture is necessary to feed a growing population.", breakdown: [{type: "lexical", text: "organic", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "Producing a massive yield during harvest is the only way to combat global malnutrition.", breakdown: [{type: "lexical", text: "yield / harvest / malnutrition", note: "vocab"}], ieltsValue: "Strong logic." },
+                    { text: "For instance, using a carefully regulated pesticide ensures that crops are not destroyed before people can consume them.", breakdown: [{type: "lexical", text: "pesticide / consume", note: "vocab"}], ieltsValue: "Clear example." },
+                    { text: "Cultivating enough livestock and adding a safe preservative allows food to be shipped worldwide.", breakdown: [{type: "lexical", text: "cultivating / livestock / preservative", note: "vocab"}], ieltsValue: "Shows global impact." },
+                    { text: "Without these modern methods, essential nutrients would simply not reach enough people.", breakdown: [{type: "lexical", text: "nutrients", note: "vocab"}], ieltsValue: "Highlights consequences." },
+                    { text: "Therefore, affordable conventional food is currently more practical than expensive organic options.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Effective summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 17, title: "Wildlife", icon: "fa-solid fa-paw", skills: ["Categorizing", "Multiple matching"],
+            content: "Studying animal behaviors, habitats, and conservation.",
+            secondaryExample: "Secondary Context: Writing a report on endangered species.",
+            outcomes: { listening: "Match animal characteristics.", reading: "Categorize habitats.", writing: "Discuss conservation.", speaking: "Talk about animals.", grammarVocab: "Third Conditional." },
+            practiceActivity: { type: "writing", task: "Should zoos be banned?" },
+            keyVocabSummary: "Animal biology and environmental protection.",
+            vocabulary: [
+              { word: "Predator", chinese: "捕食者", definition: "An animal that naturally preys on others." },
+              { word: "Prey", chinese: "猎物", definition: "An animal that is hunted and killed." },
+              { word: "Extinct", chinese: "灭绝的", definition: "Having no living members." },
+              { word: "Sanctuary", chinese: "保护区", definition: "A nature reserve." },
+              { word: "Breed", chinese: "繁殖", definition: "Mate and then produce offspring." },
+              { word: "Migration", chinese: "迁徙", definition: "Seasonal movement of animals." },
+              { word: "Zoology", chinese: "动物学", definition: "The scientific study of animals." },
+              { word: "Carnivore", chinese: "食肉动物", definition: "An animal that feeds on flesh." },
+              { word: "Mammal", chinese: "哺乳动物", definition: "A warm-blooded vertebrate animal." },
+              { word: "Camouflage", chinese: "伪装", definition: "The disguising of military personnel, equipment, or animals." }
+            ],
+            mcqs: [
+              { q: "An animal that preys on others is a...", options: ["Prey", "Predator", "Mammal", "Sanctuary"], answer: 1 },
+              { q: "An animal that is hunted is...", options: ["Prey", "Carnivore", "Extinct", "Migration"], answer: 0 },
+              { q: "Having no living members is...", options: ["Extinct", "Breed", "Camouflage", "Zoology"], answer: 0 },
+              { q: "A nature reserve is a...", options: ["Predator", "Sanctuary", "Mammal", "Carnivore"], answer: 1 },
+              { q: "Seasonal movement is...", options: ["Breed", "Migration", "Prey", "Camouflage"], answer: 1 },
+              { q: "If it had rained, we ___ stayed inside.", options: ["would have", "will have", "would", "had"], answer: 0 },
+              { q: "If they had known, they ___ helped.", options: ["would have", "would", "will have", "have"], answer: 0 },
+              { q: "I ___ passed if I had studied.", options: ["would have", "would", "will have", "had"], answer: 0 },
+              { q: "If the predator ___ caught the prey, it would have eaten it.", options: ["had", "have", "has", "would have"], answer: 0 },
+              { q: "If the animal ___ extinct, we wouldn't have seen it.", options: ["had been", "has been", "was", "were"], answer: 0 },
+              { q: "To mate and produce offspring is to...", options: ["Breed", "Extinct", "Camouflage", "Migration"], answer: 0 },
+              { q: "The study of animals is...", options: ["Zoology", "Sanctuary", "Mammal", "Carnivore"], answer: 0 },
+              { q: "An animal that eats flesh is a...", options: ["Carnivore", "Prey", "Mammal", "Breed"], answer: 0 },
+              { q: "A warm-blooded vertebrate is a...", options: ["Mammal", "Predator", "Camouflage", "Extinct"], answer: 0 },
+              { q: "Disguising an animal's appearance is...", options: ["Camouflage", "Zoology", "Sanctuary", "Migration"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["Do you like animals?"], stems: ["I find zoology very interesting..."],
+                example: "I find zoology very interesting. I love learning how a mammal uses camouflage to hide from a predator. It's sad when an animal goes extinct. I hope to visit a sanctuary soon to see the great migration."
+              },
+              {
+                type: "Part 2", questions: ["Describe a wild animal."], stems: ["A fascinating carnivore is..."],
+                example: "A fascinating carnivore is the tiger. It is a powerful predator that hunts its prey in the jungle. Unfortunately, they struggle to breed and might go extinct without a proper sanctuary. Their camouflage is amazing."
+              }
+            ],
+            reading: {
+              text: "In zoology, observing a predator hunt its prey is crucial. Many a mammal relies on camouflage for survival. During migration, animals need a safe sanctuary to breed, or they risk becoming extinct. A large carnivore requires a vast territory.",
+              questions: ["1. What relies on camouflage?", "2. Why do animals need a sanctuary?"]
+            },
+            listening: {
+              text: "Guide: Welcome to the sanctuary. Here we help an endangered mammal breed. \nVisitor: Is that a carnivore? \nGuide: Yes, it is an apex predator. Without camouflage, its prey would escape. Sadly, without our help, this species would have gone extinct during the last migration. Zoology is vital here.",
+              questions: ["1. Where are the speakers?", "2. What would have happened without help?"]
+            },
+            grammar: {
+              topic: "Third Conditional", focus: "Use 'If + past perfect, would have + past participle' for impossible past situations.",
+              examples: [
+                "If they had protected the sanctuary, the mammal wouldn't have gone extinct.",
+                "If the predator had used camouflage, it would have caught the prey.",
+                "If the migration had been successful, they would have started to breed.",
+                "If she had studied zoology, she would have known it was a carnivore.",
+                "If the animal had been a mammal, it would have been warm-blooded.",
+                "If the prey had run faster, it would have survived.",
+                "If we had built a sanctuary, they would have lived safely.",
+                "If it hadn't rained, the migration would have started.",
+                "If the carnivore had eaten, it wouldn't have hunted.",
+                "If they had protected the eggs, they would have hatched."
+              ],
+              model: "If humans had not destroyed the forest, the tiger would not have become extinct."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Third Conditional", text: "If the sanctuary (be) built, the animal (survive).", questions: ["Complete this sentence."] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Should animals be kept in a sanctuary?", questions: [], modelAnswer: "If we had not destroyed their habitats, a sanctuary would not be necessary." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Are zoos necessary for conservation?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, a well-managed sanctuary is essential for conservation. I agree because an endangered mammal often cannot survive in the wild due to habitat loss. For example, if experts in zoology had not intervened to help the panda breed, it would have gone extinct. Furthermore, these protected areas keep a vulnerable prey safe from an unnatural predator. While keeping a large carnivore enclosed seems cruel, modern enclosures mimic natural camouflage and terrain. As a result, protecting animals during their migration routes is possible. I believe zoos serve a vital scientific purpose.",
+                  sentences: [
+                    { text: "In my opinion, a well-managed sanctuary is essential for conservation.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "sanctuary", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because an endangered mammal often cannot survive in the wild due to habitat loss.", breakdown: [{type: "lexical", text: "mammal", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, if experts in zoology had not intervened to help the panda breed, it would have gone extinct.", breakdown: [{type: "grammar", text: "if ... had not ... would have", note: "Third conditional"}, {type: "lexical", text: "zoology / breed / extinct", note: "vocab"}], ieltsValue: "Excellent grammar and vocab." },
+                    { text: "Furthermore, these protected areas keep a vulnerable prey safe from an unnatural predator.", breakdown: [{type: "lexical", text: "prey / predator", note: "vocab"}, {type: "marker", text: "Furthermore", note: "addition"}], ieltsValue: "Good cohesion." },
+                    { text: "While keeping a large carnivore enclosed seems cruel, modern enclosures mimic natural camouflage and terrain.", breakdown: [{type: "lexical", text: "carnivore / camouflage", note: "vocab"}, {type: "marker", text: "While", note: "concession"}], ieltsValue: "Nuanced contrast." },
+                    { text: "As a result, protecting animals during their migration routes is possible. I believe zoos serve a vital scientific purpose.", breakdown: [{type: "lexical", text: "migration", note: "vocab"}], ieltsValue: "Logical wrap-up." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, keeping a wild carnivore in a cage is unethical, regardless of the zoology benefits. A true sanctuary should protect the natural migration of a mammal, not trap it. For instance, a predator relies on its natural camouflage to hunt prey, a behavior lost in captivity. If humans had not destroyed the forests, no animal would have gone extinct or lost its ability to breed naturally. Zoos prioritize entertainment over true conservation. Therefore, I believe we should focus on protecting natural habitats rather than building cages.",
+                  sentences: [
+                    { text: "In my view, keeping a wild carnivore in a cage is unethical, regardless of the zoology benefits.", breakdown: [{type: "lexical", text: "carnivore / zoology", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "A true sanctuary should protect the natural migration of a mammal, not trap it.", breakdown: [{type: "lexical", text: "sanctuary / migration / mammal", note: "vocab"}], ieltsValue: "Strong contrast." },
+                    { text: "For instance, a predator relies on its natural camouflage to hunt prey, a behavior lost in captivity.", breakdown: [{type: "lexical", text: "predator / camouflage / prey", note: "vocab"}], ieltsValue: "Detailed example." },
+                    { text: "If humans had not destroyed the forests, no animal would have gone extinct or lost its ability to breed naturally.", breakdown: [{type: "grammar", text: "If ... had not ... would have", note: "Third conditional"}, {type: "lexical", text: "extinct / breed", note: "vocab"}], ieltsValue: "Excellent complex grammar." },
+                    { text: "Zoos prioritize entertainment over true conservation.", breakdown: [{type: "structure", text: "prioritize ... over", note: "verb pattern"}], ieltsValue: "Direct critique." },
+                    { text: "Therefore, I believe we should focus on protecting natural habitats rather than building cages.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Clear summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 18, title: "Architecture", icon: "fa-solid fa-building", skills: ["Labelling diagrams", "Describing features"],
+            content: "Urban planning and building design.",
+            secondaryExample: "Secondary Context: Describing the layout of a new school wing.",
+            outcomes: { listening: "Understand building layouts.", reading: "Scan for architectural details.", writing: "Describe building changes.", speaking: "Talk about hometown buildings.", grammarVocab: "Past Perfect." },
+            practiceActivity: { type: "writing", task: "Describe changes to a floor plan over time." },
+            keyVocabSummary: "Construction and design elements.",
+            vocabulary: [
+              { word: "Construct", chinese: "建造", definition: "Build or erect something." },
+              { word: "Blueprint", chinese: "蓝图", definition: "A design plan or other technical drawing." },
+              { word: "Aesthetic", chinese: "美学的", definition: "Concerned with beauty or the appreciation of beauty." },
+              { word: "Skyscraper", chinese: "摩天大楼", definition: "A very tall building of many stories." },
+              { word: "Foundation", chinese: "地基", definition: "The lowest load-bearing part of a building." },
+              { word: "Renovate", chinese: "翻新", definition: "Restore something old to a good state of repair." },
+              { word: "Demolish", chinese: "拆除", definition: "Pull or knock down a building." },
+              { word: "Spacious", chinese: "宽敞的", definition: "Having ample space." },
+              { word: "Exterior", chinese: "外部", definition: "The outer surface or structure." },
+              { word: "Facade", chinese: "建筑立面", definition: "The face of a building." }
+            ],
+            mcqs: [
+              { q: "To build something is to...", options: ["Demolish", "Construct", "Renovate", "Facade"], answer: 1 },
+              { q: "A technical drawing is a...", options: ["Foundation", "Aesthetic", "Blueprint", "Skyscraper"], answer: 2 },
+              { q: "Concerned with beauty is...", options: ["Spacious", "Aesthetic", "Exterior", "Facade"], answer: 1 },
+              { q: "A very tall building is a...", options: ["Foundation", "Skyscraper", "Demolish", "Renovate"], answer: 1 },
+              { q: "The lowest load-bearing part is the...", options: ["Blueprint", "Construct", "Foundation", "Exterior"], answer: 2 },
+              { q: "They ___ the house before they sold it.", options: ["had renovated", "renovated", "has renovated", "renovating"], answer: 0 },
+              { q: "The building ___ before the earthquake.", options: ["has collapsed", "had collapsed", "collapsed", "collapse"], answer: 1 },
+              { q: "She ___ the blueprint before the meeting.", options: ["had drawn", "drew", "has drawn", "drawing"], answer: 0 },
+              { q: "We ___ the foundation before it rained.", options: ["had laid", "laid", "has laid", "laying"], answer: 0 },
+              { q: "The skyscraper ___ before 1990.", options: ["had been built", "was build", "built", "has been built"], answer: 0 },
+              { q: "To restore to a good state is to...", options: ["Renovate", "Demolish", "Construct", "Facade"], answer: 0 },
+              { q: "To knock down a building is to...", options: ["Construct", "Demolish", "Renovate", "Spacious"], answer: 1 },
+              { q: "Having ample space is...", options: ["Aesthetic", "Spacious", "Exterior", "Foundation"], answer: 1 },
+              { q: "The outer surface is the...", options: ["Interior", "Exterior", "Blueprint", "Construct"], answer: 1 },
+              { q: "The face of a building is its...", options: ["Foundation", "Facade", "Skyscraper", "Spacious"], answer: 1 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["What kind of building do you live in?"], stems: ["I live in a spacious..."],
+                example: "I live in a spacious apartment. Before we moved in, they had to renovate the exterior and fix the facade. The foundation is very strong, unlike a modern skyscraper. I like its classic aesthetic."
+              },
+              {
+                type: "Part 2", questions: ["Describe a beautiful building."], stems: ["A building with a great aesthetic is..."],
+                example: "I love the new skyscraper downtown. The architect had drawn a brilliant blueprint before they started to construct it. They had to demolish an old factory first. The glass facade and exterior are stunning."
+              }
+            ],
+            reading: {
+              text: "Before they could construct the new skyscraper, the city had to demolish the old ruins. The architect's blueprint focused on a modern aesthetic, ensuring a very spacious interior. The building's foundation and glass facade are its most striking exterior features. They plan to renovate it in ten years.",
+              questions: ["1. What did the city have to demolish?", "2. What did the blueprint focus on?"]
+            },
+            listening: {
+              text: "Architect: We had finalized the blueprint before we began to construct the skyscraper. \nClient: The aesthetic is very spacious. Will you renovate the old facade? \nArchitect: No, we had to demolish the old exterior completely because the foundation was weak.",
+              questions: ["1. What was finalized before construction?", "2. Why was the old exterior demolished?"]
+            },
+            grammar: {
+              topic: "Past Perfect", focus: "Use 'had + past participle' to show one past action happened before another past action.",
+              examples: [
+                "They had finalized the blueprint before they began to construct the skyscraper.",
+                "The aesthetic was ruined because they had failed to renovate the exterior.",
+                "By the time I arrived, they had already demolished the old foundation.",
+                "The spacious room had a new facade that they had installed yesterday.",
+                "He had checked the foundation before pouring the concrete.",
+                "The skyscraper had stood for a century before it fell.",
+                "They had planned the aesthetic before drawing the blueprint.",
+                "The exterior had faded before they decided to renovate.",
+                "The facade had cracked before the storm.",
+                "We had designed a spacious layout before building."
+              ],
+              model: "By 2010, the old school had been demolished."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Past actions in order", text: "The wall (collapse) before the builders (arrive).", questions: ["Use past perfect: The wall had collapsed before..."] }
+            ],
+            practiceTests: [
+              { type: "Task 1", text: "Describe changes to a building floor plan.", questions: [], modelAnswer: "By 2020, the old walls had been demolished to create a spacious open plan." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Should old buildings be preserved or demolished?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, cities should renovate historical buildings to preserve their aesthetic. I agree because an old facade tells a story that a modern skyscraper cannot replace. For example, before developers construct a new mall, they must check if the original foundation is safe to keep. If they had consulted a historical blueprint, they could have designed a spacious, modern interior while keeping the classic exterior. Unfortunately, many cities simply demolish these structures. As a result, we lose a vital piece of our cultural identity. I believe preserving architecture honors our past.",
+                  sentences: [
+                    { text: "In my opinion, cities should renovate historical buildings to preserve their aesthetic.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "renovate / aesthetic", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because an old facade tells a story that a modern skyscraper cannot replace.", breakdown: [{type: "lexical", text: "facade / skyscraper", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, before developers construct a new mall, they must check if the original foundation is safe to keep.", breakdown: [{type: "lexical", text: "construct / foundation", note: "vocab"}], ieltsValue: "Good example." },
+                    { text: "If they had consulted a historical blueprint, they could have designed a spacious, modern interior while keeping the classic exterior.", breakdown: [{type: "grammar", text: "had consulted ... could have", note: "Third conditional/Past perfect"}, {type: "lexical", text: "blueprint / spacious / exterior", note: "vocab"}], ieltsValue: "Excellent grammar range." },
+                    { text: "Unfortunately, many cities simply demolish these structures.", breakdown: [{type: "lexical", text: "demolish", note: "vocab"}], ieltsValue: "States a negative reality." },
+                    { text: "As a result, we lose a vital piece of our cultural identity. I believe preserving architecture honors our past.", breakdown: [{type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Logical summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while the aesthetic of an old facade is beautiful, it is often more practical to demolish them. Many ancient buildings simply lack the strong foundation required for modern city living. For instance, before a city can construct a safe, spacious apartment block, they must clear out outdated, dangerous structures. If the city had tried to renovate an old blueprint, the exterior would have cost millions to maintain. A towering new skyscraper is far more space-efficient. Therefore, modern progress should take priority over historical sentimentality.",
+                  sentences: [
+                    { text: "In my view, while the aesthetic of an old facade is beautiful, it is often more practical to demolish them.", breakdown: [{type: "lexical", text: "aesthetic / facade / demolish", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "Many ancient buildings simply lack the strong foundation required for modern city living.", breakdown: [{type: "lexical", text: "foundation", note: "vocab"}], ieltsValue: "Logical reasoning." },
+                    { text: "For instance, before a city can construct a safe, spacious apartment block, they must clear out outdated, dangerous structures.", breakdown: [{type: "lexical", text: "construct / spacious", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "If the city had tried to renovate an old blueprint, the exterior would have cost millions to maintain.", breakdown: [{type: "grammar", text: "had tried ... would have cost", note: "Past perfect/Conditional"}, {type: "lexical", text: "renovate / blueprint / exterior", note: "vocab"}], ieltsValue: "Complex sentence structure." },
+                    { text: "A towering new skyscraper is far more space-efficient.", breakdown: [{type: "lexical", text: "skyscraper", note: "vocab"}], ieltsValue: "Strong counter-point." },
+                    { text: "Therefore, modern progress should take priority over historical sentimentality.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 19, title: "Space", icon: "fa-solid fa-rocket", skills: ["Summary completion", "Identifying main ideas"],
+            content: "Exploration, astronomy, and the universe.",
+            secondaryExample: "Secondary Context: Discussing the Mars rover in physics class.",
+            outcomes: { listening: "Understand astronomical data.", reading: "Complete summaries.", writing: "Discuss the value of space travel.", speaking: "Talk about the future.", grammarVocab: "Future Perfect & Continuous." },
+            practiceActivity: { type: "writing", task: "Is space exploration worth the cost?" },
+            keyVocabSummary: "Astronomy and physics terms.",
+            vocabulary: [
+              { word: "Orbit", chinese: "轨道", definition: "The curved path of a celestial object." },
+              { word: "Cosmos", chinese: "宇宙", definition: "The universe seen as a well-ordered whole." },
+              { word: "Astronaut", chinese: "宇航员", definition: "A person trained to travel in a spacecraft." },
+              { word: "Gravity", chinese: "重力", definition: "The force that attracts a body toward the center of the earth." },
+              { word: "Satellite", chinese: "卫星", definition: "An artificial body placed in orbit." },
+              { word: "Telescope", chinese: "望远镜", definition: "An optical instrument for making distant objects appear nearer." },
+              { word: "Launch", chinese: "发射", definition: "Send a rocket or missile into the air." },
+              { word: "Lunar", chinese: "月球的", definition: "Relating to the moon." },
+              { word: "Galaxy", chinese: "星系", definition: "A system of millions or billions of stars." },
+              { word: "Celestial", chinese: "天体的", definition: "Positioned in or relating to the sky." }
+            ],
+            mcqs: [
+              { q: "The curved path of an object is its...", options: ["Orbit", "Gravity", "Launch", "Cosmos"], answer: 0 },
+              { q: "The universe as a whole is the...", options: ["Galaxy", "Lunar", "Cosmos", "Telescope"], answer: 2 },
+              { q: "A person trained for space is an...", options: ["Satellite", "Astronaut", "Celestial", "Orbit"], answer: 1 },
+              { q: "The force of attraction is...", options: ["Launch", "Gravity", "Cosmos", "Galaxy"], answer: 1 },
+              { q: "An artificial body in orbit is a...", options: ["Telescope", "Satellite", "Astronaut", "Lunar"], answer: 1 },
+              { q: "By next year, they will ___ the rocket.", options: ["have launched", "launch", "be launch", "launched"], answer: 0 },
+              { q: "At 8 PM, I will be ___ through the telescope.", options: ["looked", "looking", "look", "have looked"], answer: 1 },
+              { q: "By 2050, we will have ___ a lunar base.", options: ["build", "building", "built", "builds"], answer: 2 },
+              { q: "The satellite will be ___ the earth.", options: ["orbiting", "orbited", "orbit", "orbits"], answer: 0 },
+              { q: "By next month, the astronaut will have ___ home.", options: ["return", "returning", "returned", "returns"], answer: 2 },
+              { q: "An instrument for viewing distant objects is a...", options: ["Telescope", "Satellite", "Galaxy", "Cosmos"], answer: 0 },
+              { q: "To send a rocket up is to...", options: ["Launch", "Orbit", "Gravity", "Celestial"], answer: 0 },
+              { q: "Relating to the moon is...", options: ["Lunar", "Cosmos", "Galaxy", "Astronaut"], answer: 0 },
+              { q: "A huge system of stars is a...", options: ["Galaxy", "Telescope", "Satellite", "Launch"], answer: 0 },
+              { q: "Relating to the sky or space is...", options: ["Celestial", "Lunar", "Gravity", "Orbit"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["Are you interested in space?"], stems: ["I am fascinated by the cosmos..."],
+                example: "I am fascinated by the cosmos. I love looking through a telescope at a distant galaxy. By next year, I will be studying gravity and celestial bodies. I hope an astronaut will launch a new lunar satellite soon."
+              },
+              {
+                type: "Part 2", questions: ["Describe a movie about space."], stems: ["A movie I love is about an astronaut..."],
+                example: "The movie is about an astronaut lost in a distant galaxy. By the end of the film, they will have fixed their satellite's orbit to escape the strong gravity. It shows how beautiful the celestial cosmos is."
+              }
+            ],
+            reading: {
+              text: "By 2030, scientists will have launched a new telescope into orbit to study a distant galaxy. The astronaut crew will be investigating celestial bodies and lunar gravity. A new satellite will help map the entire cosmos.",
+              questions: ["1. What will scientists have launched by 2030?", "2. What will the crew be investigating?"]
+            },
+            listening: {
+              text: "Scientist: Next month, we will launch the lunar satellite. \nReporter: Will it study gravity? \nScientist: Yes, it will be orbiting the moon to observe the cosmos. By December, our astronaut will have used the telescope to find a new celestial galaxy.",
+              questions: ["1. When will they launch the satellite?", "2. What will the astronaut have found by December?"]
+            },
+            grammar: {
+              topic: "Future Perfect & Continuous", focus: "Use 'will have done' for actions finished before a future time, and 'will be doing' for actions ongoing at a future time.",
+              examples: [
+                "By 2050, an astronaut will have landed on Mars.",
+                "Next year, the satellite will be orbiting a new galaxy.",
+                "By tomorrow, they will have launched the telescope into the cosmos.",
+                "At 8 PM, I will be studying lunar gravity.",
+                "By the end of the decade, we will have discovered a new celestial body.",
+                "The rocket will be launching soon.",
+                "By next week, the probe will have reached its orbit.",
+                "They will be observing the galaxy tonight.",
+                "By 2040, tourists will have travelled to the cosmos.",
+                "The astronaut will be conducting experiments in zero gravity."
+              ],
+              model: "By the year 2030, space agencies will have established a lunar base."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Future Perfect", text: "By 2050, we (build) a base on the moon.", questions: ["Use future perfect: By 2050, we will have built..."] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Should governments spend money on space exploration?", questions: [], modelAnswer: "By funding space missions, we will be advancing human technology." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Is space exploration a waste of money?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, exploring the cosmos is not a waste of money, but a vital investment in our future. I agree because the technology developed to launch a satellite often benefits daily life. For example, by the end of this decade, scientists will have created new communications technology while studying celestial bodies and a distant galaxy. Furthermore, an astronaut conducting research in zero gravity helps us understand human health. The data gathered by a modern telescope provides invaluable insights into our own planet. As a result, I believe that funding a lunar orbit mission yields practical earthly benefits.",
+                  sentences: [
+                    { text: "In my opinion, exploring the cosmos is not a waste of money, but a vital investment in our future.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "cosmos", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because the technology developed to launch a satellite often benefits daily life.", breakdown: [{type: "lexical", text: "launch / satellite", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, by the end of this decade, scientists will have created new communications technology while studying celestial bodies and a distant galaxy.", breakdown: [{type: "grammar", text: "will have created", note: "Future perfect"}, {type: "lexical", text: "celestial / galaxy", note: "vocab"}], ieltsValue: "Excellent grammar range." },
+                    { text: "Furthermore, an astronaut conducting research in zero gravity helps us understand human health.", breakdown: [{type: "lexical", text: "astronaut / gravity", note: "vocab"}, {type: "marker", text: "Furthermore", note: "addition"}], ieltsValue: "Adds a supporting point." },
+                    { text: "The data gathered by a modern telescope provides invaluable insights into our own planet.", breakdown: [{type: "lexical", text: "telescope", note: "vocab"}], ieltsValue: "Solid vocabulary." },
+                    { text: "As a result, I believe that funding a lunar orbit mission yields practical earthly benefits.", breakdown: [{type: "lexical", text: "lunar / orbit", note: "vocab"}, {type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Logical summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, spending billions to launch a rocket into orbit is unjustifiable when we face severe earthly problems. While gazing through a telescope at a beautiful celestial galaxy is inspiring, it does not cure disease or end poverty. For instance, the massive budget required to send an astronaut into the cosmos could be used to build schools. By the time we will have established a lunar base, our own planet's ecosystem might be destroyed. Defying gravity to place another satellite in space is a luxury. Therefore, I believe governments must prioritize solving immediate global crises.",
+                  sentences: [
+                    { text: "In my view, spending billions to launch a rocket into orbit is unjustifiable when we face severe earthly problems.", breakdown: [{type: "lexical", text: "launch / orbit", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "While gazing through a telescope at a beautiful celestial galaxy is inspiring, it does not cure disease or end poverty.", breakdown: [{type: "lexical", text: "telescope / celestial / galaxy", note: "vocab"}], ieltsValue: "Strong contrast." },
+                    { text: "For instance, the massive budget required to send an astronaut into the cosmos could be used to build schools.", breakdown: [{type: "lexical", text: "astronaut / cosmos", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "By the time we will have established a lunar base, our own planet's ecosystem might be destroyed.", breakdown: [{type: "grammar", text: "will have established", note: "Future perfect"}, {type: "lexical", text: "lunar", note: "vocab"}], ieltsValue: "Complex temporal clause." },
+                    { text: "Defying gravity to place another satellite in space is a luxury.", breakdown: [{type: "lexical", text: "gravity / satellite", note: "vocab"}], ieltsValue: "Direct critique." },
+                    { text: "Therefore, I believe governments must prioritize solving immediate global crises.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 20, title: "History", icon: "fa-solid fa-hourglass-half", skills: ["Matching headings", "Timeline completion"],
+            content: "Understanding the past, archaeology, and heritage.",
+            secondaryExample: "Secondary Context: Writing a history essay on an ancient civilization.",
+            outcomes: { listening: "Follow historical narratives.", reading: "Match headings.", writing: "Discuss preserving the past.", speaking: "Talk about museums.", grammarVocab: "Used to / Would." },
+            practiceActivity: { type: "writing", task: "Should museums be free of charge?" },
+            keyVocabSummary: "Archaeology and time periods.",
+            vocabulary: [
+              { word: "Ancient", chinese: "古代的", definition: "Belonging to the very distant past." },
+              { word: "Artifact", chinese: "人工制品", definition: "An object made by a human being." },
+              { word: "Excavate", chinese: "挖掘", definition: "Make a hole by digging; unearth." },
+              { word: "Dynasty", chinese: "朝代", definition: "A line of hereditary rulers of a country." },
+              { word: "Prehistoric", chinese: "史前的", definition: "Relating to the time before written records." },
+              { word: "Chronological", chinese: "按时间顺序的", definition: "Starting with the earliest and following the order in which they occurred." },
+              { word: "Monument", chinese: "纪念碑", definition: "A statue or building erected to commemorate a person or event." },
+              { word: "Relic", chinese: "遗物", definition: "An object surviving from an earlier time." },
+              { word: "Heritage", chinese: "遗产", definition: "Property that is or may be inherited; tradition." },
+              { word: "Ancestor", chinese: "祖先", definition: "A person from whom one is descended." }
+            ],
+            mcqs: [
+              { q: "Belonging to the very distant past is...", options: ["Ancient", "Prehistoric", "Chronological", "Dynasty"], answer: 0 },
+              { q: "An object made by a human is an...", options: ["Relic", "Monument", "Artifact", "Heritage"], answer: 2 },
+              { q: "To unearth by digging is to...", options: ["Excavate", "Chronological", "Ancient", "Dynasty"], answer: 0 },
+              { q: "A line of rulers is a...", options: ["Heritage", "Dynasty", "Ancestor", "Monument"], answer: 1 },
+              { q: "The time before written records is...", options: ["Ancient", "Prehistoric", "Chronological", "Relic"], answer: 1 },
+              { q: "I ___ play outside every day.", options: ["used to", "would to", "use to", "am used to"], answer: 0 },
+              { q: "We ___ visit our grandparents in the summer.", options: ["would", "used", "uses to", "are use to"], answer: 0 },
+              { q: "She ___ like history, but now she does.", options: ["didn't used to", "didn't use to", "not used to", "doesn't use to"], answer: 1 },
+              { q: "They ___ excavate relics carefully.", options: ["would", "used", "using", "was"], answer: 0 },
+              { q: "My ancestor ___ live here.", options: ["used to", "use to", "would to", "was used to"], answer: 0 },
+              { q: "Order of occurrence is...", options: ["Chronological", "Ancient", "Dynasty", "Prehistoric"], answer: 0 },
+              { q: "A building commemorating an event is a...", options: ["Monument", "Artifact", "Relic", "Heritage"], answer: 0 },
+              { q: "An object surviving from the past is a...", options: ["Relic", "Dynasty", "Ancestor", "Chronological"], answer: 0 },
+              { q: "Traditions passed down form our...", options: ["Heritage", "Monument", "Prehistoric", "Excavate"], answer: 0 },
+              { q: "A person from whom one is descended is an...", options: ["Ancestor", "Artifact", "Relic", "Dynasty"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["Do you like history?"], stems: ["I used to hate history, but now..."],
+                example: "I used to hate history, but now I love our cultural heritage. I like learning about an ancient dynasty. My grandfather would always tell stories about our ancestor and show me an old relic."
+              },
+              {
+                type: "Part 2", questions: ["Describe a historical place you visited."], stems: ["A prehistoric place I visited is..."],
+                example: "I visited a prehistoric monument. The guide explained the chronological order of how they would excavate the site. They found an amazing ancient artifact there that belonged to an old dynasty. It's an important part of our heritage."
+              }
+            ],
+            reading: {
+              text: "To understand our heritage, we must study the chronological timeline of each ancient dynasty. Archaeologists used to excavate sites manually to find a prehistoric relic or an artifact left by an ancestor. Today, a large monument is protected by modern laws.",
+              questions: ["1. What must we study to understand our heritage?", "2. How did archaeologists use to excavate sites?"]
+            },
+            listening: {
+              text: "Guide: Welcome to the museum. Here is an ancient artifact. \nStudent: Did an ancestor from the Ming dynasty make this? \nGuide: Yes. Archaeologists would excavate this area daily to find a prehistoric relic. We arranged them in chronological order near the main monument. It represents our heritage.",
+              questions: ["1. What did the ancestor make?", "2. How are the relics arranged?"]
+            },
+            grammar: {
+              topic: "Used to & Would", focus: "Use 'used to' for past states and habits. Use 'would' for repeated past actions.",
+              examples: [
+                "My ancestor used to live in this ancient village.",
+                "Archaeologists would carefully excavate the site every summer.",
+                "They didn't use to care about preserving a prehistoric monument.",
+                "The king of the dynasty would wear this relic daily.",
+                "We used to study history in chronological order.",
+                "She would polish the artifact every morning.",
+                "Our heritage used to be forgotten.",
+                "The ancient Romans would build vast roads.",
+                "He used to be a history teacher.",
+                "They would search for a relic for hours."
+              ],
+              model: "People used to believe that the earth was flat."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Past Habits", text: "When I was young, I (play) near the monument.", questions: ["Use 'would' to show a past habit: I would play..."] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Should historical buildings be preserved?", questions: [], modelAnswer: "An ancient monument used to be a symbol of power; preserving it honors our heritage." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Is history a useful subject to study in school?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, studying history is essential to understand our modern cultural heritage. I agree because knowing how an ancient dynasty operated prevents us from repeating past mistakes. For example, students who study the chronological events of a war understand the tragic cost of conflict. In the past, people used to ignore the value of a prehistoric artifact or relic, but today we realize they connect us to our ancestor. Furthermore, when schools take trips to a historical monument, it brings textbooks to life. As a result, I believe that learning to excavate the truth about the past shapes a wiser future.",
+                  sentences: [
+                    { text: "In my opinion, studying history is essential to understand our modern cultural heritage.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "heritage", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because knowing how an ancient dynasty operated prevents us from repeating past mistakes.", breakdown: [{type: "lexical", text: "ancient / dynasty", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, students who study the chronological events of a war understand the tragic cost of conflict.", breakdown: [{type: "lexical", text: "chronological", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "In the past, people used to ignore the value of a prehistoric artifact or relic, but today we realize they connect us to our ancestor.", breakdown: [{type: "grammar", text: "used to ignore", note: "past habit"}, {type: "lexical", text: "prehistoric / artifact / relic / ancestor", note: "vocab"}], ieltsValue: "Excellent grammar and dense vocabulary." },
+                    { text: "Furthermore, when schools take trips to a historical monument, it brings textbooks to life.", breakdown: [{type: "lexical", text: "monument", note: "vocab"}, {type: "marker", text: "Furthermore", note: "addition"}], ieltsValue: "Good cohesion." },
+                    { text: "As a result, I believe that learning to excavate the truth about the past shapes a wiser future.", breakdown: [{type: "lexical", text: "excavate", note: "vocab"}, {type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Logical summary using metaphor." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while learning about an ancient ancestor is interesting, schools should prioritize modern, practical skills over history. I agree because memorizing the chronological dates of a fallen dynasty does not help a student secure a job in today's economy. For instance, knowing when a prehistoric monument was built or how to excavate a relic is only useful for specialized archaeologists. Decades ago, schools would force students to memorize facts about every artifact and piece of heritage. However, the internet now holds all this information instantly. Therefore, I believe technical subjects should replace excessive history lessons.",
+                  sentences: [
+                    { text: "In my view, while learning about an ancient ancestor is interesting, schools should prioritize modern, practical skills over history.", breakdown: [{type: "lexical", text: "ancient / ancestor", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "I agree because memorizing the chronological dates of a fallen dynasty does not help a student secure a job in today's economy.", breakdown: [{type: "lexical", text: "chronological / dynasty", note: "vocab"}], ieltsValue: "Strong practical reasoning." },
+                    { text: "For instance, knowing when a prehistoric monument was built or how to excavate a relic is only useful for specialized archaeologists.", breakdown: [{type: "lexical", text: "prehistoric / monument / excavate / relic", note: "vocab"}], ieltsValue: "Detailed example." },
+                    { text: "Decades ago, schools would force students to memorize facts about every artifact and piece of heritage.", breakdown: [{type: "grammar", text: "would force", note: "past habit"}, {type: "lexical", text: "artifact / heritage", note: "vocab"}], ieltsValue: "Target grammar effectively applied." },
+                    { text: "However, the internet now holds all this information instantly.", breakdown: [{type: "marker", text: "However", note: "contrast"}], ieltsValue: "Direct critique." },
+                    { text: "Therefore, I believe technical subjects should replace excessive history lessons.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 21, title: "Globalisation", icon: "fa-solid fa-earth-americas", skills: ["Identifying viewpoints", "Short answer questions"],
+            content: "The interconnected world, trade, and cultural blending.",
+            secondaryExample: "Secondary Context: Researching multinational corporations for economics.",
+            outcomes: { listening: "Understand global trends.", reading: "Identify writer's views.", writing: "Discuss pros/cons of globalisation.", speaking: "Talk about foreign products.", grammarVocab: "Noun phrases." },
+            practiceActivity: { type: "writing", task: "Is globalisation a positive or negative development?" },
+            keyVocabSummary: "International trade and societal changes.",
+            vocabulary: [
+              { word: "Integrate", chinese: "整合", definition: "Combine one thing with another." },
+              { word: "Multinational", chinese: "跨国的", definition: "Including or involving several countries." },
+              { word: "Immigration", chinese: "移民", definition: "The action of coming to live permanently in a foreign country." },
+              { word: "Demographics", chinese: "人口统计", definition: "Statistical data relating to the population." },
+              { word: "Unify", chinese: "统一", definition: "Make or become united, uniform, or whole." },
+              { word: "Citizen", chinese: "公民", definition: "A legally recognized subject or national of a state." },
+              { word: "Boundary", chinese: "边界", definition: "A line that marks the limits of an area." },
+              { word: "Diversity", chinese: "多样性", definition: "The state of being diverse; variety." },
+              { word: "Exploit", chinese: "剥削/利用", definition: "Make full use of and derive benefit from." },
+              { word: "Global", chinese: "全球的", definition: "Relating to the whole world." }
+            ],
+            mcqs: [
+              { q: "To combine things together is to...", options: ["Unify", "Integrate", "Exploit", "Boundary"], answer: 1 },
+              { q: "Involving several countries is...", options: ["Demographics", "Multinational", "Citizen", "Global"], answer: 1 },
+              { q: "Moving to a foreign country permanently is...", options: ["Immigration", "Diversity", "Boundary", "Unify"], answer: 0 },
+              { q: "Statistical population data is...", options: ["Global", "Immigration", "Demographics", "Citizen"], answer: 2 },
+              { q: "To make united or whole is to...", options: ["Exploit", "Unify", "Integrate", "Boundary"], answer: 0 },
+              { q: "The ___ of the economy is complex.", options: ["globalize", "globalisation", "globalized", "global"], answer: 1 },
+              { q: "The ___ of resources must stop.", options: ["exploit", "exploitation", "exploited", "exploits"], answer: 1 },
+              { q: "Cultural ___ is important.", options: ["diverse", "diversify", "diversity", "diversified"], answer: 2 },
+              { q: "The ___ of new laws took time.", options: ["integrate", "integration", "integrated", "integrates"], answer: 1 },
+              { q: "High ___ rates change the city.", options: ["immigrate", "immigration", "immigrates", "immigrated"], answer: 1 },
+              { q: "A legally recognized national is a...", options: ["Citizen", "Demographics", "Multinational", "Global"], answer: 0 },
+              { q: "A line marking a limit is a...", options: ["Boundary", "Unify", "Integrate", "Diversity"], answer: 0 },
+              { q: "The state of having variety is...", options: ["Diversity", "Exploit", "Citizen", "Immigration"], answer: 0 },
+              { q: "To derive benefit from unfairly is to...", options: ["Exploit", "Unify", "Integrate", "Global"], answer: 0 },
+              { q: "Relating to the whole world is...", options: ["Global", "Boundary", "Multinational", "Demographics"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["Do you buy imported goods?"], stems: ["Due to global trade, I often..."],
+                example: "Due to global trade, I often buy imported clothes. It shows the diversity of a multinational market. I think it helps unify us, breaking down every boundary for a citizen."
+              },
+              {
+                type: "Part 2", questions: ["Describe a foreign product you bought."], stems: ["The integration of foreign products..."],
+                example: "I bought a phone from a multinational company. Its global production relies on demographics and immigration of skilled workers. Unfortunately, some companies exploit workers, but a good product can integrate cultures and unify a boundary."
+              }
+            ],
+            reading: {
+              text: "The integration of global markets helps unify a divided citizen population. However, a multinational company might exploit cheap labor across a boundary. Rising immigration changes local demographics, leading to a massive increase in cultural diversity.",
+              questions: ["1. What helps unify a divided population?", "2. What changes local demographics?"]
+            },
+            listening: {
+              text: "Economist: Global trade removes a boundary to unify markets. \nStudent: Does a multinational corporation respect the local citizen? \nEconomist: Not always; some exploit weak labor laws. However, immigration drives demographics and creates positive cultural diversity, helping to integrate the global community.",
+              questions: ["1. What removes a boundary?", "2. What drives demographics?"]
+            },
+            grammar: {
+              topic: "Noun Phrases", focus: "Use nominalization (turning verbs/adjectives into nouns) to make writing more academic.",
+              examples: [
+                "The integration of cultures is essential.",
+                "The exploitation of workers by multinational companies is illegal.",
+                "The unification of the global market removes a boundary.",
+                "The immigration of skilled labor changes demographics.",
+                "The diversity of a citizen population brings strength.",
+                "The rapid globalization of trade is evident.",
+                "His integration into the new society was quick.",
+                "The creation of a new boundary caused tension.",
+                "The protection of the global environment is key.",
+                "The expansion of multinational firms is unstoppable."
+              ],
+              model: "The rapid expansion of global trade has changed society."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Nominalization", text: "They (integrate) the systems quickly.", questions: ["Change to a noun phrase: The swift integration of the systems..."] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Is the loss of national identity a problem?", questions: [], modelAnswer: "The integration of global cultures can blur a boundary..." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Does globalization benefit everyone?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, the rapid integration of global markets offers massive benefits, particularly regarding cultural diversity. I agree because when a multinational company opens abroad, it brings jobs that elevate a local citizen out of poverty. For example, the shifting demographics caused by healthy immigration help to unify communities and erase a rigid national boundary. The sharing of ideas across the world accelerates innovation. While it is true that some corporations exploit cheap labor, strict international laws can prevent this. As a result, I believe that globalization is an overwhelmingly positive force for humanity.",
+                  sentences: [
+                    { text: "In my opinion, the rapid integration of global markets offers massive benefits, particularly regarding cultural diversity.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "integration / global / diversity", note: "vocab"}, {type: "grammar", text: "rapid integration of global markets", note: "Noun phrase"}], ieltsValue: "Clear thesis with academic nominalization." },
+                    { text: "I agree because when a multinational company opens abroad, it brings jobs that elevate a local citizen out of poverty.", breakdown: [{type: "lexical", text: "multinational / citizen", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, the shifting demographics caused by healthy immigration help to unify communities and erase a rigid national boundary.", breakdown: [{type: "lexical", text: "demographics / immigration / unify / boundary", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "The sharing of ideas across the world accelerates innovation.", breakdown: [{type: "grammar", text: "The sharing of ideas", note: "Gerund as noun phrase"}], ieltsValue: "Good flow." },
+                    { text: "While it is true that some corporations exploit cheap labor, strict international laws can prevent this.", breakdown: [{type: "lexical", text: "exploit", note: "vocab"}, {type: "marker", text: "While it is true", note: "concession"}], ieltsValue: "Addresses drawbacks." },
+                    { text: "As a result, I believe that globalization is an overwhelmingly positive force for humanity.", breakdown: [{type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Logical summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while global trade produces wealth, the exploitation of developing nations is a severe negative consequence. The massive growth of a multinational entity often destroys local businesses across every boundary. For instance, when a large brand refuses to integrate into the local culture, it forces a citizen to abandon their traditional diversity. Unregulated immigration can disrupt local demographics and fail to truly unify a society if resources are scarce. The unchecked power of these companies rarely benefits the poor. Therefore, I believe globalization must be heavily regulated.",
+                  sentences: [
+                    { text: "In my view, while global trade produces wealth, the exploitation of developing nations is a severe negative consequence.", breakdown: [{type: "lexical", text: "global / exploitation", note: "vocab (exploit as noun)"}], ieltsValue: "Alternative thesis." },
+                    { text: "The massive growth of a multinational entity often destroys local businesses across every boundary.", breakdown: [{type: "lexical", text: "multinational / boundary", note: "vocab"}], ieltsValue: "Strong logic." },
+                    { text: "For instance, when a large brand refuses to integrate into the local culture, it forces a citizen to abandon their traditional diversity.", breakdown: [{type: "lexical", text: "integrate / citizen / diversity", note: "vocab"}], ieltsValue: "Clear example." },
+                    { text: "Unregulated immigration can disrupt local demographics and fail to truly unify a society if resources are scarce.", breakdown: [{type: "lexical", text: "immigration / demographics / unify", note: "vocab"}], ieltsValue: "Shows broad impact." },
+                    { text: "The unchecked power of these companies rarely benefits the poor.", breakdown: [{type: "grammar", text: "The unchecked power of these companies", note: "Complex noun phrase"}], ieltsValue: "Highlights consequences." },
+                    { text: "Therefore, I believe globalization must be heavily regulated.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Effective summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 22, title: "Language", icon: "fa-solid fa-language", skills: ["Sentence completion", "Identifying main ideas"],
+            content: "Linguistics, translation, and communication barriers.",
+            secondaryExample: "Secondary Context: Learning a second language in high school.",
+            outcomes: { listening: "Understand linguistic lectures.", reading: "Complete sentences.", writing: "Discuss language death.", speaking: "Talk about language learning.", grammarVocab: "Reported Speech." },
+            practiceActivity: { type: "writing", task: "Should everyone learn a second language?" },
+            keyVocabSummary: "Linguistics and spoken communication.",
+            vocabulary: [
+              { word: "Dialect", chinese: "方言", definition: "A particular form of a language peculiar to a specific region." },
+              { word: "Bilingual", chinese: "双语的", definition: "Speaking two languages fluently." },
+              { word: "Fluent", chinese: "流利的", definition: "Able to express oneself easily and articulately." },
+              { word: "Translate", chinese: "翻译", definition: "Express the sense of words in another language." },
+              { word: "Accent", chinese: "口音", definition: "A distinctive mode of pronunciation." },
+              { word: "Vocabulary", chinese: "词汇", definition: "The body of words used in a particular language." },
+              { word: "Syllable", chinese: "音节", definition: "A unit of pronunciation having one vowel sound." },
+              { word: "Phonetic", chinese: "语音的", definition: "Relating to speech sounds." },
+              { word: "Interpretation", chinese: "解释/口译", definition: "The action of explaining the meaning of something." },
+              { word: "Grammar", chinese: "语法", definition: "The whole system and structure of a language." }
+            ],
+            mcqs: [
+              { q: "A form of language from a specific region is a...", options: ["Vocabulary", "Dialect", "Accent", "Syllable"], answer: 1 },
+              { q: "Speaking two languages is being...", options: ["Bilingual", "Fluent", "Phonetic", "Translate"], answer: 0 },
+              { q: "Able to express easily is being...", options: ["Phonetic", "Fluent", "Interpretation", "Grammar"], answer: 1 },
+              { q: "To express words in another language is to...", options: ["Translate", "Accent", "Dialect", "Vocabulary"], answer: 0 },
+              { q: "A distinctive pronunciation is an...", options: ["Syllable", "Accent", "Grammar", "Interpretation"], answer: 1 },
+              { q: "He said that he ___ fluent.", options: ["is", "was", "were", "be"], answer: 1 },
+              { q: "She told me she ___ the vocabulary.", options: ["studied", "studies", "had studied", "study"], answer: 2 },
+              { q: "They said they ___ translate it tomorrow.", options: ["will", "would", "can", "may"], answer: 1 },
+              { q: "He stated that the grammar ___ hard.", options: ["is", "was", "has", "have"], answer: 1 },
+              { q: "She asked if I ___ bilingual.", options: ["am", "was", "were", "be"], answer: 1 },
+              { q: "The body of words in a language is...", options: ["Vocabulary", "Syllable", "Dialect", "Phonetic"], answer: 0 },
+              { q: "A unit of pronunciation is a...", options: ["Syllable", "Accent", "Fluent", "Translate"], answer: 0 },
+              { q: "Relating to speech sounds is...", options: ["Phonetic", "Grammar", "Bilingual", "Interpretation"], answer: 0 },
+              { q: "The action of explaining meaning is...", options: ["Interpretation", "Dialect", "Syllable", "Vocabulary"], answer: 0 },
+              { q: "The system and structure of a language is...", options: ["Grammar", "Accent", "Phonetic", "Translate"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["What languages do you speak?"], stems: ["I am currently trying to become bilingual..."],
+                example: "I am trying to become bilingual. I study grammar and phonetic sounds daily. My teacher said my accent is getting better. I want to be fluent so I don't have to translate every vocabulary word."
+              },
+              {
+                type: "Part 2", questions: ["Describe a time you struggled with communication."], stems: ["I once met someone with a strong dialect..."],
+                example: "I met a tourist with a strong dialect and accent. Every syllable was hard to catch. My interpretation was poor, and I had to translate using my phone because my vocabulary and grammar weren't fluent enough. I wish I was bilingual."
+              }
+            ],
+            reading: {
+              text: "Experts stated that becoming bilingual improves the brain. A researcher noted that mastering a new phonetic dialect or accent requires understanding every syllable and vocabulary word. Flawless interpretation without needing to translate grammar is the true mark of a fluent speaker.",
+              questions: ["1. What improves the brain?", "2. What is the true mark of a fluent speaker?"]
+            },
+            listening: {
+              text: "Teacher: The student said that the new grammar was hard. \nTutor: I told him to practice his phonetic pronunciation. His dialect and accent make interpretation tough. \nTeacher: If he learns the vocabulary and every syllable, he will be bilingual and fluent. Then he won't need to translate.",
+              questions: ["1. What did the student say was hard?", "2. What makes interpretation tough?"]
+            },
+            grammar: {
+              topic: "Reported Speech", focus: "Shift tenses backwards when reporting what someone said (e.g., 'I am fluent' -> He said he was fluent).",
+              examples: [
+                "The teacher said that my grammar was improving.",
+                "She told me that she had memorized the vocabulary.",
+                "He stated that the phonetic dialect was difficult.",
+                "They announced that they would translate the book.",
+                "The linguist noted that the accent had changed.",
+                "He asked if I was bilingual.",
+                "She mentioned that she wanted to be fluent.",
+                "The guide said the interpretation was accurate.",
+                "The professor explained that every syllable mattered.",
+                "He claimed he could translate the ancient text."
+              ],
+              model: "The researcher stated that learning a language prevents memory loss."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Reported Speech", text: "She said: 'I am studying Spanish.'", questions: ["Change to reported speech: She said that she was studying Spanish."] }
+            ],
+            practiceTests: [
+              { type: "Task 2", text: "Will English become the only global language?", questions: [], modelAnswer: "Some experts have stated that minor dialects will disappear." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Should all children learn a foreign language in primary school?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, becoming bilingual at a young age offers massive cognitive benefits. Research has stated that a child's brain absorbs a new phonetic dialect much faster than an adult's. For example, when children learn a foreign vocabulary and grammar structure early, they become fluent effortlessly. Furthermore, they adopt a natural accent and understand every syllable without needing to mentally translate sentences. The interpretation of foreign media becomes second nature. As a result, I believe that early language education creates open-minded, intelligent global citizens.",
+                  sentences: [
+                    { text: "In my opinion, becoming bilingual at a young age offers massive cognitive benefits.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "bilingual / cognitive", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "Research has stated that a child's brain absorbs a new phonetic dialect much faster than an adult's.", breakdown: [{type: "grammar", text: "has stated that", note: "Reported speech"}, {type: "lexical", text: "phonetic dialect", note: "vocab"}], ieltsValue: "Target grammar integrated naturally." },
+                    { text: "For example, when children learn a foreign vocabulary and grammar structure early, they become fluent effortlessly.", breakdown: [{type: "lexical", text: "vocabulary / grammar / fluent", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "Furthermore, they adopt a natural accent and understand every syllable without needing to mentally translate sentences.", breakdown: [{type: "lexical", text: "accent / syllable / translate", note: "vocab"}, {type: "marker", text: "Furthermore", note: "addition"}], ieltsValue: "Excellent vocabulary density." },
+                    { text: "The interpretation of foreign media becomes second nature.", breakdown: [{type: "lexical", text: "interpretation", note: "vocab"}], ieltsValue: "Strong collocation." },
+                    { text: "As a result, I believe that early language education creates open-minded, intelligent global citizens.", breakdown: [{type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Logical summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while being fluent is useful, forcing primary school students to learn a foreign grammar system causes unnecessary stress. Many teachers have noted that children already struggle to master their native vocabulary and dialect. For instance, expecting a young student to perfect a foreign accent and grasp every phonetic syllable can detract from core subjects like math. Accurate interpretation and the ability to translate are skills best left for high school. Therefore, I believe that while being bilingual is an asset, it should not be mandatory in early childhood.",
+                  sentences: [
+                    { text: "In my view, while being fluent is useful, forcing primary school students to learn a foreign grammar system causes unnecessary stress.", breakdown: [{type: "lexical", text: "fluent / grammar", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "Many teachers have noted that children already struggle to master their native vocabulary and dialect.", breakdown: [{type: "grammar", text: "have noted that", note: "Reported speech structure"}, {type: "lexical", text: "vocabulary / dialect", note: "vocab"}], ieltsValue: "Strong practical reasoning." },
+                    { text: "For instance, expecting a young student to perfect a foreign accent and grasp every phonetic syllable can detract from core subjects like math.", breakdown: [{type: "lexical", text: "accent / phonetic / syllable", note: "vocab"}], ieltsValue: "Detailed example." },
+                    { text: "Accurate interpretation and the ability to translate are skills best left for high school.", breakdown: [{type: "lexical", text: "interpretation / translate", note: "vocab"}], ieltsValue: "Clear argument." },
+                    { text: "Therefore, I believe that while being bilingual is an asset, it should not be mandatory in early childhood.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}, {type: "lexical", text: "bilingual", note: "vocab"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 23, title: "Shopping", icon: "fa-solid fa-cart-shopping", skills: ["Matching features", "Short answer"],
+            content: "Consumerism, marketing, and the economy.",
+            secondaryExample: "Secondary Context: Discussing the impact of fast fashion.",
+            outcomes: { listening: "Understand retail dialogues.", reading: "Scan for consumer trends.", writing: "Describe sales data.", speaking: "Discuss shopping habits.", grammarVocab: "Advanced Comparatives." },
+            practiceActivity: { type: "writing", task: "Describe a bar chart showing online vs in-store retail sales." },
+            keyVocabSummary: "Business, consumer behavior, and sales.",
+            vocabulary: [
+              { word: "Retail", chinese: "零售", definition: "The sale of goods to the public." },
+              { word: "Wholesale", chinese: "批发", definition: "The selling of goods in large quantities." },
+              { word: "Transaction", chinese: "交易", definition: "An instance of buying or selling something." },
+              { word: "Merchandise", chinese: "商品", definition: "Goods to be bought and sold." },
+              { word: "Refund", chinese: "退款", definition: "A repayment of a sum of money." },
+              { word: "Consumer", chinese: "消费者", definition: "A person who purchases goods and services." },
+              { word: "Brand", chinese: "品牌", definition: "A type of product manufactured by a particular company." },
+              { word: "Discount", chinese: "折扣", definition: "A deduction from the usual cost." },
+              { word: "Receipt", chinese: "收据", definition: "A written acknowledgment of payment." },
+              { word: "Advertisement", chinese: "广告", definition: "A notice or announcement promoting a product." }
+            ],
+            mcqs: [
+              { q: "The sale of goods to the public is...", options: ["Wholesale", "Retail", "Refund", "Brand"], answer: 1 },
+              { q: "Selling goods in large quantities is...", options: ["Transaction", "Merchandise", "Wholesale", "Discount"], answer: 2 },
+              { q: "An instance of buying or selling is a...", options: ["Transaction", "Receipt", "Consumer", "Advertisement"], answer: 0 },
+              { q: "Goods to be bought and sold are...", options: ["Merchandise", "Refund", "Brand", "Retail"], answer: 0 },
+              { q: "A repayment of money is a...", options: ["Discount", "Refund", "Receipt", "Consumer"], answer: 1 },
+              { q: "Online shopping is ___ than going to the store.", options: ["more convenient", "convenienter", "most convenient", "convenient"], answer: 0 },
+              { q: "This brand is ___ than the other one.", options: ["expensiver", "more expensive", "much expensive", "most expensive"], answer: 1 },
+              { q: "That was the ___ advertisement I have ever seen.", options: ["worse", "bad", "worst", "baddest"], answer: 2 },
+              { q: "Wholesale prices are ___ than retail prices.", options: ["low", "lower", "lowest", "more low"], answer: 1 },
+              { q: "This is the ___ merchandise in the shop.", options: ["most popular", "more popular", "popularer", "popular"], answer: 0 },
+              { q: "A person who purchases goods is a...", options: ["Consumer", "Brand", "Retail", "Transaction"], answer: 0 },
+              { q: "A product made by a specific company is a...", options: ["Merchandise", "Wholesale", "Brand", "Advertisement"], answer: 2 },
+              { q: "A deduction from the cost is a...", options: ["Refund", "Discount", "Receipt", "Transaction"], answer: 1 },
+              { q: "A written proof of payment is a...", options: ["Advertisement", "Brand", "Consumer", "Receipt"], answer: 2 },
+              { q: "A notice promoting a product is an...", options: ["Advertisement", "Retail", "Merchandise", "Wholesale"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["Do you like shopping?"], stems: ["I am a frequent consumer of..."],
+                example: "I am a frequent consumer of an expensive brand. I always wait for a discount before making a transaction. I prefer retail over wholesale, but I always keep my receipt in case I need a refund."
+              },
+              {
+                type: "Part 2", questions: ["Describe an advertisement you remember."], stems: ["A memorable advertisement was for..."],
+                example: "A memorable advertisement was for some clothing merchandise. The retail price was much higher than the wholesale price, but the brand offered a huge discount. The transaction was smooth, and the consumer receipt allowed for a full refund."
+              }
+            ],
+            reading: {
+              text: "A savvy consumer is heavily influenced by a clever advertisement for a popular brand. When buying merchandise, they compare retail and wholesale prices to find the best discount. Always ask for a receipt during the transaction in case you require a refund.",
+              questions: ["1. What influences a savvy consumer?", "2. Why should you ask for a receipt?"]
+            },
+            listening: {
+              text: "Manager: Our retail transaction numbers are down. \nStaff: We need a better advertisement for our brand. The consumer wants a larger discount on merchandise. \nManager: If we do that, we must lower the wholesale cost. Make sure every receipt clearly states our no-refund policy.",
+              questions: ["1. What does the consumer want?", "2. What must the receipt clearly state?"]
+            },
+            grammar: {
+              topic: "Advanced Comparatives", focus: "Use 'far more', 'significantly less', 'slightly higher' to make precise comparisons.",
+              examples: [
+                "Retail prices are significantly higher than wholesale prices.",
+                "This brand is far more popular than its competitors.",
+                "The discount was slightly less than I expected.",
+                "Consumer trust is much more important than a flashy advertisement.",
+                "The transaction was significantly faster online.",
+                "Getting a refund is far easier with a receipt.",
+                "This merchandise is substantially better quality.",
+                "Online retail is growing considerably faster than physical stores.",
+                "The new brand is slightly more expensive.",
+                "Wholesale buying is much more cost-effective."
+              ],
+              model: "In 2020, retail sales were significantly higher than in 2019."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Precise Comparison", text: "Online shopping is (a lot / fast) than walking to the store.", questions: ["Fix the grammar: Online shopping is a lot faster..."] }
+            ],
+            practiceTests: [
+              { type: "Task 1", text: "Summarize a chart about retail sales.", questions: [], modelAnswer: "Online retail sales were significantly higher than physical transactions." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Does advertising encourage us to buy things we do not need?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, modern marketing manipulates the average consumer into making an unnecessary transaction. I agree because a flashy advertisement is designed to make a luxury brand appear essential. For example, when retail stores heavily promote a limited-time discount on new merchandise, people buy items impulsively. Furthermore, online wholesale platforms make buying significantly easier than in the past, leading to overspending. Even though keeping a receipt allows for a refund, most people never return the items. As a result, I believe advertising fuels a wasteful, materialistic society.",
+                  sentences: [
+                    { text: "In my opinion, modern marketing manipulates the average consumer into making an unnecessary transaction.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "consumer / transaction", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because a flashy advertisement is designed to make a luxury brand appear essential.", breakdown: [{type: "lexical", text: "advertisement / brand", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, when retail stores heavily promote a limited-time discount on new merchandise, people buy items impulsively.", breakdown: [{type: "lexical", text: "retail / discount / merchandise", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "Furthermore, online wholesale platforms make buying significantly easier than in the past, leading to overspending.", breakdown: [{type: "grammar", text: "significantly easier than", note: "advanced comparative"}, {type: "lexical", text: "wholesale", note: "vocab"}], ieltsValue: "Target grammar effectively applied." },
+                    { text: "Even though keeping a receipt allows for a refund, most people never return the items.", breakdown: [{type: "lexical", text: "receipt / refund", note: "vocab"}], ieltsValue: "Good contrast." },
+                    { text: "As a result, I believe advertising fuels a wasteful, materialistic society.", breakdown: [{type: "marker", text: "As a result", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, an informative advertisement empowers the consumer to make a significantly smarter transaction. I believe that marketing simply highlights available merchandise and a competitive discount. For instance, comparing a retail price with a wholesale option online allows families to save money on their favorite brand. Rather than tricking people, clear advertising policies ensure that a receipt guarantees a fair refund if the product is faulty. Advertising is far more helpful than critics claim because it drives the economy. Therefore, I believe consumers are responsible for their own spending habits.",
+                  sentences: [
+                    { text: "In my view, an informative advertisement empowers the consumer to make a significantly smarter transaction.", breakdown: [{type: "grammar", text: "significantly smarter", note: "advanced comparative"}, {type: "lexical", text: "advertisement / consumer / transaction", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "I believe that marketing simply highlights available merchandise and a competitive discount.", breakdown: [{type: "lexical", text: "merchandise / discount", note: "vocab"}], ieltsValue: "Strong practical reasoning." },
+                    { text: "For instance, comparing a retail price with a wholesale option online allows families to save money on their favorite brand.", breakdown: [{type: "lexical", text: "retail / wholesale / brand", note: "vocab"}], ieltsValue: "Detailed example." },
+                    { text: "Rather than tricking people, clear advertising policies ensure that a receipt guarantees a fair refund if the product is faulty.", breakdown: [{type: "lexical", text: "receipt / refund", note: "vocab"}], ieltsValue: "Clear argument." },
+                    { text: "Advertising is far more helpful than critics claim because it drives the economy.", breakdown: [{type: "grammar", text: "far more helpful than", note: "advanced comparative"}], ieltsValue: "Reinforces the main point." },
+                    { text: "Therefore, I believe consumers are responsible for their own spending habits.", breakdown: [{type: "marker", text: "Therefore", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            id: 24, title: "Energy", icon: "fa-solid fa-solar-panel", skills: ["Diagram labelling", "Summary completion"],
+            content: "Renewable energy, pollution, and the power grid.",
+            secondaryExample: "Secondary Context: Debating fossil fuels in a science class.",
+            outcomes: { listening: "Understand technical processes.", reading: "Scan for environmental data.", writing: "Describe how energy works.", speaking: "Discuss saving energy.", grammarVocab: "Cause & Effect." },
+            practiceActivity: { type: "writing", task: "Describe the process of a geothermal power plant." },
+            keyVocabSummary: "Power generation and environmental impact.",
+            vocabulary: [
+              { word: "Fossil", chinese: "化石", definition: "Remains of a prehistoric organism (often used with 'fuel')." },
+              { word: "Solar", chinese: "太阳能的", definition: "Relating to or determined by the sun." },
+              { word: "Turbine", chinese: "涡轮机", definition: "A machine for producing continuous power." },
+              { word: "Conserve", chinese: "节约/保护", definition: "Protect from harm or destruction." },
+              { word: "Deplete", chinese: "耗尽", definition: "Use up the supply or resources of." },
+              { word: "Geothermal", chinese: "地热的", definition: "Relating to the internal heat of the earth." },
+              { word: "Generator", chinese: "发电机", definition: "A machine that converts mechanical energy into electricity." },
+              { word: "Fuel", chinese: "燃料", definition: "Material such as coal, gas, or oil that is burned to produce heat or power." },
+              { word: "Reactor", chinese: "反应堆", definition: "An apparatus or structure in which fissile material can be made to undergo a controlled nuclear reaction." },
+              { word: "Grid", chinese: "电网", definition: "A network of cables or pipes for distributing power." }
+            ],
+            mcqs: [
+              { q: "Remains used to create fuel are...", options: ["Turbine", "Fossil", "Grid", "Solar"], answer: 1 },
+              { q: "Relating to the sun is...", options: ["Geothermal", "Fossil", "Solar", "Generator"], answer: 2 },
+              { q: "A machine producing power by spinning is a...", options: ["Turbine", "Grid", "Fuel", "Conserve"], answer: 0 },
+              { q: "To protect from harm or use less is to...", options: ["Deplete", "Conserve", "Generator", "Reactor"], answer: 1 },
+              { q: "To use up the supply is to...", options: ["Conserve", "Deplete", "Turbine", "Fossil"], answer: 1 },
+              { q: "___ the rain, the match was cancelled.", options: ["Due to", "Because", "Since", "As a result"], answer: 0 },
+              { q: "He studied hard. ___, he passed.", options: ["Because of", "Due to", "Consequently", "Since"], answer: 2 },
+              { q: "The crisis occurred ___ bad management.", options: ["as a result of", "because", "therefore", "so"], answer: 0 },
+              { q: "___ they used solar power, bills dropped.", options: ["Therefore", "Because", "Due to", "As a consequence"], answer: 1 },
+              { q: "Pollution rose; ___, health declined.", options: ["because of", "due to", "since", "therefore"], answer: 3 },
+              { q: "Relating to the internal heat of the earth is...", options: ["Geothermal", "Solar", "Grid", "Fossil"], answer: 0 },
+              { q: "A machine that creates electricity is a...", options: ["Reactor", "Generator", "Fuel", "Deplete"], answer: 1 },
+              { q: "Material burned for power is...", options: ["Fuel", "Grid", "Conserve", "Turbine"], answer: 0 },
+              { q: "A structure for nuclear reactions is a...", options: ["Reactor", "Grid", "Solar", "Generator"], answer: 0 },
+              { q: "A network for distributing power is the...", options: ["Grid", "Fossil", "Turbine", "Geothermal"], answer: 0 }
+            ],
+            speaking: [
+              {
+                type: "Part 1", questions: ["How do you save energy at home?"], stems: ["To conserve energy, I usually..."],
+                example: "To conserve energy, I use solar panels instead of fossil fuel. Because of this, we don't deplete the city's power grid. We also have a small wind turbine and an efficient generator."
+              },
+              {
+                type: "Part 2", questions: ["Talk about a future energy source."], stems: ["A promising energy source is..."],
+                example: "A great source is geothermal energy. Unlike a nuclear reactor, it is safe. Due to its efficiency, it spins a turbine connected to a generator without needing fossil fuel. Consequently, it powers the grid safely."
+              }
+            ],
+            reading: {
+              text: "As a consequence of relying on fossil fuel, we deplete natural resources rapidly. Therefore, we must conserve energy and switch to a solar or geothermal grid. A modern turbine attached to a generator, or a safe nuclear reactor, creates clean power.",
+              questions: ["1. What is the consequence of relying on fossil fuel?", "2. What creates clean power?"]
+            },
+            listening: {
+              text: "Engineer: Due to the high cost of a fossil fuel, we must connect a solar generator to the grid. \nPlanner: Will the wind turbine deplete the battery? \nEngineer: No, and the new geothermal reactor will help us conserve power. As a result, energy costs will drop.",
+              questions: ["1. Why must they connect a solar generator?", "2. What will the geothermal reactor help do?"]
+            },
+            grammar: {
+              topic: "Cause & Effect Linking Words", focus: "Use 'due to', 'as a consequence of', 'therefore', and 'consequently'.",
+              examples: [
+                "Due to the lack of fossil fuel, the generator stopped.",
+                "They built a solar grid; consequently, bills dropped.",
+                "As a consequence of the wind, the turbine spun faster.",
+                "We must conserve water. Therefore, turn off the tap.",
+                "The reactor failed because they did not conserve the cooling fuel.",
+                "Geothermal energy is reliable; as a result, it powers the grid.",
+                "Because of the solar panel, we didn't deplete the battery.",
+                "The generator broke down due to poor maintenance.",
+                "Consequently, the fossil fuel industry is declining.",
+                "Therefore, we must invest in a new turbine."
+              ],
+              model: "Due to rising pollution, governments must build a clean power grid."
+            },
+            tutorPrompts: [
+              { type: "Grammar Check", focus: "Cause and Effect", text: "The power went out (because / due to) the storm.", questions: ["Which linking word is correct? (Answer: due to)"] }
+            ],
+            practiceTests: [
+              { type: "Task 1", text: "Describe how a geothermal plant works.", questions: [], modelAnswer: "Due to the earth's heat, steam rises and spins the turbine." }
+            ],
+            paragraphAnalysis: {
+              prompt: "Must we completely stop using fossil fuels?",
+              versions: [
+                {
+                  version: "Version 1", text: "In my opinion, governments must rapidly transition away from fossil fuel to prevent an environmental disaster. I agree because toxic emissions destroy the atmosphere; therefore, we must find alternatives before we deplete our natural reserves. For example, investing in a solar power grid or a safe geothermal reactor provides limitless, clean energy. As a consequence of building a massive wind turbine connected to a generator, entire cities can conserve electricity efficiently. Due to the severe threat of climate change, relying on dirty fuel is no longer an option. Consequently, I believe green energy is essential for human survival.",
+                  sentences: [
+                    { text: "In my opinion, governments must rapidly transition away from fossil fuel to prevent an environmental disaster.", breakdown: [{type: "marker", text: "In my opinion", note: "opinion"}, {type: "lexical", text: "fossil fuel", note: "vocab"}], ieltsValue: "Clear thesis." },
+                    { text: "I agree because toxic emissions destroy the atmosphere; therefore, we must find alternatives before we deplete our natural reserves.", breakdown: [{type: "grammar", text: "therefore", note: "cause/effect marker"}, {type: "lexical", text: "deplete", note: "vocab"}], ieltsValue: "Strong reasoning." },
+                    { text: "For example, investing in a solar power grid or a safe geothermal reactor provides limitless, clean energy.", breakdown: [{type: "lexical", text: "solar / grid / geothermal / reactor", note: "vocab"}], ieltsValue: "Concrete example." },
+                    { text: "As a consequence of building a massive wind turbine connected to a generator, entire cities can conserve electricity efficiently.", breakdown: [{type: "grammar", text: "As a consequence of", note: "advanced cause marker"}, {type: "lexical", text: "turbine / generator / conserve", note: "vocab"}], ieltsValue: "Target grammar effectively applied." },
+                    { text: "Due to the severe threat of climate change, relying on dirty fuel is no longer an option.", breakdown: [{type: "grammar", text: "Due to", note: "cause marker"}, {type: "lexical", text: "fuel", note: "vocab"}], ieltsValue: "Good contrast." },
+                    { text: "Consequently, I believe green energy is essential for human survival.", breakdown: [{type: "marker", text: "Consequently", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                },
+                {
+                  version: "Version 2", text: "In my view, while solar power is excellent, completely banning a fossil fuel right now would crash the global economy. I believe this because renewable sources cannot yet supply enough consistent power to the global grid. For instance, if the wind stops blowing, a wind turbine and its generator become useless. Due to the high cost of building a geothermal plant or a nuclear reactor, developing nations simply cannot afford the transition. Therefore, we must conserve energy while slowly phasing out traditional fuel so we do not deplete our economy. Consequently, a balanced, gradual approach is safest.",
+                  sentences: [
+                    { text: "In my view, while solar power is excellent, completely banning a fossil fuel right now would crash the global economy.", breakdown: [{type: "lexical", text: "solar / fossil fuel", note: "vocab"}], ieltsValue: "Alternative thesis." },
+                    { text: "I believe this because renewable sources cannot yet supply enough consistent power to the global grid.", breakdown: [{type: "lexical", text: "grid", note: "vocab"}], ieltsValue: "Strong practical reasoning." },
+                    { text: "For instance, if the wind stops blowing, a wind turbine and its generator become useless.", breakdown: [{type: "lexical", text: "turbine / generator", note: "vocab"}], ieltsValue: "Detailed example." },
+                    { text: "Due to the high cost of building a geothermal plant or a nuclear reactor, developing nations simply cannot afford the transition.", breakdown: [{type: "grammar", text: "Due to", note: "cause marker"}, {type: "lexical", text: "geothermal / reactor", note: "vocab"}], ieltsValue: "Clear argument." },
+                    { text: "Therefore, we must conserve energy while slowly phasing out traditional fuel so we do not deplete our economy.", breakdown: [{type: "grammar", text: "Therefore", note: "effect marker"}, {type: "lexical", text: "conserve / fuel / deplete", note: "vocab"}], ieltsValue: "Reinforces the main point." },
+                    { text: "Consequently, a balanced, gradual approach is safest.", breakdown: [{type: "marker", text: "Consequently", note: "conclusion"}], ieltsValue: "Impactful summary." }
+                  ]
+                }
+              ]
+            }
+          }
+        ];
+
+        const InteractiveParagraph = ({ data, handleSpeak }) => {
+            const [activeVersionIdx, setActiveVersionIdx] = useState(0);
+            const [activeSentenceIdx, setActiveSentenceIdx] = useState(null);
+
+            if (!data || !data.versions || data.versions.length === 0) return null;
+
+            const activeData = data.versions[activeVersionIdx];
+
+            const getPillColor = (type) => {
+                switch(type) {
+                    case 'marker': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                    case 'grammar': return 'bg-blue-100 text-blue-800 border-blue-300';
+                    case 'structure': return 'bg-green-100 text-green-800 border-green-300';
+                    case 'lexical': return 'bg-purple-100 text-purple-800 border-purple-300';
+                    default: return 'bg-slate-100 text-slate-800 border-slate-300';
+                }
+            };
+
+            const getIcon = (type) => {
+                switch(type) {
+                    case 'marker': return 'fa-link';
+                    case 'grammar': return 'fa-spell-check';
+                    case 'structure': return 'fa-sitemap';
+                    case 'lexical': return 'fa-book-open';
+                    default: return 'fa-check';
+                }
+            };
+
+            return (
+                <div className="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 animate-fade-in">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3 pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <div className="bg-indigo-100 p-1.5 rounded-lg text-indigo-600">
+                                    <i className="fa-solid fa-magnifying-glass-chart"></i>
+                                </div>
+                                Paragraph Analysis
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">Click a sentence to see its grammar breakdown.</p>
+                        </div>
+                        {data.versions.length > 1 && (
+                            <div className="flex bg-slate-100 p-1 rounded-lg shrink-0">
+                                {data.versions.map((ver, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => { setActiveVersionIdx(idx); setActiveSentenceIdx(null); }}
+                                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${activeVersionIdx === idx ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+                                    >
+                                        {ver.version}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    
+                    {data.prompt && (
+                        <div className="bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg mb-4 shadow-sm">
+                            <h4 className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                <i className="fa-solid fa-pen-nib"></i> Prompt
+                            </h4>
+                            <p className="text-indigo-900 font-medium italic text-xs">"{data.prompt}"</p>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow-inner">
+                            <div className="flex justify-between items-center mb-2">
+                                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Paragraph</h4>
+                                <button onClick={() => handleSpeak(activeData.text)} className="text-indigo-500 hover:text-indigo-700 text-xs font-semibold transition-colors">
+                                    Read All
+                                </button>
+                            </div>
+                            <p className="text-slate-700 leading-relaxed text-sm">
+                                {activeData.sentences.map((sentenceObj, idx) => (
+                                    <span key={idx}>
+                                        <span onClick={() => setActiveSentenceIdx(idx)} className={`sentence-span ${activeSentenceIdx === idx ? 'active' : ''}`}>
+                                            {sentenceObj.text}
+                                        </span>{" "}
+                                    </span>
+                                ))}
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Breakdown</h4>
+                            {activeSentenceIdx !== null ? (
+                                <div className="space-y-2 animate-fade-in">
+                                    <button onClick={() => handleSpeak(activeData.sentences[activeSentenceIdx].text)} className="w-full text-left bg-indigo-50 border border-indigo-200 p-2 rounded-lg transition-colors hover:bg-indigo-100">
+                                        <p className="text-indigo-900 text-xs font-medium italic">"{activeData.sentences[activeSentenceIdx].text}"</p>
+                                    </button>
+                                    <div className="space-y-1.5">
+                                        {activeData.sentences[activeSentenceIdx].breakdown.map((item, i) => (
+                                            <div key={i} className={`border p-2 rounded-md flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 ${getPillColor(item.type)}`}>
+                                                <div className="font-bold shrink-0 flex items-center gap-1.5 text-[10px]">
+                                                    <i className={`fa-solid ${getIcon(item.type)} opacity-70`}></i> {item.text}
+                                                </div>
+                                                <div className="hidden sm:block text-slate-300 text-xs">→</div>
+                                                <div className="text-[10px] font-medium opacity-90">{item.note}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="bg-slate-800 text-white p-2.5 rounded-lg mt-2 flex items-start gap-2">
+                                        <i className="fa-solid fa-award text-yellow-400 text-sm mt-0.5"></i>
+                                        <div>
+                                            <h5 className="text-[9px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">IELTS Value</h5>
+                                            <p className="text-[11px] font-semibold">{activeData.sentences[activeSentenceIdx].ieltsValue}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="h-full min-h-[150px] flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+                                    <i className="fa-solid fa-hand-pointer text-2xl mb-2 text-slate-300"></i>
+                                    <p className="text-xs font-medium">Click a sentence to see breakdown.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const UnitQuiz = ({ mcqs, handleSpeak }) => {
+          const [selectedAnswers, setSelectedAnswers] = useState({});
+          const [feedback, setFeedback] = useState({});
+          const [showExtended, setShowExtended] = useState(false);
+
+          const handleOptionClick = (questionIndex, optionIndex, correctAnswerIndex) => {
+            setSelectedAnswers({ ...selectedAnswers, [questionIndex]: optionIndex });
+            setFeedback({ ...feedback, [questionIndex]: optionIndex === correctAnswerIndex });
+          };
+
+          if (!mcqs || mcqs.length === 0) return null;
+          const displayedMcqs = showExtended ? mcqs : mcqs.slice(0, 5);
+
+          return (
+            <div className="bg-slate-900 p-4 md:p-5 rounded-xl shadow-md border border-slate-800 mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="bg-teal-500/20 p-1.5 rounded-md border border-teal-500/30">
+                  <i className="fa-regular fa-circle-question text-teal-400 text-lg"></i>
+                </div>
+                <h3 className="text-base font-bold text-white">Unit Quiz</h3>
+              </div>
+              
+              <div className="space-y-3">
+                {displayedMcqs.map((mcq, qIdx) => (
+                  <div key={qIdx} className="bg-slate-800 p-3 md:p-4 rounded-lg border border-slate-700 animate-fade-in">
+                    <h4 className="text-xs md:text-sm font-semibold text-slate-200 mb-3">{qIdx + 1}. {mcq.q}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {mcq.options.map((opt, optIdx) => {
+                        const isSelected = selectedAnswers[qIdx] === optIdx;
+                        const isCorrect = mcq.answer === optIdx;
+                        const hasAnswered = selectedAnswers[qIdx] !== undefined;
+                        let btnStyle = "bg-slate-700 text-slate-300 hover:bg-slate-600 border-transparent";
+                        if (hasAnswered) {
+                          if (isCorrect) btnStyle = "bg-green-900/40 text-green-400 border-green-500/50";
+                          else if (isSelected && !isCorrect) btnStyle = "bg-rose-900/40 text-rose-400 border-rose-500/50";
+                          else btnStyle = "bg-slate-800 text-slate-500 border-transparent opacity-50";
+                        }
+                        return (
+                          <button key={optIdx} disabled={hasAnswered} onClick={() => { handleSpeak(opt); handleOptionClick(qIdx, optIdx, mcq.answer); }} className={`w-full text-left px-3 py-2 rounded-md border transition-all text-xs font-medium ${btnStyle}`}>
+                            {String.fromCharCode(65 + optIdx)}. {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {feedback[qIdx] !== undefined && (
+                      <div className={`mt-2 p-2 rounded-md text-xs font-bold flex items-center gap-1.5 ${feedback[qIdx] ? 'bg-green-900/20 text-green-400' : 'bg-rose-900/20 text-rose-400'}`}>
+                        {feedback[qIdx] ? <i className="fa-regular fa-circle-check text-sm"></i> : <i className="fa-solid fa-times text-sm"></i>}
+                        {feedback[qIdx] ? 'Correct!' : 'Incorrect'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {mcqs.length > 5 && (
+                <div className="mt-4 pt-3 border-t border-slate-800 text-center">
+                  <button onClick={() => setShowExtended(!showExtended)} className="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded-md transition-colors text-xs">
+                    {showExtended ? "Show Fewer" : "Load 10 More"}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        const PracticeGamePage = ({ vocabulary, unitTitle, onExit, handleSpeak }) => {
+          const itemsPerRound = 5;
+          const totalRounds = Math.ceil(vocabulary.length / itemsPerRound);
+          const [round, setRound] = useState(0);
+          const [selectedWord, setSelectedWord] = useState(null);
+          const [matchedPairs, setMatchedPairs] = useState([]);
+          const [definitions, setDefinitions] = useState([]);
+          const [roundComplete, setRoundComplete] = useState(false);
+
+          useEffect(() => {
+            const currentVocab = vocabulary.slice(round * itemsPerRound, (round + 1) * itemsPerRound);
+            setDefinitions([...currentVocab].sort(() => Math.random() - 0.5));
+            setMatchedPairs([]);
+            setSelectedWord(null);
+            setRoundComplete(false);
+          }, [round, vocabulary]);
+
+          const currentVocab = vocabulary.slice(round * itemsPerRound, (round + 1) * itemsPerRound);
+
+          const handleWordClick = (word) => {
+            if (matchedPairs.includes(word)) return;
+            handleSpeak(word);
+            setSelectedWord(word);
+          };
+
+          const handleDefClick = (defObj) => {
+            if (!selectedWord) return;
+            handleSpeak(defObj.definition);
+            if (defObj.word === selectedWord) {
+              const newMatches = [...matchedPairs, selectedWord];
+              setMatchedPairs(newMatches);
+              if (newMatches.length === currentVocab.length) setTimeout(() => setRoundComplete(true), 500); 
+            }
+            setSelectedWord(null);
+          };
+
+          return (
+            <div className="fixed inset-0 z-[100] bg-slate-900 flex flex-col font-sans text-slate-800 overflow-hidden animate-fade-in">
+                <div className="bg-slate-800 text-white px-4 py-3 flex justify-between items-center shadow-md shrink-0">
+                    <button onClick={onExit} className="flex items-center gap-2 hover:text-teal-400 transition-colors font-semibold bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-xs md:text-sm">
+                        <i className="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <h2 className="text-base md:text-lg font-bold text-teal-400 flex items-center gap-2">
+                        <i className="fa-solid fa-gamepad"></i> {unitTitle} Match
+                    </h2>
+                    <div className="text-slate-300 font-bold bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-xs md:text-sm">
+                        Round {round + 1}/{totalRounds}
+                    </div>
+                </div>
+
+                <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-50 relative">
+                    <div className="w-full max-w-4xl h-full flex flex-col">
+                        {!roundComplete ? (
+                            <div className="flex gap-2 md:gap-4 h-full pb-2 pt-1">
+                                <div className="flex-1 flex flex-col gap-2 md:gap-3">
+                                    <h4 className="font-bold text-slate-400 uppercase tracking-wider text-center shrink-0 text-[10px]">Terms</h4>
+                                    {currentVocab.map((v) => (
+                                        <button key={v.word} onClick={() => handleWordClick(v.word)} disabled={matchedPairs.includes(v.word)}
+                                          className={`flex-1 flex items-center justify-center px-2 py-1.5 md:py-2 rounded-xl border-2 transition-all text-xs md:text-sm font-bold shadow-sm ${
+                                            matchedPairs.includes(v.word) ? 'bg-green-50 border-green-200 text-green-400 cursor-not-allowed opacity-50 shadow-none' : selectedWord === v.word ? 'bg-indigo-50 border-indigo-500 text-indigo-800 scale-[1.02] shadow-md' : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300'
+                                          }`}>
+                                          {v.word}
+                                        </button>
+                                      ))}
+                                </div>
+                                <div className="flex-[2] flex flex-col gap-2 md:gap-3">
+                                    <h4 className="font-bold text-slate-400 uppercase tracking-wider text-center shrink-0 text-[10px]">Definitions</h4>
+                                    {definitions.map((v, i) => (
+                                        <button key={i} onClick={() => handleDefClick(v)} disabled={matchedPairs.includes(v.word)}
+                                          className={`flex-1 flex items-center justify-start px-3 py-1.5 md:py-2 rounded-xl border-2 transition-all text-[10px] md:text-xs font-medium leading-snug shadow-sm ${
+                                            matchedPairs.includes(v.word) ? 'bg-green-50 border-green-200 text-green-600 cursor-not-allowed opacity-50 shadow-none' : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-slate-50'
+                                          }`}>
+                                          {v.definition}
+                                        </button>
+                                      ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center animate-pop-in">
+                                <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200 flex flex-col items-center max-w-sm text-center">
+                                    <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-3">
+                                        <i className="fa-solid fa-check text-3xl"></i>
+                                    </div>
+                                    <h2 className="text-xl font-extrabold text-slate-800 mb-2">
+                                        {round < totalRounds - 1 ? 'Round Complete!' : 'Unit Complete!'}
+                                    </h2>
+                                    <p className="text-slate-500 text-xs mb-5">
+                                        {round < totalRounds - 1 ? "Great job. Ready for the next set?" : "You've matched all vocabulary for this unit."}
+                                    </p>
+                                    {round < totalRounds - 1 ? (
+                                        <button onClick={() => setRound(round + 1)} className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 px-6 rounded-lg shadow-sm transition-transform hover:scale-105">
+                                            Next Round <i className="fa-solid fa-arrow-right ml-1"></i>
+                                        </button>
+                                    ) : (
+                                        <div className="flex gap-2 w-full">
+                                            <button onClick={() => setRound(0)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-3 rounded-lg transition-colors">Play Again</button>
+                                            <button onClick={onExit} className="flex-1 bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold py-2.5 px-3 rounded-lg shadow-sm transition-transform hover:scale-105">Dashboard</button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+          );
+        };
+
+        function App() {
+          const [activeUnit, setActiveUnit] = useState(unitData[0]);
+          const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+          const [activeTab, setActiveTab] = useState("overview");
+          const [showModelAnswer, setShowModelAnswer] = useState({});
+          const voiceIndexRef = useRef(0);
+
+          const allowedVoices = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William"];
+
+          useEffect(() => {
+            return () => {
+              if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            };
+          }, []);
+
+          const handleSpeak = (text) => {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.rate = 0.85; 
+
+            const loadVoices = () => {
+              const voices = window.speechSynthesis.getVoices();
+              
+              const validVoices = voices.filter(v => 
+                allowedVoices.some(name => v.name.includes(name)) &&
+                v.name.includes("Microsoft") &&
+                v.name.includes("Online") &&
+                v.lang.startsWith("en")
+              );
+
+              if (validVoices.length === 0) {
+                console.warn("Strict TTS enforcement: No permitted Microsoft Online English voices found. Speech cancelled.");
+                return;
+              }
+
+              const selected = validVoices[voiceIndexRef.current % validVoices.length];
+              voiceIndexRef.current += 1;
+
+              utter.voice = selected;
+              window.speechSynthesis.speak(utter);
+            };
+
+            if (window.speechSynthesis.getVoices().length === 0) {
+              window.speechSynthesis.onvoiceschanged = loadVoices;
+            } else {
+              loadVoices();
+            }
+          };
+
+          const selectUnit = (unit) => {
+            setActiveUnit(unit);
+            setIsSidebarOpen(false);
+            setActiveTab("overview");
+            setShowModelAnswer({});
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+          };
+
+          const toggleModelAnswer = (idx) => setShowModelAnswer(prev => ({ ...prev, [idx]: !prev[idx] }));
+
+          const tabs = [
+            { id: "overview", label: "Overview", icon: "fa-solid fa-book-open" },
+            { id: "vocab", label: "Vocabulary", icon: "fa-solid fa-book" },
+            { id: "speaking", label: "Speaking", icon: "fa-solid fa-microphone" },
+            { id: "reading", label: "Reading", icon: "fa-solid fa-book" },
+            { id: "listening", label: "Listening", icon: "fa-solid fa-headphones" },
+            { id: "grammar", label: "Writing & Grammar", icon: "fa-solid fa-pen-to-square" },
+            { id: "analysis", label: "Paragraph Analysis", icon: "fa-solid fa-magnifying-glass-chart" },
+            { id: "testing", label: "Tutor & Test", icon: "fa-solid fa-clipboard-list" },
+            { id: "game", label: "Game", icon: "fa-solid fa-gamepad" }
+          ];
+
+          if (activeTab === "game") {
+            return <PracticeGamePage vocabulary={activeUnit.vocabulary} unitTitle={activeUnit.title} onExit={() => setActiveTab("overview")} handleSpeak={handleSpeak} />;
+          }
+
+          return (
+            <div className="flex h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
+              
+              {isSidebarOpen && <div className="fixed inset-0 bg-slate-900/50 z-20" onClick={() => setIsSidebarOpen(false)} />}
+
+              <div className={`fixed inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center shrink-0">
+                  <div>
+                    <h1 className="text-base font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-book-open text-teal-400"></i> IELTS Prep Pt. 2
+                    </h1>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Units 13 - 24</p>
+                  </div>
+                  <button className="text-slate-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
+                    <i className="fa-solid fa-times text-lg"></i>
+                  </button>
+                </div>
+                <div className="p-2 overflow-y-auto flex-1">
+                  <ul className="space-y-1 pb-10">
+                    {unitData.map((unit) => (
+                      <li key={unit.id}>
+                        <button onClick={() => selectUnit(unit)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors ${activeUnit.id === unit.id ? 'bg-teal-500/10 text-teal-400 font-medium border border-teal-500/20' : 'hover:bg-slate-800 hover:text-white border border-transparent'}`}>
+                          <i className={`${unit.icon} ${activeUnit.id === unit.id ? 'text-teal-400' : 'text-slate-500'} w-4 text-center`}></i>
+                          Unit {unit.id}: {unit.title}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col h-full relative w-full">
+                
+                <header className="bg-white border-b border-slate-200 px-3 md:px-4 py-2 flex items-center justify-between shadow-sm shrink-0">
+                  <div className="flex items-center gap-2">
+                    <button className="text-slate-500 hover:text-indigo-600 bg-slate-100 p-1.5 rounded-lg transition-colors flex items-center gap-1.5" onClick={() => setIsSidebarOpen(true)}>
+                      <i className="fa-solid fa-list text-sm"></i><span className="font-semibold text-[11px] hidden sm:inline">Units</span>
+                    </button>
+                    <div className="h-4 w-px bg-slate-200 hidden md:block"></div>
+                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                      <span className="bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider w-fit">Unit {activeUnit.id}</span>
+                      <h2 className="text-sm md:text-base font-extrabold text-slate-800">{activeUnit.title}</h2>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md text-[9px] font-bold border border-indigo-100 uppercase tracking-wide shadow-sm">
+                    <i className="fa-solid fa-graduation-cap text-xs shrink-0"></i><span className="hidden sm:inline">Secondary Student Mode</span>
+                  </div>
+                </header>
+
+                <main className="flex-1 overflow-y-auto bg-slate-50 p-2 md:p-4 scroll-smooth">
+                  <div className="max-w-6xl mx-auto flex flex-col h-full">
+                    
+                    <div className="flex flex-wrap gap-1.5 pb-2 mb-3 border-b border-slate-200">
+                      {tabs.map(tab => (
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                          className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md font-semibold text-[11px] transition-all border ${activeTab === tab.id ? 'border-indigo-600 text-indigo-700 bg-indigo-50 shadow-sm' : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+                          <i className={`${tab.icon} text-xs`}></i> <span className="whitespace-nowrap">{tab.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex-1 animate-fade-in pb-8">
+                      
+                      {/* OVERVIEW */}
+                      {activeTab === "overview" && (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button onClick={() => handleSpeak(activeUnit.content)} className="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 text-left hover:border-teal-300 transition-all">
+                              <h3 className="text-xs md:text-sm font-bold text-slate-800 mb-1.5 flex items-center gap-1.5"><i className="fa-solid fa-book-open text-indigo-500"></i> Academic Focus</h3>
+                              <p className="text-slate-600 text-[11px] md:text-xs leading-relaxed">{activeUnit.content}</p>
+                            </button>
+                            <button onClick={() => handleSpeak(activeUnit.secondaryExample)} className="bg-indigo-50 p-3 md:p-4 rounded-xl border border-indigo-200 shadow-sm text-left hover:border-indigo-400 transition-all">
+                              <h3 className="text-xs md:text-sm font-bold text-indigo-900 mb-1.5 flex items-center gap-1.5"><i className="fa-solid fa-graduation-cap text-indigo-600"></i> High School Scenario</h3>
+                              <p className="text-indigo-800 text-[11px] md:text-xs font-medium leading-relaxed">{activeUnit.secondaryExample}</p>
+                            </button>
+                          </div>
+                          <button onClick={() => handleSpeak(`Learning Outcomes: Listening: ${activeUnit.outcomes.listening} Reading: ${activeUnit.outcomes.reading} Writing: ${activeUnit.outcomes.writing} Speaking: ${activeUnit.outcomes.speaking} Grammar and Vocabulary: ${activeUnit.outcomes.grammarVocab}`)} className="w-full bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 mt-2 text-left hover:border-teal-300 transition-all">
+                            <h3 className="text-xs md:text-sm font-bold text-slate-800 mb-2.5 flex items-center gap-1.5"><i className="fa-solid fa-bullseye text-rose-500"></i> Learning Outcomes</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {Object.entries(activeUnit.outcomes).map(([key, val]) => (
+                                <div key={key} className={`flex items-start gap-2 ${key === 'grammarVocab' ? 'md:col-span-2 pt-1 border-t border-slate-100' : ''}`}>
+                                   <i className={`fa-solid ${key==='listening'?'fa-headphones':key==='reading'?'fa-book':key==='writing'?'fa-pen-to-square':key==='speaking'?'fa-microphone':'fa-check-circle'} text-slate-400 text-sm mt-0.5 shrink-0`}></i>
+                                   <div>
+                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{key}</span>
+                                     <p className="text-[11px] text-slate-700 leading-snug mt-0.5">{val}</p>
+                                   </div>
+                                </div>
+                              ))}
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* VOCABULARY */}
+                      {activeTab === "vocab" && (
+                        <div className="space-y-4">
+                          <div className="bg-slate-900 p-3 md:p-4 rounded-xl text-slate-300 border border-slate-800 shadow-sm flex items-start gap-3">
+                            <i className="fa-solid fa-book text-teal-400 text-lg shrink-0 mt-0.5"></i>
+                            <div>
+                              <h4 className="text-xs font-bold text-white mb-0.5">Key Vocabulary Groups</h4>
+                              <p className="text-[11px] leading-relaxed">{activeUnit.keyVocabSummary}</p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                            {activeUnit.vocabulary.map((v, i) => (
+                              <button key={i} onClick={() => handleSpeak(v.word)} className="bg-white p-2.5 rounded-lg shadow-sm border border-slate-200 text-left hover:border-teal-400 transition-all active:scale-95">
+                                <h4 className="text-xs font-bold text-slate-800 mb-1">{v.word}</h4>
+                                <span className="inline-block bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[9px] font-bold mb-1.5 border border-slate-200">{v.chinese}</span>
+                                <p className="text-slate-600 text-[10px] leading-tight">{v.definition}</p>
+                              </button>
+                            ))}
+                          </div>
+                          <UnitQuiz key={`quiz-${activeUnit.id}`} mcqs={activeUnit.mcqs} handleSpeak={handleSpeak} />
+                        </div>
+                      )}
+
+                      {/* SPEAKING */}
+                      {activeTab === "speaking" && (
+                        <div className="space-y-4">
+                          {activeUnit.speaking.map((section, idx) => (
+                            <div key={idx} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                              <div className="bg-indigo-50 border-b border-indigo-100 p-2.5 flex items-center">
+                                <h3 className="text-xs font-bold text-indigo-900 flex items-center gap-1.5"><i className="fa-solid fa-microphone text-indigo-600"></i> {section.type}</h3>
+                              </div>
+                              <div className="p-3">
+                                <button onClick={() => handleSpeak(section.questions.join(' '))} className="w-full text-left bg-white border border-slate-200 hover:border-teal-300 hover:bg-slate-50 p-2.5 rounded-lg transition-all shadow-sm mb-3 relative overflow-hidden">
+                                  <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                                  <h4 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Examiner Prompts</h4>
+                                  <ul className="space-y-1 pl-2">
+                                    {section.questions.map((q, qIdx) => <li key={qIdx} className="text-xs leading-snug text-slate-800 font-medium list-disc ml-3">{q}</li>)}
+                                  </ul>
+                                </button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                                    <h4 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1"><i className="fa-solid fa-pen-nib"></i> Useful Stems</h4>
+                                    <ul className="space-y-1.5">
+                                      {section.stems.map((stem, i) => (
+                                        <li key={i}><button onClick={() => handleSpeak(stem)} className="text-left w-full bg-white border border-slate-200 p-1.5 rounded text-[11px] text-slate-700 hover:border-teal-400 transition-colors shadow-sm">{stem}</button></li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                  <button onClick={() => handleSpeak(section.example)} className="text-left bg-indigo-50 border border-indigo-100 hover:border-indigo-300 rounded-lg p-2.5 transition-all">
+                                    <h4 className="text-[9px] font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1"><i className="fa-regular fa-circle-check text-indigo-500"></i> Model Answer</h4>
+                                    <p className="text-[11px] text-indigo-900 leading-relaxed font-medium italic">"{section.example}"</p>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* READING & LISTENING */}
+                      {(activeTab === "reading" || activeTab === "listening") && (() => {
+                        const tabData = activeTab === "reading" ? activeUnit.reading : activeUnit.listening;
+                        const icon = activeTab === "reading" ? "fa-book" : "fa-headphones";
+                        const title = activeTab === "reading" ? "Reading Passage" : "Listening Transcript";
+                        const bgClass = activeTab === "reading" ? "bg-white border-slate-200 text-slate-800" : "bg-slate-900 border-slate-800 text-white";
+                        const innerBg = activeTab === "reading" ? "bg-slate-50 hover:bg-teal-50 border-slate-200" : "bg-slate-800 hover:bg-slate-700 border-slate-700";
+                        const headClass = activeTab === "reading" ? "bg-slate-50 border-slate-200 text-slate-800" : "bg-slate-800 border-slate-700 text-white";
+                        
+                        return (
+                          <div className={`rounded-xl shadow-sm border overflow-hidden ${bgClass}`}>
+                            <div className={`p-3 border-b ${headClass}`}>
+                              <h3 className="text-sm font-bold flex items-center gap-2"><i className={`fa-solid ${icon} text-teal-500`}></i> {title}</h3>
+                            </div>
+                            <div className="p-3">
+                              <button onClick={() => handleSpeak(tabData.text)} className={`w-full text-left p-3 rounded-lg transition-all shadow-sm border ${innerBg}`}>
+                                <p className={`text-xs leading-relaxed font-medium ${activeTab === 'listening' ? 'italic text-slate-300' : 'text-slate-700'}`}>{tabData.text}</p>
+                              </button>
+                            </div>
+                            <div className={`p-3 border-t ${headClass}`}>
+                              <h4 className={`text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${activeTab==='listening'?'text-slate-400':'text-slate-500'}`}>
+                                <i className="fa-regular fa-circle-question"></i> Comprehension Check
+                              </h4>
+                              <ul className="space-y-1.5">
+                                {tabData.questions.map((q, i) => (
+                                   <li key={i}>
+                                     <button onClick={() => handleSpeak(q)} className={`w-full text-left p-2 rounded-md text-[11px] font-medium shadow-sm transition-colors border ${activeTab==='reading'?'bg-white hover:bg-slate-100 border-slate-200 text-slate-700':'bg-slate-900 hover:bg-slate-700 border-slate-700 text-slate-300'}`}>
+                                       {q}
+                                     </button>
+                                   </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* GRAMMAR */}
+                      {activeTab === "grammar" && (
+                        <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200">
+                          <h3 className="text-sm font-bold text-indigo-900 mb-3 flex items-center gap-1.5"><i className="fa-solid fa-pen-to-square text-indigo-500"></i> Grammar Focus: {activeUnit.grammar.topic}</h3>
+                          <div className="mb-4">
+                            <button onClick={() => handleSpeak(activeUnit.grammar.focus)} className="w-full text-left transition-colors rounded-lg mb-2">
+                              <p className="text-[11px] font-semibold text-slate-800 bg-slate-100 p-2.5 rounded-lg border border-slate-200">{activeUnit.grammar.focus}</p>
+                            </button>
+                            <h4 className="text-[9px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1.5">10 Example Sentences</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                              {activeUnit.grammar.examples.map((ex, idx) => (
+                                 <button key={idx} onClick={() => handleSpeak(ex)} className="text-left bg-white hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 p-2 rounded-lg transition-all text-[10px] font-medium text-slate-700 shadow-sm">
+                                  "{ex}"
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <button onClick={() => handleSpeak(activeUnit.grammar.model)} className="w-full text-left bg-indigo-50 border border-indigo-200 p-3 rounded-lg transition-all shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                            <div className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider mb-1">Usage Model</div>
+                            <p className="text-[11px] text-indigo-900 font-medium">"{activeUnit.grammar.model}"</p>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* ANALYSIS */}
+                      {activeTab === "analysis" && (
+                         <InteractiveParagraph data={activeUnit.paragraphAnalysis} handleSpeak={handleSpeak} />
+                      )}
+
+                      {/* TESTING */}
+                      {activeTab === "testing" && (
+                        <div className="space-y-4">
+                          <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <h3 className="text-sm font-bold text-slate-800 mb-1 flex items-center gap-1.5"><i className="fa-solid fa-microphone text-teal-600"></i> Tutor Prompts</h3>
+                            <p className="text-slate-500 text-[10px] mb-3">Interactive coaching. Click to read aloud.</p>
+                            <div className="space-y-3">
+                              {activeUnit.tutorPrompts.map((prompt, idx) => (
+                                <div key={idx} className="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+                                  <div className="bg-slate-100 px-3 py-1.5 border-b border-slate-200 flex justify-between items-center">
+                                    <span className="font-bold text-slate-700 text-[11px]">{prompt.type}</span>
+                                    <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-1.5 py-0.5 rounded">{prompt.focus}</span>
+                                  </div>
+                                  <div className="p-3">
+                                    <button onClick={() => handleSpeak(prompt.text)} className="w-full text-left bg-white border border-slate-200 p-2 rounded shadow-sm hover:border-teal-300 transition-colors mb-2">
+                                      <p className="text-[11px] text-slate-800 font-medium italic">"{prompt.text}"</p>
+                                    </button>
+                                    <div className="space-y-1 pl-2 border-l-2 border-slate-300">
+                                      {prompt.questions.map((q, qIdx) => (
+                                        <button key={qIdx} onClick={() => handleSpeak(q)} className="w-full text-left text-[10px] text-slate-600 hover:text-slate-900 transition-colors">• {q}</button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-800 text-slate-300">
+                            <h3 className="text-sm font-bold text-white mb-1 flex items-center gap-1.5"><i className="fa-solid fa-bullseye text-rose-400"></i> Practice for the Test</h3>
+                            <div className="grid grid-cols-1 gap-3 mt-3">
+                              {activeUnit.practiceTests.map((test, idx) => (
+                                <div key={idx} className="bg-slate-800 border border-slate-700 rounded-lg shadow-inner flex flex-col p-3">
+                                  <span className="font-bold text-teal-400 text-[10px] mb-2 block border-b border-slate-700 pb-1">{test.type}</span>
+                                  <button onClick={() => handleSpeak(test.text)} className="text-left text-[11px] text-slate-300 mb-2 hover:text-white transition-colors">{test.text}</button>
+                                  {test.modelAnswer && (
+                                    <div className="mt-2 border-t border-slate-700 pt-2">
+                                      <button onClick={() => toggleModelAnswer(idx)} className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                                        <i className="fa-solid fa-eye"></i> {showModelAnswer[idx] ? "Hide Answer" : "Show Answer"}
+                                      </button>
+                                      {showModelAnswer[idx] && (
+                                        <button onClick={() => handleSpeak(test.modelAnswer)} className="w-full text-left mt-2 p-2 bg-indigo-900/20 border border-indigo-500/30 rounded text-[10px] text-slate-200 leading-relaxed italic animate-fade-in">{test.modelAnswer}</button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                    </div>
+                  </div>
+                </main>
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

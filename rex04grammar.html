@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Expeditions: Some vs Any</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .drop-shadow-premium {
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.05));
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS (Lucide Replacements) ---
+        const ArrowLeft = ({ size = 20 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        );
+        const Home = ({ size = 20 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        );
+        const ChevronRight = ({ size = 20 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        );
+        const Trophy = ({ size = 20, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        );
+        const Repeat = ({ size = 20 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
+        );
+        const Volume2 = ({ size = 20 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        );
+
+        // --- DATA DEFINITION ---
+
+        const ruleExplanations = {
+            1: "Rule 1 ✨: Offers & Requests. (Think of it like offering your lab partner a snack or asking a teacher for help. We use 'some' because we hope for a 'yes'!)",
+            2: "Rule 2 🎲: It doesn't matter which. (Like when the teacher says you can pick *any* topic for your history project. It doesn't matter which one, just pick one!)",
+            3: "Rule 3 🔍: A certain, unknown one. (Imagine saying 'Some kid left their backpack here.' You don't know exactly who it is, but it's a specific person. Use 'Some' + singular word.)",
+            4: "Rule 4 🌟: Even one / No limits. (Like saying 'Any student can join the science club.' There are no restrictions, everyone is welcome! Use 'any' in positive sentences.)",
+            5: "Basic Rule ❓/❌: Normal questions and negative sentences use 'any'. (e.g., 'I don't have any pencils' or 'Do you have any homework?')"
+        };
+
+        const questionsDna = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} DNA pictures from old humans?", plain: "Would you like to see {gap} DNA pictures from old humans?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> scientists <span class='text-emerald-600 font-bold'>have</span> {gap} questions about Neanderthal DNA?", plain: "Do scientists have {gap} questions about Neanderthal DNA?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} migration map to study!", plain: "You can pick {gap} migration map to study!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} Neanderthal bones from this cave yet.", plain: "We don't have {gap} Neanderthal bones from this cave yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>researcher found</span> a new DNA clue last week.", plain: "{gap} researcher found a new DNA clue last week.", answer: "Some", rule: 3 },
+                { html: "Humans could move to <span class='text-emerald-600 font-bold'>{gap} place</span> with good food and water.", plain: "Humans could move to {gap} place with good food and water.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding this migration story?", plain: "Can I have {gap} help understanding this migration story?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about human ancestors!", plain: "You can ask {gap} question about human ancestors!", answer: "any", rule: 4 },
+                { html: "Neanderthals <span class='text-emerald-600 font-bold'>didn't have</span> {gap} modern tools like we do.", plain: "Neanderthals didn't have {gap} modern tools like we do.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about how DNA shows our family history?", plain: "Would you like {gap} facts about how DNA shows our family history?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on reading this DNA migration chart?", plain: "Would you like {gap} guidance on reading this DNA migration chart?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> researchers <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that Neanderthals and humans met?", plain: "Do researchers have {gap} evidence that Neanderthals and humans met?", answer: "any", rule: 5 },
+                { html: "Scientists can study <span class='text-emerald-600 font-bold'>{gap} population group</span> to learn about migration.", plain: "Scientists can study {gap} population group to learn about migration.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} DNA samples from this ancient site yet.", plain: "We haven't found {gap} DNA samples from this ancient site yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>ancestor</span> of modern humans <span class='text-blue-600 font-bold'>lived</span> in Africa long ago.", plain: "{gap} ancestor of modern humans lived in Africa long ago.", answer: "Some", rule: 3 },
+                { html: "Early humans could travel to <span class='text-emerald-600 font-bold'>{gap} continent</span> with the right tools.", plain: "Early humans could travel to {gap} continent with the right tools.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about why Neanderthals disappeared?", plain: "Could you share {gap} ideas about why Neanderthals disappeared?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} genetic marker to track human movement.", plain: "You can compare {gap} genetic marker to track human movement.", answer: "any", rule: 4 },
+                { html: "The study <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear link between climate and migration.", plain: "The study didn't show {gap} clear link between climate and migration.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on human ancestry?", plain: "Would you like {gap} suggestions for your project on human ancestry?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how genomic analysis reveals migration patterns?", plain: "Would you like {gap} clarification on how genomic analysis reveals migration patterns?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> paleogeneticists <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about this admixture hypothesis?", plain: "Do paleogeneticists have {gap} reservations about this admixture hypothesis?", answer: "any", rule: 5 },
+                { html: "Researchers may analyze <span class='text-emerald-600 font-bold'>{gap} lineage</span> to trace ancient population movements.", plain: "Researchers may analyze {gap} lineage to trace ancient population movements.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of interbreeding in this region yet.", plain: "The team hasn't identified {gap} conclusive evidence of interbreeding in this region yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the Neanderthal genome project <span class='text-blue-600 font-bold'>made</span> a breakthrough discovery.", plain: "{gap} contributor to the Neanderthal genome project made a breakthrough discovery.", answer: "Some", rule: 3 },
+                { html: "Ancient humans could adapt to <span class='text-emerald-600 font-bold'>{gap} environment</span> with sufficient cultural knowledge.", plain: "Ancient humans could adapt to {gap} environment with sufficient cultural knowledge.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework used?", plain: "Could you provide {gap} further elaboration on the methodological framework used?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative theory</span> to explain the rapid migration across Eurasia.", plain: "Scholars may propose {gap} alternative theory to explain the rapid migration across Eurasia.", answer: "any", rule: 4 },
+                { html: "The meta-analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant correlation between tool complexity and survival rates.", plain: "The meta-analysis failed to reveal {gap} significant correlation between tool complexity and survival rates.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting phylogenetic trees for migration studies?", plain: "Would you appreciate {gap} additional resources on interpreting phylogenetic trees for migration studies?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsBio = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} glowing jellyfish pictures?", plain: "Would you like to see {gap} glowing jellyfish pictures?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> scientists <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how fireflies make light?", plain: "Do scientists have {gap} questions about how fireflies make light?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} glowing animal to research!", plain: "You can pick {gap} glowing animal to research!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} samples from the deep ocean yet.", plain: "We don't have {gap} samples from the deep ocean yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>researcher found</span> a new glowing mushroom last year.", plain: "{gap} researcher found a new glowing mushroom last year.", answer: "Some", rule: 3 },
+                { html: "Glowing creatures can live in <span class='text-emerald-600 font-bold'>{gap} dark place</span> with food.", plain: "Glowing creatures can live in {gap} dark place with food.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding bioluminescence?", plain: "Can I have {gap} help understanding bioluminescence?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about glowing animals!", plain: "You can ask {gap} question about glowing animals!", answer: "any", rule: 4 },
+                { html: "Fireflies <span class='text-emerald-600 font-bold'>didn't have</span> {gap} light bulbs like we do.", plain: "Fireflies didn't have {gap} light bulbs like we do.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about why ocean creatures glow?", plain: "Would you like {gap} facts about why ocean creatures glow?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on reading this bioluminescence chart?", plain: "Would you like {gap} guidance on reading this bioluminescence chart?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> marine biologists <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that glowing helps fish survive?", plain: "Do marine biologists have {gap} evidence that glowing helps fish survive?", answer: "any", rule: 5 },
+                { html: "Scientists can study <span class='text-emerald-600 font-bold'>{gap} glowing species</span> to learn about adaptation.", plain: "Scientists can study {gap} glowing species to learn about adaptation.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} bioluminescent fungi in this forest yet.", plain: "We haven't found {gap} bioluminescent fungi in this forest yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>ancestor</span> of modern fireflies <span class='text-blue-600 font-bold'>developed</span> light production long ago.", plain: "{gap} ancestor of modern fireflies developed light production long ago.", answer: "Some", rule: 3 },
+                { html: "Deep-sea creatures could adapt to <span class='text-emerald-600 font-bold'>{gap} environment</span> with bioluminescence.", plain: "Deep-sea creatures could adapt to {gap} environment with bioluminescence.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about why some squid glow?", plain: "Could you share {gap} ideas about why some squid glow?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} chemical reaction to understand how light is made.", plain: "You can compare {gap} chemical reaction to understand how light is made.", answer: "any", rule: 4 },
+                { html: "The study <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear link between depth and glow intensity.", plain: "The study didn't show {gap} clear link between depth and glow intensity.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on bioluminescent organisms?", plain: "Would you like {gap} suggestions for your project on bioluminescent organisms?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how luciferase enzymes produce bioluminescence?", plain: "Would you like {gap} clarification on how luciferase enzymes produce bioluminescence?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> researchers <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about this evolutionary hypothesis for light production?", plain: "Do researchers have {gap} reservations about this evolutionary hypothesis for light production?", answer: "any", rule: 5 },
+                { html: "Investigators may analyze <span class='text-emerald-600 font-bold'>{gap} bioluminescent lineage</span> to trace adaptive radiation.", plain: "Investigators may analyze {gap} bioluminescent lineage to trace adaptive radiation.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of convergent evolution in this clade yet.", plain: "The team hasn't identified {gap} conclusive evidence of convergent evolution in this clade yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the deep-sea exploration project <span class='text-blue-600 font-bold'>documented</span> a novel photophore structure.", plain: "{gap} contributor to the deep-sea exploration project documented a novel photophore structure.", answer: "Some", rule: 3 },
+                { html: "Bioluminescent organisms could colonize <span class='text-emerald-600 font-bold'>{gap} ecological niche</span> given sufficient selective pressure.", plain: "Bioluminescent organisms could colonize {gap} ecological niche given sufficient selective pressure.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for measuring light emission?", plain: "Could you provide {gap} further elaboration on the methodological framework for measuring light emission?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative theory</span> to explain the diversification of glowing traits in cephalopods.", plain: "Scholars may propose {gap} alternative theory to explain the diversification of glowing traits in cephalopods.", answer: "any", rule: 4 },
+                { html: "The meta-analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant correlation between predation pressure and bioluminescent complexity.", plain: "The meta-analysis failed to reveal {gap} significant correlation between predation pressure and bioluminescent complexity.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting spectroscopic data for bioluminescence research?", plain: "Would you appreciate {gap} additional resources on interpreting spectroscopic data for bioluminescence research?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsBiomimetics = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} examples of nature-inspired inventions?", plain: "Would you like to see {gap} examples of nature-inspired inventions?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> engineers <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how Velcro was invented?", plain: "Do engineers have {gap} questions about how Velcro was invented?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} animal design to study for your project!", plain: "You can pick {gap} animal design to study for your project!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} models of the lotus leaf effect yet.", plain: "We don't have {gap} models of the lotus leaf effect yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>inventor created</span> a new material inspired by spider silk.", plain: "{gap} inventor created a new material inspired by spider silk.", answer: "Some", rule: 3 },
+                { html: "Designers can copy <span class='text-emerald-600 font-bold'>{gap} natural pattern</span> to make better products.", plain: "Designers can copy {gap} natural pattern to make better products.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding biomimetics?", plain: "Can I have {gap} help understanding biomimetics?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about nature-inspired technology!", plain: "You can ask {gap} question about nature-inspired technology!", answer: "any", rule: 4 },
+                { html: "Early inventors <span class='text-emerald-600 font-bold'>didn't have</span> {gap} computers to help them design.", plain: "Early inventors didn't have {gap} computers to help them design.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} ideas for your biomimetics presentation?", plain: "Would you like {gap} ideas for your biomimetics presentation?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on analyzing this biomimetic design case study?", plain: "Would you like {gap} guidance on analyzing this biomimetic design case study?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> product designers <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that shark-skin textures reduce drag?", plain: "Do product designers have {gap} evidence that shark-skin textures reduce drag?", answer: "any", rule: 5 },
+                { html: "Engineers can study <span class='text-emerald-600 font-bold'>{gap} biological system</span> to inspire sustainable solutions.", plain: "Engineers can study {gap} biological system to inspire sustainable solutions.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't developed</span> {gap} practical application of gecko-adhesion technology yet.", plain: "We haven't developed {gap} practical application of gecko-adhesion technology yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in biomimetics <span class='text-blue-600 font-bold'>drew</span> inspiration from bird flight for aircraft design.", plain: "{gap} pioneer in biomimetics drew inspiration from bird flight for aircraft design.", answer: "Some", rule: 3 },
+                { html: "Innovators could adapt <span class='text-emerald-600 font-bold'>{gap} natural mechanism</span> to solve engineering challenges.", plain: "Innovators could adapt {gap} natural mechanism to solve engineering challenges.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about how termite mounds inspire building design?", plain: "Could you share {gap} ideas about how termite mounds inspire building design?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} structural adaptation to understand efficient design principles.", plain: "You can compare {gap} structural adaptation to understand efficient design principles.", answer: "any", rule: 4 },
+                { html: "The research <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear advantage of biomimetic materials over traditional ones in this test.", plain: "The research didn't show {gap} clear advantage of biomimetic materials over traditional ones in this test.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on nature-inspired innovation?", plain: "Would you like {gap} suggestions for your project on nature-inspired innovation?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how hierarchical structures in nacre inspire impact-resistant materials?", plain: "Would you like {gap} clarification on how hierarchical structures in nacre inspire impact-resistant materials?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> materials scientists <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about scaling up this biomimetic fabrication process?", plain: "Do materials scientists have {gap} reservations about scaling up this biomimetic fabrication process?", answer: "any", rule: 5 },
+                { html: "Researchers may analyze <span class='text-emerald-600 font-bold'>{gap} morphological feature</span> to extract design principles for robotics.", plain: "Researchers may analyze {gap} morphological feature to extract design principles for robotics.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of cost-effectiveness for this bio-inspired coating yet.", plain: "The team hasn't identified {gap} conclusive evidence of cost-effectiveness for this bio-inspired coating yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the biomimetic architecture project <span class='text-blue-600 font-bold'>integrated</span> passive cooling strategies from termite mounds.", plain: "{gap} contributor to the biomimetic architecture project integrated passive cooling strategies from termite mounds.", answer: "Some", rule: 3 },
+                { html: "Engineers could adapt <span class='text-emerald-600 font-bold'>{gap} biological optimization strategy</span> to enhance energy efficiency in mechanical systems.", plain: "Engineers could adapt {gap} biological optimization strategy to enhance energy efficiency in mechanical systems.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for translating biological models into engineering specifications?", plain: "Could you provide {gap} further elaboration on the methodological framework for translating biological models into engineering specifications?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative biomimetic approach</span> to address the limitations of current photonic crystal designs.", plain: "Scholars may propose {gap} alternative biomimetic approach to address the limitations of current photonic crystal designs.", answer: "any", rule: 4 },
+                { html: "The comparative analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant performance differential between biomimetic and conventional aerodynamic surfaces under tested conditions.", plain: "The comparative analysis failed to reveal {gap} significant performance differential between biomimetic and conventional aerodynamic surfaces under tested conditions.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting finite element analysis for bio-inspired structural design?", plain: "Would you appreciate {gap} additional resources on interpreting finite element analysis for bio-inspired structural design?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsGmo = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} pictures of GMO crops?", plain: "Would you like to see {gap} pictures of GMO crops?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> scientists <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how GMO plants are made?", plain: "Do scientists have {gap} questions about how GMO plants are made?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} GMO example to research for your project!", plain: "You can pick {gap} GMO example to research for your project!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} GMO seeds from this experiment yet.", plain: "We don't have {gap} GMO seeds from this experiment yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>researcher developed</span> a new GMO rice that helps prevent blindness.", plain: "{gap} researcher developed a new GMO rice that helps prevent blindness.", answer: "Some", rule: 3 },
+                { html: "Farmers could grow <span class='text-emerald-600 font-bold'>{gap} GMO crop</span> that needs less water.", plain: "Farmers could grow {gap} GMO crop that needs less water.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding what GMO means?", plain: "Can I have {gap} help understanding what GMO means?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about genetically modified foods!", plain: "You can ask {gap} question about genetically modified foods!", answer: "any", rule: 4 },
+                { html: "Early farmers <span class='text-emerald-600 font-bold'>didn't have</span> {gap} GMO technology like we do today.", plain: "Early farmers didn't have {gap} GMO technology like we do today.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about how GMO can help feed more people?", plain: "Would you like {gap} facts about how GMO can help feed more people?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on reading this GMO research summary?", plain: "Would you like {gap} guidance on reading this GMO research summary?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> agricultural scientists <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that GMO crops reduce pesticide use?", plain: "Do agricultural scientists have {gap} evidence that GMO crops reduce pesticide use?", answer: "any", rule: 5 },
+                { html: "Researchers can study <span class='text-emerald-600 font-bold'>{gap} GMO variety</span> to learn about trait inheritance.", plain: "Researchers can study {gap} GMO variety to learn about trait inheritance.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} long-term health concerns from approved GMO foods yet.", plain: "We haven't found {gap} long-term health concerns from approved GMO foods yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in genetic engineering <span class='text-blue-600 font-bold'>developed</span> the first GMO bacteria for medicine.", plain: "{gap} pioneer in genetic engineering developed the first GMO bacteria for medicine.", answer: "Some", rule: 3 },
+                { html: "Biotechnologists could modify <span class='text-emerald-600 font-bold'>{gap} plant species</span> to improve nutrition in developing regions.", plain: "Biotechnologists could modify {gap} plant species to improve nutrition in developing regions.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about how GMO might help address climate change?", plain: "Could you share {gap} ideas about how GMO might help address climate change?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} genetic modification technique to understand precision in editing.", plain: "You can compare {gap} genetic modification technique to understand precision in editing.", answer: "any", rule: 4 },
+                { html: "The study <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear difference in yield between GMO and non-GMO crops in this trial.", plain: "The study didn't show {gap} clear difference in yield between GMO and non-GMO crops in this trial.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on the ethics of genetic modification?", plain: "Would you like {gap} suggestions for your project on the ethics of genetic modification?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how CRISPR-Cas9 enables precise genomic edits in GMO development?", plain: "Would you like {gap} clarification on how CRISPR-Cas9 enables precise genomic edits in GMO development?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> regulatory agencies <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about approving this novel GMO trait for commercial cultivation?", plain: "Do regulatory agencies have {gap} reservations about approving this novel GMO trait for commercial cultivation?", answer: "any", rule: 5 },
+                { html: "Investigators may analyze <span class='text-emerald-600 font-bold'>{gap} transgenic lineage</span> to assess gene flow dynamics in agroecosystems.", plain: "Investigators may analyze {gap} transgenic lineage to assess gene flow dynamics in agroecosystems.", answer: "any", rule: 2 },
+                { html: "The committee <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of unintended ecological impacts from this GMO variety yet.", plain: "The committee hasn't identified {gap} conclusive evidence of unintended ecological impacts from this GMO variety yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the Golden Rice project <span class='text-blue-600 font-bold'>demonstrated</span> the potential of biofortification to address micronutrient deficiencies.", plain: "{gap} contributor to the Golden Rice project demonstrated the potential of biofortification to address micronutrient deficiencies.", answer: "Some", rule: 3 },
+                { html: "Biotechnologists could engineer <span class='text-emerald-600 font-bold'>{gap} crop genotype</span> to enhance resilience under abiotic stress conditions.", plain: "Biotechnologists could engineer {gap} crop genotype to enhance resilience under abiotic stress conditions.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for assessing allergenicity in novel GMO proteins?", plain: "Could you provide {gap} further elaboration on the methodological framework for assessing allergenicity in novel GMO proteins?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative regulatory approach</span> to balance innovation with precaution in GMO oversight.", plain: "Scholars may propose {gap} alternative regulatory approach to balance innovation with precaution in GMO oversight.", answer: "any", rule: 4 },
+                { html: "The meta-analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant yield differential between herbicide-tolerant GMO and conventional varieties under integrated pest management.", plain: "The meta-analysis failed to reveal {gap} significant yield differential between herbicide-tolerant GMO and conventional varieties under integrated pest management.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting risk assessment protocols for environmental release of GMO organisms?", plain: "Would you appreciate {gap} additional resources on interpreting risk assessment protocols for environmental release of GMO organisms?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsRooftop = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} pictures of rooftop gardens?", plain: "Would you like to see {gap} pictures of rooftop gardens?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> city planners <span class='text-emerald-600 font-bold'>have</span> {gap} questions about growing food on roofs?", plain: "Do city planners have {gap} questions about growing food on roofs?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} rooftop garden design to research!", plain: "You can pick {gap} rooftop garden design to research!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} seeds for this rooftop project yet.", plain: "We don't have {gap} seeds for this rooftop project yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>architect created</span> a new green roof for a school building.", plain: "{gap} architect created a new green roof for a school building.", answer: "Some", rule: 3 },
+                { html: "Cities can build rooftop gardens in <span class='text-emerald-600 font-bold'>{gap} place</span> with strong roofs.", plain: "Cities can build rooftop gardens in {gap} place with strong roofs.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding how rooftop gardens work?", plain: "Can I have {gap} help understanding how rooftop gardens work?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about urban farming!", plain: "You can ask {gap} question about urban farming!", answer: "any", rule: 4 },
+                { html: "Old buildings <span class='text-emerald-600 font-bold'>didn't have</span> {gap} rooftop gardens like new ones do.", plain: "Old buildings didn't have {gap} rooftop gardens like new ones do.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} ideas for starting a rooftop garden at your school?", plain: "Would you like {gap} ideas for starting a rooftop garden at your school?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on analyzing this rooftop garden case study?", plain: "Would you like {gap} guidance on analyzing this rooftop garden case study?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> urban designers <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that green roofs reduce city temperatures?", plain: "Do urban designers have {gap} evidence that green roofs reduce city temperatures?", answer: "any", rule: 5 },
+                { html: "Planners can study <span class='text-emerald-600 font-bold'>{gap} rooftop system</span> to learn about water management.", plain: "Planners can study {gap} rooftop system to learn about water management.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} long-term data on crop yields from this urban farm yet.", plain: "We haven't found {gap} long-term data on crop yields from this urban farm yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in sustainable architecture <span class='text-blue-600 font-bold'>integrated</span> edible plants into a hospital roof.", plain: "{gap} pioneer in sustainable architecture integrated edible plants into a hospital roof.", answer: "Some", rule: 3 },
+                { html: "Cities could adapt <span class='text-emerald-600 font-bold'>{gap} building type</span> to include green roof technology.", plain: "Cities could adapt {gap} building type to include green roof technology.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about how rooftop gardens help local communities?", plain: "Could you share {gap} ideas about how rooftop gardens help local communities?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} irrigation method to understand efficient water use in urban farming.", plain: "You can compare {gap} irrigation method to understand efficient water use in urban farming.", answer: "any", rule: 4 },
+                { html: "The research <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear difference in air quality between buildings with and without green roofs in this study.", plain: "The research didn't show {gap} clear difference in air quality between buildings with and without green roofs in this study.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on urban sustainability solutions?", plain: "Would you like {gap} suggestions for your project on urban sustainability solutions?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how substrate composition affects plant selection in extensive green roof systems?", plain: "Would you like {gap} clarification on how substrate composition affects plant selection in extensive green roof systems?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> municipal authorities <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about mandating green roof installation in new commercial developments?", plain: "Do municipal authorities have {gap} reservations about mandating green roof installation in new commercial developments?", answer: "any", rule: 5 },
+                { html: "Researchers may analyze <span class='text-emerald-600 font-bold'>{gap} rooftop typology</span> to assess biodiversity enhancement potential in dense urban contexts.", plain: "Researchers may analyze {gap} rooftop typology to assess biodiversity enhancement potential in dense urban contexts.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of significant stormwater retention benefits from this modular green roof design yet.", plain: "The team hasn't identified {gap} conclusive evidence of significant stormwater retention benefits from this modular green roof design yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the vertical farming initiative <span class='text-blue-600 font-bold'>demonstrated</span> innovative soilless cultivation techniques for high-rise applications.", plain: "{gap} contributor to the vertical farming initiative demonstrated innovative soilless cultivation techniques for high-rise applications.", answer: "Some", rule: 3 },
+                { html: "Urban planners could integrate <span class='text-emerald-600 font-bold'>{gap} green infrastructure strategy</span> to mitigate urban heat island effects in metropolitan areas.", plain: "Urban planners could integrate {gap} green infrastructure strategy to mitigate urban heat island effects in metropolitan areas.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for evaluating ecosystem services provided by intensive versus extensive green roofs?", plain: "Could you provide {gap} further elaboration on the methodological framework for evaluating ecosystem services provided by intensive versus extensive green roofs?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative policy approach</span> to incentivize private investment in rooftop agriculture infrastructure.", plain: "Scholars may propose {gap} alternative policy approach to incentivize private investment in rooftop agriculture infrastructure.", answer: "any", rule: 4 },
+                { html: "The comparative analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant differential in energy consumption between buildings with vegetated roofs and conventional roofing systems under monitored conditions.", plain: "The comparative analysis failed to reveal {gap} significant differential in energy consumption between buildings with vegetated roofs and conventional roofing systems under monitored conditions.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting life-cycle assessment data for sustainable urban roofing solutions?", plain: "Would you appreciate {gap} additional resources on interpreting life-cycle assessment data for sustainable urban roofing solutions?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsAnimal = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} pictures of animal bridges over highways?", plain: "Would you like to see {gap} pictures of animal bridges over highways?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> conservationists <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how animals use wildlife crossings?", plain: "Do conservationists have {gap} questions about how animals use wildlife crossings?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} animal crossing design to study for your project!", plain: "You can pick {gap} animal crossing design to study for your project!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} data from this new wildlife tunnel yet.", plain: "We don't have {gap} data from this new wildlife tunnel yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>biologist discovered</span> that bears use the new forest corridor.", plain: "{gap} biologist discovered that bears use the new forest corridor.", answer: "Some", rule: 3 },
+                { html: "Animals can cross roads safely in <span class='text-emerald-600 font-bold'>{gap} place</span> with a wildlife bridge.", plain: "Animals can cross roads safely in {gap} place with a wildlife bridge.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding why animal crossings are important?", plain: "Can I have {gap} help understanding why animal crossings are important?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about protecting wildlife in cities!", plain: "You can ask {gap} question about protecting wildlife in cities!", answer: "any", rule: 4 },
+                { html: "Old roads <span class='text-emerald-600 font-bold'>didn't have</span> {gap} special paths for animals like new ones do.", plain: "Old roads didn't have {gap} special paths for animals like new ones do.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about how wildlife corridors help endangered species?", plain: "Would you like {gap} facts about how wildlife corridors help endangered species?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on evaluating this wildlife corridor effectiveness study?", plain: "Would you like {gap} guidance on evaluating this wildlife corridor effectiveness study?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> ecologists <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that eco-bridges reduce animal-vehicle collisions?", plain: "Do ecologists have {gap} evidence that eco-bridges reduce animal-vehicle collisions?", answer: "any", rule: 5 },
+                { html: "Researchers can study <span class='text-emerald-600 font-bold'>{gap} crossing structure</span> to learn about animal movement patterns.", plain: "Researchers can study {gap} crossing structure to learn about animal movement patterns.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} long-term population benefits from this habitat linkage yet.", plain: "We haven't found {gap} long-term population benefits from this habitat linkage yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in conservation biology <span class='text-blue-600 font-bold'>designed</span> the first canopy bridge for arboreal species.", plain: "{gap} pioneer in conservation biology designed the first canopy bridge for arboreal species.", answer: "Some", rule: 3 },
+                { html: "Planners could adapt <span class='text-emerald-600 font-bold'>{gap} landscape feature</span> to enhance connectivity for migratory species.", plain: "Planners could adapt {gap} landscape feature to enhance connectivity for migratory species.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about how animal crossings help maintain genetic diversity?", plain: "Could you share {gap} ideas about how animal crossings help maintain genetic diversity?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} monitoring technique to understand animal behavior at crossings.", plain: "You can compare {gap} monitoring technique to understand animal behavior at crossings.", answer: "any", rule: 4 },
+                { html: "The research <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear improvement in species richness between connected and fragmented habitats in this region.", plain: "The research didn't show {gap} clear improvement in species richness between connected and fragmented habitats in this region.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on human-wildlife coexistence strategies?", plain: "Would you like {gap} suggestions for your project on human-wildlife coexistence strategies?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how landscape permeability metrics inform wildlife corridor prioritization?", plain: "Would you like {gap} clarification on how landscape permeability metrics inform wildlife corridor prioritization?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> conservation agencies <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about implementing this multi-species crossing design in fragmented landscapes?", plain: "Do conservation agencies have {gap} reservations about implementing this multi-species crossing design in fragmented landscapes?", answer: "any", rule: 5 },
+                { html: "Investigators may analyze <span class='text-emerald-600 font-bold'>{gap} movement corridor</span> to assess functional connectivity for wide-ranging carnivores.", plain: "Investigators may analyze {gap} movement corridor to assess functional connectivity for wide-ranging carnivores.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of demographic rescue effects from this habitat linkage initiative yet.", plain: "The team hasn't identified {gap} conclusive evidence of demographic rescue effects from this habitat linkage initiative yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the transboundary conservation project <span class='text-blue-600 font-bold'>documented</span> novel crossing behaviors in a previously unstudied ungulate population.", plain: "{gap} contributor to the transboundary conservation project documented novel crossing behaviors in a previously unstudied ungulate population.", answer: "Some", rule: 3 },
+                { html: "Ecologists could integrate <span class='text-emerald-600 font-bold'>{gap} spatial planning strategy</span> to mitigate barrier effects of linear infrastructure on wildlife dispersal.", plain: "Ecologists could integrate {gap} spatial planning strategy to mitigate barrier effects of linear infrastructure on wildlife dispersal.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for quantifying gene flow across anthropogenic barriers?", plain: "Could you provide {gap} further elaboration on the methodological framework for quantifying gene flow across anthropogenic barriers?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative conservation approach</span> to balance infrastructure development with ecological connectivity requirements.", plain: "Scholars may propose {gap} alternative conservation approach to balance infrastructure development with ecological connectivity requirements.", answer: "any", rule: 4 },
+                { html: "The meta-analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant differential in population viability between populations with and without access to functional wildlife corridors under modeled scenarios.", plain: "The meta-analysis failed to reveal {gap} significant differential in population viability between populations with and without access to functional wildlife corridors under modeled scenarios.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting circuit theory models for landscape connectivity assessment?", plain: "Would you appreciate {gap} additional resources on interpreting circuit theory models for landscape connectivity assessment?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsSolarWind = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} pictures of solar panels and wind turbines?", plain: "Would you like to see {gap} pictures of solar panels and wind turbines?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> engineers <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how solar and wind energy work?", plain: "Do engineers have {gap} questions about how solar and wind energy work?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} renewable energy type to research for your project!", plain: "You can pick {gap} renewable energy type to research for your project!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} data from this new solar farm yet.", plain: "We don't have {gap} data from this new solar farm yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>scientist developed</span> a more efficient wind turbine blade design.", plain: "{gap} scientist developed a more efficient wind turbine blade design.", answer: "Some", rule: 3 },
+                { html: "Countries can use <span class='text-emerald-600 font-bold'>{gap} renewable energy source</span> to reduce pollution.", plain: "Countries can use {gap} renewable energy source to reduce pollution.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding the difference between solar and wind power?", plain: "Can I have {gap} help understanding the difference between solar and wind power?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about clean energy technology!", plain: "You can ask {gap} question about clean energy technology!", answer: "any", rule: 4 },
+                { html: "Old power plants <span class='text-emerald-600 font-bold'>didn't have</span> {gap} solar or wind technology like new ones do.", plain: "Old power plants didn't have {gap} solar or wind technology like new ones do.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about which renewable energy is better for different places?", plain: "Would you like {gap} facts about which renewable energy is better for different places?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on comparing the lifecycle emissions of solar PV versus wind power?", plain: "Would you like {gap} guidance on reading this comparative study?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> energy analysts <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that hybrid solar-wind systems improve grid reliability?", plain: "Do energy analysts have {gap} evidence that hybrid solar-wind systems improve grid reliability?", answer: "any", rule: 5 },
+                { html: "Researchers can study <span class='text-emerald-600 font-bold'>{gap} renewable technology</span> to learn about cost reduction trends.", plain: "Researchers can study {gap} renewable technology to learn about cost reduction trends.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} conclusive data on long-term maintenance costs for this offshore wind project yet.", plain: "We haven't found {gap} conclusive data on long-term maintenance costs for this offshore wind project yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in renewable energy integration <span class='text-blue-600 font-bold'>demonstrated</span> the potential of community-scale microgrids.", plain: "{gap} pioneer in renewable energy integration demonstrated the potential of community-scale microgrids.", answer: "Some", rule: 3 },
+                { html: "Policymakers could support <span class='text-emerald-600 font-bold'>{gap} clean energy solution</span> to meet regional decarbonization targets.", plain: "Policymakers could support {gap} clean energy solution to meet regional decarbonization targets.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about how energy storage affects the viability of solar versus wind power?", plain: "Could you share {gap} ideas about how energy storage affects the viability of solar versus wind power?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} performance metric to understand efficiency differences between renewable technologies.", plain: "You can compare {gap} performance metric to understand efficiency differences between renewable technologies.", answer: "any", rule: 4 },
+                { html: "The research <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear advantage of one renewable source over the other in this geographic context.", plain: "The research didn't show {gap} clear advantage of one renewable source over the other in this geographic context.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on sustainable energy transition strategies?", plain: "Would you like {gap} suggestions for your project on sustainable energy transition strategies?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how capacity factor variability influences the levelized cost of energy for utility-scale solar versus wind installations?", plain: "Would you like {gap} clarification on how capacity factor variability influences the levelized cost of energy for utility-scale solar versus wind installations?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> grid operators <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about integrating high penetrations of intermittent renewable generation without adequate storage infrastructure?", plain: "Do grid operators have {gap} reservations about integrating high penetrations of intermittent renewable generation without adequate storage infrastructure?", answer: "any", rule: 5 },
+                { html: "Investigators may analyze <span class='text-emerald-600 font-bold'>{gap} technological pathway</span> to assess scalability potential for decarbonizing industrial energy demand.", plain: "Investigators may analyze {gap} technological pathway to assess scalability potential for decarbonizing industrial energy demand.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of significant biodiversity impacts from this large-scale solar farm development yet.", plain: "The team hasn't identified {gap} conclusive evidence of significant biodiversity impacts from this large-scale solar farm development yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the renewable energy forecasting project <span class='text-blue-600 font-bold'>advanced</span> novel machine learning approaches for predicting variable generation output.", plain: "{gap} contributor to the renewable energy forecasting project advanced novel machine learning approaches for predicting variable generation output.", answer: "Some", rule: 3 },
+                { html: "Energy planners could optimize <span class='text-emerald-600 font-bold'>{gap} resource mix</span> to enhance system resilience under climate change scenarios.", plain: "Energy planners could optimize {gap} resource mix to enhance system resilience under climate change scenarios.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for evaluating social acceptance of onshore wind versus distributed solar deployments?", plain: "Could you provide {gap} further elaboration on the methodological framework for evaluating social acceptance of onshore wind versus distributed solar deployments?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative policy mechanism</span> to accelerate the deployment of complementary renewable technologies in emerging markets.", plain: "Scholars may propose {gap} alternative policy mechanism to accelerate the deployment of complementary renewable technologies in emerging markets.", answer: "any", rule: 4 },
+                { html: "The comparative lifecycle assessment <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant differential in cumulative energy demand between crystalline silicon PV and modern wind turbine systems under standardized assumptions.", plain: "The comparative lifecycle assessment failed to reveal {gap} significant differential in cumulative energy demand between crystalline silicon PV and modern wind turbine systems under standardized assumptions.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting techno-economic modeling outputs for renewable energy investment decisions?", plain: "Would you appreciate {gap} additional resources on interpreting techno-economic modeling outputs for renewable energy investment decisions?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsBirds = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} pictures of Birds of Paradise?", plain: "Would you like to see {gap} pictures of Birds of Paradise?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> scientists <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how these birds dance?", plain: "Do scientists have {gap} questions about how these birds dance?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} Bird of Paradise species to research!", plain: "You can pick {gap} Bird of Paradise species to research!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} videos of this rare bird's courtship yet.", plain: "We don't have {gap} videos of this rare bird's courtship yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>researcher filmed</span> a new mating display in the rainforest.", plain: "{gap} researcher filmed a new mating display in the rainforest.", answer: "Some", rule: 3 },
+                { html: "Birds of Paradise can live in <span class='text-emerald-600 font-bold'>{gap} forest</span> with enough food.", plain: "Birds of Paradise can live in {gap} forest with enough food.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding why male birds have bright feathers?", plain: "Can I have {gap} help understanding why male birds have bright feathers?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about these amazing birds!", plain: "You can ask {gap} question about these amazing birds!", answer: "any", rule: 4 },
+                { html: "Early explorers <span class='text-emerald-600 font-bold'>didn't have</span> {gap} cameras to record bird behavior.", plain: "Early explorers didn't have {gap} cameras to record bird behavior.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about how Birds of Paradise attract mates?", plain: "Would you like {gap} facts about how Birds of Paradise attract mates?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on analyzing this Birds of Paradise behavioral study?", plain: "Would you like {gap} guidance on analyzing this Birds of Paradise behavioral study?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> ornithologists <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that climate change affects their mating seasons?", plain: "Do ornithologists have {gap} evidence that climate change affects their mating seasons?", answer: "any", rule: 5 },
+                { html: "Researchers can study <span class='text-emerald-600 font-bold'>{gap} display behavior</span> to learn about sexual selection.", plain: "Researchers can study {gap} display behavior to learn about sexual selection.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} intact nesting sites for this endangered species yet.", plain: "We haven't found {gap} intact nesting sites for this endangered species yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in avian research <span class='text-blue-600 font-bold'>documented</span> the complex vocalizations of the Greater Bird of Paradise.", plain: "{gap} pioneer in avian research documented the complex vocalizations of the Greater Bird of Paradise.", answer: "Some", rule: 3 },
+                { html: "Conservationists could protect <span class='text-emerald-600 font-bold'>{gap} habitat type</span> to support diverse Bird of Paradise populations.", plain: "Conservationists could protect {gap} habitat type to support diverse Bird of Paradise populations.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about how deforestation impacts these birds' survival?", plain: "Could you share {gap} ideas about how deforestation impacts these birds' survival?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} courtship ritual to understand evolutionary adaptations in mating displays.", plain: "You can compare {gap} courtship ritual to understand evolutionary adaptations in mating displays.", answer: "any", rule: 4 },
+                { html: "The study <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear correlation between feather complexity and mating success in this population.", plain: "The study didn't show {gap} clear correlation between feather complexity and mating success in this population.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on tropical bird conservation strategies?", plain: "Would you like {gap} suggestions for your project on tropical bird conservation strategies?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how sexual dimorphism manifests in the plumage development of Paradisaeidae species?", plain: "Would you like {gap} clarification on how sexual dimorphism manifests in the plumage development of Paradisaeidae species?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> field biologists <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about extrapolating behavioral data from captive Birds of Paradise to wild populations?", plain: "Do field biologists have {gap} reservations about extrapolating behavioral data from captive Birds of Paradise to wild populations?", answer: "any", rule: 5 },
+                { html: "Investigators may analyze <span class='text-emerald-600 font-bold'>{gap} display phenotype</span> to assess the role of female choice in driving morphological diversification.", plain: "Investigators may analyze {gap} display phenotype to assess the role of female choice in driving morphological diversification.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence of significant population decline attributable to habitat fragmentation in this endemic clade yet.", plain: "The team hasn't identified {gap} conclusive evidence of significant population decline attributable to habitat fragmentation in this endemic clade yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the long-term avian monitoring project <span class='text-blue-600 font-bold'>documented</span> novel interspecific interactions among sympatric Bird of Paradise species.", plain: "{gap} contributor to the long-term avian monitoring project documented novel interspecific interactions among sympatric Bird of Paradise species.", answer: "Some", rule: 3 },
+                { html: "Ecologists could integrate <span class='text-emerald-600 font-bold'>{gap} conservation strategy</span> to mitigate the impacts of anthropogenic disturbance on lekking behavior in fragmented landscapes.", plain: "Ecologists could integrate {gap} conservation strategy to mitigate the impacts of anthropogenic disturbance on lekking behavior in fragmented landscapes.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for quantifying display complexity using computational video analysis?", plain: "Could you provide {gap} further elaboration on the methodological framework for quantifying display complexity using computational video analysis?", answer: "some", rule: 1 },
+                { html: "Scholars may propose <span class='text-emerald-600 font-bold'>{gap} alternative hypothesis</span> to explain the evolutionary persistence of energetically costly display traits under variable predation pressure.", plain: "Scholars may propose {gap} alternative hypothesis to explain the evolutionary persistence of energetically costly display traits under variable predation pressure.", answer: "any", rule: 4 },
+                { html: "The meta-analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant differential in reproductive success between males exhibiting elaborate versus simplified courtship displays under controlled observational conditions.", plain: "The meta-analysis failed to reveal {gap} significant differential in reproductive success between males exhibiting elaborate versus simplified courtship displays under controlled observational conditions.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting phylogenetic comparative methods for reconstructing the evolutionary history of display behaviors in Paradisaeidae?", plain: "Would you appreciate {gap} additional resources on interpreting phylogenetic comparative methods for reconstructing the evolutionary history of display behaviors in Paradisaeidae?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const questionsVoyage = {
+            A2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> to see {gap} maps of the Lapita people's ocean journeys?", plain: "Would you like to see {gap} maps of the Lapita people's ocean journeys?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> archaeologists <span class='text-emerald-600 font-bold'>have</span> {gap} questions about how ancient canoes sailed so far?", plain: "Do archaeologists have {gap} questions about how ancient canoes sailed so far?", answer: "any", rule: 5 },
+                { html: "You can <span class='text-emerald-600 font-bold'>pick</span> {gap} Pacific island to research for your project!", plain: "You can pick {gap} Pacific island to research for your project!", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>don't have</span> {gap} intact Lapita canoes to study their sailing methods yet.", plain: "We don't have {gap} intact Lapita canoes to study their sailing methods yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>scientist found</span> a new clue about how Polynesians navigated the ocean.", plain: "{gap} scientist found a new clue about how Polynesians navigated the ocean.", answer: "Some", rule: 3 },
+                { html: "Early sailors could travel to <span class='text-emerald-600 font-bold'>{gap} island</span> with good navigation skills.", plain: "Early sailors could travel to {gap} island with good navigation skills.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Can I have</span> {gap} help understanding how people crossed the Pacific without modern tools?", plain: "Can I have {gap} help understanding how people crossed the Pacific without modern tools?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>ask</span> {gap} question about ancient ocean exploration!", plain: "You can ask {gap} question about ancient ocean exploration!", answer: "any", rule: 4 },
+                { html: "The Lapita <span class='text-emerald-600 font-bold'>didn't have</span> {gap} compasses or GPS like we do today.", plain: "The Lapita didn't have {gap} compasses or GPS like we do today.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} facts about why these people wanted to explore beyond the horizon?", plain: "Would you like {gap} facts about why these people wanted to explore beyond the horizon?", answer: "some", rule: 1 }
+            ],
+            B1: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} guidance on distinguishing fact from speculation in this Lapita migration text?", plain: "Would you like {gap} guidance on distinguishing fact from speculation in this Lapita migration text?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> researchers <span class='text-emerald-600 font-bold'>have</span> {gap} evidence that the Lapita intentionally sailed against trade winds as a safety strategy?", plain: "Do researchers have {gap} evidence that the Lapita intentionally sailed against trade winds as a safety strategy?", answer: "any", rule: 5 },
+                { html: "Archaeologists can study <span class='text-emerald-600 font-bold'>{gap} navigation theory</span> to learn about ancient Pacific exploration methods.", plain: "Archaeologists can study {gap} navigation theory to learn about ancient Pacific exploration methods.", answer: "any", rule: 2 },
+                { html: "We <span class='text-emerald-600 font-bold'>haven't found</span> {gap} intact canoe remains that reveal specific Lapita sailing techniques yet.", plain: "We haven't found {gap} intact canoe remains that reveal specific Lapita sailing techniques yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>pioneer</span> in Pacific archaeology <span class='text-blue-600 font-bold'>hypothesized</span> that El Niño events may have disrupted normal wind patterns to aid eastward voyages.", plain: "{gap} pioneer in Pacific archaeology hypothesized that El Niño events may have disrupted normal wind patterns to aid eastward voyages.", answer: "Some", rule: 3 },
+                { html: "Early explorers could follow <span class='text-emerald-600 font-bold'>{gap} natural clue</span>—like bird flight or floating debris—to detect distant land.", plain: "Early explorers could follow {gap} natural clue—like bird flight or floating debris—to detect distant land.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you share</span> {gap} ideas about why the Lapita were motivated to stretch their voyages across such vast ocean distances?", plain: "Could you share {gap} ideas about why the Lapita were motivated to stretch their voyages across such vast ocean distances?", answer: "some", rule: 1 },
+                { html: "You can <span class='text-emerald-600 font-bold'>compare</span> {gap} scientific hypothesis to understand how scholars evaluate competing theories about ancient navigation.", plain: "You can compare {gap} scientific hypothesis to understand how scholars evaluate competing theories about ancient navigation.", answer: "any", rule: 4 },
+                { html: "The research <span class='text-emerald-600 font-bold'>didn't show</span> {gap} clear consensus among experts about whether Polynesian navigation relied more on calculated skill or climate phenomena.", plain: "The research didn't show {gap} clear consensus among experts about whether Polynesian navigation relied more on calculated skill or climate phenomena.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} suggestions for your project on distinguishing historical fact from scientific speculation in archaeological studies?", plain: "Would you like {gap} suggestions for your project on distinguishing historical fact from scientific speculation in archaeological studies?", answer: "some", rule: 1 }
+            ],
+            B2: [
+                { html: "<span class='text-blue-600 font-bold'>Would you like</span> {gap} clarification on how the analogous nature of Lapita voyaging to modern space exploration informs our understanding of human risk-taking behavior?", plain: "Would you like {gap} clarification on how the analogous nature of Lapita voyaging to modern space exploration informs our understanding of human risk-taking behavior?", answer: "some", rule: 1 },
+                { html: "<span class='text-emerald-600 font-bold'>Do</span> maritime archaeologists <span class='text-emerald-600 font-bold'>have</span> {gap} reservations about extrapolating navigational capabilities from ethnographic Polynesian accounts to the earlier Lapita period?", plain: "Do maritime archaeologists have {gap} reservations about extrapolating navigational capabilities from ethnographic Polynesian accounts to the earlier Lapita period?", answer: "any", rule: 5 },
+                { html: "Investigators may analyze <span class='text-emerald-600 font-bold'>{gap} theoretical framework</span> to assess the relative plausibility of intentional tacking versus climate-disruption hypotheses for Pacific colonization.", plain: "Investigators may analyze {gap} theoretical framework to assess the relative plausibility of intentional tacking versus climate-disruption hypotheses for Pacific colonization.", answer: "any", rule: 2 },
+                { html: "The team <span class='text-emerald-600 font-bold'>hasn't identified</span> {gap} conclusive evidence from intact watercraft remains to definitively resolve the stubborn question of Lapita navigational methodology yet.", plain: "The team hasn't identified {gap} conclusive evidence from intact watercraft remains to definitively resolve the stubborn question of Lapita navigational methodology yet.", answer: "any", rule: 5 },
+                { html: "{gap} <span class='text-blue-600 font-bold'>contributor</span> to the interdisciplinary Pacific settlement project <span class='text-blue-600 font-bold'>advanced</span> novel computational modeling approaches for reconstructing plausible voyaging routes under variable wind regimes.", plain: "{gap} contributor to the interdisciplinary Pacific settlement project advanced novel computational modeling approaches for reconstructing plausible voyaging routes under variable wind regimes.", answer: "Some", rule: 3 },
+                { html: "Scholars could integrate <span class='text-emerald-600 font-bold'>{gap} environmental phenomenon</span>—such as El Niño-induced wind reversals—to explain anomalous eastward expansion patterns during specific historical intervals.", plain: "Scholars could integrate {gap} environmental phenomenon—such as El Niño-induced wind reversals—to explain anomalous eastward expansion patterns during specific historical intervals.", answer: "any", rule: 2 },
+                { html: "<span class='text-blue-600 font-bold'>Could you provide</span> {gap} further elaboration on the methodological framework for distinguishing empirically supported claims from speculative reconstructions in prehistoric maritime archaeology?", plain: "Could you provide {gap} further elaboration on the methodological framework for distinguishing empirically supported claims from speculative reconstructions in prehistoric maritime archaeology?", answer: "some", rule: 1 },
+                { html: "Researchers may propose <span class='text-emerald-600 font-bold'>{gap} alternative interpretation</span> of oral history sources to reconcile apparent gaps between material evidence and traditional knowledge regarding open-ocean navigation techniques.", plain: "Researchers may propose {gap} alternative interpretation of oral history sources to reconcile apparent gaps between material evidence and traditional knowledge regarding open-ocean navigation techniques.", answer: "any", rule: 4 },
+                { html: "The comparative analysis <span class='text-emerald-600 font-bold'>failed to reveal</span> {gap} significant differential in predictive accuracy between Irwin's calculated-skill model and Anderson's climate-disruption hypothesis when tested against known settlement chronologies across the Pacific.", plain: "The comparative analysis failed to reveal {gap} significant differential in predictive accuracy between Irwin's calculated-skill model and Anderson's climate-disruption hypothesis when tested against known settlement chronologies across the Pacific.", answer: "any", rule: 5 },
+                { html: "<span class='text-blue-600 font-bold'>Would you appreciate</span> {gap} additional resources on interpreting Bayesian phylogeographic methods for reconstructing the temporal and spatial dynamics of human dispersal across Remote Oceania?", plain: "Would you appreciate {gap} additional resources on interpreting Bayesian phylogeographic methods for reconstructing the temporal and spatial dynamics of human dispersal across Remote Oceania?", answer: "some", rule: 1 }
+            ]
+        };
+
+        const topicsData = {
+            dna: { id: 'dna', title: "🧬🌍 DNA Trails & Migration", icon: "🧬🌍", label: "DNA Trails & Migration", questions: questionsDna, gradient: "from-blue-600 to-indigo-600" },
+            bio: { id: 'bio', title: "🔦🪼 Bioluminescence", icon: "🔦🪼", label: "Bioluminescence", questions: questionsBio, gradient: "from-emerald-600 to-teal-600" },
+            biomimetics: { id: 'biomimetics', title: "🦎📐 Biomimetics", icon: "🦎📐", label: "Biomimetics", questions: questionsBiomimetics, gradient: "from-orange-500 to-amber-600" },
+            gmo: { id: 'gmo', title: "🌽🧪 GMO Organisms", icon: "🌽🧪", label: "Genetically Modified Organisms", questions: questionsGmo, gradient: "from-purple-600 to-fuchsia-600" },
+            rooftop: { id: 'rooftop', title: "🏙️🌿 Rooftop Gardens", icon: "🏙️🌿", label: "Rooftop Gardens", questions: questionsRooftop, gradient: "from-lime-500 to-green-600" },
+            animal: { id: 'animal', title: "🦌🌉 Animal Crossings", icon: "🦌🌉", label: "Animal Crossings", questions: questionsAnimal, gradient: "from-stone-500 to-amber-700" },
+            solarwind: { id: 'solarwind', title: "☀️💨 Solar vs. Wind", icon: "☀️💨", label: "Solar vs. Wind Energy", questions: questionsSolarWind, gradient: "from-cyan-500 to-blue-600" },
+            birds: { id: 'birds', title: "🦜 Birds of Paradise", icon: "🦜", label: "Birds of Paradise", questions: questionsBirds, gradient: "from-pink-500 to-rose-600" },
+            voyage: { id: 'voyage', title: "🛶 Fantastic Voyage", icon: "🛶", label: "Fantastic Voyage", questions: questionsVoyage, gradient: "from-sky-500 to-indigo-700" }
+        };
+
+        function App() {
+            const [screen, setScreen] = useState('menu'); 
+            const [currentTopic, setCurrentTopic] = useState('dna');
+            const [currentLevel, setCurrentLevel] = useState(null);
+            const [qIndex, setQIndex] = useState(0);
+            const [userAnswer, setUserAnswer] = useState(null);
+            const [isChecked, setIsChecked] = useState(false);
+            const [score, setScore] = useState(0);
+            const [showScoreModal, setShowScoreModal] = useState(false);
+            const [voicesLoaded, setVoicesLoaded] = useState(false);
+
+            useEffect(() => {
+                const handleVoicesChanged = () => setVoicesLoaded(true);
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
+                    if (window.speechSynthesis.getVoices().length > 0) {
+                        setVoicesLoaded(true);
+                    }
+                }
+            }, []);
+
+            const speak = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.85; // Slowed to 85%
+                    utterance.lang = 'en-US';
+                    
+                    const voices = window.speechSynthesis.getVoices();
+                    const targetVoiceNames = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
+                    const microsoftVoice = voices.find(v => v.name.includes('Microsoft') && targetVoiceNames.some(name => v.name.includes(name)));
+                    
+                    if (microsoftVoice) utterance.voice = microsoftVoice;
+                    else {
+                        const fallback = voices.find(v => v.name.includes('Microsoft') && v.lang.includes('en'));
+                        if (fallback) utterance.voice = fallback;
+                    }
+                    
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            const handlePlayTTS = () => {
+                if (screen !== 'quiz' || !currentLevel || !currentTopic) return;
+                const currentQ = topicsData[currentTopic].questions[currentLevel][qIndex];
+                const spokenText = currentQ.plain.replace('{gap}', userAnswer || 'blank');
+                speak(spokenText);
+            };
+
+            const goHome = () => {
+                setScreen('menu');
+                resetQuizState();
+            };
+
+            const goBack = () => {
+                if (screen === 'levels') setScreen('menu');
+                if (screen === 'quiz') setScreen('levels');
+                resetQuizState();
+            };
+
+            const resetQuizState = () => {
+                setQIndex(0);
+                setUserAnswer(null);
+                setIsChecked(false);
+                setScore(0);
+                setShowScoreModal(false);
+            };
+
+            const handleLevelSelect = (level) => {
+                setCurrentLevel(level);
+                resetQuizState();
+                setScreen('quiz');
+            };
+
+            const handleTopicSelect = (topicId) => {
+                setCurrentTopic(topicId);
+                setScreen('levels');
+            };
+
+            const nextQuestion = () => {
+                const totalQs = topicsData[currentTopic].questions[currentLevel].length;
+                if (qIndex < totalQs - 1) {
+                    setQIndex(prev => prev + 1);
+                    setUserAnswer(null);
+                    setIsChecked(false);
+                } else {
+                    setShowScoreModal(true);
+                }
+            };
+
+            const processAnswer = (ans) => {
+                const currentQ = topicsData[currentTopic].questions[currentLevel][qIndex];
+                const isGapAtStart = currentQ.plain.startsWith('{gap}');
+                const formattedAns = isGapAtStart 
+                    ? ans.charAt(0).toUpperCase() + ans.slice(1).toLowerCase() 
+                    : ans.toLowerCase();
+
+                setUserAnswer(formattedAns);
+                if (formattedAns.toLowerCase() === currentQ.answer.toLowerCase()) {
+                    setScore(prev => prev + 1);
+                }
+                setIsChecked(true);
+                
+                const fullSentence = currentQ.plain.replace('{gap}', formattedAns);
+                speak(fullSentence);
+            };
+
+            const QuizScreen = () => {
+                const topicObj = topicsData[currentTopic];
+                const currentQ = topicObj.questions[currentLevel][qIndex];
+                const progressPercent = ((qIndex + 1) / topicObj.questions[currentLevel].length) * 100;
+                const parts = currentQ.html.split('{gap}');
+
+                return (
+                    <div className="max-w-2xl mx-auto p-4 md:p-6 animate-fade-in flex flex-col min-h-[85vh]">
+                        <div className="mb-6">
+                            <div className="flex justify-between text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">
+                                <span>{topicObj.label} • Level {currentLevel}</span>
+                                <span>{qIndex + 1} / {topicObj.questions[currentLevel].length}</span>
+                            </div>
+                            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                                <div className="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
+                            </div>
+                        </div>
+
+                        <div 
+                            onClick={handlePlayTTS}
+                            className="bg-white p-8 rounded-3xl shadow-lg border-b-4 border-slate-200 mb-8 cursor-pointer hover:shadow-xl transition-shadow relative active:scale-[0.99] group"
+                        >
+                            <div className="absolute top-4 right-4 text-slate-300 group-hover:text-blue-500 transition-colors">
+                                <Volume2 size={24} />
+                            </div>
+                            <div className="text-2xl md:text-3xl leading-relaxed text-slate-700 font-medium mt-4">
+                                <span dangerouslySetInnerHTML={{ __html: parts[0] }} />
+                                <span className={`inline-block min-w-[120px] h-10 border-b-4 border-dashed mx-2 text-center align-middle transition-all ${userAnswer ? 'border-blue-500 text-blue-700 font-bold bg-blue-50 px-4 rounded-t-md' : 'border-slate-400 bg-slate-50'}`}>
+                                    {userAnswer || ''}
+                                </span>
+                                <span dangerouslySetInnerHTML={{ __html: parts[1] }} />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-6 mt-auto">
+                            {!isChecked ? (
+                                <div className="flex gap-4 justify-center">
+                                    {['some', 'any'].map((opt) => {
+                                        const isGapAtStart = currentQ.plain.startsWith('{gap}');
+                                        const displayOpt = isGapAtStart ? opt.charAt(0).toUpperCase() + opt.slice(1) : opt;
+                                        return (
+                                            <button
+                                                key={opt}
+                                                onClick={() => processAnswer(displayOpt)}
+                                                className="bg-white border-2 border-slate-300 text-slate-700 hover:border-blue-500 hover:text-blue-600 text-xl font-bold py-4 px-10 rounded-2xl shadow-sm transition-all transform hover:-translate-y-1 active:translate-y-0"
+                                            >
+                                                {displayOpt}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className={`p-6 rounded-2xl border-2 animate-fade-in ${userAnswer.toLowerCase() === currentQ.answer.toLowerCase() ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                                    <h3 className={`text-2xl font-bold mb-2 ${userAnswer.toLowerCase() === currentQ.answer.toLowerCase() ? 'text-emerald-700' : 'text-red-700'}`}>
+                                        {userAnswer.toLowerCase() === currentQ.answer.toLowerCase() ? '✨ Brilliant!' : '💡 Not quite!'}
+                                    </h3>
+                                    <p className="text-slate-700 text-lg mb-4">The correct answer is: <strong className="bg-white px-2 py-1 rounded shadow-sm">{currentQ.answer}</strong></p>
+                                    <p className="text-sm bg-white p-4 rounded-xl border border-slate-200 shadow-sm leading-relaxed text-slate-600">
+                                        {ruleExplanations[currentQ.rule]}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="min-h-screen pb-10">
+                    <header className="bg-slate-900 text-white p-4 flex items-center justify-between sticky top-0 z-10 shadow-md">
+                        <div className="flex gap-4">
+                            <button onClick={goBack} className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition" aria-label="Back"><ArrowLeft /></button>
+                            <button onClick={goHome} className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition" aria-label="Home"><Home /></button>
+                        </div>
+                        <h1 className="text-lg font-bold tracking-wider hidden sm:block">Grammar Expeditions</h1>
+                        <div className="flex gap-4">
+                            <button className="p-2 bg-slate-800 rounded-full flex items-center gap-2" aria-label="Score">
+                                <Trophy className="text-yellow-400" />
+                                <span className="font-bold">{score}</span>
+                            </button>
+                            <button onClick={handlePlayTTS} className="p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition" aria-label="Repeat Sentence"><Repeat /></button>
+                            {screen === 'quiz' && (
+                                <button onClick={nextQuestion} disabled={!isChecked} className={`px-4 py-2 rounded-full font-bold flex items-center gap-2 transition ${isChecked ? 'bg-blue-600 hover:bg-blue-500 animate-pulse' : 'bg-slate-800 text-slate-500'}`}>
+                                    <span>{qIndex < topicsData[currentTopic].questions[currentLevel].length - 1 ? 'Next' : 'Finish'}</span>
+                                    <ChevronRight />
+                                </button>
+                            )}
+                        </div>
+                    </header>
+
+                    <main>
+                        {screen === 'menu' && (
+                            <div className="flex flex-col items-center justify-center p-6 text-center space-y-8 animate-fade-in max-w-6xl mx-auto">
+                                <div className="bg-slate-100 p-8 rounded-3xl shadow-xl w-full border border-slate-200 mt-4">
+                                    <h2 className="text-4xl font-black text-slate-800 mb-2">Adventure Awaits</h2>
+                                    <p className="text-slate-500 mb-8 font-medium">Select a scientific topic to master 'Some' vs 'Any'</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {Object.values(topicsData).map((topic) => (
+                                            <button 
+                                                key={topic.id}
+                                                onClick={() => handleTopicSelect(topic.id)}
+                                                className={`w-full bg-gradient-to-r ${topic.gradient} text-white text-xl font-bold py-8 rounded-2xl shadow-lg hover:scale-[1.03] active:scale-100 transition-all flex flex-col items-center gap-2`}
+                                            >
+                                                <span className="text-3xl drop-shadow-md">{topic.icon}</span>
+                                                <span>{topic.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {screen === 'levels' && (
+                            <div className="flex flex-col items-center justify-center p-6 text-center animate-fade-in max-w-md mx-auto min-h-[70vh]">
+                                <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Choose Level</h2>
+                                <p className="text-slate-500 mb-8 font-medium">{topicsData[currentTopic].title}</p>
+                                <div className="flex flex-col gap-4 w-full">
+                                    {[
+                                        { id: 'A2', name: 'Elementary', color: 'emerald' },
+                                        { id: 'B1', name: 'Intermediate', color: 'amber' },
+                                        { id: 'B2', name: 'Upper Intermediate', color: 'orange' }
+                                    ].map(lvl => (
+                                        <button 
+                                            key={lvl.id} 
+                                            onClick={() => handleLevelSelect(lvl.id)} 
+                                            className="bg-white border-2 border-slate-200 text-xl font-bold py-6 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition-all flex justify-between px-8 items-center group"
+                                        >
+                                            <div className="text-left">
+                                                <div className="text-slate-800">{lvl.id}</div>
+                                                <div className="text-sm font-medium text-slate-400">{lvl.name}</div>
+                                            </div>
+                                            <ChevronRight className="text-slate-300 group-hover:text-blue-500" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {screen === 'quiz' && <QuizScreen />}
+                    </main>
+
+                    {showScoreModal && (
+                        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                            <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+                                <div className="mt-4 mb-2 inline-flex items-center justify-center w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full border-4 border-white shadow-sm">
+                                    <Trophy size={40} />
+                                </div>
+                                <h2 className="text-3xl font-black text-slate-800 mb-1">Mission Success!</h2>
+                                <p className="text-slate-400 mb-6 font-medium">You completed {topicsData[currentTopic].label}</p>
+                                <div className="text-7xl font-black text-blue-600 my-6 tracking-tighter">
+                                    {score}<span className="text-3xl text-slate-300">/{topicsData[currentTopic].questions[currentLevel].length}</span>
+                                </div>
+                                <div className="flex flex-col gap-3 mt-8">
+                                    <button onClick={goHome} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-lg">New Expedition</button>
+                                    <button onClick={() => { setShowScoreModal(false); resetQuizState(); setScreen('quiz'); }} className="w-full bg-slate-100 text-slate-600 font-bold py-4 rounded-xl hover:bg-slate-200 transition">Try Again</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

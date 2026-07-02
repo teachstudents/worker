@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joel Mitchell's English Grammar (A2-C1)</title>
+    <style>
+        /* CSS Variables & Global Settings */
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F8FAFC;
+            --sidebar-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+            --success: #10B981;
+            --error: #EF4444;
+            --card-bg: #FFFFFF;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --lvl-a1: #10B981;
+            --lvl-a2: #3B82F6;
+            --lvl-b1: #8B5CF6;
+            --lvl-b2: #EC4899;
+            --lvl-c1: #F43F5E;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 20/80 Layout */
+        #app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 20% Sidebar: Grammar Curriculum Hierarchy */
+        aside {
+            width: 22%;
+            min-width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--sidebar-bg);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        #syllabus-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        /* Hierarchical Menu Styles */
+        .domain-header {
+            padding: 16px 20px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--text-main);
+            border-bottom: 1px solid #F1F5F9;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--sidebar-bg);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            transition: background 0.2s;
+        }
+        .domain-header:hover { background: #F8FAFC; color: var(--primary); }
+        .domain-header.active { background: #EEF2FF; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 16px; }
+
+        .sub-rules-container { display: none; background: #F8FAFC; }
+        .sub-rules-container.open { display: block; }
+
+        .rule-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px 20px 10px 40px;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #F1F5F9;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rule-btn:hover { color: var(--primary); background: #F1F5F9; }
+        .rule-btn.active { color: var(--primary); font-weight: 700; background: #E0E7FF; }
+        .mastery-indicator { color: var(--success); font-weight: bold; display: none; font-size: 1.1rem; }
+        .rule-btn.is-mastered .mastery-indicator { display: block; }
+
+        /* 80% Main Content Area */
+        main {
+            width: 78%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: var(--bg-color);
+        }
+
+        /* Top Bar with Navigation */
+        .top-bar {
+            padding: 15px 24px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .top-bar-left { display: flex; align-items: center; gap: 15px; }
+        .mobile-menu-btn {
+            display: none; background: none; border: none;
+            font-size: 1.5rem; cursor: pointer; color: var(--text-main);
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: #F1F5F9;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn:hover:not(:disabled) { background: #E2E8F0; color: var(--primary); }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .nav-btn.home-btn { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-btn.home-btn:hover { background: var(--primary-hover); }
+
+        .content-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .inner-content { max-width: 850px; margin: 0 auto; }
+
+        /* Logical Color Coding Keywords */
+        .keyword { font-weight: 800; background-color: #FCE7F3; color: #BE185D; padding: 2px 6px; border-radius: 4px; }
+        .blue { color: #2563EB; font-weight: bold; }   /* Subjects / Nouns */
+        .green { color: #16A34A; font-weight: bold; }  /* Verbs / Actions */
+        .orange { color: #EA580C; font-weight: bold; } /* Objects / Adjectives / Adverbs */
+        .purple { color: #8B5CF6; font-weight: bold; } /* Prepositions / Conjunctions / Connectors */
+        .red { color: #DC2626; font-weight: bold; }    /* Negatives / Warnings / Exceptions */
+
+        /* Rule Card */
+        .rule-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border-top: 6px solid var(--primary);
+        }
+        .rule-card h3 { font-size: 2rem; color: var(--text-main); margin-bottom: 20px; font-weight: 800; }
+        
+        /* Font size increased 50% from 1.25rem to 1.875rem */
+        .rule-card p { font-size: 1.875rem; line-height: 1.7; color: #334155; margin-bottom: 20px; }
+        
+        /* Font size increased 50% to 1.875rem and italics removed */
+        .rule-card .example {
+            background: #F8FAFC; padding: 20px; border-radius: 8px;
+            border-left: 4px solid #CBD5E1; font-style: normal; font-size: 1.875rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        
+        .practice-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 28px; font-size: 1.1rem; font-weight: 700;
+            border-radius: 8px; cursor: pointer; margin-top: 10px;
+            transition: background 0.2s; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+        .practice-btn:hover { background: var(--primary-hover); }
+
+        .speak-btn {
+            background: #DBEAFE; color: #1D4ED8; border: none; cursor: pointer;
+            border-radius: 50%; width: 50px; height: 50px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.5rem;
+            transition: all 0.2s; flex-shrink: 0; margin-left: 15px;
+        }
+        .speak-btn:hover { transform: scale(1.1); background: #BFDBFE; }
+
+        /* Practice Panel */
+        .practice-panel {
+            display: none; background: white; padding: 30px;
+            border-radius: var(--radius); box-shadow: var(--shadow);
+            margin-top: 20px; border: 2px solid #E2E8F0;
+            animation: fadeIn 0.3s ease;
+        }
+        .practice-panel.visible { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .practice-item { margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px dashed var(--border-color); }
+        .practice-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .practice-prompt { font-weight: 700; margin-bottom: 16px; color: var(--text-main); font-size: 1.15rem; }
+
+        /* Interactions */
+        .reveal-btn, .check-btn {
+            background: var(--text-main); color: white; border: none;
+            padding: 10px 20px; border-radius: 6px; cursor: pointer;
+            font-weight: 600; font-size: 1rem;
+        }
+        .reveal-btn:hover, .check-btn:hover { background: #334155; }
+        .reveal-answer {
+            display: none; margin-top: 15px; padding: 15px; background: #D1FAE5;
+            color: #065F46; border-radius: 8px; font-weight: 700; font-size: 1.1rem;
+            border-left: 4px solid var(--success); position: relative;
+        }
+        .reveal-answer.visible { display: block; }
+
+        .text-input {
+            padding: 10px 15px; border: 2px solid var(--border-color);
+            border-radius: 6px; font-size: 1.1rem; width: 250px;
+            outline: none; margin-right: 10px;
+        }
+        .text-input:focus { border-color: var(--primary); }
+        .feedback-msg { margin-top: 10px; font-weight: 700; font-size: 1.05rem; position: relative; display: inline-block;}
+
+        /* Drag & Drop Tap-To-Place */
+        .dd-sentence { line-height: 2.5; font-size: 1.15rem; margin-bottom: 15px; }
+        .drop-zone {
+            display: inline-block; min-width: 100px; height: 38px;
+            border: 2px dashed #94A3B8; border-radius: 6px; margin: 0 8px;
+            vertical-align: middle; text-align: center; line-height: 34px;
+            cursor: pointer; background: #F8FAFC; font-weight: bold;
+            color: var(--primary); transition: all 0.2s; position: relative;
+        }
+        .drop-zone.filled { border-style: solid; background: #EEF2FF; border-color: var(--primary); }
+        .drop-zone.correct { border-color: var(--success); background: #D1FAE5; color: #065F46; }
+        .drop-zone.incorrect { border-color: var(--error); background: #FEE2E2; color: #B91C1C; }
+        
+        .tokens-area {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;
+            padding: 15px; background: #F1F5F9; border-radius: 8px;
+        }
+        .draggable-token {
+            padding: 8px 16px; background: white; border: 2px solid var(--border-color);
+            border-radius: 20px; cursor: pointer; user-select: none;
+            font-weight: 600; font-size: 1rem; transition: all 0.2s;
+        }
+        .draggable-token.selected { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+
+        /* MCQ & New Practice Types CSS */
+        .mcq-btn {
+            background: #F8FAFC; border: 2px solid var(--border-color);
+            padding: 12px 20px; border-radius: 8px; text-align: left;
+            font-size: 1.1rem; cursor: pointer; transition: all 0.2s;
+            color: var(--text-main); font-weight: 600; width: 100%;
+        }
+        .mcq-btn:hover:not(:disabled) { border-color: var(--primary); background: #EEF2FF; }
+        .mcq-btn.correct { background: #D1FAE5; border-color: var(--success); color: #065F46; }
+        .mcq-btn.incorrect { background: #FEE2E2; border-color: var(--error); color: #B91C1C; }
+        .mcq-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+
+        /* Sparkle Effects */
+        .sparkle-particle {
+            position: absolute;
+            width: 8px; height: 8px;
+            background-color: #FBBF24;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FBBF24, 0 0 20px #F59E0B;
+            pointer-events: none;
+            z-index: 100;
+            animation: pop 0.8s ease-out forwards;
+        }
+        @keyframes pop {
+            0% { transform: scale(0) translateY(0); opacity: 1; }
+            100% { transform: scale(1.5) translateY(-40px); opacity: 0; }
+        }
+
+        @media (max-width: 1024px) {
+            aside { position: absolute; height: 100%; width: 320px; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+            aside.open { transform: translateX(0); }
+            main { width: 100%; }
+            .mobile-menu-btn { display: block; }
+            .nav-controls { flex-wrap: wrap; }
+            .nav-btn { padding: 6px 10px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h1>Grammar Curriculum</h1>
+                <button id="close-sidebar" class="mobile-menu-btn" style="margin:0;">&times;</button>
+            </div>
+        </div>
+        <div id="syllabus-list"></div>
+    </aside>
+
+    <main>
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button id="open-sidebar" class="mobile-menu-btn">&#9776;</button>
+                <div class="nav-controls">
+                    <button id="btn-home" class="nav-btn home-btn">🏠 Home</button>
+                    <button id="btn-prev" class="nav-btn">◀ Back</button>
+                    <button id="btn-next" class="nav-btn">Next ▶</button>
+                </div>
+            </div>
+            <h2 style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted); display: none;" id="top-bar-title">Dashboard</h2>
+        </div>
+        
+        <div class="content-area">
+            <div class="inner-content" id="content-area">
+                <!-- Content Injected Here -->
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const HIERARCHY = [
+    { domain: "Sentence Structure", rules: ["S–V–O word order", "Adjective position", "Adverb position", "Coordination", "Subordination", "Fronting", "Complex sentences", "Cleft structures", "Inversion", "Participle clause compression"] },
+    { domain: "Nouns & Noun Phrases", rules: ["Countable nouns", "Uncountable nouns", "Regular plurals", "Irregular plurals", "Determiners", "Quantifiers", "Possessives", "Partitives", "Complex noun phrases", "Nominalization", "Generic reference"] },
+    { domain: "Articles", rules: ["Indefinite article", "Definite article", "Zero article", "First vs. subsequent mention", "Geographical article rules", "Institutional zero article", "Abstract noun article rules"] },
+    { domain: "Verbs: Tense & Aspect", rules: ["Present simple", "Present continuous", "Past simple", "Past continuous", "Present perfect simple", "Present perfect continuous", "Past perfect", "Future forms", "Aspect distinctions"] },
+    { domain: "Voice", rules: ["Basic passive", "Passive with modals", "Passive with perfect aspect", "Passive reporting structures", "Complex passive chains", "Causatives"] },
+    { domain: "Modals", rules: ["Ability", "Permission", "Obligation", "Advice", "Possibility", "Deduction", "Modal perfects", "Register-sensitive modals"] },
+    { domain: "Non-Finite Verb Forms", rules: ["To-infinitive", "Bare infinitive", "Gerunds", "Verb patterns", "Perfect infinitive", "Passive infinitive", "Reduced clauses"] },
+    { domain: "Adjectives & Adverbs", rules: ["Comparative forms", "Superlative forms", "Adjective order", "Adverb frequency rules", "Intensifiers", "Adjective complementation", "Adverb fronting", "Stance adverbs", "Adjective phrase expansion"] },
+    { domain: "Clauses", rules: ["Noun Clauses", "Relative Clauses", "Adverbial Clauses", "Conditionals"] },
+    { domain: "Reported Speech", rules: ["Reported statements", "Reported questions", "Backshifting", "Reporting verbs", "Reporting modals", "Complex reporting structures"] },
+    { domain: "Prepositions", rules: ["Time", "Place", "Movement", "Prepositions after adjectives", "Prepositions after verbs", "Multi-word prepositions", "Abstract prepositional phrases"] },
+    { domain: "Punctuation & Cohesion", rules: ["Full stops", "Commas in lists", "Commas with clauses", "Semi-colons", "Colons", "Dashes", "Cohesive devices", "Paragraph connectors"] },
+    { domain: "Adverb Placement Exceptions", rules: ["Adverbs cannot split verb + object", "Adverb particles CAN split phrasal verbs + object", "Frequency adverbs follow first auxiliary"] },
+    { domain: "Some/Any Exceptions", rules: ["Use SOME in questions making offers", "ANY in if-clauses regardless of meaning", "SOME in questions expecting 'yes'"] },
+    { domain: "Question Formation Exceptions", rules: ["Negative questions imply expected agreement", "Tag question: I am → aren't I", "No inversion in embedded questions", "Subject questions need no auxiliary"] },
+    { domain: "Modal/Aspect Exceptions", rules: ["Would cannot express past states"] },
+    { domain: "Modal Exceptions", rules: ["Needn't have vs. didn't need to", "Mustn't vs. don't have to"] }
+];
+
+const pDrag = (prompt, text, answer, tokens) => ({ type: "drag-drop", prompt, items: [{ text, answer }], tokens });
+const pReveal = (prompt, sentence, answer) => ({ type: "reveal", prompt, sentence, answer });
+const pInput = (prompt, sentence, answer) => ({ type: "input", prompt, sentence, answer });
+const pMCQ = (prompt, question, options, correctIndex, explanation) => ({ type: "mcq", prompt, question, options, correctIndex, explanation });
+const pErrorCorrect = (prompt, wrongSentence, correctSentence, explanation) => ({ type: "error-correct", prompt, wrongSentence, correctSentence, explanation });
+const pTransform = (prompt, original, hint, correct) => ({ type: "transform", prompt, original, hint, answer: correct });
+
+/**
+ * 2. COMPREHENSIVE GRAMMAR RULES DATABASE (92 ITEMS)
+ * Color Coding Standard: 
+ * BLUE: Subjects/Nouns | GREEN: Verbs/Actions | ORANGE: Objects/Modifiers
+ * PURPLE: Connectors/Prepositions | RED: Negatives/Exceptions
+ */
+const GRAMMAR_RULES = [
+    // === SENTENCE STRUCTURE (10 RULES) ===
+    { 
+        id: "svo-word", 
+        domain: "Sentence Structure", 
+        rule: "S–V–O word order", 
+        level: "A2", 
+        simplifiedRule: "<span class='keyword'>Always</span> put the <span class='blue'>Subject</span> first, then the <span class='green'>Verb</span>, then the <span class='orange'>Object</span> → Who does what to whom.", 
+        example: "<span class='blue'>Giuseppe</span> <span class='green'>finished</span> his <span class='orange'>math homework</span>.", 
+        practice: [
+            pDrag("Reorder the words to form an S-V-O sentence.", "___ ___ ___", "Remy likes biology", ["biology", "likes", "Remy"]),
+            pInput("Type the correct subject for this sentence.", "___ studies every evening.", "Emma"),
+            pReveal("Reveal the correct object.", "Vivienne bought (a new / new a) backpack.", "a new")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "adj-pos", 
+        domain: "Sentence Structure", 
+        rule: "Adjective position", 
+        level: "A2", 
+        simplifiedRule: "<span class='keyword'>Place</span> <span class='orange'>adjectives</span> before <span class='blue'>nouns</span> or after the <span class='green'>verb</span> 'to be' → to describe things.", 
+        example: "<span class='blue'>Emma</span> <span class='green'>drew</span> a <span class='orange'>beautiful</span> <span class='blue'>comic</span>. The <span class='blue'>comic</span> <span class='green'>is</span> <span class='orange'>beautiful</span>.", 
+        practice: [
+            pInput("Type the correct adjective placement.", "William is wearing a (blue shirt / shirt blue).", "blue shirt"),
+            pDrag("Select the correct position.", "She has ___ hair.", "long brown", ["brown long", "long brown", "brownly long"]),
+            pReveal("Reveal the correct post-noun adjective.", "The movie was (amazing / amazingly).", "amazing")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "adv-pos", 
+        domain: "Sentence Structure", 
+        rule: "Adverb position", 
+        level: "B1", 
+        simplifiedRule: "<span class='keyword'>Place</span> <span class='orange'>adverbs of frequency</span> before <span class='green'>main verbs</span> but after the <span class='green'>verb</span> 'to be'.", 
+        example: "<span class='blue'>Remy</span> <span class='orange'>always</span> <span class='green'>studies</span>, but <span class='blue'>Giuseppe</span> <span class='green'>is</span> <span class='orange'>rarely</span> on time.", 
+        practice: [
+            pReveal("Reveal the correct adverb placement.", "Brian (forgets always / always forgets) his calculator.", "always forgets"),
+            pInput("Type 'often' in the correct position.", "She ___ arrives early.", "often"),
+            pDrag("Select the correct placement.", "They are ___ late.", "sometimes", ["sometimes", "some times", "time some"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "coord", 
+        domain: "Sentence Structure", 
+        rule: "Coordination", 
+        level: "B1", 
+        simplifiedRule: "Link equal clauses using <span class='purple'>conjunctions (and, but, or, so, yet)</span>.", 
+        example: "<span class='blue'>Vivienne</span> <span class='green'>studied</span> hard, <span class='purple'>so</span> she <span class='green'>passed</span> the geography exam.", 
+        practice: [
+            pDrag("Choose the correct coordinator.", "Emma loves art, ___ she dislikes math.", "but", ["so", "but", "or"]),
+            pInput("Type the coordinator showing result.", "It rained, ___ we stayed inside.", "so"),
+            pReveal("Reveal the contrast coordinator.", "He wanted to go, (and / but) he was tired.", "but")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "subord", 
+        domain: "Sentence Structure", 
+        rule: "Subordination", 
+        level: "B1", 
+        simplifiedRule: "Connect a dependent clause using a <span class='purple'>subordinator (because, although, when)</span>.", 
+        example: "<span class='purple'>Although</span> <span class='blue'>Giuseppe</span> <span class='green'>was</span> tired, he <span class='green'>finished</span> his science project.", 
+        practice: [
+            pInput("Type the correct subordinator (because/although).", "Remy stayed after school ___ she had a club meeting.", "because"),
+            pDrag("Select the time subordinator.", "___ the bell rang, we left.", "When", ["Because", "When", "Although"]),
+            pReveal("Reveal the contrast subordinator.", "(Although / Because) it was cold, they played outside.", "Although")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "fronting", 
+        domain: "Sentence Structure", 
+        rule: "Fronting", 
+        level: "B2", 
+        simplifiedRule: "<span class='keyword'>Move</span> <span class='orange'>time or place phrases</span> to the front of the sentence for emphasis.", 
+        example: "<span class='orange'>In the middle of the exam</span>, the fire alarm <span class='green'>rang</span>.", 
+        practice: [
+            pReveal("Tap to see the fronted phrase.", "What emphasizes the time? (On Monday, we have a test / We have a test on Monday).", "On Monday, we have a test"),
+            pInput("Front the place phrase.", "___, we found the lost keys.", "Under the desk"),
+            pDrag("Select the fronted element.", "___ did she realize her mistake.", "Only then", ["She only then", "Only then", "Then only"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "complex", 
+        domain: "Sentence Structure", 
+        rule: "Complex sentences", 
+        level: "B2", 
+        simplifiedRule: "Combine an independent clause with dependent clauses using <span class='purple'>connectors</span> for advanced writing.", 
+        example: "<span class='blue'>Remy</span>, <span class='purple'>who</span> <span class='green'>loves</span> acting, <span class='green'>joined</span> the drama club <span class='purple'>because</span> it's fun.", 
+        practice: [
+            pDrag("Complete the complex sentence.", "Vivienne failed the quiz ___ she didn't study.", "because", ["because", "so", "and"]),
+            pInput("Add a relative clause.", "The teacher ___ teaches math is strict.", "who"),
+            pReveal("Reveal the subordinate clause marker.", "She succeeded (because / so) she practiced daily.", "because")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "cleft", 
+        domain: "Sentence Structure", 
+        rule: "Cleft structures", 
+        level: "C1", 
+        simplifiedRule: "Use <span class='purple'>It is/was... who/that</span> to focus deeply on a specific piece of information.", 
+        example: "<span class='purple'>It was</span> <span class='blue'>Mr. Lee</span> <span class='purple'>who</span> <span class='green'>gave</span> us the extra homework.", 
+        practice: [
+            pInput("Complete the cleft sentence.", "It ___ Emma who won the art competition.", "was"),
+            pDrag("Select the cleft marker.", "___ was the principal who announced the change.", "It", ["That", "It", "This"]),
+            pReveal("Reveal the focused element.", "It was (yesterday / the exam) that mattered most.", "the exam")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "inversion", 
+        domain: "Sentence Structure", 
+        rule: "Inversion", 
+        level: "C1", 
+        simplifiedRule: "Swap the <span class='blue'>subject</span> and <span class='green'>verb</span> after a <span class='red'>negative adverb (Never, Rarely)</span>.", 
+        example: "<span class='red'>Never</span> <span class='green'>had</span> <span class='blue'>William</span> <span class='green'>seen</span> such a difficult math problem.", 
+        practice: [
+            pReveal("Reveal the correct inverted form.", "(Rarely I have / Rarely have I) seen Remy miss a deadline.", "Rarely have I"),
+            pInput("Invert after 'Not only'.", "Not only ___ she sing, but she also dances.", "does"),
+            pDrag("Select the inverted auxiliary.", "Seldom ___ they arrive on time.", "do", ["they do", "do they", "they"])
+        ],
+        level: "C1"
+    },
+    { 
+        id: "participle", 
+        domain: "Sentence Structure", 
+        rule: "Participle clause compression", 
+        level: "C1", 
+        simplifiedRule: "Shorten clauses using <span class='green'>-ing or -ed participle verbs</span>.", 
+        example: "<span class='green'>Feeling</span> tired, <span class='blue'>Giuseppe</span> <span class='green'>went</span> to sleep early.", 
+        practice: [
+            pDrag("Select the correct participle.", "___ his homework, Brian played basketball.", "Having finished", ["Having finished", "Finish", "Finished"]),
+            pInput("Complete the participle clause.", "___ by the results, she celebrated.", "Pleased"),
+            pReveal("Reveal the reduced clause.", "(Because she was tired / Tired), she left early.", "Tired")
+        ],
+        level: "C1"
+    },
+
+    // === NOUNS & NOUN PHRASES ===
+    { 
+        id: "count", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Countable nouns", 
+        level: "A2", 
+        simplifiedRule: "Use plural forms for <span class='blue'>nouns</span> you can count.", 
+        example: "<span class='blue'>Emma</span> <span class='green'>has</span> three <span class='blue'>pencils</span> and one <span class='blue'>eraser</span>.", 
+        practice: [
+            pInput("Type the plural of 'book'.", "Remy bought five ___ for class.", "books"),
+            pDrag("Select the countable noun.", "I need a new ___ for school.", "notebook", ["water", "notebook", "advice"]),
+            pReveal("Reveal the singular form.", "She has two (cat / cats).", "cats")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "uncount", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Uncountable nouns", 
+        level: "A2", 
+        simplifiedRule: "<span class='keyword'>Never</span> add an 's' to uncountable <span class='blue'>nouns</span> like homework or advice.", 
+        example: "The career counselor <span class='green'>gave</span> <span class='blue'>Ava</span> some excellent <span class='blue'>advice</span>.", 
+        practice: [
+            pReveal("Reveal the correct verb.", "The news about the school sports day (is / are) exciting.", "is"),
+            pInput("Type the uncountable noun.", "We need more ___ for the project.", "information"),
+            pDrag("Select the uncountable noun.", "She gave me useful ___.", "feedback", ["feedbacks", "feedback", "a feedback"])
+        ],
+        level: "A2"
+    },
+    { 
+        id: "reg-plurals", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Regular plurals", 
+        level: "A2", 
+        simplifiedRule: "Add <span class='orange'>-s or -es</span> to the end of regular countable <span class='blue'>nouns</span>.", 
+        example: "<span class='blue'>Andrew</span> <span class='green'>brought</span> two <span class='blue'>lunches</span> and three <span class='blue'>apples</span>.", 
+        practice: [
+            pInput("Type the plural of 'box'.", "Vivienne carried the heavy ___.", "boxes"),
+            pDrag("Select the correct plural.", "I saw three (bus / buses).", "buses", ["bus", "buses", "buss"]),
+            pReveal("Reveal the plural ending.", "She has two (baby / babies).", "babies")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "irreg-plurals", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Irregular plurals", 
+        level: "B1", 
+        simplifiedRule: "Memorize <span class='blue'>nouns</span> that completely change their spelling in the plural.", 
+        example: "Many <span class='blue'>people</span> <span class='green'>attended</span> the school play, including twenty <span class='blue'>children</span>.", 
+        practice: [
+            pDrag("Choose the correct plural.", "There are five ___ on the basketball team.", "men", ["mans", "men", "mens"]),
+            pInput("Type the plural of 'mouse'.", "We saw three ___ in the garden.", "mice"),
+            pReveal("Reveal the irregular plural.", "The (foot / feet) were cold.", "feet")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "determiners", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Determiners", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='purple'>determiners (this, that, these, those)</span> before a <span class='blue'>noun</span>.", 
+        example: "<span class='blue'>Remy</span> <span class='green'>prefers</span> <span class='purple'>this</span> <span class='blue'>textbook</span>, not <span class='purple'>that</span> one.", 
+        practice: [
+            pReveal("Reveal the correct determiner.", "Giuseppe dropped (this / these) books on the floor.", "these"),
+            pInput("Type the demonstrative for plural near.", "___ apples are fresh.", "These"),
+            pDrag("Select the correct determiner.", "Look at ___ stars!", "those", ["this", "these", "those"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "quantifiers", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Quantifiers", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='orange'>much</span> for uncountable and <span class='orange'>many</span> for countable <span class='blue'>nouns</span>.", 
+        example: "<span class='blue'>Brian</span> doesn't <span class='green'>have</span> <span class='orange'>much</span> time, but he <span class='green'>has</span> <span class='orange'>many</span> friends.", 
+        practice: [
+            pInput("Type 'much' or 'many'.", "How ___ homework did Mr. Lee give us?", "much"),
+            pDrag("Select the correct quantifier.", "There aren't ___ students in the room.", "many", ["much", "many", "a lot"]),
+            pReveal("Reveal the quantifier for uncountables.", "We don't have (many / much) water.", "much")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "possessives", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Possessives", 
+        level: "A2", 
+        simplifiedRule: "Add <span class='orange'>'s</span> to people or animals to show ownership → use <span class='purple'>of</span> for objects.", 
+        example: "<span class='blue'>Giuseppe's</span> backpack <span class='green'>is</span> next to the leg <span class='purple'>of</span> the table.", 
+        practice: [
+            pDrag("Select the correct possessive.", "I found ___ notebook in the cafeteria.", "Emma's", ["Emmas", "Emma's", "of Emma"]),
+            pInput("Type the possessive form.", "This is ___ (Vivienne) pencil.", "Vivienne's"),
+            pReveal("Reveal the possessive marker.", "The tail (of the / the's) cat is long.", "of the")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "partitives", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Partitives", 
+        level: "B2", 
+        simplifiedRule: "Use <span class='orange'>partitive phrases</span> (a piece of, a slice of) to count uncountable <span class='blue'>nouns</span>.", 
+        example: "<span class='blue'>William</span> <span class='green'>gave</span> me a great <span class='orange'>piece of</span> <span class='blue'>advice</span>.", 
+        practice: [
+            pReveal("Tap to see the correct phrase.", "Brian ate two (pieces of / pieces) toast.", "pieces of"),
+            pInput("Type the partitive for bread.", "She bought a ___ of bread.", "loaf"),
+            pDrag("Select the correct partitive.", "Can I have a ___ of advice?", "piece", ["slice", "piece", "cup"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "complex-nouns", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Complex noun phrases", 
+        level: "C1", 
+        simplifiedRule: "Stack <span class='orange'>multiple modifiers</span> around a <span class='blue'>core noun</span>.", 
+        example: "The <span class='orange'>recently updated school</span> <span class='blue'>policy</span> <span class='purple'>on student uniforms</span> <span class='green'>caused</span> a debate.", 
+        practice: [
+            pDrag("Complete the phrase.", "The highly ___ science teacher.", "respected", ["respected", "respecting", "respect"]),
+            pInput("Add a prepositional modifier.", "The report ___ climate change was detailed.", "on"),
+            pReveal("Reveal the complex NP structure.", "(The new school policy / The policy new school) was announced.", "The new school policy")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "nominal", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Nominalization", 
+        level: "C1", 
+        simplifiedRule: "Turn <span class='green'>verbs</span> into <span class='blue'>nouns</span> to make writing more academic.", 
+        example: "They <span class='green'>implemented</span> the rules. → The <span class='blue'>implementation</span> of the rules.", 
+        practice: [
+            pInput("Type the noun form of 'decide'.", "The principal's ___ was final.", "decision"),
+            pDrag("Select the nominalized form.", "Her ___ of the problem was insightful.", "analysis", ["analyze", "analysis", "analytical"]),
+            pReveal("Reveal the nominalization.", "The (develop / development) of technology is rapid.", "development")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "generic", 
+        domain: "Nouns & Noun Phrases", 
+        rule: "Generic reference", 
+        level: "B2", 
+        simplifiedRule: "Use the plural <span class='blue'>noun</span> with zero article to refer to whole classes.", 
+        example: "<span class='blue'>Computers</span> <span class='green'>are</span> essential for modern schoolwork.", 
+        practice: [
+            pReveal("Reveal the generic form.", "(The teenagers / Teenagers) need plenty of sleep.", "Teenagers"),
+            pInput("Type the generic plural.", "___ are important for learning.", "Books"),
+            pDrag("Select the generic reference.", "(The dog / Dogs) are loyal animals.", "Dogs", ["The dog", "Dogs", "A dog"])
+        ],
+        level: "B2"
+    },
+
+    // === ARTICLES ===
+    { 
+        id: "indefinite", 
+        domain: "Articles", 
+        rule: "Indefinite article", 
+        level: "A1", 
+        simplifiedRule: "Use <span class='purple'>a</span> or <span class='purple'>an</span> for a singular thing mentioned the first time.", 
+        example: "<span class='blue'>Ava</span> <span class='green'>bought</span> <span class='purple'>an</span> <span class='blue'>umbrella</span> for the field trip.", 
+        practice: [
+            pInput("Type 'a' or 'an'.", "Giuseppe needs ___ new laptop.", "a"),
+            pDrag("Select the correct article.", "She is ___ honest person.", "an", ["a", "an", "the"]),
+            pReveal("Reveal the vowel-sound article.", "He ate (a / an) apple.", "an")
+        ],
+        level: "A1"
+    },
+    { 
+        id: "definite", 
+        domain: "Articles", 
+        rule: "Definite article", 
+        level: "A2", 
+        simplifiedRule: "Use <span class='purple'>the</span> when both speaker and listener know exactly which thing is meant.", 
+        example: "<span class='blue'>Emma</span> <span class='green'>drew</span> a comic. <span class='purple'>The</span> <span class='blue'>comic</span> <span class='green'>was</span> amazing.", 
+        practice: [
+            pDrag("Select the correct article.", "Can you pass me ___ pen on your desk?", "the", ["a", "an", "the"]),
+            pInput("Type the article for second mention.", "I saw a bird. ___ bird was blue.", "The"),
+            pReveal("Reveal the definite article.", "Close (a / the) door, please.", "the")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "zero-art", 
+        domain: "Articles", 
+        rule: "Zero article", 
+        level: "B1", 
+        simplifiedRule: "Do not use an article before plural <span class='blue'>nouns</span> when speaking in general.", 
+        example: "I <span class='green'>love</span> listening to <span class='blue'>music</span> while doing <span class='blue'>homework</span>.", 
+        practice: [
+            pReveal("Identify the article.", "Remy hates (the exams / exams).", "exams"),
+            pInput("Type '-' for zero article.", "___ students need support.", "-"),
+            pDrag("Select the zero article context.", "She loves (the / -) chocolate.", "-", ["the", "-", "a"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "first-subseq", 
+        domain: "Articles", 
+        rule: "First vs. subsequent mention", 
+        level: "B1", 
+        simplifiedRule: "Introduce something with <span class='purple'>a/an</span>, then switch to <span class='purple'>the</span>.", 
+        example: "<span class='blue'>Andrew</span> <span class='green'>found</span> <span class='purple'>a</span> <span class='blue'>phone</span>. He <span class='green'>gave</span> <span class='purple'>the</span> <span class='blue'>phone</span> to Mr. Lee.", 
+        practice: [
+            pInput("Type the second article.", "I saw a dog. ___ dog was barking loudly.", "The"),
+            pDrag("Complete the article sequence.", "I bought ___ book. ___ book is interesting.", "a, The", ["a, The", "the, A", "a, A"]),
+            pReveal("Reveal the anaphoric article.", "She has a cat. (A / The) cat is black.", "The")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "geo-art", 
+        domain: "Articles", 
+        rule: "Geographical article rules", 
+        level: "B2", 
+        simplifiedRule: "Use <span class='purple'>the</span> for rivers and oceans. Use <span class='red'>nothing</span> for single mountains.", 
+        example: "They <span class='green'>traveled</span> across <span class='purple'>the</span> <span class='blue'>Atlantic</span> but <span class='green'>climbed</span> <span class='red'>Mount Everest</span>.", 
+        practice: [
+            pDrag("Choose the article.", "Our geography project is about ___ Amazon River.", "the", ["the", "a", "no article"]),
+            pInput("Type the article for plural countries.", "She visited ___ Netherlands.", "the"),
+            pReveal("Reveal the zero article mountain.", "They hiked (the / -) Mount Fuji.", "-")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "inst-zero", 
+        domain: "Articles", 
+        rule: "Institutional zero article", 
+        level: "B2", 
+        simplifiedRule: "Drop the article for places like <span class='blue'>school</span> or <span class='blue'>hospital</span> when used for their purpose.", 
+        example: "<span class='blue'>Emma</span> <span class='green'>goes</span> to <span class='blue'>school</span> by bus every day.", 
+        practice: [
+            pReveal("Reveal the correct usage.", "Vivienne was sick and went to (the hospital / hospital).", "hospital"),
+            pInput("Type the zero article institution.", "He was sent to ___ prison for the crime.", "prison"),
+            pDrag("Select the institutional zero article.", "She is at (the / -) university studying.", "-", ["the", "-", "a"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "abstract-art", 
+        domain: "Articles", 
+        rule: "Abstract noun article rules", 
+        level: "C1", 
+        simplifiedRule: "Use zero article for general abstract concepts → Use <span class='purple'>the</span> when specific.", 
+        example: "<span class='blue'>Life</span> <span class='green'>is</span> hard, but <span class='purple'>the</span> <span class='blue'>life of a student</span> <span class='green'>is</span> rewarding.", 
+        practice: [
+            pInput("Type 'the' or '-'.", "___ education she received in Hong Kong was excellent.", "The"),
+            pDrag("Select the article for abstract specificity.", "(The / -) freedom we enjoy is precious.", "The", ["The", "-", "A"]),
+            pReveal("Reveal the generic abstract.", "(The / -) Love is powerful.", "-")
+        ],
+        level: "C1"
+    },
+
+    // === VERBS: TENSE & ASPECT ===
+    { 
+        id: "pres-simple", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Present simple", 
+        level: "A1", 
+        simplifiedRule: "Use the <span class='green'>present simple</span> for habits or general facts.", 
+        example: "I <span class='green'>play</span> soccer every <span class='orange'>Friday</span>.", 
+        practice: [
+            pInput("Type the correct verb form (study).", "Giuseppe ___ in the library after school.", "studies"),
+            pDrag("Select the habitual present.", "She (go / goes) to school by bus.", "goes", ["go", "goes", "going"]),
+            pReveal("Reveal the general truth form.", "Water (boil / boils) at 100°C.", "boils")
+        ],
+        level: "A1"
+    },
+    { 
+        id: "pres-cont", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Present continuous", 
+        level: "A2", 
+        simplifiedRule: "Use <span class='green'>am/is/are + verb-ing</span> for actions happening right now or arranged plans.", 
+        example: "<span class='blue'>Remy</span> <span class='green'>is meeting</span> her study group at 5 PM today.", 
+        practice: [
+            pDrag("Choose the correct form.", "Quiet! The principal ___ right now.", "is talking", ["talks", "is talking", "talked"]),
+            pInput("Type the continuous form (write).", "They ___ a report at the moment.", "are writing"),
+            pReveal("Reveal the future arrangement use.", "I (meet / am meeting) her tomorrow.", "am meeting")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "past-simple", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Past simple", 
+        level: "A2", 
+        simplifiedRule: "Use the <span class='green'>past simple</span> for finished actions in a finished time period.", 
+        example: "<span class='blue'>William</span> <span class='green'>passed</span> his math test <span class='orange'>last week</span>.", 
+        practice: [
+            pReveal("Tap to reveal the correct past tense.", "Yesterday, Emma (draws / drew) a new comic.", "drew"),
+            pInput("Type the past form of 'go'.", "We ___ to the museum last Saturday.", "went"),
+            pDrag("Select the past time marker.", "She called me (yesterday / tomorrow).", "yesterday", ["yesterday", "tomorrow", "next week"])
+        ],
+        level: "A2"
+    },
+    { 
+        id: "past-cont", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Past continuous", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='green'>was/were + verb-ing</span> to describe a background action interrupted by a past event.", 
+        example: "<span class='blue'>Giuseppe</span> <span class='green'>was studying</span> <span class='purple'>when</span> his phone <span class='green'>rang</span>.", 
+        practice: [
+            pInput("Type the continuous form (play).", "They ___ basketball when it started to rain.", "were playing"),
+            pDrag("Select the interrupted action.", "I (was cooking / cooked) when the doorbell rang.", "was cooking", ["was cooking", "cooked", "cook"]),
+            pReveal("Reveal the background tense.", "While she (read / was reading), he arrived.", "was reading")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "pres-perf-simp", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Present perfect simple", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='green'>have/has + past participle</span> for life experiences or recent past events.", 
+        example: "<span class='blue'>Ava</span> <span class='green'>has finished</span> her homework, so now she can relax.", 
+        practice: [
+            pDrag("Select the correct form.", "I ___ to Japan three times in my life.", "have been", ["went", "have been", "am going"]),
+            pInput("Type the present perfect of 'see'.", "She ___ that movie already.", "has seen"),
+            pReveal("Reveal the experiential use.", "Have you ever (eat / eaten) sushi?", "eaten")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "pres-perf-cont", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Present perfect continuous", 
+        level: "B2", 
+        simplifiedRule: "Focus on the <span class='orange'>duration</span> of an ongoing action using <span class='green'>have/has been + verb-ing</span>.", 
+        example: "<span class='blue'>Emma</span> <span class='green'>has been drawing</span> that comic <span class='orange'>for three hours</span>.", 
+        practice: [
+            pReveal("Reveal the correct auxiliary.", "How long (has / have) Vivienne been practicing?", "has"),
+            pInput("Type the continuous perfect form (work).", "They ___ on the project since Monday.", "have been working"),
+            pDrag("Select the duration marker.", "She has been studying (for / since) two hours.", "for", ["for", "since", "during"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "past-perf", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Past perfect", 
+        level: "B2", 
+        simplifiedRule: "Show what happened <span class='orange'>first</span> in the past using <span class='green'>had + past participle</span>.", 
+        example: "The bus <span class='green'>had left</span> before <span class='blue'>Andrew</span> arrived at the station.", 
+        practice: [
+            pInput("Type the past perfect form (forget).", "Remy realized she ___ her calculator.", "had forgotten"),
+            pDrag("Select the earlier past action.", "After she (finished / had finished) eating, she left.", "had finished", ["finished", "had finished", "has finished"]),
+            pReveal("Reveal the past-before-past marker.", "When I arrived, the meeting (started / had started).", "had started")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "fut-forms", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Future forms", 
+        level: "B1", 
+        simplifiedRule: "Choose <span class='green'>will</span> for sudden decisions → <span class='green'>going to</span> for established plans.", 
+        example: "I dropped my pen! I <span class='green'>will</span> get it. / I <span class='green'>am going to</span> study tonight.", 
+        practice: [
+            pDrag("Choose the correct future.", "Look at those dark clouds! It ___ rain.", "is going to", ["will", "is going to", "rains"]),
+            pInput("Type the spontaneous decision future.", "I think I ___ take a break.", "will"),
+            pReveal("Reveal the planned future.", "We (will / are going to) visit Paris next summer.", "are going to")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "aspect", 
+        domain: "Verbs: Tense & Aspect", 
+        rule: "Aspect distinctions", 
+        level: "C1", 
+        simplifiedRule: "Distinguish between <span class='green'>temporary (continuous)</span> actions and <span class='green'>permanent (habitual)</span> states.", 
+        example: "<span class='blue'>Mr. Lee</span> <span class='green'>is teaching</span> physics this month, but he usually <span class='green'>teaches</span> math.", 
+        practice: [
+            pReveal("Identify the aspect.", "'He is always interrupting class' shows (a habit / an annoyance).", "an annoyance"),
+            pInput("Type the aspect showing temporary action.", "She ___ (live) in Beijing this year.", "is living"),
+            pDrag("Select the habitual aspect.", "He (works / is working) as a teacher.", "works", ["works", "is working", "has worked"])
+        ],
+        level: "C1"
+    },
+
+    // === VOICE ===
+    { 
+        id: "pass-basic", 
+        domain: "Voice", 
+        rule: "Basic passive", 
+        level: "B1", 
+        simplifiedRule: "Focus on the <span class='orange'>action</span>, not the doer → Use <span class='green'>Be + Past Participle</span>.", 
+        example: "The final exams <span class='green'>are written</span> by the department head.", 
+        practice: [
+            pInput("Type the passive 'was stolen'.", "Brian's bicycle ___ yesterday.", "was stolen"),
+            pDrag("Convert to passive.", "They built this school in 1990. → This school ___ in 1990.", "was built", ["built", "was built", "is built"]),
+            pReveal("Reveal the passive auxiliary.", "The letter (is / was) written yesterday.", "was")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "pass-modal", 
+        domain: "Voice", 
+        rule: "Passive with modals", 
+        level: "B2", 
+        simplifiedRule: "Combine a <span class='red'>modal verb</span> with <span class='green'>be + past participle</span>.", 
+        example: "Homework <span class='red'>must</span> <span class='green'>be submitted</span> by Friday at 5 PM.", 
+        practice: [
+            pDrag("Complete the passive modal.", "Cell phones ___ turned off during the exam.", "should be", ["should be", "should", "are"]),
+            pInput("Type the modal passive.", "The report ___ (can / submit) by tomorrow.", "can be submitted"),
+            pReveal("Reveal the modal passive form.", "This door (must / must be) locked at night.", "must be")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "pass-perf", 
+        domain: "Voice", 
+        rule: "Passive with perfect aspect", 
+        level: "C1", 
+        simplifiedRule: "Use <span class='green'>have/has been + past participle</span> to show a completed passive action.", 
+        example: "The test results <span class='green'>have been posted</span> on the noticeboard.", 
+        practice: [
+            pReveal("Reveal the correct form.", "The school gym (has renovated / has been renovated).", "has been renovated"),
+            pInput("Type the present perfect passive.", "The documents ___ (already / send).", "have already been sent"),
+            pDrag("Select the perfect passive auxiliary.", "The project (had / had been) completed before the deadline.", "had been", ["had", "had been", "has been"])
+        ],
+        level: "C1"
+    },
+    { 
+        id: "pass-report", 
+        domain: "Voice", 
+        rule: "Passive reporting structures", 
+        level: "C1", 
+        simplifiedRule: "Use phrases like <span class='purple'>It is said that...</span> to distance the speaker from the information.", 
+        example: "<span class='purple'>It is believed that</span> the exam will be very difficult.", 
+        practice: [
+            pInput("Complete the phrase.", "It is ___ that the principal is retiring.", "said"),
+            pDrag("Select the reporting passive.", "(It is thought / They think) that climate change is urgent.", "It is thought", ["It is thought", "They think", "People think"]),
+            pReveal("Reveal the impersonal passive.", "(It is reported / They report) that the event was successful.", "It is reported")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "pass-chain", 
+        domain: "Voice", 
+        rule: "Complex passive chains", 
+        level: "C1", 
+        simplifiedRule: "Combine passives with infinitives → <span class='blue'>subject</span> + <span class='green'>passive verb + to-infinitive</span>.", 
+        example: "<span class='blue'>Vivienne</span> <span class='green'>is expected to win</span> the science fair.", 
+        practice: [
+            pDrag("Complete the chain.", "Remy is known ___ a great actress.", "to be", ["to be", "being", "is"]),
+            pInput("Type the passive infinitive.", "He is said ___ (speak) five languages.", "to speak"),
+            pReveal("Reveal the complex passive.", "The book is believed (to have been / to be) written in 1800.", "to have been")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "causative", 
+        domain: "Voice", 
+        rule: "Causatives", 
+        level: "B2", 
+        simplifiedRule: "Use <span class='green'>have/get</span> + <span class='orange'>object</span> + <span class='green'>past participle</span> for delegated actions.", 
+        example: "<span class='blue'>Emma</span> <span class='green'>had</span> <span class='orange'>her laptop</span> <span class='green'>repaired</span> at the tech shop.", 
+        practice: [
+            pReveal("Identify the causative.", "Giuseppe got his hair (cut / cutting) for graduation.", "cut"),
+            pInput("Type the causative form.", "She ___ (have / her car / service) yesterday.", "had her car serviced"),
+            pDrag("Select the causative structure.", "I need to (have / have had) my passport renewed.", "have", ["have", "have had", "having"])
+        ],
+        level: "B2"
+    },
+
+    // === MODALS ===
+    { 
+        id: "mod-ability", 
+        domain: "Modals", 
+        rule: "Ability", 
+        level: "A2", 
+        simplifiedRule: "Use <span class='green'>can</span> for present ability and <span class='green'>could</span> for past ability.", 
+        example: "<span class='blue'>Remy</span> <span class='green'>can</span> speak three languages. <span class='blue'>Brian</span> <span class='green'>could</span> swim when he was five.", 
+        practice: [
+            pInput("Type the past ability of can.", "William ___ run very fast when he was younger.", "could"),
+            pDrag("Select the present ability modal.", "She (can / could) solve complex equations.", "can", ["can", "could", "may"]),
+            pReveal("Reveal the past ability form.", "When I was young, I (can / could) climb trees.", "could")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "mod-perm", 
+        domain: "Modals", 
+        rule: "Permission", 
+        level: "A2", 
+        simplifiedRule: "Ask using <span class='green'>can</span> (informal) or <span class='green'>may/could</span> (polite/formal).", 
+        example: "<span class='green'>May</span> I use the restroom, Mr. Lee?", 
+        practice: [
+            pDrag("Choose the most polite option.", "___ I please borrow your calculator?", "Could", ["Can", "Could", "Must"]),
+            pInput("Type the formal permission modal.", "___ I speak with the principal, please?", "May"),
+            pReveal("Reveal the informal permission.", "(Can / May) I have a cookie?", "Can")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "mod-obli", 
+        domain: "Modals", 
+        rule: "Obligation", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='red'>must</span> for strong personal rules → <span class='red'>have to</span> for external school rules.", 
+        example: "I <span class='red'>must</span> study harder. We <span class='red'>have to</span> wear uniforms.", 
+        practice: [
+            pReveal("Reveal the external rule.", "The teacher said we (must / have to) finish this today.", "have to"),
+            pInput("Type the personal obligation modal.", "I ___ apologize for being late.", "must"),
+            pDrag("Select the deontic modal.", "You (must / have to) follow the rules.", "have to", ["must", "have to", "should"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "mod-adv", 
+        domain: "Modals", 
+        rule: "Advice", 
+        level: "B1", 
+        simplifiedRule: "Give recommendations using <span class='green'>should</span> or <span class='green'>ought to</span>.", 
+        example: "You <span class='green'>should</span> review your notes before the final exam.", 
+        practice: [
+            pInput("Type the modal of advice.", "Giuseppe, you ___ apologize to Remy.", "should"),
+            pDrag("Select the advice modal.", "You (should / must) see a doctor about that cough.", "should", ["should", "must", "can"]),
+            pReveal("Reveal the formal advice modal.", "Students (should / ought to) arrive on time.", "ought to")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "mod-poss", 
+        domain: "Modals", 
+        rule: "Possibility", 
+        level: "B1", 
+        simplifiedRule: "Express uncertainty about the present or future using <span class='purple'>might, may,</span> or <span class='purple'>could</span>.", 
+        example: "It <span class='purple'>might</span> rain later, so take an umbrella.", 
+        practice: [
+            pDrag("Select the possibility modal.", "Vivienne ___ be in the library, but I'm not sure.", "might", ["must", "might", "can"]),
+            pInput("Type the modal for uncertain future.", "She ___ join us later.", "may"),
+            pReveal("Reveal the epistemic possibility.", "That (might / must) be the right answer.", "might")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "mod-deduct", 
+        domain: "Modals", 
+        rule: "Deduction", 
+        level: "B2", 
+        simplifiedRule: "Make logical guesses: <span class='red'>must</span> (99% sure it's true) vs <span class='red'>can't</span> (99% sure it's false).", 
+        example: "<span class='blue'>Ava</span> got 100%. She <span class='red'>must</span> be very smart. She <span class='red'>can't</span> be failing.", 
+        practice: [
+            pReveal("Reveal the deduction.", "That (must / can't) be Andrew; he's much taller than that guy.", "can't"),
+            pInput("Type the negative deduction modal.", "He ___ be at home; his car is gone.", "can't"),
+            pDrag("Select the strong positive deduction.", "She studied all night. She (must / might) be tired.", "must", ["must", "might", "could"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "mod-perf", 
+        domain: "Modals", 
+        rule: "Modal perfects", 
+        level: "C1", 
+        simplifiedRule: "Express past regrets or deductions using <span class='green'>modal + have + past participle</span>.", 
+        example: "I <span class='green'>should have studied</span> more for that test! (Regret)", 
+        practice: [
+            pInput("Type the perfect modal.", "You ___ have told me the exam was cancelled!", "should"),
+            pDrag("Select the past deduction.", "He isn't here. He (must have left / must leave) early.", "must have left", ["must have left", "must leave", "must be leaving"]),
+            pReveal("Reveal the past regret modal.", "I (should have / should) called her yesterday.", "should have")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "mod-reg", 
+        domain: "Modals", 
+        rule: "Register-sensitive modals", 
+        level: "C1", 
+        simplifiedRule: "Adapt formality: <span class='purple'>shall</span> is formal/legal, <span class='purple'>ought to</span> is formal advice.", 
+        example: "Students <span class='purple'>shall</span> not enter the laboratory unsupervised.", 
+        practice: [
+            pDrag("Choose the formal modal.", "What ___ we do now, sir?", "shall", ["will", "shall", "ought"]),
+            pInput("Type the formal advice modal.", "You ___ to consider all options.", "ought"),
+            pReveal("Reveal the legal modal.", "The contract (shall / will) be binding upon signature.", "shall")
+        ],
+        level: "C1"
+    },
+
+    // === NON-FINITE VERBS ===
+    { 
+        id: "to-inf", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "To-infinitive", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='green'>to + base verb</span> after certain verbs or to show purpose.", 
+        example: "<span class='blue'>Giuseppe</span> <span class='green'>went</span> to the library <span class='green'>to study</span> for the test.", 
+        practice: [
+            pInput("Type the to-infinitive of 'pass'.", "Emma hopes ___ the art exam.", "to pass"),
+            pDrag("Select the purpose infinitive.", "She saved money ___ a new laptop.", "to buy", ["to buy", "buying", "bought"]),
+            pReveal("Reveal the verb + to-infinitive pattern.", "He decided (to leave / leaving) early.", "to leave")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "bare-inf", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "Bare infinitive", 
+        level: "B1", 
+        simplifiedRule: "Use the <span class='green'>base verb</span> without 'to' after modal verbs and let/make.", 
+        example: "Mr. Lee <span class='green'>made</span> us <span class='green'>write</span> the essay again.", 
+        practice: [
+            pReveal("Reveal the bare infinitive.", "Ava let Brian (to borrow / borrow) her pen.", "borrow"),
+            pInput("Type the bare infinitive after modal.", "You must ___ (finish) your work.", "finish"),
+            pDrag("Select the correct form after make.", "The news made her (cry / to cry).", "cry", ["cry", "to cry", "crying"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "gerunds", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "Gerunds", 
+        level: "B1", 
+        simplifiedRule: "Add <span class='green'>-ing</span> to make a verb act like a noun → Use after prepositions.", 
+        example: "<span class='blue'>William</span> enjoys <span class='green'>playing</span> basketball after school.", 
+        practice: [
+            pDrag("Select the gerund.", "Emma is interested in ___ graphic design.", "studying", ["study", "to study", "studying"]),
+            pInput("Type the gerund after preposition.", "She is good at ___ (draw).", "drawing"),
+            pReveal("Reveal the verb + gerund pattern.", "He avoided (to talk / talking) about it.", "talking")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "verb-pat", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "Verb patterns", 
+        level: "B2", 
+        simplifiedRule: "Memorize which verbs take <span class='green'>gerunds</span> and which take <span class='green'>infinitives</span>.", 
+        example: "<span class='blue'>Remy</span> <span class='green'>stopped talking</span> when the teacher walked in.", 
+        practice: [
+            pInput("Type the gerund form of 'do'.", "Andrew suggested ___ the project together.", "doing"),
+            pDrag("Select the correct pattern.", "I remember (to lock / locking) the door.", "locking", ["to lock", "locking", "lock"]),
+            pReveal("Reveal the meaning distinction.", "He stopped (to smoke / smoking) last year.", "smoking")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "perf-inf", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "Perfect infinitive", 
+        level: "C1", 
+        simplifiedRule: "Use <span class='green'>to have + past participle</span> to refer to a time earlier than the main verb.", 
+        example: "<span class='blue'>Vivienne</span> seems <span class='green'>to have forgotten</span> his homework today.", 
+        practice: [
+            pReveal("Tap to reveal.", "I am sorry (to be / to have been) late yesterday.", "to have been"),
+            pInput("Type the perfect infinitive.", "She appears ___ (win) the competition.", "to have won"),
+            pDrag("Select the anterior infinitive.", "He is said (to leave / to have left) last week.", "to have left", ["to leave", "to have left", "having left"])
+        ],
+        level: "C1"
+    },
+    { 
+        id: "pass-inf", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "Passive infinitive", 
+        level: "C1", 
+        simplifiedRule: "Use <span class='green'>to be + past participle</span> for passive actions in the infinitive.", 
+        example: "The homework needs <span class='green'>to be submitted</span> by Friday.", 
+        practice: [
+            pDrag("Complete the passive infinitive.", "The prize is going ___ awarded tomorrow.", "to be", ["to be", "being", "been"]),
+            pInput("Type the passive infinitive.", "The report wants ___ (review) by the committee.", "to be reviewed"),
+            pReveal("Reveal the passive infinitive form.", "The car needs (to repair / to be repaired).", "to be repaired")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "reduced-cl", 
+        domain: "Non-Finite Verb Forms", 
+        rule: "Reduced clauses", 
+        level: "C1", 
+        simplifiedRule: "Remove the subject and 'be' verb to create concise <span class='orange'>adjective phrases</span>.", 
+        example: "The boy <span class='orange'>sitting next to Giuseppe</span> is my cousin.", 
+        practice: [
+            pInput("Type the reduced form (written).", "The book, ___ by Mr. Lee, is excellent.", "written"),
+            pDrag("Select the reduced relative.", "The man (who is standing / standing) there is my uncle.", "standing", ["who is standing", "standing", "stood"]),
+            pReveal("Reveal the participle reduction.", "Students (who are interested / interested) in science should apply.", "interested")
+        ],
+        level: "C1"
+    },
+
+    // === ADJECTIVES & ADVERBS ===
+    { 
+        id: "comp", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Comparative forms", 
+        level: "A2", 
+        simplifiedRule: "Add <span class='orange'>-er</span> or use <span class='orange'>more</span> to compare two things.", 
+        example: "<span class='blue'>Brian</span> thinks physics is <span class='orange'>more difficult</span> than biology.", 
+        practice: [
+            pInput("Type the comparative form of 'heavy'.", "Remy's bag is ___ than Giuseppe's bag.", "heavier"),
+            pDrag("Select the correct comparative.", "This test is (more easy / easier) than the last one.", "easier", ["more easy", "easier", "easyer"]),
+            pReveal("Reveal the 'more' comparative.", "Her essay was (more interesting / interestinger) than mine.", "more interesting")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "super", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Superlative forms", 
+        level: "A2", 
+        simplifiedRule: "Add <span class='red'>-est</span> or use <span class='red'>the most</span> to compare three or more things.", 
+        example: "<span class='blue'>Emma</span> got the <span class='red'>highest</span> score in the entire class.", 
+        practice: [
+            pReveal("Reveal the superlative.", "Giuseppe is the (faster / fastest) runner in Grade 8.", "fastest"),
+            pInput("Type the superlative of 'good'.", "This is the ___ movie I've ever seen.", "best"),
+            pDrag("Select the superlative marker.", "She is (the most / most) talented student.", "the most", ["the most", "most", "more"])
+        ],
+        level: "A2"
+    },
+    { 
+        id: "adj-order", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Adjective order", 
+        level: "B2", 
+        simplifiedRule: "Follow the <span class='orange'>adjective</span> order: Opinion, Size, Age, Shape, Color, Origin, Material, Purpose.", 
+        example: "<span class='blue'>Ava</span> bought a <span class='orange'>beautiful large new red leather</span> school bag.", 
+        practice: [
+            pDrag("Order the adjectives.", "I found a ___ box.", "small old wooden", ["wooden old small", "small old wooden", "old wooden small"]),
+            pInput("Type the correct adjective sequence.", "She has a ___ (Italian / beautiful / old) vase.", "beautiful old Italian"),
+            pReveal("Reveal the OSASCOMP order.", "He drove a (red sports new / new red sports) car.", "new red sports")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "adv-freq", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Adverb frequency rules", 
+        level: "B1", 
+        simplifiedRule: "Place <span class='orange'>adverbs of frequency</span> before the main verb, but after 'be'.", 
+        example: "<span class='blue'>Andrew</span> <span class='green'>is</span> <span class='orange'>always</span> hungry. He <span class='orange'>usually</span> <span class='green'>eats</span> two lunches.", 
+        practice: [
+            pInput("Type 'always' in the right spot (She is late).", "She ___ late.", "is always"),
+            pDrag("Select the correct position.", "They (often are / are often) late.", "are often", ["often are", "are often", "often"]),
+            pReveal("Reveal the be-verb adverb placement.", "He is (never / is never) on time.", "never")
+        ],
+        level: "B1"
+    },
+    { 
+        id: "intens", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Intensifiers", 
+        level: "B1", 
+        simplifiedRule: "Make adjectives stronger using <span class='orange'>intensifiers</span> like very, really, extremely.", 
+        example: "The final exam was <span class='orange'>extremely</span> difficult.", 
+        practice: [
+            pReveal("Identify the intensifier.", "The homework was (quite / quiet) easy.", "quite"),
+            pInput("Type an intensifier for 'happy'.", "She was ___ happy with the results.", "very"),
+            pDrag("Select the degree modifier.", "It was (very / much) cold yesterday.", "very", ["very", "much", "many"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "adj-comp", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Adjective complementation", 
+        level: "B2", 
+        simplifiedRule: "Memorize which <span class='purple'>prepositions</span> follow specific <span class='orange'>adjectives</span>.", 
+        example: "<span class='blue'>Vivienne</span> is very <span class='orange'>interested</span> <span class='purple'>in</span> modern physics.", 
+        practice: [
+            pDrag("Select the correct preposition.", "Remy is afraid ___ spiders.", "of", ["in", "of", "about"]),
+            pInput("Type the preposition after 'good'.", "She is good ___ mathematics.", "at"),
+            pReveal("Reveal the adjective + preposition collocation.", "He is proud (of / for) his achievements.", "of")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "adv-front", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Adverb fronting", 
+        level: "C1", 
+        simplifiedRule: "Move an <span class='orange'>adverb</span> to the front of a sentence to shift emphasis.", 
+        example: "<span class='orange'>Slowly and carefully</span>, <span class='blue'>Emma</span> finished her artwork.", 
+        practice: [
+            pInput("Type the fronted adverb (Suddenly).", "___, the fire alarm rang.", "Suddenly"),
+            pDrag("Select the fronted manner adverb.", "___, she completed the task.", "Efficiently", ["She efficiently", "Efficiently", "Efficient"]),
+            pReveal("Reveal the fronted element.", "(Yesterday / She yesterday) called me.", "Yesterday")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "stance", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Stance adverbs", 
+        level: "C1", 
+        simplifiedRule: "Express attitude using <span class='orange'>stance adverbs</span> like apparently, arguably, fortunately.", 
+        example: "<span class='orange'>Fortunately</span>, <span class='blue'>William</span> found his lost textbook before class.", 
+        practice: [
+            pReveal("Identify the stance adverb.", "(Obviously / Rapidly), the school rules must be obeyed.", "Obviously"),
+            pInput("Type the stance adverb for luck.", "___, the rain stopped before the game.", "Fortunately"),
+            pDrag("Select the epistemic stance marker.", "(Arguably / Quickly), this is the best solution.", "Arguably", ["Arguably", "Quickly", "Suddenly"])
+        ],
+        level: "C1"
+    },
+    { 
+        id: "adj-expand", 
+        domain: "Adjectives & Adverbs", 
+        rule: "Adjective phrase expansion", 
+        level: "C1", 
+        simplifiedRule: "Expand an <span class='orange'>adjective</span> with <span class='purple'>prepositional or infinitive phrases</span>.", 
+        example: "<span class='blue'>Ava</span> is <span class='orange'>ready</span> <span class='purple'>to take on the geography challenge</span>.", 
+        practice: [
+            pDrag("Complete the expanded phrase.", "The teacher was happy ___ the results.", "with", ["with", "for", "in"]),
+            pInput("Type the infinitive complement.", "She is eager ___ (learn) more.", "to learn"),
+            pReveal("Reveal the adjective expansion.", "He is capable (of / to) solving complex problems.", "of")
+        ],
+        level: "C1"
+    },
+
+    // === CLAUSES ===
+    { 
+        id: "noun-cl", 
+        domain: "Clauses", 
+        rule: "Noun Clauses", 
+        level: "B2", 
+        simplifiedRule: "Use a full clause to act as the <span class='blue'>subject or object</span> of a sentence.", 
+        example: "I don't know <span class='blue'>what Giuseppe is doing</span>. / <span class='blue'>That Remy won</span> is amazing.", 
+        practice: [
+            pInput("Type the wh- word.", "I can't remember ___ the exam is scheduled for.", "when"),
+            pDrag("Select the noun clause marker.", "___ she said surprised everyone.", "What", ["That", "What", "Which"]),
+            pReveal("Reveal the subject noun clause.", "(That he passed / He passed) was unexpected.", "That he passed")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "rel-cl", 
+        domain: "Clauses", 
+        rule: "Relative Clauses", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='purple'>who, which, that</span> to give essential or extra info about a <span class='blue'>noun</span>.", 
+        example: "The teacher <span class='purple'>who</span> teaches math is Mr. Lee.", 
+        practice: [
+            pReveal("Reveal the relative pronoun.", "The book (which / who) I borrowed is lost.", "which"),
+            pInput("Type the relative pronoun for people.", "The student ___ won the prize is brilliant.", "who"),
+            pDrag("Select the non-defining marker.", "My brother, ___ lives in Tokyo, is visiting.", "who", ["that", "who", "which"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "adv-cl", 
+        domain: "Clauses", 
+        rule: "Adverbial Clauses", 
+        level: "B2", 
+        simplifiedRule: "Modify the main verb by adding a clause showing time, reason, or contrast.", 
+        example: "<span class='blue'>Brian</span> studied hard <span class='purple'>because</span> he wanted an A.", 
+        practice: [
+            pDrag("Select the contrast conjunction.", "___ it rained, we still had P.E. outside.", "Although", ["Because", "Although", "Since"]),
+            pInput("Type the time subordinator.", "___ she arrived, the meeting started.", "When"),
+            pReveal("Reveal the causal clause marker.", "He succeeded (because / although) he worked hard.", "because")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "cond", 
+        domain: "Clauses", 
+        rule: "Conditionals", 
+        level: "B2", 
+        simplifiedRule: "Imagine an unreal present/future → <span class='purple'>If</span> + <span class='green'>Past Simple</span>, ... <span class='green'>would + Verb</span>.", 
+        example: "<span class='purple'>If</span> <span class='blue'>Andrew</span> <span class='green'>won</span> the lottery, he <span class='green'>would build</span> a basketball court.", 
+        practice: [
+            pInput("Type the verb (were).", "If I ___ you, I would ask Mr. Lee for help.", "were"),
+            pDrag("Select the conditional structure.", "If she (studies / studied) harder, she would pass.", "studied", ["studies", "studied", "had studied"]),
+            pReveal("Reveal the unreal conditional marker.", "If I (have / had) more time, I would travel.", "had")
+        ],
+        level: "B2"
+    },
+
+    // === REPORTED SPEECH ===
+    { 
+        id: "rep-stat", 
+        domain: "Reported Speech", 
+        rule: "Reported statements", 
+        level: "B1", 
+        simplifiedRule: "Report what someone said by changing pronouns and stepping the <span class='green'>tense</span> back.", 
+        example: "'I like art.' → <span class='blue'>Emma</span> said she <span class='green'>liked</span> art.", 
+        practice: [
+            pReveal("Identify the reported verb.", "Giuseppe said he (wants / wanted) to play basketball.", "wanted"),
+            pInput("Type the backshifted verb for 'am'.", "She said she ___ tired.", "was"),
+            pDrag("Select the pronoun shift.", "'I need help' → He said ___ needed help.", "he", ["I", "he", "she"])
+        ],
+        level: "B1"
+    },
+    { 
+        id: "rep-ques", 
+        domain: "Reported Speech", 
+        rule: "Reported questions", 
+        level: "B2", 
+        simplifiedRule: "Change question word order back to normal <span class='blue'>S</span>-<span class='green'>V</span>-<span class='orange'>O</span> and use <span class='purple'>if/whether</span>.", 
+        example: "'Are you ready?' → <span class='blue'>Ava</span> asked <span class='purple'>if</span> I was ready.", 
+        practice: [
+            pDrag("Reorder the reported question.", "He asked ___ ___ ___", "where I lived", ["lived", "where", "I"]),
+            pInput("Type the reported yes/no question marker.", "She asked ___ I was coming.", "if"),
+            pReveal("Reveal the SVO word order.", "'Where do you live?' → He asked where (do I / I) lived.", "I")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "backshift", 
+        domain: "Reported Speech", 
+        rule: "Backshifting", 
+        level: "B2", 
+        simplifiedRule: "Shift the <span class='green'>tense</span> back one step.", 
+        example: "Direct: 'I <span class='green'>went</span>.' → Reported: <span class='blue'>William</span> said he <span class='green'>had gone</span>.", 
+        practice: [
+            pInput("Type the backshifted verb for 'am'.", "Vivienne said he ___ tired.", "was"),
+            pDrag("Select the past perfect backshift.", "'I finished' → She said she (finished / had finished).", "had finished", ["finished", "had finished", "has finished"]),
+            pReveal("Reveal the tense shift.", "'I will go' → He said he (will / would) go.", "would")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "rep-verbs", 
+        domain: "Reported Speech", 
+        rule: "Reporting verbs", 
+        level: "C1", 
+        simplifiedRule: "Use advanced reporting <span class='green'>verbs</span> like accuse, admit, apologize.", 
+        example: "<span class='blue'>Remy</span> <span class='green'>apologized</span> <span class='purple'>for</span> losing the textbook.", 
+        practice: [
+            pReveal("Identify the reporting verb.", "Giuseppe (denied / told) breaking the window.", "denied"),
+            pInput("Type the reporting verb for suggestion.", "She ___ that we leave early.", "suggested"),
+            pDrag("Select the verb + preposition collocation.", "He (accused of / accused) me of cheating.", "accused", ["accused of", "accused", "accusing"])
+        ],
+        level: "C1"
+    },
+    { 
+        id: "rep-modal", 
+        domain: "Reported Speech", 
+        rule: "Reporting modals", 
+        level: "C1", 
+        simplifiedRule: "Shift <span class='green'>will</span> to <span class='green'>would</span>, <span class='green'>can</span> to <span class='green'>could</span>.", 
+        example: "Mr. Lee said we <span class='green'>could</span> leave early today.", 
+        practice: [
+            pInput("Shift 'will' to the past.", "Emma promised she ___ help me.", "would"),
+            pDrag("Select the unchanged modal.", "'You must go' → She said I (must / had to) go.", "must", ["must", "had to", "should"]),
+            pReveal("Reveal the modal backshift.", "'I can help' → He said he (can / could) help.", "could")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "comp-report", 
+        domain: "Reported Speech", 
+        rule: "Complex reporting structures", 
+        level: "C1", 
+        simplifiedRule: "Combine reporting verbs with infinitive clauses → <span class='green'>verb</span> + <span class='orange'>object</span> + <span class='green'>to-infinitive</span>.", 
+        example: "The principal <span class='green'>warned</span> <span class='orange'>the students</span> <span class='red'>not to</span> run in the halls.", 
+        practice: [
+            pDrag("Complete the structure.", "She reminded ___ ___ lock the door.", "me to", ["to me", "me to", "me"]),
+            pInput("Type the object + infinitive.", "He advised ___ (study) harder.", "me to study"),
+            pReveal("Reveal the complex reporting pattern.", "They ordered (us to leave / that we leave).", "us to leave")
+        ],
+        level: "C1"
+    },
+
+    // === PREPOSITIONS ===
+    { 
+        id: "prep-time", 
+        domain: "Prepositions", 
+        rule: "Time", 
+        level: "A1", 
+        simplifiedRule: "Use <span class='purple'>at</span> for precise times → <span class='purple'>on</span> for days → <span class='purple'>in</span> for months/years.", 
+        example: "The field trip starts <span class='purple'>at</span> 8:00 AM <span class='purple'>on</span> Monday.", 
+        practice: [
+            pInput("Type the preposition for Friday.", "Ava's drama club meets ___ Friday.", "on"),
+            pDrag("Select the time preposition.", "We meet (at / on / in) 3 PM.", "at", ["at", "on", "in"]),
+            pReveal("Reveal the month preposition.", "She was born (in / on / at) July.", "in")
+        ],
+        level: "A1"
+    },
+    { 
+        id: "prep-place", 
+        domain: "Prepositions", 
+        rule: "Place", 
+        level: "A1", 
+        simplifiedRule: "Use <span class='purple'>in</span> for enclosed spaces, <span class='purple'>on</span> for surfaces, <span class='purple'>at</span> for specific points.", 
+        example: "<span class='blue'>Andrew</span> is <span class='purple'>at</span> the bus stop. His books are <span class='purple'>in</span> his bag <span class='purple'>on</span> the desk.", 
+        practice: [
+            pReveal("Reveal the preposition.", "The clock is (in / on) the wall.", "on"),
+            pInput("Type the preposition for enclosed space.", "The keys are ___ the drawer.", "in"),
+            pDrag("Select the point location preposition.", "Meet me (at / in / on) the entrance.", "at", ["at", "in", "on"])
+        ],
+        level: "A1"
+    },
+    { 
+        id: "prep-move", 
+        domain: "Prepositions", 
+        rule: "Movement", 
+        level: "A2", 
+        simplifiedRule: "Use <span class='purple'>to, into, across, through</span> to show direction and movement.", 
+        example: "<span class='blue'>Vivienne</span> walked <span class='purple'>across</span> the basketball court and went <span class='purple'>into</span> the gym.", 
+        practice: [
+            pDrag("Select the movement preposition.", "Emma walked ___ the classroom.", "into", ["in", "into", "on"]),
+            pInput("Type the preposition for destination.", "She flew ___ Paris last week.", "to"),
+            pReveal("Reveal the path preposition.", "They drove (through / at) the tunnel.", "through")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "prep-adj", 
+        domain: "Prepositions", 
+        rule: "Prepositions after adjectives", 
+        level: "B2", 
+        simplifiedRule: "Memorize standard <span class='orange'>adjective</span> + <span class='purple'>preposition</span> combinations.", 
+        example: "<span class='blue'>Remy</span> is very <span class='orange'>good</span> <span class='purple'>at</span> solving math puzzles.", 
+        practice: [
+            pInput("Type the preposition.", "Are you interested ___ learning French?", "in"),
+            pDrag("Select the adjective + preposition collocation.", "She is proud (of / for) her work.", "of", ["of", "for", "about"]),
+            pReveal("Reveal the conventional pairing.", "He is capable (of / to) great things.", "of")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "prep-verb", 
+        domain: "Prepositions", 
+        rule: "Prepositions after verbs", 
+        level: "B2", 
+        simplifiedRule: "Memorize <span class='green'>verb</span> + <span class='purple'>preposition</span> pairs (rely on, depend on).", 
+        example: "<span class='blue'>Giuseppe</span> <span class='green'>relies</span> <span class='purple'>on</span> his phone alarm to wake up.", 
+        practice: [
+            pReveal("Identify the preposition.", "I completely agree (with / to) you.", "with"),
+            pInput("Type the verb + preposition.", "She depends ___ her team.", "on"),
+            pDrag("Select the phrasal verb preposition.", "They insisted (on / at) leaving early.", "on", ["on", "at", "in"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "multi-prep", 
+        domain: "Prepositions", 
+        rule: "Multi-word prepositions", 
+        level: "C1", 
+        simplifiedRule: "Use complex phrases like <span class='purple'>in spite of, in charge of, on behalf of</span>.", 
+        example: "<span class='blue'>William</span> accepted the award <span class='purple'>on behalf of</span> the science team.", 
+        practice: [
+            pDrag("Complete the phrase.", "We played the game ___ of the rain.", "in spite", ["despite", "in spite", "because"]),
+            pInput("Type the multi-word preposition.", "She is ___ charge of the project.", "in"),
+            pReveal("Reveal the complex preposition.", "(In spite of / Despite of) the difficulty, they succeeded.", "In spite of")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "abs-prep", 
+        domain: "Prepositions", 
+        rule: "Abstract prepositional phrases", 
+        level: "C1", 
+        simplifiedRule: "Use prepositions in abstract contexts (e.g., <span class='purple'>in</span> theory, <span class='purple'>under</span> pressure).", 
+        example: "<span class='blue'>Brian</span> performs well <span class='purple'>under pressure</span> during exams.", 
+        practice: [
+            pInput("Type the preposition.", "The project is currently ___ construction.", "under"),
+            pDrag("Select the abstract prepositional phrase.", "___ theory, this should work.", "In", ["In", "On", "At"]),
+            pReveal("Reveal the abstract usage.", "She acted (under / in) the influence of stress.", "under")
+        ],
+        level: "C1"
+    },
+
+    // === PUNCTUATION & COHESION ===
+    { 
+        id: "full-stop", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Full stops", 
+        level: "A1", 
+        simplifiedRule: "Place a full stop <span class='red'>.</span> at the end of a complete statement.", 
+        example: "Emma loves painting<span class='red'>.</span> She is very talented<span class='red'>.</span>", 
+        practice: [
+            pReveal("Reveal the punctuation.", "I have a test tomorrow ( . / ? )", "."),
+            pInput("Type the ending punctuation for a statement.", "She is studying hard___", "."),
+            pDrag("Select the correct sentence terminator.", "Where are you going ( . / ? )", "?", [".", "?", "!"])
+        ],
+        level: "A1"
+    },
+    { 
+        id: "comma-list", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Commas in lists", 
+        level: "A2", 
+        simplifiedRule: "Separate three or more items in a list using a comma <span class='red'>,</span>.", 
+        example: "Remy bought apples<span class='red'>,</span> bananas<span class='red'>,</span> and oranges.", 
+        practice: [
+            pInput("Type the missing punctuation.", "I need paper ___ pens, and a ruler.", ","),
+            pDrag("Select the list separator.", "She likes reading ( , / ; ) writing ( , / ; ) and drawing.", ",", [",", ";", ":"]),
+            pReveal("Reveal the serial comma.", "He bought apples, bananas ( , / and ) oranges.", ",")
+        ],
+        level: "A2"
+    },
+    { 
+        id: "comma-clause", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Commas with clauses", 
+        level: "B2", 
+        simplifiedRule: "Use a comma to separate a dependent clause at the beginning of a sentence.", 
+        example: "When the bell rang<span class='red'>,</span> Giuseppe ran to the cafeteria.", 
+        practice: [
+            pDrag("Where does the comma go?", "If it rains ___ we will stay inside.", ",", [",", ".", ";"]),
+            pInput("Type the comma position.", "After the exam ___ we celebrated.", ","),
+            pReveal("Reveal the introductory clause comma.", "Because she was tired ( , / - ) she left early.", ",")
+        ],
+        level: "B2"
+    },
+    { 
+        id: "semi-colon", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Semi-colons", 
+        level: "C1", 
+        simplifiedRule: "Link two closely related independent clauses using a semi-colon <span class='red'>;</span>.", 
+        example: "The exam was difficult<span class='red'>;</span> however, everyone passed.", 
+        practice: [
+            pReveal("Reveal the punctuation.", "I love reading ( ; / , ) my brother loves gaming.", ";"),
+            pInput("Type the semi-colon.", "She studied hard___ she passed the exam.", ";"),
+            pDrag("Select the clause linker.", "It was raining ( ; / , ) we went anyway.", ";", [";", ",", ":"])
+        ],
+        level: "C1"
+    },
+    { 
+        id: "colon", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Colons", 
+        level: "C1", 
+        simplifiedRule: "Introduce a list, explanation, or quote using a colon <span class='red'>:</span>.", 
+        example: "Andrew needed three things for class<span class='red'>:</span> a pen, paper, and a calculator.", 
+        practice: [
+            pInput("Type a colon.", "Here is the rule ___ always be on time.", ":"),
+            pDrag("Select the introductory punctuation.", "She had one goal ( : / , ) to win.", ":", [":", ",", ";"]),
+            pReveal("Reveal the list-introducing colon.", "Bring the following ( : / , ) pen, paper, and eraser.", ":")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "dash", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Dashes", 
+        level: "C1", 
+        simplifiedRule: "Add emphasis or a sudden break in thought using an em-dash <span class='red'>—</span>.", 
+        example: "William finally found his phone <span class='red'>—</span> it was in the fridge!", 
+        practice: [
+            pDrag("Select the dash.", "The answer is simple ___ study harder.", "—", ["—", ",", ";"]),
+            pInput("Type the em-dash for interruption.", "I was going to say___ but never mind.", "—"),
+            pReveal("Reveal the emphatic dash.", "She finally understood ( - / — ) it all made sense.", "—")
+        ],
+        level: "C1"
+    },
+    { 
+        id: "cohesion", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Cohesive devices", 
+        level: "B2", 
+        simplifiedRule: "Connect sentences logically using <span class='purple'>connectors (therefore, moreover, however)</span>.", 
+        example: "Ava studied all night; <span class='purple'>therefore</span>, she felt exhausted.", 
+        practice: [
+            pReveal("Identify the cohesive device.", "He was sick; (however / although), he came to school.", "however"),
+            pInput("Type the contrast connector.", "It was raining; ___ , we went hiking.", "however"),
+            pDrag("Select the additive connector.", "She is smart; ___ , she works hard.", "moreover", ["however", "moreover", "therefore"])
+        ],
+        level: "B2"
+    },
+    { 
+        id: "para-conn", 
+        domain: "Punctuation & Cohesion", 
+        rule: "Paragraph connectors", 
+        level: "C1", 
+        simplifiedRule: "Structure essays using <span class='purple'>sequencers (Firstly, In conclusion)</span>.", 
+        example: "<span class='purple'>In conclusion</span>, the geography field trip was a massive success.", 
+        practice: [
+            pInput("Type the connector (Firstly).", "___, let us examine the main cause of the issue.", "Firstly"),
+            pDrag("Select the concluding connector.", "___, the evidence supports this hypothesis.", "In conclusion", ["Firstly", "In conclusion", "However"]),
+            pReveal("Reveal the contrast paragraph marker.", "(On the other hand / In addition), we must consider the costs.", "On the other hand")
+        ],
+        level: "C1"
+    }
+];
+
+// ADD TO GRAMMAR_RULES ARRAY - Exception-focused entries
+const EXCEPTION_RULES = [
+    // === ADVERB PLACEMENT EXCEPTIONS ===
+    { 
+        id: "adv-obj-exception", 
+        domain: "Adverb Placement Exceptions", 
+        rule: "Adverbs cannot split verb + object", 
+        level: "A2", 
+        simplifiedRule: "<span class='keyword'>Never</span> place an <span class='orange'>adverb of manner</span> between a <span class='green'>verb</span> and its <span class='orange'>direct object</span>.", 
+        example: "✓ He <span class='green'>speaks</span> <span class='orange'>English</span> <span class='orange'>well</span>. / ✗ He <span class='green'>speaks</span> <span class='red'>well</span> <span class='orange'>English</span>.", 
+        practice: [
+            pMCQ("Identify the correct sentence:", "Which sentence follows the verb-object-adverb rule?", 
+                ["She plays piano beautifully.", "She plays beautifully piano.", "Beautifully she plays piano.", "She beautifully plays piano."], 
+                0, "Adverbs of manner follow the complete verb + object unit, not split them."),
+            pErrorCorrect("Fix the adverb placement:", "I eat quickly my lunch.", "I eat my lunch quickly.", "Keep verb + object together; place adverb after."),
+            pInput("Rewrite with correct adverb position.", "She reads carefully the book.", "She reads the book carefully.")
+        ],
+        gseRange: "25-34",
+        criterialFeature: "Avoids splitting transitive verb phrases with manner adverbs (CEFR A2)",
+        exceptionType: "structural"
+    },
+    { 
+        id: "adv-particle-flex", 
+        domain: "Adverb Placement Exceptions", 
+        rule: "Adverb particles CAN split phrasal verbs + object", 
+        level: "A2", 
+        simplifiedRule: "<span class='keyword'>Unlike</span> regular adverbs, <span class='purple'>phrasal verb particles</span> (up, off, out) can appear before OR after the <span class='blue'>object</span>.", 
+        example: "✓ She switched <span class='purple'>off</span> the <span class='blue'>light</span>. / ✓ She switched the <span class='blue'>light</span> <span class='purple'>off</span>.", 
+        practice: [
+            pMCQ("Choose correct particle placement:", "How can you say 'turn off the TV'?", 
+                ["Turn off the TV only.", "Turn the TV off only.", "Both are correct.", "Neither is correct."], 
+                2, "Phrasal verb particles are flexible with noun objects; pronouns require middle position."),
+            pDrag("Place the particle correctly with pronoun.", "Turn ___ ___", "it off", ["off", "it", "turn"]),
+            pReveal("Reveal pronoun rule.", "With pronouns: Turn (it off / off it).", "it off")
+        ],
+        gseRange: "25-34",
+        criterialFeature: "Manipulates separable phrasal verbs with flexible particle placement (CEFR A2)",
+        exceptionType: "structural"
+    },
+    { 
+        id: "adv-freq-aux", 
+        domain: "Adverb Placement Exceptions", 
+        rule: "Frequency adverbs follow first auxiliary", 
+        level: "B1", 
+        simplifiedRule: "Place <span class='orange'>frequency adverbs</span> after the <span class='green'>first auxiliary verb</span>, not before the main verb.", 
+        example: "✓ I <span class='green'>have</span> <span class='orange'>often</span> <span class='green'>visited</span> Paris. / ✗ I <span class='red'>often</span> <span class='green'>have visited</span> Paris.", 
+        practice: [
+            pMCQ("Select correct auxiliary placement:", "Where does 'usually' go in 'She has finished'?", 
+                ["She usually has finished.", "She has usually finished.", "She has finished usually.", "Usually she has finished."], 
+                1, "With compound verbs, frequency adverbs follow the first auxiliary (has/have/will/etc.)."),
+            pInput("Insert 'never' correctly.", "They ___ have seen such a thing.", "have never"),
+            pErrorCorrect("Fix the auxiliary-adverb order:", "We often are late.", "We are often late.", "With be-verbs, frequency adverbs follow the verb.")
+        ],
+        gseRange: "35-44",
+        criterialFeature: "Positions frequency adverbs correctly in multi-auxiliary verb phrases (CEFR B1)",
+        exceptionType: "structural"
+    },
+    
+    // === SOME/ANY EXCEPTIONS ===
+    { 
+        id: "some-offers", 
+        domain: "Some/Any Exceptions", 
+        rule: "Use SOME in questions making offers", 
+        level: "A2", 
+        simplifiedRule: "Use <span class='orange'>some</span> (not any) in questions when offering something → signals expected acceptance.", 
+        example: "✓ Would you like <span class='orange'>some</span> tea? (offering) / ✓ Do you have <span class='blue'>any</span> questions? (neutral)", 
+        practice: [
+            pMCQ("Choose correct quantifier for offer:", "Complete: 'Would you like ___ coffee?'", 
+                ["any", "some", "a", "the"], 
+                1, "Offers use 'some' to imply the speaker expects/wants a 'yes' response."),
+            pInput("Type 'some' or 'any'.", "Could I have ___ help with this?", "some"),
+            pTransform("Transform to an offer using 'some':", "Do you want water?", "Polite offer", "Would you like some water?")
+        ],
+        gseRange: "25-34",
+        criterialFeature: "Selects 'some' in interrogatives for offers/requests (CEFR A2)",
+        exceptionType: "pragmatic"
+    },
+    { 
+        id: "any-conditionals", 
+        domain: "Some/Any Exceptions", 
+        rule: "ANY in if-clauses regardless of meaning", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='blue'>any</span> in <span class='purple'>conditional (if) clauses</span> → even when the overall meaning is positive.", 
+        example: "✓ <span class='purple'>If</span> you have <span class='blue'>any</span> questions, ask me. / ✓ <span class='purple'>If</span> you don't have <span class='blue'>any</span> time, skip this.", 
+        practice: [
+            pMCQ("Select correct quantifier in conditional:", "Complete: 'If you see ___ errors, report them.'", 
+                ["some", "any", "a", "the"], 
+                1, "Conditional clauses prefer 'any' for non-specific reference, regardless of polarity."),
+            pInput("Type 'some' or 'any'.", "Let me know if you need ___ assistance.", "any"),
+            pErrorCorrect("Fix the conditional quantifier:", "If you have some problems, call me.", "If you have any problems, call me.", "If-clauses use 'any' for open/non-specific conditions.")
+        ],
+        gseRange: "35-44",
+        criterialFeature: "Uses 'any' in conditional subordinate clauses for indefinite reference (CEFR B1)",
+        exceptionType: "syntactic"
+    },
+    { 
+        id: "some-expected-yes", 
+        domain: "Some/Any Exceptions", 
+        rule: "SOME in questions expecting 'yes'", 
+        level: "B1", 
+        simplifiedRule: "Use <span class='orange'>some</span> in questions when the speaker believes the answer is likely 'yes'.", 
+        example: "✓ Did <span class='orange'>someone</span> call? (I think yes) / ✓ Did <span class='blue'>anyone</span> call? (I don't know)", 
+        practice: [
+            pMCQ("Choose based on speaker expectation:", "Speaker thinks the answer is 'yes'. Complete: 'Is ___ waiting for me?'", 
+                ["anyone", "someone", "no one", "everyone"], 
+                1, "'Someone' signals the speaker expects an affirmative; 'anyone' is neutral."),
+            pInput("Type 'someone' or 'anyone'.", "___ left this book here, didn't they?", "Someone"),
+            pReveal("Reveal the pragmatic distinction.", "Offer: Would you like (some / any) help? → (some)", "some")
+        ],
+        gseRange: "35-44",
+        criterialFeature: "Selects 'some' vs. 'any' in interrogatives based on epistemic stance (CEFR B1)",
+        exceptionType: "pragmatic"
+    },
+    
+    // === QUESTION FORMATION EXCEPTIONS ===
+    { 
+        id: "neg-question-pragmatics", 
+        domain: "Question Formation Exceptions", 
+        rule: "Negative questions imply expected agreement", 
+        level: "B1", 
+        simplifiedRule: "<span class='red'>Don't you...?</span> questions often signal the speaker expects a 'yes' answer.", 
+        example: "<span class='red'>Don't you</span> like coffee? (= I think you do, confirming) / <span class='green'>Do you</span> like coffee? (neutral inquiry)", 
+        practice: [
+            pMCQ("Interpret the negative question:", "What does 'Isn't she coming?' imply?", 
+                ["The speaker doesn't know.", "The speaker thinks she IS coming.", "The speaker thinks she is NOT coming.", "It's a command."], 
+                1, "Negative questions often express surprise or seek confirmation of a believed-positive proposition."),
+            pInput("Rewrite as negative question expecting 'yes'.", "You agree with me, right?", "Don't you agree with me?"),
+            pErrorCorrect("Fix the pragmatic mismatch:", "Do you not like it? (speaker thinks listener likes it)", "Don't you like it?", "Use negative question form to signal expected agreement.")
+        ],
+        gseRange: "35-44",
+        criterialFeature: "Uses negative interrogatives for confirmation-seeking with epistemic bias (CEFR B1)",
+        exceptionType: "pragmatic"
+    },
+    { 
+        id: "tag-iam-exception", 
+        domain: "Question Formation Exceptions", 
+        rule: "Tag question: I am → aren't I", 
+        level: "B1", 
+        simplifiedRule: "<span class='keyword'>The only irregular tag</span> in English: 'I am' takes <span class='red'>'aren't I'</span> (not 'amn't I').", 
+        example: "✓ I'm invited, <span class='red'>aren't I</span>? / ✗ I'm invited, amn't I?", 
+        practice: [
+            pMCQ("Select the correct tag:", "Complete: 'I'm on the list, ___?'", 
+                ["am I not", "amn't I", "aren't I", "am I"], 
+                2, "'Aren't I' is the conventional tag for 'I am' in standard English, despite logical irregularity."),
+            pInput("Type the tag question.", "I'm late, ___?", "aren't I"),
+            pReveal("Reveal the historical note.", "Why 'aren't I'? 'Amn't' contracted awkwardly; 'aren't' analogized from other persons.", "aren't I")
+        ],
+        gseRange: "35-44",
+        criterialFeature: "Produces irregular question tag 'aren't I' for first-person singular (CEFR B1)",
+        exceptionType: "morphological"
+    },
+    { 
+        id: "indirect-question-order", 
+        domain: "Question Formation Exceptions", 
+        rule: "No inversion in embedded questions", 
+        level: "B2", 
+        simplifiedRule: "<span class='purple'>Embedded questions</span> (after verbs like wonder, ask, know) use statement word order → no subject-auxiliary inversion.", 
+        example: "✓ I wonder <span class='blue'>where she lives</span>. / ✗ I wonder <span class='red'>where does she live</span>.", 
+        practice: [
+            pMCQ("Choose correct embedded question:", "Complete: 'Can you tell me ___?'", 
+                ["where is the station", "where the station is", "where the station", "is where the station"], 
+                1, "Indirect questions maintain declarative SVO order; only main-clause questions invert."),
+            pInput("Rewrite as indirect question.", "Where did she go? → I don't know ___", "where she went"),
+            pErrorCorrect("Fix the embedded question:", "Do you know what time does it start?", "Do you know what time it starts?", "Embedded questions use statement word order, not question inversion.")
+        ],
+        gseRange: "45-54",
+        criterialFeature: "Maintains declarative syntax in subordinate interrogative clauses (CEFR B2)",
+        exceptionType: "syntactic"
+    },
+    { 
+        id: "subject-questions-no-aux", 
+        domain: "Question Formation Exceptions", 
+        rule: "Subject questions need no auxiliary", 
+        level: "A2", 
+        simplifiedRule: "When <span class='blue'>who/what is the subject</span>, do NOT add do/does/did → the wh-word IS the subject.", 
+        example: "✓ <span class='blue'>Who</span> <span class='green'>called</span> you? (= Who is subject) / ✗ <span class='red'>Who did call</span> you?", 
+        practice: [
+            pMCQ("Identify subject vs. object question:", "Which question has 'who' as subject?", 
+                ["Who did you see?", "Who saw you?", "Whom did you see?", "Who were you seen by?"], 
+                1, "If 'who' performs the action (subject), no auxiliary is needed; if 'who' receives action (object), use do/does/did."),
+            pInput("Form the subject question.", "___ broke the window? (Someone broke it)", "Who"),
+            pDrag("Select correct auxiliary usage.", "___ ___ you meet yesterday?", "Who did", ["Who", "Who did", "Did who"])
+        ],
+        gseRange: "25-34",
+        criterialFeature: "Omits auxiliary inversion when interrogative pronoun functions as subject (CEFR A2)",
+        exceptionType: "syntactic"
+    },
+    
+    // === ADDITIONAL HIGH-FREQUENCY EXCEPTIONS ===
+    { 
+        id: "usedto-would-states", 
+        domain: "Modal/Aspect Exceptions", 
+        rule: "Would cannot express past states", 
+        level: "B2", 
+        simplifiedRule: "Use <span class='green'>used to</span> for past states (be, have, know); <span class='orange'>would</span> only for repeated past actions.", 
+        example: "✓ I <span class='green'>used to</span> have long hair. / ✗ I <span class='red'>would</span> have long hair. / ✓ We <span class='orange'>would</span> play football every Sunday.", 
+        practice: [
+            pMCQ("Select correct past habit form:", "Complete: 'She ___ be shy when she was young.'", 
+                ["would", "used to", "was used to", "got used to"], 
+                1, "'Used to' works for both past states and actions; 'would' only for repeated actions."),
+            pInput("Type 'used to' or 'would'.", "We ___ live in Beijing before moving here.", "used to"),
+            pErrorCorrect("Fix the state/habit confusion:", "When I was a child, I would have a dog.", "When I was a child, I used to have a dog.", "'Would' cannot express past states like 'have', 'be', 'know'.")
+        ],
+        gseRange: "45-54",
+        criterialFeature: "Distinguishes 'used to' vs. 'would' for past habitual reference based on stativity (CEFR B2)",
+        exceptionType: "semantic"
+    },
+    { 
+        id: "neednt-have-distinction", 
+        domain: "Modal Exceptions", 
+        rule: "Needn't have vs. didn't need to", 
+        level: "C1", 
+        simplifiedRule: "<span class='orange'>Needn't have + pp</span> = unnecessary but done; <span class='blue'>didn't need to</span> = unnecessary and possibly not done.", 
+        example: "✓ You <span class='orange'>needn't have brought</span> flowers. (but you did) / ✓ You <span class='blue'>didn't need to bring</span> flowers. (maybe you didn't)", 
+        practice: [
+            pMCQ("Interpret the modal perfect:", "What does 'You needn't have worried' imply?", 
+                ["You didn't worry.", "You worried, but it was unnecessary.", "You should have worried.", "Worrying was necessary."], 
+                1, "'Needn't have + pp' indicates an action was performed but was unnecessary in retrospect."),
+            pTransform("Transform using 'needn't have':", "It wasn't necessary to cook, but she cooked anyway.", "Modal perfect", "She needn't have cooked."),
+            pInput("Choose 'needn't have' or 'didn't need to'.", "I ___ buy milk; we already had some.", "didn't need to")
+        ],
+        gseRange: "55-68",
+        criterialFeature: "Distinguishes retrospective necessity modals based on action completion (CEFR C1)",
+        exceptionType: "semantic-pragmatic"
+    },
+    { 
+        id: "mustnt-donthaveto", 
+        domain: "Modal Exceptions", 
+        rule: "Mustn't vs. don't have to", 
+        level: "B1", 
+        simplifiedRule: "<span class='red'>Mustn't</span> = prohibition (don't do it); <span class='blue'>don't have to</span> = no obligation (optional).", 
+        example: "✓ You <span class='red'>mustn't</span> smoke here. (prohibited) / ✓ You <span class='blue'>don't have to</span> come. (optional)", 
+        practice: [
+            pMCQ("Select correct modal for meaning:", "Complete: 'You ___ wear a tie; it's optional.'", 
+                ["mustn't", "don't have to", "must", "shouldn't"], 
+                1, "'Don't have to' expresses absence of obligation; 'mustn't' expresses prohibition."),
+            pInput("Type 'mustn't' or 'don't have to'.", "Visitors ___ feed the animals.", "mustn't"),
+            pErrorCorrect("Fix the modal meaning:", "You mustn't come if you're busy. (meaning: it's optional)", "You don't have to come if you're busy.", "'Mustn't' prohibits; 'don't have to' makes optional.")
+        ],
+        gseRange: "35-44",
+        criterialFeature: "Contrasts deontic modals for prohibition vs. absence of obligation (CEFR B1)",
+        exceptionType: "semantic"
+    }
+];
+
+// MERGE with main GRAMMAR_RULES array
+const ALL_RULES = [...GRAMMAR_RULES, ...EXCEPTION_RULES];
+
+function showNotification(message, isError = true) {
+    const notif = document.createElement('div');
+    notif.textContent = message;
+    notif.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: ${isError ? 'var(--error)' : 'var(--success)'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        z-index: 9999;
+        font-weight: 600;
+        transition: opacity 0.3s ease;
+    `;
+    document.body.appendChild(notif);
+    
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        setTimeout(() => notif.remove(), 300);
+    }, 3500);
+}
+
+let currentIndex = -1;
+let masteredRules = []; 
+
+const DOM = {
+    sidebarList: document.getElementById('syllabus-list'),
+    contentArea: document.getElementById('content-area'),
+    topBarTitle: document.getElementById('top-bar-title'),
+    sidebar: document.getElementById('sidebar'),
+    openSidebarBtn: document.getElementById('open-sidebar'),
+    closeSidebarBtn: document.getElementById('close-sidebar'),
+    btnHome: document.getElementById('btn-home'),
+    btnPrev: document.getElementById('btn-prev'),
+    btnNext: document.getElementById('btn-next')
+};
+
+DOM.openSidebarBtn.addEventListener('click', () => DOM.sidebar.classList.add('open'));
+DOM.closeSidebarBtn.addEventListener('click', () => DOM.sidebar.classList.remove('open'));
+DOM.btnHome.addEventListener('click', showHome);
+DOM.btnPrev.addEventListener('click', goPrev);
+DOM.btnNext.addEventListener('click', goNext);
+
+function initApp() {
+    renderSidebar();
+    updateNavButtons();
+    showHome();
+}
+
+function showHome() {
+    currentIndex = -1;
+    document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active'));
+    
+    // Removed the text as requested
+    DOM.contentArea.innerHTML = `
+        <div style="text-align: center; margin-top: 15vh; color: var(--text-muted);">
+            <h2 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 15px;">Joel Mitchell's English Grammar</h2>
+        </div>
+    `;
+    updateNavButtons();
+}
+
+function goNext() {
+    if (currentIndex < ALL_RULES.length - 1) {
+        currentIndex++;
+        renderRuleContent(ALL_RULES[currentIndex]);
+    }
+}
+
+function goPrev() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderRuleContent(ALL_RULES[currentIndex]);
+    } else if (currentIndex === 0) {
+        showHome();
+    }
+}
+
+function updateNavButtons() {
+    DOM.btnPrev.disabled = currentIndex === -1;
+    DOM.btnNext.disabled = currentIndex === ALL_RULES.length - 1;
+}
+
+function toggleMastery(ruleId) {
+    const idx = masteredRules.indexOf(ruleId);
+    if (idx > -1) masteredRules.splice(idx, 1);
+    else masteredRules.push(ruleId);
+    
+    renderSidebar(); 
+    if(currentIndex >= 0 && ALL_RULES[currentIndex].id === ruleId) {
+        renderRuleContent(ALL_RULES[currentIndex]); 
+    }
+}
+
+function renderSidebar() {
+    DOM.sidebarList.innerHTML = '';
+    
+    HIERARCHY.forEach((domainObj, domainIndex) => {
+        const header = document.createElement('div');
+        header.className = 'domain-header';
+        header.innerHTML = `<span>${domainObj.domain}</span> <span>+</span>`;
+        
+        const subContainer = document.createElement('div');
+        subContainer.className = 'sub-rules-container';
+        subContainer.id = `domain-${domainIndex}`;
+
+        header.onclick = () => {
+            const isOpen = subContainer.classList.contains('open');
+            document.querySelectorAll('.sub-rules-container').forEach(c => c.classList.remove('open'));
+            document.querySelectorAll('.domain-header').forEach(h => {
+                h.classList.remove('active');
+                h.querySelector('span:last-child').textContent = '+';
+            });
+            
+            if (!isOpen) {
+                subContainer.classList.add('open');
+                header.classList.add('active');
+                header.querySelector('span:last-child').textContent = '−';
+            }
+        };
+
+        domainObj.rules.forEach(ruleName => {
+            const ruleIndex = ALL_RULES.findIndex(r => r.domain === domainObj.domain && r.rule === ruleName);
+            
+            if (ruleIndex !== -1) {
+                const ruleData = ALL_RULES[ruleIndex];
+                const btn = document.createElement('button');
+                const isMastered = masteredRules.includes(ruleData.id);
+                const isActive = currentIndex === ruleIndex;
+                
+                btn.className = `rule-btn ${isActive ? 'active' : ''} ${isMastered ? 'is-mastered' : ''}`;
+                btn.innerHTML = `
+                    <span>${ruleName} <span style="font-size:0.75rem; color:#9CA3AF; margin-left:4px;">(${ruleData.level})</span></span>
+                    <span class="mastery-indicator">✓</span>
+                `;
+                
+                btn.onclick = () => {
+                    currentIndex = ruleIndex;
+                    renderSidebar(); 
+                    renderRuleContent(ruleData);
+                    if(window.innerWidth <= 1024) DOM.sidebar.classList.remove('open');
+                };
+                subContainer.appendChild(btn);
+            }
+        });
+
+        DOM.sidebarList.appendChild(header);
+        DOM.sidebarList.appendChild(subContainer);
+        
+        if (currentIndex >= 0 && ALL_RULES[currentIndex].domain === domainObj.domain) {
+            subContainer.classList.add('open');
+            header.classList.add('active');
+            header.querySelector('span:last-child').textContent = '−';
+        }
+    });
+}
+
+function renderRuleContent(data) {
+    updateNavButtons();
+    DOM.topBarTitle.style.display = "block";
+
+    const cleanExample = data.example.replace(/<[^>]*>?/gm, '');
+    const isMastered = masteredRules.includes(data.id);
+
+    const html = `
+        <div class="rule-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                <div>
+                    <span class="keyword" style="background:var(--lvl-${data.level.toLowerCase()}); color:white; padding:4px 8px; font-size:0.85rem;">CEFR ${data.level}</span>
+                    <span style="color:var(--text-muted); font-weight:600; margin-left:10px;">${data.domain}</span>
+                </div>
+                <button class="nav-btn ${isMastered ? 'home-btn' : ''}" style="margin:0;" onclick="toggleMastery('${data.id}')">
+                    ${isMastered ? '✓ Mastered' : 'Mark Mastered'}
+                </button>
+            </div>
+            
+            <h3>${data.rule}</h3>
+            <p>${data.simplifiedRule}</p>
+            <div class="example">
+                <span>Example: "${data.example}"</span>
+                <button class="speak-btn" onclick="speakText('${cleanExample.replace(/'/g, "\\'")}')" title="Listen (85% Speed)">
+                    🔊
+                </button>
+            </div>
+            <button class="practice-btn" id="btn-practice-${data.id}">Practice</button>
+        </div>
+        <div class="practice-panel" id="panel-practice-${data.id}">
+            <h3 style="margin-bottom: 20px; color: var(--primary); border-bottom:2px solid #E2E8F0; padding-bottom:10px;">Practice Mode</h3>
+            <div id="practice-content-${data.id}"></div>
+        </div>
+    `;
+
+    DOM.contentArea.innerHTML = html;
+
+    const pBtn = document.getElementById(`btn-practice-${data.id}`);
+    const pPanel = document.getElementById(`panel-practice-${data.id}`);
+    const pContent = document.getElementById(`practice-content-${data.id}`);
+
+    pBtn.onclick = () => {
+        const isHidden = pPanel.style.display === '' || pPanel.style.display === 'none';
+        pPanel.style.display = isHidden ? 'block' : 'none';
+        
+        if (isHidden && pContent.innerHTML === '') {
+            buildPracticeItems(pContent, data.practice);
+        }
+    };
+    
+    renderSidebar(); 
+}
+
+function showSparkles(element) {
+    const rect = element.getBoundingClientRect();
+    for(let i=0; i<12; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle-particle';
+        sparkle.style.left = (Math.random() * rect.width) + 'px';
+        sparkle.style.top = (Math.random() * rect.height) + 'px';
+        sparkle.style.animationDelay = (Math.random() * 0.2) + 's';
+        element.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+}
+
+function buildPracticeItems(container, practiceArray) {
+    practiceArray.forEach(prac => {
+        const pItem = document.createElement('div');
+        pItem.className = 'practice-item';
+        pItem.innerHTML = prac.prompt ? `<div class="practice-prompt">${prac.prompt}</div>` : '';
+        
+        if (prac.type === 'reveal') buildReveal(pItem, prac);
+        if (prac.type === 'input') buildInput(pItem, prac);
+        if (prac.type === 'drag-drop') buildDragDrop(pItem, prac);
+        if (prac.type === 'mcq') buildMCQ(pItem, prac);
+        if (prac.type === 'error-correct') buildErrorCorrect(pItem, prac);
+        if (prac.type === 'transform') buildTransform(pItem, prac);
+
+        container.appendChild(pItem);
+    });
+}
+
+function buildMCQ(container, data) {
+    const wrapper = document.createElement('div');
+    
+    const qText = document.createElement('div');
+    qText.style.fontSize = '1.1rem';
+    qText.style.marginBottom = '15px';
+    qText.textContent = data.question;
+    wrapper.appendChild(qText);
+
+    const optionsContainer = document.createElement('div');
+    optionsContainer.style.display = 'flex';
+    optionsContainer.style.flexDirection = 'column';
+    optionsContainer.style.gap = '10px';
+
+    const explanationDiv = document.createElement('div');
+    explanationDiv.style.display = 'none';
+    explanationDiv.style.marginTop = '15px';
+    explanationDiv.style.padding = '15px';
+    explanationDiv.style.borderRadius = '8px';
+    explanationDiv.style.backgroundColor = '#EFF6FF';
+    explanationDiv.style.color = '#1E3A8A';
+    explanationDiv.style.fontWeight = '600';
+    explanationDiv.textContent = `💡 ${data.explanation}`;
+
+    data.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'mcq-btn';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            Array.from(optionsContainer.children).forEach(b => b.disabled = true);
+            if (idx === data.correctIndex) {
+                btn.classList.add('correct');
+                showSparkles(btn);
+                speakText("Correct!", true);
+            } else {
+                btn.classList.add('incorrect');
+                optionsContainer.children[data.correctIndex].classList.add('correct');
+            }
+            explanationDiv.style.display = 'block';
+        };
+        optionsContainer.appendChild(btn);
+    });
+
+    wrapper.appendChild(optionsContainer);
+    wrapper.appendChild(explanationDiv);
+    container.appendChild(wrapper);
+}
+
+function buildErrorCorrect(container, data) {
+    const wrapper = document.createElement('div');
+    
+    const wrongText = document.createElement('div');
+    wrongText.style.fontSize = '1.1rem';
+    wrongText.style.marginBottom = '10px';
+    wrongText.innerHTML = `Fix this sentence: <span style="text-decoration: line-through; color: var(--error);">${data.wrongSentence}</span>`;
+    wrapper.appendChild(wrongText);
+
+    const inputGroup = document.createElement('div');
+    inputGroup.style.display = "flex";
+    inputGroup.style.marginTop = "10px";
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'text-input';
+    input.style.width = '100%';
+    input.placeholder = 'Type the correct sentence...';
+    
+    const btn = document.createElement('button');
+    btn.className = 'check-btn';
+    btn.textContent = 'Check';
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback-msg';
+
+    const explanationDiv = document.createElement('div');
+    explanationDiv.style.display = 'none';
+    explanationDiv.style.marginTop = '15px';
+    explanationDiv.style.padding = '15px';
+    explanationDiv.style.borderRadius = '8px';
+    explanationDiv.style.backgroundColor = '#EFF6FF';
+    explanationDiv.style.color = '#1E3A8A';
+    explanationDiv.style.fontWeight = '600';
+    explanationDiv.textContent = `💡 ${data.explanation}`;
+
+    btn.onclick = () => {
+        const normalize = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+        if (normalize(input.value) === normalize(data.correctSentence)) {
+            feedback.textContent = 'Correct! 🎉';
+            feedback.style.color = 'var(--success)';
+            input.style.borderColor = 'var(--success)';
+            explanationDiv.style.display = 'block';
+            showSparkles(feedback);
+            speakText("Correct!", true);
+        } else {
+            feedback.textContent = 'Keep trying!';
+            feedback.style.color = 'var(--error)';
+            input.style.borderColor = 'var(--error)';
+        }
+    };
+
+    inputGroup.appendChild(input);
+    inputGroup.appendChild(btn);
+    wrapper.appendChild(inputGroup);
+    wrapper.appendChild(feedback);
+    wrapper.appendChild(explanationDiv);
+    container.appendChild(wrapper);
+}
+
+function buildTransform(container, data) {
+    const wrapper = document.createElement('div');
+    
+    const origText = document.createElement('div');
+    origText.style.fontSize = '1.1rem';
+    origText.style.marginBottom = '5px';
+    origText.innerHTML = `Original: <em>${data.original}</em>`;
+    wrapper.appendChild(origText);
+
+    const hintText = document.createElement('div');
+    hintText.style.fontSize = '0.95rem';
+    hintText.style.color = 'var(--text-muted)';
+    hintText.style.marginBottom = '10px';
+    hintText.textContent = `Hint: ${data.hint}`;
+    wrapper.appendChild(hintText);
+
+    const inputGroup = document.createElement('div');
+    inputGroup.style.display = "flex";
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'text-input';
+    input.style.width = '100%';
+    input.placeholder = 'Type transformed sentence...';
+    
+    const btn = document.createElement('button');
+    btn.className = 'check-btn';
+    btn.textContent = 'Check';
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback-msg';
+
+    btn.onclick = () => {
+        const normalize = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+        if (normalize(input.value) === normalize(data.answer)) {
+            feedback.textContent = 'Correct! 🎉';
+            feedback.style.color = 'var(--success)';
+            input.style.borderColor = 'var(--success)';
+            showSparkles(feedback);
+            speakText("Correct!", true);
+        } else {
+            feedback.textContent = 'Keep trying!';
+            feedback.style.color = 'var(--error)';
+            input.style.borderColor = 'var(--error)';
+        }
+    };
+
+    inputGroup.appendChild(input);
+    inputGroup.appendChild(btn);
+    wrapper.appendChild(inputGroup);
+    wrapper.appendChild(feedback);
+    container.appendChild(wrapper);
+}
+
+function buildReveal(container, data) {
+    const sentenceDiv = document.createElement('div');
+    sentenceDiv.style.fontSize = "1.1rem";
+    sentenceDiv.style.marginBottom = "15px";
+    sentenceDiv.textContent = data.sentence;
+    
+    const btn = document.createElement('button');
+    btn.className = 'reveal-btn';
+    btn.textContent = 'Reveal Answer';
+    
+    const answerDiv = document.createElement('div');
+    answerDiv.className = 'reveal-answer';
+    answerDiv.textContent = `Correct: ${data.answer}`;
+
+    btn.onclick = () => {
+        const isVisible = answerDiv.classList.contains('visible');
+        answerDiv.classList.toggle('visible');
+        btn.textContent = isVisible ? 'Reveal Answer' : 'Hide Answer';
+        
+        if (!isVisible) {
+            showSparkles(answerDiv);
+            speakText("Correct!", true);
+        }
+    };
+
+    container.appendChild(sentenceDiv);
+    container.appendChild(btn);
+    container.appendChild(answerDiv);
+}
+
+function buildInput(container, data) {
+    const parts = data.sentence.split('___');
+    const wrapper = document.createElement('div');
+    wrapper.style.lineHeight = '2.2';
+    wrapper.style.fontSize = '1.1rem';
+    
+    if (parts.length === 1) wrapper.textContent = data.sentence + " ";
+    else wrapper.appendChild(document.createTextNode(parts[0]));
+
+    const inputGroup = document.createElement('div');
+    inputGroup.style.display = "flex";
+    inputGroup.style.marginTop = "10px";
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'text-input';
+    input.placeholder = 'Type here...';
+    
+    const btn = document.createElement('button');
+    btn.className = 'check-btn';
+    btn.textContent = 'Check Answer';
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback-msg';
+
+    btn.onclick = () => {
+        if (input.value.trim().toLowerCase() === data.answer.toLowerCase()) {
+            feedback.textContent = 'Correct! 🎉';
+            feedback.style.color = 'var(--success)';
+            input.style.borderColor = 'var(--success)';
+            showSparkles(feedback);
+            speakText("Correct!", true);
+        } else {
+            feedback.textContent = `Keep trying! (Hint: starts with '${data.answer.charAt(0)}')`;
+            feedback.style.color = 'var(--error)';
+            input.style.borderColor = 'var(--error)';
+        }
+    };
+
+    inputGroup.appendChild(input);
+    inputGroup.appendChild(btn);
+    container.appendChild(wrapper);
+    container.appendChild(inputGroup);
+    container.appendChild(feedback);
+    
+    if (parts.length > 1) {
+         const endText = document.createElement('div');
+         endText.style.marginTop = '10px';
+         endText.textContent = parts[1];
+         container.appendChild(endText);
+    }
+}
+
+function buildDragDrop(container, data) {
+    const state = { selectedDiv: null, selectedVal: null };
+    
+    const sentencesArea = document.createElement('div');
+    data.items.forEach(item => {
+        const parts = item.text.split('___');
+        const sentenceDiv = document.createElement('div');
+        sentenceDiv.className = 'dd-sentence';
+        sentenceDiv.appendChild(document.createTextNode(parts[0]));
+        
+        const dropZone = document.createElement('span');
+        dropZone.className = 'drop-zone';
+        dropZone.textContent = " ";
+        
+        dropZone.onclick = () => {
+            if (state.selectedDiv) {
+                dropZone.textContent = state.selectedVal;
+                dropZone.classList.add('filled');
+                if (state.selectedVal === item.answer) {
+                    dropZone.className = 'drop-zone filled correct';
+                    showSparkles(dropZone);
+                    speakText("Correct!", true);
+                } else {
+                    dropZone.className = 'drop-zone filled incorrect';
+                }
+                state.selectedDiv.classList.remove('selected');
+                state.selectedDiv = null;
+                state.selectedVal = null;
+            } else if (dropZone.classList.contains('filled')) {
+                dropZone.textContent = " ";
+                dropZone.className = 'drop-zone';
+            }
+        };
+
+        sentenceDiv.appendChild(dropZone);
+        if (parts.length > 1) sentenceDiv.appendChild(document.createTextNode(parts[1]));
+        sentencesArea.appendChild(sentenceDiv);
+    });
+
+    const tokensArea = document.createElement('div');
+    tokensArea.className = 'tokens-area';
+    
+    const shuffledTokens = [...data.tokens].sort(() => Math.random() - 0.5);
+    shuffledTokens.forEach(tokenStr => {
+        const token = document.createElement('div');
+        token.className = 'draggable-token';
+        token.textContent = tokenStr;
+        
+        token.onclick = () => {
+            if (state.selectedDiv) state.selectedDiv.classList.remove('selected');
+            if (state.selectedDiv === token) {
+                state.selectedDiv = null;
+                state.selectedVal = null;
+            } else {
+                token.classList.add('selected');
+                state.selectedDiv = token;
+                state.selectedVal = tokenStr;
+            }
+        };
+        tokensArea.appendChild(token);
+    });
+
+    container.appendChild(sentencesArea);
+    container.appendChild(tokensArea);
+}
+
+let availableVoices = [];
+window.speechSynthesis.onvoiceschanged = () => { availableVoices = window.speechSynthesis.getVoices(); };
+
+window.speakText = function(text, isFeedback = false) {
+    if (!('speechSynthesis' in window)) {
+        if(!isFeedback) showNotification("Text-to-speech is not supported by your browser.", true);
+        return;
+    }
+    window.speechSynthesis.cancel();
+    
+    if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.85; 
+
+    // Target the specific requested characters
+    const targetNames = ["Giuseppe", "Remy", "Vivienne", "Emma", "Brian", "Ava", "Andrew", "William"];
+    
+    // Strictly filter for Microsoft Multilingual/Online voices matching the specific names. NO OTHERS.
+    const premiumVoices = availableVoices.filter(v => 
+        v.name.includes("Microsoft") && 
+        (v.name.toLowerCase().includes("online") || v.name.toLowerCase().includes("multilingual")) &&
+        targetNames.some(name => v.name.includes(name))
+    );
+    
+    if (premiumVoices.length > 0) {
+        // Pick randomly from the strictly allowed list
+        utterance.voice = premiumVoices[Math.floor(Math.random() * premiumVoices.length)];
+    } else {
+        // Safety Fallback: Only triggers if the student's browser/OS does not have the Microsoft voices installed.
+        const englishVoices = availableVoices.filter(v => v.lang.startsWith('en'));
+        if (englishVoices.length > 0) {
+            utterance.voice = englishVoices[Math.floor(Math.random() * englishVoices.length)];
+        }
+    }
+    
+    window.speechSynthesis.speak(utterance);
+};
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+<!-- Additions appended below existing code as requested -->
+<style>
+    /* 5. New CSS for the new MCQ practice items */
+    .new-mcq-wrapper {
+        margin-top: 10px;
+    }
+    .new-mcq-option {
+        background: #FFFFFF; border: 2px solid var(--border-color);
+        padding: 12px 20px; border-radius: 8px; text-align: left;
+        font-size: 1.1rem; cursor: pointer; transition: all 0.2s;
+        color: var(--text-main); font-weight: 600; width: 100%;
+        margin-bottom: 10px; display: block;
+    }
+    .new-mcq-option:hover:not(:disabled) { border-color: var(--primary); background: #EEF2FF; }
+    .new-mcq-option.correct { background: #D1FAE5; border-color: var(--success); color: #065F46; }
+    .new-mcq-option.incorrect { background: #FEE2E2; border-color: var(--error); color: #B91C1C; }
+    .new-mcq-option:disabled { cursor: not-allowed; opacity: 0.9; }
+    
+    /* Ensure empty prompts do not take up space */
+    .practice-prompt:empty {
+        display: none;
+        margin: 0;
+    }
+</style>
+<script>
+    // 3. New renderer function for the requested MCQ string answer type
+    function buildNewMCQ(container, data) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'new-mcq-wrapper';
+        
+        const qText = document.createElement('div');
+        qText.style.fontSize = '1.1rem';
+        qText.style.marginBottom = '15px';
+        qText.textContent = data.question;
+        wrapper.appendChild(qText);
+
+        const optionsContainer = document.createElement('div');
+        
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.style.display = 'none';
+        feedbackDiv.style.marginTop = '10px';
+        feedbackDiv.style.fontWeight = '700';
+        feedbackDiv.style.fontSize = '1.05rem';
+        feedbackDiv.style.position = 'relative';
+
+        data.options.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.className = 'new-mcq-option';
+            btn.textContent = opt;
+            
+            // 4. Event-handling logic checking correctness
+            btn.onclick = () => {
+                Array.from(optionsContainer.children).forEach(b => b.disabled = true);
+                
+                if (opt === data.answer) {
+                    btn.classList.add('correct');
+                    feedbackDiv.textContent = 'Correct! 🎉';
+                    feedbackDiv.style.color = 'var(--success)';
+                    feedbackDiv.style.display = 'inline-block';
+                    if (typeof showSparkles === 'function') showSparkles(feedbackDiv);
+                    if (typeof speakText === 'function') speakText("Correct!", true);
+                } else {
+                    btn.classList.add('incorrect');
+                    // Highlight the correct answer option automatically
+                    Array.from(optionsContainer.children).forEach(b => {
+                        if(b.textContent === data.answer) b.classList.add('correct');
+                    });
+                    feedbackDiv.textContent = 'Keep trying!';
+                    feedbackDiv.style.color = 'var(--error)';
+                    feedbackDiv.style.display = 'inline-block';
+                }
+            };
+            optionsContainer.appendChild(btn);
+        });
+
+        wrapper.appendChild(optionsContainer);
+        wrapper.appendChild(feedbackDiv);
+        container.appendChild(wrapper);
+    }
+
+    // Safely hook into the existing render architecture without modifying original code
+    const originalBuildMCQFunc = buildMCQ;
+    buildMCQ = function(container, data) {
+        // Intercept logic: Distinguish the strictly requested string-answer MCQ format from the original indexed MCQ format
+        if (data.answer !== undefined) {
+            buildNewMCQ(container, data);
+        } else {
+            originalBuildMCQFunc(container, data);
+        }
+    };
+
+    // 1 & 2. Safely clear placeholders from earlier and prep for the new rigorous additions
+    ALL_RULES.forEach(rule => {
+        rule.practice = rule.practice.filter(p => !(p.type === 'mcq' && p.options && p.options[0] === "Option A"));
+    });
+</script>
+
+<!-- APPENDED NEW CODE BELOW THIS LINE TO SATISFY ALL CONSTRAINTS -->
+<style>
+    /* CSS for the new ABC Row Tap-to-Place MCQ items */
+    .row-tap-wrapper {
+        margin-top: 15px;
+        background: white;
+        padding: 20px;
+        border-radius: var(--radius);
+        border: 2px dashed var(--border-color);
+    }
+    .row-tap-sentence {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        color: var(--text-main);
+        font-weight: 500;
+        text-align: center;
+    }
+    .row-tap-blank {
+        display: inline-block;
+        min-width: 80px;
+        height: 35px;
+        border-bottom: 3px solid var(--primary);
+        margin: 0 10px;
+        vertical-align: bottom;
+        text-align: center;
+        color: var(--primary);
+        font-weight: 800;
+        transition: all 0.3s ease;
+    }
+    .row-tap-blank.correct {
+        border-color: var(--success);
+        color: var(--success);
+    }
+    .row-tap-blank.incorrect {
+        border-color: var(--error);
+        color: var(--error);
+    }
+    .row-tap-btn-group {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+        justify-content: center;
+    }
+    .row-tap-btn {
+        flex: 1;
+        padding: 15px;
+        font-size: 1.15rem;
+        border: 2px solid var(--border-color);
+        background: #F8FAFC;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--text-main);
+        font-weight: 600;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .row-tap-btn:hover:not(:disabled) {
+        border-color: var(--primary);
+        background: #EEF2FF;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.15);
+    }
+    .row-tap-btn.correct {
+        background: #D1FAE5;
+        border-color: var(--success);
+        color: #065F46;
+    }
+    .row-tap-btn.incorrect {
+        background: #FEE2E2;
+        border-color: var(--error);
+        color: #B91C1C;
+    }
+    .row-tap-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    .row-tap-label {
+        background: var(--primary);
+        color: white;
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin-right: 10px;
+        font-size: 0.9rem;
+    }
+    .row-tap-btn.correct .row-tap-label { background: var(--success); }
+    .row-tap-btn.incorrect .row-tap-label { background: var(--error); }
+</style>
+
+<script>
+    // 1. Comprehensive Grammar-Specific Dictionary for the "ABC Row Drag Drop / Touch Tap"
+    // Each of the 105 rules gets exactly 7 new unique questions tailored specifically to that grammatical concept.
+    // Format string: Sentence with blank | CorrectAnswer | Distractor1 | Distractor2 ^ NextQuestion...
+    const EXTRA_MCQS_DATA = {
+        "svo-word": "William ___ the book.|read|book|quickly^Ava ate ___.|an apple|ate|hungry^Brian ___ the ball.|kicked|ball|hard^Emma painted ___.|a picture|painted|beautifully^Giuseppe ___ the puzzle.|solved|puzzle|smartly^Remy drove ___.|the car|drove|fast^Vivienne ___ her laptop.|charged|laptop|safely",
+        "adj-pos": "The ___ student asked a question.|curious|curiously|curiosity^William's essay is ___.|excellent|excellently|excellence^Ava wore a ___ jacket.|red|redly|redness^The ___ dog barked.|loud|loudly|loudness^Brian feels ___ today.|happy|happily|happiness^Emma found a ___ coin.|shiny|shinily|shine^The ___ test was hard.|final|finally|finalize",
+        "adv-pos": "Giuseppe ___ studies here.|always|always is|is^Remy is ___ on time.|usually|usually is|usually does^Vivienne ___ forgets homework.|never|never is|is never^Andrew ___ reads comics.|often|often is|is often^William is ___ tired.|sometimes|sometimes does|does sometimes^Ava ___ finishes meals.|rarely|rarely is|is rarely^Brian ___ arrives early.|frequently|frequently is|is frequently",
+        "coord": "Emma ran fast, ___ she fell.|but|so|or^Giuseppe likes math ___ art.|and|but|yet^Study hard, ___ you pass.|and|but|yet^Remy was tired, ___ she slept.|so|but|or^Vivienne likes tea ___ coffee.|and|but|so^Brian is smart ___ lazy.|but|so|and^Ava left early, ___ she missed it.|so|but|or",
+        "subord": "___ Andrew was tired, he kept going.|Although|Because|When^William smiled ___ he won.|because|although|but^___ the timer rang, we stopped.|When|Because|Although^___ Emma studied, she passed.|Because|Although|But^___ it rained, Brian played.|Although|Because|When^Remy cheered ___ she scored.|because|although|when^___ the movie ended, Ava cried.|When|Although|Because",
+        "fronting": "___, the alarm rang.|During the test|Test during the|The test during^___ did Andrew realize it.|Only then|Then only|Andrew only^___, we found the key.|Under the mat|The mat under|Mat under the^___, William stood up.|Suddenly|Sudden|Suddenlyly^___, Emma found the answer.|In the book|The book in|Book in the^___ did Brian speak.|Only later|Later only|Brian only^___, Ava saw the bird.|In the sky|The sky in|Sky in the",
+        "complex": "Giuseppe, ___ loves art, joined the club.|who|which|he^The book ___ we read is good.|which|who|they^Remy passed ___ she studied.|because|so|and^The student ___ helped me is nice.|who|which|they^Vivienne, ___ is smart, won.|who|which|she^The test ___ we took was hard.|which|who|they^Brian left ___ it was late.|because|so|and",
+        "cleft": "___ Emma who answered it.|It was|She was|That was^It is the test ___ matters.|that|it|which^___ Mr. Lee who helped us.|It was|He is|There was^___ Brian who won the race.|It was|He was|That was^It is the final ___ counts.|that|it|which^___ Ava who found the key.|It was|She was|That was^It is the project ___ is due.|that|it|which",
+        "inversion": "Rarely ___ such a puzzle.|have I seen|I have seen|I seen^Never ___ the law.|did Andrew break|Andrew broke|Andrew did break^Seldom ___ early.|do they arrive|they arrive|arrive they^Rarely ___ so fast.|did William run|William ran|William did run^Never ___ the answer.|had Emma known|Emma had known|Emma knew^Seldom ___ so hard.|does Brian study|Brian studies|studies Brian^Rarely ___ a mistake.|does Ava make|Ava makes|makes Ava",
+        "participle": "___ the exam, Giuseppe left.|Having finished|Finished|Finish^___ by the noise, Remy looked up.|Distracted|Distracting|Distract^___ fast, Vivienne won.|Running|Run|Ran^___ the book, Emma smiled.|Having read|Read|Reads^___ by the light, Brian blinked.|Blinded|Blinding|Blind^___ early, Ava got a seat.|Arriving|Arrive|Arrived^___ the work, Andrew rested.|Having done|Done|Do",
+        "count": "William bought four ___.|books|book|informations^How many ___ are there?|pens|water|advice^Giuseppe has two ___.|laptops|laptop|homeworks^Remy ate three ___.|apples|apple|foods^Emma found five ___.|coins|coin|money^Brian has many ___.|friends|friend|informations^Ava took two ___.|tests|test|homeworks",
+        "uncount": "Andrew gave me excellent ___.|advice|advices|an advice^We need more ___ for this.|information|informations|an information^The ___ is heavy today.|homework|homeworks|a homework^William has good ___.|luck|lucks|a luck^Giuseppe bought new ___.|furniture|furnitures|a furniture^Remy listens to ___.|music|musics|a music^Emma needs ___.|help|helps|a help",
+        "reg-plurals": "Brian carried three heavy ___.|boxes|boxs|box^Ava saw four ___.|buses|bus|buss^Andrew has five ___.|cats|cates|cat^William bought two ___.|cars|car|cares^Giuseppe picked three ___.|apples|apple|appleses^Remy has two ___.|dogs|dog|doges^Emma found four ___.|pens|pen|penses",
+        "irreg-plurals": "Brian saw six ___ playing.|children|childs|childrens^Ava fed the ___ outside.|mice|mouses|mouse^Andrew's ___ are warm.|feet|foots|foot^William saw three ___ there.|men|mans|mens^Giuseppe spoke to the ___.|women|womans|womens^Remy brushed her ___.|teeth|tooths|tooth^Emma saw two ___.|geese|gooses|goose",
+        "determiners": "Look at ___ stars up there!|those|this|these^___ book right here is mine.|This|That|Those^Brian dropped ___ pens here.|these|this|that^___ bird over there is blue.|That|This|These^Ava likes ___ shoes she is wearing.|these|that|those^___ mountain far away is tall.|That|This|These^Andrew read ___ notes on his desk.|these|that|those",
+        "quantifiers": "William doesn't have ___ time.|much|many|a lot^How ___ students are here?|many|much|any^Giuseppe ate too ___ food.|much|many|few^Remy read ___ books.|many|much|any^Emma needs ___ help.|much|many|few^Brian drank too ___ water.|much|many|few^Ava has ___ friends.|many|much|any",
+        "possessives": "That is ___ backpack.|Andrew's|Andrews|of Andrew^The color ___ the car is blue.|of|'s|s^I found ___ notebook.|William's|Williams|William^This is ___ desk.|Giuseppe's|Giuseppes|Giuseppe^The roof ___ the house fell.|of|'s|s^Where is ___ jacket?|Remy's|Remys|Remy^Emma loves ___ dog.|Ava's|Avas|Ava",
+        "partitives": "Emma ate a ___ of pizza.|slice|piece|cup^Brian gave a ___ of advice.|piece|slice|loaf^Ava bought a ___ of bread.|loaf|slice|piece^Andrew wants a ___ of cake.|slice|loaf|cup^William drank a ___ of water.|cup|piece|slice^Giuseppe had a ___ of cheese.|piece|loaf|cup^Remy took a ___ of pie.|slice|loaf|cup",
+        "complex-nouns": "The recently updated ___ policy is fair.|school|schooling|schools^The highly ___ principal spoke.|respected|respecting|respect^Emma's report ___ nature won.|on|in|at^The newly built ___ center opened.|sports|sporting|sport^Brian's essay ___ history was long.|on|in|at^The beautifully painted ___ wall looks great.|brick|bricking|bricks^Ava's presentation ___ space was amazing.|on|in|at",
+        "nominal": "Andrew's ___ to stay was good.|decision|decide|deciding^The ___ of rules was fast.|implementation|implement|implemented^William's ___ of it was smart.|analysis|analyze|analyzing^Giuseppe's ___ was impressive.|performance|perform|performed^Remy's ___ caused a delay.|reaction|react|reacted^Emma's ___ led to victory.|preparation|prepare|preparing^Brian's ___ of the text was poor.|translation|translate|translated",
+        "generic": "___ need enough sleep.|Teenagers|The teenagers|A teenager^___ are essential today.|Computers|The computers|Computer^Ava loves reading ___.|books|the books|a book^___ chase mice.|Cats|The cats|A cat^Andrew studies ___.|plants|the plants|a plant^___ grow in the sun.|Trees|The trees|A tree^William observes ___.|birds|the birds|a bird",
+        "indefinite": "Giuseppe needs ___ new laptop.|a|an|the^Remy saw ___ interesting movie.|an|a|the^Vivienne bought ___ new car.|a|an|the^Emma met ___ artist.|an|a|the^Brian read ___ good book.|a|an|the^Ava adopted ___ puppy.|a|an|the^Andrew needs ___ hour.|an|a|the",
+        "definite": "William closed ___ door to the room.|the|a|an^Can you pass me ___ pen on your desk?|the|a|an^Giuseppe saw a cat. ___ cat was black.|The|A|An^Remy found the key. ___ key was rusty.|The|A|An^Emma ate an apple. ___ apple was sweet.|The|A|An^Brian read the text. ___ text was long.|The|A|An^Ava checked the score. ___ score was high.|The|A|An",
+        "zero-art": "Remy loves listening to ___ music.|-|the|a^Emma hates taking ___ exams.|-|the|a^Brian drinks ___ water every day.|-|the|a^Ava eats ___ fruit often.|-|the|a^Andrew enjoys ___ history.|-|the|a^William learns ___ science.|-|the|a^Giuseppe likes ___ dogs.|-|the|a",
+        "first-subseq": "Ava found a phone. She returned ___ phone.|the|a|an^Andrew bought a book. ___ book is great.|The|A|An^William saw a dog. ___ dog barked.|The|A|An^Giuseppe took a quiz. ___ quiz was hard.|The|A|An^Remy bought a plant. ___ plant died.|The|A|An^Emma drew a cat. ___ cat looked real.|The|A|An^Brian made a cake. ___ cake was tasty.|The|A|An",
+        "geo-art": "Giuseppe crossed ___ Atlantic Ocean.|the|-|a^Remy climbed ___ Mount Everest.|-|the|a^Emma visited ___ Netherlands.|the|-|a^Brian sailed ___ Nile River.|the|-|a^Ava saw ___ Lake Victoria.|-|the|a^Andrew hiked ___ Alps.|the|-|a^William drove across ___ Sahara Desert.|the|-|a",
+        "inst-zero": "Brian went to ___ prison for his crime.|-|the|a^Ava goes to ___ school by bus.|-|the|a^Andrew is at ___ university studying.|-|the|a^William works at ___ hospital.|-|the|a^Giuseppe prays at ___ church.|-|the|a^Remy sleeps in ___ bed early.|-|the|a^Emma studies at ___ college.|-|the|a",
+        "abstract-art": "___ education she received was top-notch.|The|-|A^William believes ___ love is powerful.|-|the|a^Giuseppe fought for ___ freedom.|-|the|a^Remy thinks ___ time is money.|-|the|a^Emma discussed ___ theory of relativity.|the|-|A^Brian seeks ___ truth.|-|the|a^Ava learned ___ history of art.|the|-|A",
+        "pres-simple": "Remy ___ soccer every Friday.|plays|play|playing^Water ___ at 100 degrees Celsius.|boils|boil|is boiling^Emma ___ in the library after school.|studies|study|studying^Brian ___ his bike to school.|rides|ride|riding^Ava ___ breakfast every day.|eats|eat|eating^Andrew ___ his teeth twice daily.|brushes|brush|brushing^William ___ horror movies.|hates|hate|hating",
+        "pres-cont": "Brian ___ right now.|is talking|talks|talked^Ava ___ a report at the moment.|is writing|writes|wrote^Andrew ___ his friends tomorrow at 5 PM.|is meeting|meets|meet^William ___ studying currently.|is|was|were^Giuseppe ___ playing chess today.|is|was|are^Remy ___ running the race now.|is|are|am^Emma ___ painting a portrait tonight.|is|was|are",
+        "past-simple": "William ___ his test yesterday.|passed|passes|passing^Giuseppe ___ a comic last week.|drew|draws|drawn^Remy ___ to the museum on Saturday.|went|goes|gone^Emma ___ a great book last night.|read|reads|reading^Brian ___ the game yesterday.|won|wins|winning^Ava ___ her keys this morning.|lost|loses|losing^Andrew ___ an apple for lunch.|ate|eats|eating",
+        "past-cont": "Emma ___ when the phone rang.|was studying|studied|studies^Brian ___ basketball when it rained.|was playing|played|plays^While Ava ___, Andrew arrived.|was reading|read|reads^William ___ dinner when the alarm went off.|was cooking|cooked|cooks^Giuseppe ___ sleeping when it happened.|was|is|were^Remy ___ walking when she fell.|was|is|were^Vivienne ___ watching TV at 8 PM.|was|is|were",
+        "pres-perf-simp": "Andrew ___ to Japan three times.|has been|went|is going^William ___ that movie already.|has seen|saw|sees^Have you ever ___ sushi?|eaten|eat|ate^Giuseppe ___ his homework.|has finished|finished|finishes^Remy ___ her keys.|has lost|lost|loses^Emma ___ five books this month.|has read|read|reads^Brian ___ his leg before.|has broken|broke|breaks",
+        "pres-perf-cont": "Giuseppe ___ for three hours.|has been studying|is studying|studies^Remy ___ on the project since Monday.|has been working|is working|works^Emma has been reading ___ two hours.|for|since|during^Brian has been playing ___ 3 PM.|since|for|during^Ava ___ waiting for an hour.|has been|was|is^Andrew ___ sleeping all day.|has been|was|is^William ___ driving since morning.|has been|was|is",
+        "past-perf": "Brian realized he ___ his calculator.|had forgotten|forgot|forgets^After Ava ___, she left.|had finished|finished|finishes^When Andrew arrived, the class ___.|had started|started|starts^William checked if he ___ the door.|had locked|locked|locks^Giuseppe saw that Remy ___ the cake.|had eaten|ate|eats^Emma knew she ___ a mistake.|had made|made|makes^Vivienne cried because she ___ her bag.|had lost|lost|loses",
+        "fut-forms": "Look at those clouds! It ___ rain.|is going to|will|rains^I dropped my pen! I ___ get it.|will|am going to|get^William ___ visit Paris next summer.|is going to|will|visits^Giuseppe ___ help you with that right now.|will|is going to|helps^Remy ___ be a doctor one day.|is going to|will|is^Emma thinks it ___ rain tomorrow.|will|is going to|rains^Brian decided he ___ sleep early tonight.|is going to|will|sleeps",
+        "aspect": "Giuseppe ___ physics this month.|is teaching|teaches|teach^Remy usually ___ math.|teaches|is teaching|teach^Emma ___ in Beijing this year.|is living|lives|live^Brian ___ in London permanently.|lives|is living|live^Ava ___ a lot of coffee these days.|is drinking|drinks|drink^Andrew normally ___ tea.|drinks|is drinking|drink^William ___ working hard this week.|is|does|do",
+        "pass-basic": "Brian's bicycle ___ yesterday.|was stolen|stole|is stolen^The exams ___ by the headmaster.|are written|write|wrote^The letter ___ sent last week.|was|is|were^Giuseppe's phone ___ found today.|was|is|were^Remy's art ___ displayed often.|is|was|has^Emma's books ___ returned yesterday.|were|are|was^Ava's bag ___ packed already.|is|was|were",
+        "pass-modal": "Cell phones ___ turned off during the exam.|must be|must|are^The report ___ submitted by tomorrow.|can be|can|is^This door ___ locked at night.|should be|should|is^Andrew's test ___ graded soon.|will be|will|is^William's project ___ delayed.|might be|might|is^Giuseppe's question ___ answered.|ought to be|ought to|is^Remy's fee ___ paid.|has to be|has to|is",
+        "pass-perf": "The gym ___ renovated recently.|has been|has|was been^The documents ___ already been sent.|have|are|has^The project ___ completed before the deadline.|had been|had|has been^Emma's bike ___ fixed.|has been|has|was^Brian's essay ___ graded already.|has been|has|was^Ava's tickets ___ booked.|have been|have|were^Andrew's house ___ sold.|had been|had|was",
+        "pass-report": "It ___ that the principal is retiring.|is said|said|saying^It ___ thought that the climate is changing.|is|has|was^It is ___ that the event was successful.|reported|report|reporting^It is ___ that William won.|believed|believe|believes^It ___ claimed that Giuseppe is best.|is|has|was^It is ___ that Remy left.|known|know|knowing^It is ___ that Emma will pass.|expected|expect|expecting",
+        "pass-chain": "Ava is known ___ a great actress.|to be|being|is^Andrew is said ___ five languages.|to speak|speak|speaking^The book is believed ___ written in 1800.|to have been|to be|being^William is thought ___ won the race.|to have|have|has^Giuseppe is expected ___ arrive soon.|to|for|at^Remy is reported ___ the winner.|to be|being|is^Emma is considered ___ a genius.|to be|being|is",
+        "causative": "William got his hair ___ yesterday.|cut|cutting|cuts^Giuseppe ___ his car serviced.|had|have|having^Remy needs to have her passport ___.|renewed|renew|renewing^Emma had her house ___ last week.|painted|paint|painting^Brian got his computer ___ yesterday.|fixed|fix|fixing^Ava had her dress ___ for the party.|altered|alter|altering^Andrew is having his photo ___ today.|taken|take|taking",
+        "mod-ability": "Emma ___ speak three languages.|can|could|may^Brian ___ run very fast when he was younger.|could|can|might^Ava ___ solve complex equations easily.|can|could|must^Andrew ___ swim across the river.|can|could|should^William ___ not read when he was two.|could|can|might^Giuseppe ___ play the piano beautifully.|can|could|shall^Remy ___ lift heavy weights.|can|could|must",
+        "mod-perm": "___ I please borrow your calculator?|Could|Must|Will^___ I speak with the principal?|May|Should|Would^___ I have a cookie?|Can|Must|Shall^___ we sit here?|May|Must|Will^___ I use your pen?|Could|Must|Shall^___ Ava go to the bathroom?|May|Must|Would^___ Brian join us?|Can|Must|Shall",
+        "mod-obli": "Andrew said we ___ finish this today.|have to|must|might^I ___ apologize for being late.|must|have to|can^You ___ follow the school rules.|have to|must|could^William ___ submit the form by Friday.|has to|must|might^Giuseppe ___ listen to the teacher.|must|has to|can^Remy ___ wear a uniform.|has to|must|could^Emma ___ stop running in the halls.|must|has to|might",
+        "mod-adv": "William, you ___ study harder.|should|must|can^Giuseppe ___ to arrive on time.|ought|should|must^Remy ___ see a doctor about that cough.|should|ought|must^Emma ___ eat more vegetables.|should|ought|can^Brian ___ to be more careful.|ought|should|must^Ava ___ sleep earlier.|should|ought|can^Andrew ___ to practice more.|ought|should|must",
+        "mod-poss": "Emma ___ be in the library, but I'm not sure.|might|must|can^Brian ___ join us later.|may|must|should^That ___ be the right answer, perhaps.|could|must|will^Ava ___ win the race tomorrow.|might|must|shall^Andrew ___ be late today.|may|must|should^William ___ know the answer.|could|must|will^Giuseppe ___ have the key.|might|must|shall",
+        "mod-deduct": "Ava got 100%. She ___ be very smart.|must|can't|might^Andrew ___ be at home; his car is gone.|can't|must|could^William studied all night. He ___ be tired.|must|can't|might^Giuseppe has no money. He ___ be rich.|can't|must|could^Remy runs fast. She ___ practice daily.|must|can't|might^Emma is crying. She ___ be sad.|must|can't|could^Brian failed. He ___ have studied hard.|can't|must|might",
+        "mod-perf": "Giuseppe ___ have told me the exam was cancelled!|should|must|can't^Remy isn't here. She ___ have left early.|must|should|can't^I ___ have called Emma yesterday.|should|must|might^Brian ___ have forgotten the meeting.|must|should|can't^Ava ___ have been more careful.|should|must|can't^Andrew ___ have seen the sign.|must|should|can't^William ___ have asked for help.|should|must|can't",
+        "mod-reg": "What ___ we do now, sir?|shall|will|ought^Brian ___ to consider all options.|ought|should|must^The contract ___ be binding upon signature.|shall|will|ought^Where ___ we go next?|shall|will|ought^Ava ___ to speak politely.|ought|should|must^We ___ overcome this challenge.|shall|will|ought^Andrew ___ to be ready.|ought|should|must",
+        "to-inf": "Ava hopes ___ the art exam.|to pass|passing|pass^Andrew saved money ___ a new laptop.|to buy|buying|buy^William decided ___ early.|to leave|leaving|leave^Giuseppe wants ___ the game.|to win|winning|win^Remy plans ___ hard.|to study|studying|study^Emma agreed ___ us.|to help|helping|help^Brian refused ___ the food.|to eat|eating|eat",
+        "bare-inf": "Giuseppe let Remy ___ his pen.|borrow|to borrow|borrowing^You must ___ your work.|finish|to finish|finishing^The news made Emma ___.|cry|to cry|crying^Brian will ___ the test.|pass|to pass|passing^Ava should ___ early.|leave|to leave|leaving^Andrew can ___ fast.|run|to run|running^William let him ___ go.|go|to go|going",
+        "gerunds": "Brian is interested in ___ graphic design.|studying|study|to study^Ava is good at ___.|drawing|draw|to draw^Andrew avoided ___ about it.|talking|to talk|talk^William enjoys ___ books.|reading|to read|read^Giuseppe dislikes ___ early.|waking|to wake|wake^Remy practiced ___ the piano.|playing|to play|play^Emma finished ___ the essay.|writing|to write|write",
+        "verb-pat": "William suggested ___ the project together.|doing|to do|do^Giuseppe remembers ___ the door.|locking|to lock|lock^Remy stopped ___ last year.|smoking|to smoke|smoke^Emma forgot ___ the door.|to lock|locking|lock^Brian tried ___ the window.|opening|to open|open^Ava likes ___ in the rain.|walking|to walk|walk^Andrew wants ___ home.|to go|going|go",
+        "perf-inf": "Emma seems ___ forgotten her homework.|to have|having|to be^Brian appears ___ won the competition.|to have|having|to be^Ava is said ___ left last week.|to have|having|to be^Andrew claims ___ seen a ghost.|to have|having|to be^William is thought ___ stolen it.|to have|having|to be^Giuseppe seems ___ lost weight.|to have|having|to be^Remy is known ___ been there.|to have|having|to be",
+        "pass-inf": "The prize is going ___ awarded tomorrow.|to be|being|been^Andrew's report needs ___ reviewed.|to be|being|been^William's car needs ___ repaired.|to be|being|been^Giuseppe hopes ___ chosen.|to be|being|been^Remy expects ___ paid.|to be|being|been^Emma wants ___ invited.|to be|being|been^Brian asked ___ excused.|to be|being|been",
+        "reduced-cl": "The book, ___ by Mr. Lee, is excellent.|written|writing|write^The man ___ there is Giuseppe's uncle.|standing|stood|stand^Students ___ in science should apply.|interested|interesting|interest^The car ___ outside is Remy's.|parked|parking|park^The boy ___ the ball is Brian.|kicking|kicked|kick^The painting ___ yesterday is beautiful.|finished|finishing|finish^The girl ___ the song is Ava.|singing|sang|sung",
+        "comp": "Remy's bag is ___ than Emma's bag.|heavier|heavy|heaviest^This test is ___ than the last one.|easier|more easy|easy^Brian's essay was ___ interesting than mine.|more|most|much^Ava runs ___ than Andrew.|faster|fast|fastest^William is ___ than Giuseppe.|taller|tall|tallest^Remy is ___ careful than Emma.|more|most|much^Brian's phone is ___ than mine.|newer|new|newest",
+        "super": "Ava is the ___ runner in Grade 8.|fastest|faster|fast^This is the ___ movie Andrew has ever seen.|best|better|good^William is ___ most talented student.|the|a|an^Giuseppe is the ___ boy here.|tallest|taller|tall^Remy bought the ___ expensive car.|most|more|much^Emma is the ___ singer.|loudest|louder|loud^Brian is the ___ student in class.|smartest|smarter|smart",
+        "adj-order": "Giuseppe found a ___ box.|small old wooden|wooden old small|old wooden small^Remy has a ___ vase.|beautiful old Italian|Italian beautiful old|old beautiful Italian^Emma drove a ___ car.|new red sports|red sports new|sports new red^Brian bought a ___ table.|large round wooden|wooden large round|round large wooden^Ava wore a ___ dress.|lovely long blue|blue lovely long|long blue lovely^Andrew has a ___ dog.|cute little brown|brown cute little|little brown cute^William holds a ___ coin.|shiny small silver|silver shiny small|small shiny silver",
+        "adv-freq": "Brian ___ late.|is always|always is|is^Ava ___ late.|are often|often are|often^Andrew is ___ on time.|never|never is|is^William ___ forgets his keys.|usually|usually is|is usually^Giuseppe ___ reads books.|rarely|rarely is|is rarely^Remy ___ eats breakfast.|sometimes|sometimes is|is sometimes^Emma is ___ happy.|always|always is|is",
+        "intens": "The homework was ___ easy.|quite|quiet|quit^William was ___ happy with the results.|very|much|many^Giuseppe was ___ cold yesterday.|really|real|much^Remy is ___ smart.|extremely|extreme|much^Emma felt ___ tired.|so|such|much^Brian is ___ fast.|incredibly|incredible|much^Ava was ___ surprised.|highly|high|much",
+        "adj-comp": "Remy is afraid ___ spiders.|of|in|about^Emma is good ___ mathematics.|at|in|of^Brian is proud ___ his achievements.|of|for|about^Ava is interested ___ science.|in|on|at^Andrew is bad ___ sports.|at|in|of^William is famous ___ his art.|for|by|of^Giuseppe is capable ___ winning.|of|to|for",
+        "adv-front": "___, the fire alarm rang.|Suddenly|Sudden|Suddenlyly^___, Ava completed the task.|Efficiently|Efficient|Efficientlyly^___ called Andrew.|Yesterday|She yesterday|Yesterday she^___, William ran away.|Quickly|Quick|Quicklyly^___, Giuseppe found the key.|Luckily|Lucky|Luck^___, Remy smiled.|Happily|Happy|Happilyly^___, Emma left the room.|Quietly|Quiet|Quietlyly",
+        "stance": "___, the school rules must be obeyed.|Obviously|Rapidly|Quickly^___, William stopped the game.|Fortunately|Fortunate|Fortune^___, Giuseppe is the best solution.|Arguably|Quickly|Suddenly^___, Remy won the prize.|Apparently|Apparent|Quickly^___, Emma was right.|Surprisingly|Surprise|Suddenly^___, Brian failed the test.|Unfortunately|Unfortunate|Quickly^___, Ava is correct.|Undoubtedly|Undoubted|Suddenly",
+        "adj-expand": "The teacher was happy ___ the results.|with|for|in^Remy is eager ___ more.|to learn|learning|learn^Emma is capable ___ solving complex problems.|of|to|for^Brian is ready ___ go.|to|for|with^Ava is willing ___ help.|to|for|with^Andrew is afraid ___ fall.|to|for|with^William is proud ___ his team.|of|for|to",
+        "noun-cl": "Brian can't remember ___ the exam is scheduled for.|when|what|which^___ Ava said surprised everyone.|What|That|Which^___ Andrew passed was unexpected.|That|What|Which^William knows ___ the keys are.|where|that|which^Giuseppe wonders ___ she is crying.|why|that|which^Remy heard ___ Emma won.|that|what|which^Emma believes ___ Brian is right.|that|what|which",
+        "rel-cl": "The book ___ William borrowed is lost.|which|who|whom^The student ___ won the prize is brilliant.|who|which|whom^Giuseppe's brother, ___ lives in Tokyo, is visiting.|who|that|which^Remy, ___ is smart, passed.|who|which|that^Emma found the pen ___ she lost.|that|who|whom^Brian saw the dog ___ bit him.|which|who|whom^Ava knows the boy ___ car was stolen.|whose|who|which",
+        "adv-cl": "___ it rained, Remy still had P.E. outside.|Although|Because|Since^___ Emma arrived, the meeting started.|When|Because|Although^Brian succeeded ___ he worked hard.|because|although|when^Ava left ___ the bell rang.|after|although|because^Andrew studied ___ William slept.|while|because|although^___ Giuseppe was tired, he ran.|Although|Because|When^Remy smiled ___ she saw the gift.|when|although|because",
+        "cond": "If I ___ you, I would ask Ava for help.|were|was|am^If Andrew ___ harder, he would pass.|studied|studies|had studied^If William ___ more time, he would travel.|had|have|has^If Giuseppe ___ rich, he would buy a car.|were|was|is^If Remy ___ the answer, she would say it.|knew|knows|know^If Emma ___ early, she would win.|left|leaves|leave^If Brian ___ fast, he would catch it.|ran|runs|run",
+        "rep-stat": "Giuseppe said he ___ to play basketball.|wanted|wants|want^Remy said she ___ tired.|was|is|were^Emma said ___ needed help.|she|I|he^Brian said he ___ happy.|was|is|were^Ava said she ___ a dog.|had|has|have^Andrew said he ___ running.|was|is|were^William said he ___ read it.|had|has|have",
+        "rep-ques": "Brian asked ___ ___ ___|where I lived|where lived I|I lived where^Ava asked ___ Andrew was coming.|if|that|what^William asked where ___ lived.|I|do I|did I^Giuseppe asked what time ___ was.|it|is it|it is^Remy asked why ___ crying.|she was|was she|is she^Emma asked if ___ ready.|he was|was he|he is^Brian asked when ___ start.|it would|would it|it will",
+        "backshift": "Giuseppe said he ___ tired.|was|is|were^Remy said she ___.|had finished|finished|has finished^Emma said she ___ go.|would|will|can^Brian said he ___ win.|could|can|will^Ava said she ___ sick.|had been|was|is^Andrew said he ___ seen it.|had|has|have^William said he ___ play.|might|may|can",
+        "rep-verbs": "Brian ___ breaking the window.|denied|told|said^Ava ___ that we leave early.|suggested|said|told^Andrew ___ me of cheating.|accused|accused of|accusing^William ___ to help me.|offered|said|told^Giuseppe ___ for being late.|apologized|said|told^Remy ___ me to study.|advised|said|told^Emma ___ to call the police.|threatened|said|told",
+        "rep-modal": "William promised he ___ help me.|would|will|can^Giuseppe said I ___ go.|had to|must|should^Remy said she ___ help.|could|can|might^Emma said she ___ be late.|might|may|can^Brian said he ___ do it.|would|will|can^Ava said she ___ swim.|could|can|will^Andrew said he ___ leave.|had to|must|can",
+        "comp-report": "Emma reminded ___ ___ lock the door.|me to|to me|me^Brian advised ___ harder.|me to study|me study|study^Ava ordered ___.|us to leave|that we leave|leave us^Andrew warned ___ the button.|me not to press|me to not press|not press^William invited ___ the party.|me to attend|me attend|attend^Giuseppe asked ___ quiet.|me to be|me be|be^Remy told ___ stop.|me to|to me|me",
+        "prep-time": "Andrew's club meets ___ Friday.|on|at|in^William meets ___ 3 PM.|at|on|in^Giuseppe was born ___ July.|in|on|at^Remy wakes up ___ 6 AM.|at|on|in^Emma's birthday is ___ Monday.|on|in|at^Brian travels ___ winter.|in|on|at^Ava sleeps ___ night.|at|in|on",
+        "prep-place": "The clock is ___ the wall.|on|in|at^The keys are ___ the drawer.|in|on|at^Meet Remy ___ the entrance.|at|in|on^Emma is ___ the kitchen.|in|on|at^Brian's book is ___ the table.|on|in|at^Ava stood ___ the door.|at|in|on^Andrew hid ___ the closet.|in|on|at",
+        "prep-move": "Emma walked ___ the classroom.|into|in|on^Brian flew ___ Paris last week.|to|in|at^Ava drove ___ the tunnel.|through|at|in^Andrew walked ___ the street.|across|in|at^William ran ___ the stairs.|up|in|on^Giuseppe jumped ___ the pool.|into|in|on^Remy went ___ the bridge.|under|in|at",
+        "prep-adj": "Are you interested ___ learning French?|in|on|at^Andrew is proud ___ his work.|of|for|about^William is capable ___ great things.|of|to|for^Giuseppe is good ___ cooking.|at|in|on^Remy is afraid ___ snakes.|of|in|about^Emma is famous ___ her singing.|for|by|of^Brian is angry ___ the result.|about|in|of",
+        "prep-verb": "I completely agree ___ Giuseppe.|with|to|on^Remy depends ___ her team.|on|in|at^Emma insisted ___ leaving early.|on|at|in^Brian relies ___ his phone.|on|in|at^Ava apologized ___ the mistake.|for|about|in^Andrew applied ___ the job.|for|to|in^William believes ___ ghosts.|in|on|at",
+        "multi-prep": "Brian played ___ the rain.|in spite of|despite of|because of^Ava is ___ charge of the project.|in|on|at^Andrew succeeded ___ the difficulty.|in spite of|despite of|because of^William spoke ___ behalf of the team.|on|in|at^Giuseppe won due ___ his hard work.|to|of|for^Remy left instead ___ staying.|of|for|to^Emma acts in accordance ___ the rules.|with|to|for",
+        "abs-prep": "The project is currently ___ construction.|under|in|on^___ theory, William's plan should work.|In|On|At^Giuseppe acted ___ the influence of stress.|under|in|on^Remy is ___ pressure to win.|under|in|on^Emma is ___ danger.|in|on|at^Brian did it ___ purpose.|on|in|at^Ava is ___ doubt.|in|on|at",
+        "full-stop": "I have a test tomorrow___|.|?|!^Remy is studying hard___|.|?|!^Emma loves painting___|.|?|!^Brian runs fast___|.|?|!^Ava sings well___|.|?|!^Andrew reads books___|.|?|!^William writes code___|.|?|!",
+        "comma-list": "Brian needs paper___ pens, and a ruler.|,|;|:^Ava likes reading___ writing, and drawing.|,|;|:^Andrew bought apples, bananas___ and oranges.|,|;|:^William has a dog, a cat___ and a bird.|,|;|:^Giuseppe eats pizza, pasta___ and bread.|,|;|:^Remy bought a shirt, pants___ and shoes.|,|;|:^Emma likes math, art___ and gym.|,|;|:",
+        "comma-clause": "If it rains___ William will stay inside.|,|.|;^After the exam___ Giuseppe celebrated.|,|.|;^Because Remy was tired___ she left early.|,|.|;^When Emma woke up___ it was late.|,|.|;^Although Brian tried___ he failed.|,|.|;^Since Ava studied___ she passed.|,|.|;^Before Andrew left___ he ate.|,|.|;",
+        "semi-colon": "Emma loves reading___ Brian loves gaming.|;|,|:^Ava studied hard___ she passed the exam.|;|,|:^It was raining___ Andrew went anyway.|;|,|:^William is tall___ Giuseppe is short.|;|,|:^Remy runs fast___ Emma runs slowly.|;|,|:^Brian is smart___ Ava is smarter.|;|,|:^Andrew likes dogs___ William likes cats.|;|,|:",
+        "colon": "Here is the rule___ always be on time.|:|,|;^William had one goal___ to win.|:|,|;^Bring the following___ pen, paper, and eraser.|:|,|;^Giuseppe bought three things___ milk, eggs, and bread.|:|,|;^Remy has a dream___ to fly.|:|,|;^Emma needs two items___ a map and a compass.|:|,|;^Brian heard a sound___ a loud bang.|:|,|;",
+        "dash": "The answer is simple___ study harder.|—|,|;^I was going to say___ but never mind.|—|,|;^Giuseppe finally understood___ it all made sense.|—|,|;^Remy found it___ the lost key!|—|,|;^Emma tried hard___ very hard.|—|,|;^Brian saw her___ his old friend.|—|,|;^Ava knew the truth___ he lied.|—|,|;",
+        "cohesion": "He was sick; ___ , Remy came to school.|however|although|moreover^It was raining; ___ , Emma went hiking.|however|although|moreover^Brian is smart; ___ , he works hard.|moreover|however|therefore^Ava studied; ___ , she passed.|therefore|however|although^Andrew was late; ___ , he missed it.|consequently|however|although^William is fast; ___ , Giuseppe is faster.|however|therefore|moreover^Remy is rich; ___ , she is unhappy.|nevertheless|therefore|moreover",
+        "para-conn": "___, let us examine the main cause of the issue.|Firstly|However|Therefore^___, the evidence supports this hypothesis.|In conclusion|Firstly|However^___, Ava must consider the costs.|On the other hand|In addition|Firstly^___, Brian will discuss the benefits.|Next|In conclusion|However^___, Andrew summarizes the findings.|To sum up|Firstly|However^___, William adds a new point.|Furthermore|In conclusion|However^___, Giuseppe concludes the essay.|Finally|Firstly|However",
+        
+        // Exceptions
+        "adv-obj-exception": "Andrew eats ___.|his lunch quickly|quickly his lunch|his quickly lunch^William speaks ___.|English well|well English|English good^Giuseppe reads ___.|the book carefully|carefully the book|the carefully book^Remy plays ___.|the piano beautifully|beautifully the piano|the beautifully piano^Emma does ___.|her homework quietly|quietly her homework|her quietly homework^Brian writes ___.|essays perfectly|perfectly essays|essays perfect^Ava sings ___.|songs loudly|loudly songs|songs loud",
+        "adv-particle-flex": "Remy turned ___.|the TV off|off the TV only|the TV off only^Emma took ___.|it off|off it|it off only^Brian threw ___.|the trash out|out the trash only|the trash out only^Ava put ___.|it on|on it|it on only^Andrew picked ___.|the box up|up the box only|the box up only^William wrote ___.|it down|down it|it down only^Giuseppe cleaned ___.|the room up|up the room only|the room up only",
+        "adv-freq-aux": "Ava ___ finished the assignment.|has usually|usually has|has finished usually^Andrew ___ late for class.|is often|often is|is oftenly^William ___ seen such a thing.|has never|never has|has seen never^Giuseppe ___ been to Paris.|has always|always has|has been always^Remy ___ be trusted.|can never|never can|can be never^Emma ___ doing her homework.|is always|always is|is always doing^Brian ___ left early.|had sometimes|sometimes had|had left sometimes",
+        "some-offers": "Would Giuseppe like ___ coffee?|some|any|a^Could Remy have ___ help with this?|some|any|a^Do you want ___ water, Emma?|some|any|a^Would Brian like ___ cake?|some|any|a^Could Ava get ___ paper?|some|any|a^Would Andrew prefer ___ tea?|some|any|a^Can William have ___ time?|some|any|a",
+        "any-conditionals": "If Brian sees ___ errors, he will report them.|any|some|a^Let Ava know if you need ___ assistance.|any|some|a^If Andrew has ___ problems, call me.|any|some|a^If William wants ___ food, he can eat.|any|some|a^If Giuseppe finds ___ clues, he will win.|any|some|a^If Remy hears ___ noise, she hides.|any|some|a^If Emma sees ___ dogs, she pets them.|any|some|a",
+        "some-expected-yes": "Did ___ call for William? (I think yes)|someone|anyone|no one^___ left this book here, didn't they?|Someone|Anyone|No one^Would you like ___ help, Giuseppe? (Offer)|some|any|a^Is ___ knocking on the door? (I hear it)|someone|anyone|no one^Did ___ drop this? (I see it)|someone|anyone|no one^Could ___ fix this? (I need it)|someone|anyone|no one^Did ___ tell you the news? (I assume yes)|someone|anyone|no one",
+        "neg-question-pragmatics": "___ she coming? (I thought she was)|Isn't|Is|Does^___ you agree with Remy?|Don't|Do|Does^___ Emma like coffee? (I'm surprised)|Doesn't|Does|Do^___ Brian playing today? (I thought he was)|Isn't|Is|Does^___ Ava know the rules? (She should)|Doesn't|Does|Do^___ Andrew understand? (It is obvious)|Doesn't|Does|Do^___ William ready? (He should be)|Isn't|Is|Does",
+        "tag-iam-exception": "I'm on the list, ___?|aren't I|amn't I|am I not^I'm late, ___?|aren't I|amn't I|am I not^I'm next in line, ___?|aren't I|amn't I|am I not^I'm doing well, ___?|aren't I|amn't I|am I not^I'm supposed to wait, ___?|aren't I|amn't I|am I not^I'm going with William, ___?|aren't I|amn't I|am I not^I'm on Giuseppe's team, ___?|aren't I|amn't I|am I not",
+        "indirect-question-order": "Can you tell Brian ___?|where the station is|where is the station|is where the station^I don't know ___ Ava went.|where|where did|did where^Do you know what time ___?|it starts|does it start|starts it^William wonders ___ Andrew is.|where|where is|is where^Giuseppe asked ___ Remy was crying.|why|why was|was why^Emma knows ___ Brian left.|why|why did|did why^Ava asked ___ the test is.|when|when is|is when",
+        "subject-questions-no-aux": "___ saw Andrew?|Who|Who did|Whom^___ broke the window?|Who|Who did|Whom^___ happened yesterday?|What|What did|Which^___ ate the cake?|Who|Who did|Whom^___ fell down?|Who|Who did|Whom^___ made this noise?|What|What did|Which^___ won the game?|Who|Who did|Whom",
+        "usedto-would-states": "William ___ be shy when he was young.|used to|would|was used to^Giuseppe ___ live in Beijing.|used to|would|was used to^Remy ___ have a dog.|used to|would|was used to^Emma ___ be afraid of the dark.|used to|would|was used to^Brian ___ know the answer.|used to|would|was used to^Ava ___ be very quiet.|used to|would|was used to^Andrew ___ own a red car.|used to|would|was used to",
+        "neednt-have-distinction": "Emma ___ worried; everything was fine. (But she did worry)|needn't have|didn't need to|shouldn't^Brian ___ cook, but he did anyway.|needn't have|didn't need to|shouldn't^Ava ___ buy milk; we had some.|didn't need to|needn't have|shouldn't^Andrew ___ brought an umbrella, but he did.|needn't have|didn't need to|shouldn't^William ___ take the bus; his dad drove him.|didn't need to|needn't have|shouldn't^Giuseppe ___ paid for the ticket; it was free.|needn't have|didn't need to|shouldn't^Remy ___ bring food, but she baked a cake.|needn't have|didn't need to|shouldn't",
+        "mustnt-donthaveto": "Andrew ___ wear a tie; it's optional.|doesn't have to|mustn't|shouldn't^Visitors ___ feed the animals. (Prohibited)|mustn't|don't have to|shouldn't^William ___ come if he is busy. (Optional)|doesn't have to|mustn't|shouldn't^Giuseppe ___ run in the hallways. (Rule)|mustn't|doesn't have to|shouldn't^Remy ___ pay for water; it's free.|doesn't have to|mustn't|shouldn't^Emma ___ cheat on the exam.|mustn't|doesn't have to|shouldn't^Brian ___ do the extra credit.|doesn't have to|mustn't|shouldn't"
+    };
+
+    // 2. Safely remove any previously injected generic MCQs from the ALL_RULES array.
+    ALL_RULES.forEach(rule => {
+        rule.practice = rule.practice.filter(p => !(p.type === 'mcq' && p.options && p.options[0] === "Option A"));
+    });
+
+    // 3. Inject the highly-tailored "row-tap" questions into the practice arrays.
+    ALL_RULES.forEach((ruleObj) => {
+        const customQsStr = EXTRA_MCQS_DATA[ruleObj.id];
+        
+        if (customQsStr) {
+            const qsArray = customQsStr.split('^');
+            qsArray.forEach(qString => {
+                const parts = qString.split('|');
+                const sentence = parts[0];
+                const correct = parts[1];
+                const wrong1 = parts[2];
+                const wrong2 = parts[3];
+                
+                // Shuffle the options so the correct answer isn't always in the same spot
+                const shuffledOptions = [correct, wrong1, wrong2].sort(() => Math.random() - 0.5);
+                
+                ruleObj.practice.push({
+                    type: "row-tap",
+                    prompt: "",
+                    question: sentence,
+                    options: shuffledOptions,
+                    answer: correct
+                });
+            });
+        }
+    });
+
+    // 4. Define the Renderer for the "ABC Row Drag Drop / Touch Tap" format
+    function buildRowTapMCQ(container, data) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'row-tap-wrapper';
+
+        // Process the sentence to insert the blank (dropzone)
+        const sentenceParts = data.question.split('___');
+        const sentenceEl = document.createElement('div');
+        sentenceEl.className = 'row-tap-sentence';
+
+        sentenceEl.appendChild(document.createTextNode(sentenceParts[0]));
+
+        const dropZone = document.createElement('span');
+        dropZone.className = 'row-tap-blank';
+        dropZone.textContent = ' ? ';
+        sentenceEl.appendChild(dropZone);
+
+        if (sentenceParts[1]) {
+            sentenceEl.appendChild(document.createTextNode(sentenceParts[1]));
+        }
+        wrapper.appendChild(sentenceEl);
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'row-tap-btn-group';
+
+        const labels = ['A', 'B', 'C'];
+
+        data.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'row-tap-btn';
+            
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'row-tap-label';
+            labelSpan.textContent = labels[idx];
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = opt;
+
+            btn.appendChild(labelSpan);
+            btn.appendChild(textSpan);
+
+            btn.onclick = () => {
+                if (dropZone.classList.contains('locked')) return;
+
+                Array.from(optionsContainer.children).forEach(b => b.disabled = true);
+
+                if (opt === data.answer) {
+                    dropZone.textContent = opt;
+                    dropZone.className = 'row-tap-blank correct locked';
+                    btn.classList.add('correct');
+                    
+                    if (typeof showSparkles === 'function') showSparkles(dropZone);
+                    if (typeof speakText === 'function') speakText("Correct!", true);
+
+                } else {
+                    dropZone.textContent = opt;
+                    dropZone.className = 'row-tap-blank incorrect';
+                    btn.classList.add('incorrect');
+                    
+                    // Highlight the actual correct button automatically
+                    Array.from(optionsContainer.children).forEach((b, bIdx) => {
+                        if (data.options[bIdx] === data.answer) {
+                            b.classList.add('correct');
+                        }
+                    });
+
+                    // Shake reset after a second
+                    setTimeout(() => {
+                        if (!dropZone.classList.contains('locked')) {
+                            dropZone.textContent = ' ? ';
+                            dropZone.className = 'row-tap-blank';
+                        }
+                    }, 800);
+                }
+            };
+            optionsContainer.appendChild(btn);
+        });
+
+        wrapper.appendChild(optionsContainer);
+        container.appendChild(wrapper);
+    }
+
+    // 5. Intercept the original `buildPracticeItems` globally to inject our new renderer safely
+    const originalBuildPracticeItemsAppended = buildPracticeItems;
+    buildPracticeItems = function(container, practiceArray) {
+        // Run the original builder (handles drag-drop, reveal, input, mcq, etc.)
+        originalBuildPracticeItemsAppended(container, practiceArray);
+        
+        // Now find the newly created DOM elements and attach the 'row-tap' logic
+        const items = container.querySelectorAll('.practice-item');
+        
+        practiceArray.forEach((prac, idx) => {
+            // If the item is our new row-tap type, the original builder will have just created 
+            // an empty div with a prompt. We hook in and build the interactive UI inside it.
+            if (prac.type === 'row-tap') {
+                if (items[idx]) {
+                    buildRowTapMCQ(items[idx], prac);
+                }
+            }
+        });
+    };
+</script>
+</body>
+</html>

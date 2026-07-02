@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Mastery: Comparatives & Superlatives</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #cbebff 100%);
+            min-height: 100vh;
+        }
+
+        .pushable {
+            position: relative;
+            border: none;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            outline-offset: 4px;
+            transition: filter 250ms;
+            width: 100%;
+        }
+        .shadow-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            background: hsl(0deg 0% 0% / 0.25);
+            will-change: transform;
+            transform: translateY(4px);
+            transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+        }
+        .edge-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            background: linear-gradient(
+                to left,
+                hsl(217deg 100% 16%) 0%,
+                hsl(217deg 100% 32%) 8%,
+                hsl(217deg 100% 32%) 92%,
+                hsl(217deg 100% 16%) 100%
+            );
+        }
+        .front-layer {
+            display: block;
+            position: relative;
+            padding: 24px 16px;
+            border-radius: 16px;
+            font-size: 1.75rem; /* Large font */
+            font-weight: 700;
+            color: white;
+            background: hsl(217deg 100% 50%);
+            will-change: transform;
+            transform: translateY(-8px);
+            transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+        }
+        
+        .pushable:hover { filter: brightness(110%); }
+        .pushable:hover .front-layer { transform: translateY(-10px); }
+        .pushable:hover .shadow-layer { transform: translateY(6px); }
+        
+        .pushable:active .front-layer {
+            transform: translateY(-2px);
+            transition: transform 34ms;
+        }
+        .pushable:active .shadow-layer {
+            transform: translateY(1px);
+            transition: transform 34ms;
+        }
+
+        /* Success and Error States for Buttons */
+        .pushable.correct .edge-layer { background: hsl(142deg 71% 20%); }
+        .pushable.correct .front-layer { background: hsl(142deg 71% 45%); }
+        
+        .pushable.wrong .edge-layer { background: hsl(348deg 83% 20%); }
+        .pushable.wrong .front-layer { background: hsl(348deg 83% 47%); }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: pop 0.4s ease-in-out;
+        }
+
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col p-4 md:p-8">
+
+    <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white/60 p-4 rounded-3xl shadow-sm backdrop-blur-sm">
+        <div class="flex gap-4">
+            <button onclick="goHome()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 rounded-2xl font-bold text-xl transition-colors shadow-sm">
+                🏠 Home
+            </button>
+            <button onclick="goBack()" id="backBtn" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 rounded-2xl font-bold text-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                ⬅️ Back
+            </button>
+            <button onclick="goNext()" id="nextBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                Next ➡️
+            </button>
+        </div>
+        
+        <div class="flex flex-col items-end">
+            <div class="text-3xl font-black text-blue-900 bg-blue-100 px-6 py-3 rounded-2xl shadow-inner border-2 border-blue-200">
+                Words Remaining: <span id="counter">80</span>
+            </div>
+            <div id="levelIndicator" class="text-lg font-bold text-slate-500 mt-1 mr-2 uppercase tracking-widest">
+                Level: A2 (Beginner)
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center max-w-6xl mx-auto w-full">
+        
+        <!-- Question Card -->
+        <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl w-full text-center relative border-4 border-white">
+            
+            <h2 id="questionText" class="text-4xl md:text-5xl font-black text-slate-800 mt-6 mb-12 leading-tight">
+                Loading question...
+            </h2>
+
+            <!-- Options Row -->
+            <div id="optionsContainer" class="flex flex-col md:flex-row justify-center gap-6 md:gap-8 mt-12 w-full">
+                <!-- Option 1 -->
+                <button class="pushable" onclick="selectOption(0)">
+                    <span class="shadow-layer"></span>
+                    <span class="edge-layer"></span>
+                    <span class="front-layer" id="opt0">Option 1</span>
+                </button>
+                <!-- Option 2 -->
+                <button class="pushable" onclick="selectOption(1)">
+                    <span class="shadow-layer"></span>
+                    <span class="edge-layer"></span>
+                    <span class="front-layer" id="opt1">Option 2</span>
+                </button>
+                <!-- Option 3 -->
+                <button class="pushable" onclick="selectOption(2)">
+                    <span class="shadow-layer"></span>
+                    <span class="edge-layer"></span>
+                    <span class="front-layer" id="opt2">Option 3</span>
+                </button>
+            </div>
+            
+            <!-- Result Message -->
+            <div id="resultMessage" class="mt-10 h-12 text-3xl font-bold transition-opacity duration-300 opacity-0">
+                Correct!
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-12 max-w-6xl mx-auto w-full">
+        <div class="bg-white/80 p-6 rounded-3xl shadow-lg backdrop-blur-md">
+            <h3 class="text-2xl font-bold text-slate-700 mb-4 text-center">Achievements</h3>
+            <div class="flex flex-wrap justify-center gap-6" id="badgesContainer">
+                <!-- Badges will be injected here -->
+                <div class="opacity-30 grayscale flex flex-col items-center" id="badge-A2">
+                    <span class="text-5xl mb-2">🥉</span>
+                    <span class="font-bold text-lg">A2 Scholar</span>
+                </div>
+                <div class="opacity-30 grayscale flex flex-col items-center" id="badge-B1">
+                    <span class="text-5xl mb-2">🥈</span>
+                    <span class="font-bold text-lg">B1 Linguist</span>
+                </div>
+                <div class="opacity-30 grayscale flex flex-col items-center" id="badge-B2">
+                    <span class="text-5xl mb-2">🥇</span>
+                    <span class="font-bold text-lg">B2 Grammarian</span>
+                </div>
+                <div class="opacity-30 grayscale flex flex-col items-center" id="badge-C1">
+                    <span class="text-5xl mb-2">💎</span>
+                    <span class="font-bold text-lg">C1 Master</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Target voices required by the prompt
+        const targetVoiceNames = ["Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Ava", "Andrew", "William", "Remy"];
+        let availableVoices = [];
+
+        // 80 Scaffolded Questions (20 A2, 20 B1, 20 B2, 20 C1)
+        const quizData = [
+            // --- A2 (Basic, questions 1-20) ---
+            { q: "An elephant is ___ than a mouse.", o: ["bigger", "biggest", "more big"], a: 0 },
+            { q: "This is the ___ book I have ever read.", o: ["better", "goodest", "best"], a: 2 },
+            { q: "My sister is ___ than me.", o: ["tall", "taller", "tallest"], a: 1 },
+            { q: "Summer is the ___ season of the year.", o: ["hot", "hotter", "hottest"], a: 2 },
+            { q: "A turtle is ___ than a rabbit.", o: ["slowest", "slower", "more slow"], a: 1 },
+            { q: "She is the ___ girl in the class.", o: ["happiest", "happier", "most happy"], a: 0 },
+            { q: "Gold is ___ than silver.", o: ["expensive", "more expensive", "expensiver"], a: 1 },
+            { q: "Today is ___ than yesterday.", o: ["colder", "coldest", "more cold"], a: 0 },
+            { q: "He is the ___ player on the team.", o: ["fast", "faster", "fastest"], a: 2 },
+            { q: "My coffee is ___ than yours.", o: ["hotter", "hottest", "more hot"], a: 0 },
+            { q: "This is the ___ day of my life!", o: ["bad", "worse", "worst"], a: 2 },
+            { q: "A car is ___ than a bicycle.", o: ["faster", "fastest", "more fast"], a: 0 },
+            { q: "Mount Everest is the ___ mountain in the world.", o: ["high", "higher", "highest"], a: 2 },
+            { q: "I am ___ than my brother.", o: ["young", "younger", "youngest"], a: 1 },
+            { q: "This bag is ___ than the other one.", o: ["heavier", "heaviest", "more heavy"], a: 0 },
+            { q: "She has the ___ hair in the family.", o: ["long", "longer", "longest"], a: 2 },
+            { q: "A lion is ___ than a cat.", o: ["stronger", "strongest", "more strong"], a: 0 },
+            { q: "This test was ___ than the last one.", o: ["easier", "easiest", "more easy"], a: 0 },
+            { q: "He is the ___ person I know.", o: ["nicer", "nicest", "most nice"], a: 1 },
+            { q: "My house is ___ than yours.", o: ["smaller", "smallest", "more small"], a: 0 },
+
+            // --- B1 (Intermediate, questions 21-40) ---
+            { q: "This movie is ___ than the one we saw last week.", o: ["interesting", "more interesting", "most interesting"], a: 1 },
+            { q: "It was the ___ journey I have ever taken.", o: ["dangerous", "more dangerous", "most dangerous"], a: 2 },
+            { q: "My new bed is ___ than my old one.", o: ["comfortable", "more comfortable", "most comfortable"], a: 1 },
+            { q: "Who is the ___ actor in your country?", o: ["popular", "more popular", "most popular"], a: 2 },
+            { q: "Jupiter is the ___ planet from Earth among these.", o: ["farther", "farthest", "most far"], a: 1 },
+            { q: "This is the ___ idea you've had all day.", o: ["worse", "worst", "baddest"], a: 1 },
+            { q: "The library is ___ than the cafeteria.", o: ["quieter", "quietest", "more quiet"], a: 0 },
+            { q: "That was the ___ noise I've ever heard.", o: ["louder", "loudest", "most loud"], a: 1 },
+            { q: "He is much ___ than he looks.", o: ["polite", "politer", "more polite"], a: 1 },
+            { q: "The train was ___ than usual today.", o: ["crowded", "more crowded", "most crowded"], a: 1 },
+            { q: "This museum is the ___ building in the city.", o: ["modern", "more modern", "most modern"], a: 2 },
+            { q: "Skydiving is ___ than playing golf.", o: ["exciting", "more exciting", "most exciting"], a: 1 },
+            { q: "That lecture was the ___ one of the semester.", o: ["boring", "more boring", "most boring"], a: 2 },
+            { q: "Yoga is ___ than weightlifting for me.", o: ["relaxing", "more relaxing", "most relaxing"], a: 1 },
+            { q: "My job is ___ than it used to be.", o: ["stressful", "more stressful", "most stressful"], a: 1 },
+            { q: "Eating vegetables is ___ than eating junk food.", o: ["healthier", "healthiest", "more healthy"], a: 0 },
+            { q: "She is the ___ dancer in the group.", o: ["graceful", "more graceful", "most graceful"], a: 2 },
+            { q: "This puzzle is ___ than it appears.", o: ["difficult", "more difficult", "most difficult"], a: 1 },
+            { q: "He provided the ___ solution to our problem.", o: ["simple", "simpler", "simplest"], a: 2 },
+            { q: "The streets are ___ at night than during the day.", o: ["empty", "emptier", "most empty"], a: 1 },
+
+            // --- B2 (Upper-Intermediate, questions 41-60) ---
+            { q: "The sequel was ___ better than the original.", o: ["slightly", "the most", "a lot of"], a: 0 },
+            { q: "This is by ___ the most complex issue we face.", o: ["much", "far", "way"], a: 1 },
+            { q: "The ___ you practice, the easier it gets.", o: ["most", "more", "much"], a: 1 },
+            { q: "She earns ___ less money than her colleagues.", o: ["significantly", "significant", "most"], a: 0 },
+            { q: "It's getting harder and ___ to find affordable housing.", o: ["hard", "harder", "hardest"], a: 1 },
+            { q: "That is the ___ attractive option available.", o: ["less", "least", "fewer"], a: 1 },
+            { q: "He is easily the ___ intelligent person here.", o: ["more", "most", "much"], a: 1 },
+            { q: "Our sales were ___ higher this quarter than last.", o: ["considerably", "considerable", "most"], a: 0 },
+            { q: "This car is ___ as expensive as that one.", o: ["twice", "double", "two times"], a: 0 },
+            { q: "The older I get, ___ I understand.", o: ["the less", "less", "the least"], a: 0 },
+            { q: "She is no ___ capable than anyone else in the room.", o: ["little", "less", "least"], a: 1 },
+            { q: "It was an ___ more difficult task than anticipated.", o: ["even", "very", "too"], a: 0 },
+            { q: "This method is ___ superior to the old one.", o: ["vastly", "vast", "most"], a: 0 },
+            { q: "He chose the ___ of the two evils.", o: ["lesser", "less", "least"], a: 0 },
+            { q: "That is quite ___ the best meal I've ever eaten.", o: ["simply", "simple", "most"], a: 0 },
+            { q: "They are much ___ likely to agree now.", o: ["more", "most", "many"], a: 0 },
+            { q: "It is ___ colder today than it was yesterday.", o: ["fractionally", "fraction", "a few"], a: 0 },
+            { q: "She is not ___ as patient as her brother.", o: ["nearly", "near", "almost"], a: 0 },
+            { q: "This is nowhere ___ as bad as it looks.", o: ["near", "nearly", "close"], a: 0 },
+            { q: "The performance was nothing ___ of spectacular.", o: ["less", "short", "fewer"], a: 1 },
+
+            // --- C1 (Advanced, questions 61-80) ---
+            { q: "The results were ___ better than we had dared to hope.", o: ["infinitely", "infinite", "most"], a: 0 },
+            { q: "She emerged from the ordeal none the ___ for wear.", o: ["worse", "worst", "bad"], a: 0 },
+            { q: "This wine is ___ superior in both aroma and palate.", o: ["measurably", "measured", "measure"], a: 0 },
+            { q: "He is as cunning a fox ___ you'll ever meet.", o: ["than", "as", "like"], a: 1 },
+            { q: "The ___ said about that disastrous event, the better.", o: ["less", "least", "fewer"], a: 0 },
+            { q: "It is ___ more challenging to navigate this bureaucracy.", o: ["substantially", "substantial", "most"], a: 0 },
+            { q: "Their proposal is marginally ___ acceptable than the alternative.", o: ["more", "most", "much"], a: 0 },
+            { q: "She was the ___ child, taking responsibility early on.", o: ["older", "elder", "eldest"], a: 2 },
+            { q: "He drove us ___ into the wilderness than we intended.", o: ["farther", "further", "farthest"], a: 0 }, /* Note: both further/farther can work, farther preferred for distance, distinguishing subtly */
+            { q: "I require no ___ explanation on this matter.", o: ["farther", "further", "furthest"], a: 1 },
+            { q: "The changes were almost ___ slight to notice.", o: ["too", "so", "very"], a: 0 },
+            { q: "This represents the ___ pinnacle of his career.", o: ["very", "absolute", "most"], a: 1 },
+            { q: "It was a supremely ___ piece of legislation.", o: ["ill-judged", "more ill-judged", "most ill-judged"], a: 0 }, /* Absolute adjective use */
+            { q: "He felt an ___ greater sense of dread.", o: ["even", "ever", "over"], a: 0 },
+            { q: "The film is a cut ___ the rest in its genre.", o: ["higher", "above", "over"], a: 1 },
+            { q: "They won the match ___ down.", o: ["hands", "feet", "heads"], a: 0 }, /* Idiomatic superlative */
+            { q: "This problem is of the ___ importance.", o: ["utmost", "outermost", "most"], a: 0 },
+            { q: "She is head and ___ above her peers.", o: ["shoulders", "arms", "hands"], a: 0 },
+            { q: "It was the ___ best he could do under the circumstances.", o: ["very", "much", "far"], a: 0 },
+            { q: "He is second to ___ in his mastery of the subject.", o: ["none", "no one", "all"], a: 0 }
+        ];
+
+        let currentIndex = 0;
+        let answered = false;
+
+        // Initialize Speech Synthesis
+        function initVoices() {
+            let voices = window.speechSynthesis.getVoices();
+            // Filter strictly for Microsoft Multilingual online voices specified in prompt
+            availableVoices = voices.filter(v => 
+                v.name.includes("Microsoft") && 
+                targetVoiceNames.some(name => v.name.includes(name))
+            );
+            
+            // Fallback if exactly matching "Microsoft" and "Name" fails due to browser OS
+            if (availableVoices.length === 0) {
+                availableVoices = voices.filter(v => targetVoiceNames.some(name => v.name.includes(name)));
+            }
+        }
+        
+        window.speechSynthesis.onvoiceschanged = initVoices;
+
+        // TTS Function
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop current speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Randomly select one of the allowed voices if available
+                if (availableVoices.length > 0) {
+                    const randomVoice = availableVoices[Math.floor(Math.random() * availableVoices.length)];
+                    utterance.voice = randomVoice;
+                }
+                
+                utterance.rate = 1.0; // 100% speed
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= quizData.length) {
+                showCompletion();
+                return;
+            }
+
+            answered = false;
+            const qData = quizData[currentIndex];
+            
+            // Update UI text
+            document.getElementById('questionText').innerText = qData.q;
+            document.getElementById('opt0').innerText = qData.o[0];
+            document.getElementById('opt1').innerText = qData.o[1];
+            document.getElementById('opt2').innerText = qData.o[2];
+            
+            // Reset buttons
+            const buttons = document.querySelectorAll('.pushable');
+            buttons.forEach(btn => {
+                btn.className = 'pushable'; // Reset classes
+                btn.disabled = false;
+            });
+            
+            // Reset result message
+            const resultMsg = document.getElementById('resultMessage');
+            resultMsg.style.opacity = '0';
+            
+            // Update Headers
+            document.getElementById('counter').innerText = quizData.length - currentIndex;
+            updateLevelIndicator();
+            updateNavigationStates();
+
+            // Check Badges strictly on milestones
+            checkBadges();
+        }
+
+        function playQuestionAudio() {
+            const qData = quizData[currentIndex];
+            speakText(qData.q.replace("___", "blank"));
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            
+            const qData = quizData[currentIndex];
+            const buttons = document.querySelectorAll('.pushable');
+            const resultMsg = document.getElementById('resultMessage');
+
+            if (selectedIndex === qData.a) {
+                // Correct
+                answered = true;
+                
+                // Speak the full sentence with the correct answer
+                const fullSentence = qData.q.replace("___", qData.o[selectedIndex]);
+                speakText(fullSentence);
+
+                buttons[selectedIndex].classList.add('correct', 'animate-pop');
+                
+                resultMsg.innerText = "🌟 Correct!";
+                resultMsg.className = "mt-10 h-12 text-3xl font-bold text-green-600 transition-opacity duration-300 opacity-100";
+                
+                // Disable other buttons
+                buttons.forEach((btn, idx) => {
+                    if (idx !== selectedIndex) btn.disabled = true;
+                });
+                
+                // Confetti Effect
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#3b82f6', '#f59e0b']
+                });
+
+                document.getElementById('nextBtn').disabled = false;
+
+            } else {
+                // Wrong
+                
+                // Speak encouragement
+                const encouragements = [
+                    "Oops, try again!",
+                    "Not quite, give it another shot.",
+                    "Almost there, try a different one.",
+                    "Keep trying!",
+                    "That's not it, but you can do this."
+                ];
+                const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+                speakText(randomEncouragement);
+
+                buttons[selectedIndex].classList.add('wrong', 'animate-shake');
+                resultMsg.innerText = "❌ Try again!";
+                resultMsg.className = "mt-10 h-12 text-3xl font-bold text-red-500 transition-opacity duration-300 opacity-100";
+                
+                // Remove animation class after it completes to allow re-shake
+                setTimeout(() => {
+                    buttons[selectedIndex].classList.remove('animate-shake');
+                }, 400);
+            }
+        }
+
+        function goNext() {
+            if (currentIndex < quizData.length - 1 && answered) {
+                currentIndex++;
+                loadQuestion();
+            } else if (currentIndex === quizData.length - 1 && answered) {
+                currentIndex++;
+                loadQuestion(); // triggers showCompletion
+            }
+        }
+
+        function goBack() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadQuestion();
+            }
+        }
+
+        function goHome() {
+            currentIndex = 0;
+            loadQuestion();
+        }
+
+        function updateNavigationStates() {
+            document.getElementById('backBtn').disabled = currentIndex === 0;
+            // Next is only enabled if question is answered, unless it's a previously answered one being revisited
+            // To keep it simple, require re-answering when going back, so next is disabled until answered.
+            document.getElementById('nextBtn').disabled = !answered;
+        }
+
+        function updateLevelIndicator() {
+            const indicator = document.getElementById('levelIndicator');
+            if (currentIndex < 20) {
+                indicator.innerText = "Level: A2 (Beginner)";
+            } else if (currentIndex < 40) {
+                indicator.innerText = "Level: B1 (Intermediate)";
+            } else if (currentIndex < 60) {
+                indicator.innerText = "Level: B2 (Upper Intermediate)";
+            } else {
+                indicator.innerText = "Level: C1 (Advanced)";
+            }
+        }
+
+        function checkBadges() {
+            // Activate badges when passing thresholds
+            if (currentIndex >= 20) activateBadge('A2');
+            if (currentIndex >= 40) activateBadge('B1');
+            if (currentIndex >= 60) activateBadge('B2');
+            if (currentIndex >= 80) activateBadge('C1');
+        }
+
+        function activateBadge(level) {
+            const badge = document.getElementById(`badge-${level}`);
+            if (badge && badge.classList.contains('grayscale')) {
+                badge.classList.remove('grayscale', 'opacity-30');
+                badge.classList.add('opacity-100', 'animate-pop');
+                
+                // Small confetti for badge
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.8 }
+                });
+                speakText(`Congratulations, you earned the ${level} badge!`);
+            }
+        }
+
+        function showCompletion() {
+            document.getElementById('questionText').innerText = "🎉 Quiz Complete! You are a Grammar Master!";
+            document.getElementById('optionsContainer').innerHTML = "";
+            document.getElementById('resultMessage').style.opacity = '0';
+            document.getElementById('counter').innerText = "0";
+            checkBadges(); // ensure final badge
+            
+            // Grand finale confetti
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) { return clearInterval(interval); }
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // Initialize first load
+        window.onload = () => {
+            initVoices();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

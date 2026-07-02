@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trinity GESE 6 Classroom</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (Pinned to stable 7.23.6 with data-presets to fix dynamic import bugs) -->
+    <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js" data-presets="react,env"></script>
+
+    <style>
+        @keyframes floatUp {
+            0% { transform: translateY(0px) scale(0.5); opacity: 0; }
+            10% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+        .animate-float-up {
+            animation: floatUp 2s ease-out forwards;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 overflow-hidden h-screen font-sans">
+    <div id="root" class="h-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useRef } = React;
+
+        const Icon = ({ children, className, onClick }) => (
+            <svg onClick={onClick} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
+        );
+        
+        const Play = ({ className }) => <Icon className={className}><polygon points="5 3 19 12 5 21 5 3"></polygon></Icon>;
+        const RotateCcw = ({ className }) => <Icon className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"></path><path d="M3 3v9h9"></path></Icon>;
+        const MessageSquare = ({ className }) => <Icon className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></Icon>;
+        const BookOpen = ({ className }) => <Icon className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></Icon>;
+        const AlertCircle = ({ className }) => <Icon className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></Icon>;
+        const Star = ({ className }) => <Icon className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></Icon>;
+        const Trophy = ({ className }) => <Icon className={className}><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10"></path><path d="M17 4v3a5 5 0 0 1-10 0V4"></path><path d="M7 4H5a2 2 0 0 0-2 2v2a3 3 0 0 0 3 3h1"></path><path d="M17 4h2a2 2 0 0 1 2 2v2a3 3 0 0 1-3 3h-1"></path></Icon>;
+        const Clock = ({ className }) => <Icon className={className}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></Icon>;
+        const CheckSquare = ({ className }) => <Icon className={className}><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></Icon>;
+        const Lightbulb = ({ className }) => <Icon className={className}><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.9.27-1.48.27-2.06a5.5 5.5 0 0 0-9.68-2.67c-.6.94-1.2 2.67-1.2 4.73 0 1.25.4 2 1.25 2H15.09z"></path></Icon>;
+        const Check = ({ className }) => <Icon className={className}><polyline points="20 6 9 17 4 12"></polyline></Icon>;
+        const Info = ({ className }) => <Icon className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></Icon>;
+        const Layers = ({ className }) => <Icon className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></Icon>;
+        const Volume2 = ({ className, onClick }) => <Icon className={className} onClick={onClick}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></Icon>;
+
+        const TTSContext = React.createContext();
+
+        const TTSProvider = ({ children }) => {
+            const [voices, setVoices] = useState([]);
+            
+            useEffect(() => {
+                const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
+                loadVoices();
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }, []);
+
+            const speak = useCallback((text) => {
+                if (!text || !window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Target designated Microsoft Multilingual Online Voices
+                const targetNames = ['Remy', 'Giuseppe', 'Vivienne', 'Florian', 'Seraphina', 'Emma', 'Brian', 'Ava', 'Andrew', 'William'];
+                
+                // Find matching target voices
+                const availableTargetVoices = voices.filter(v => 
+                    targetNames.some(name => v.name.toLowerCase().includes(name.toLowerCase())) && v.lang.startsWith('en')
+                );
+                
+                // STRICT RULE: No fallback. Block unauthorized voices.
+                if (availableTargetVoices.length === 0) {
+                    console.warn("No authorized Microsoft Multilingual voices found. TTS disabled.");
+                    return; 
+                }
+
+                // Pick a random designated voice for variety
+                utterance.voice = availableTargetVoices[Math.floor(Math.random() * availableTargetVoices.length)];
+                
+                // Adjust speed/pitch slightly for better clarity
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+
+                window.speechSynthesis.speak(utterance);
+            }, [voices]);
+
+            return <TTSContext.Provider value={{ speak }}>{children}</TTSContext.Provider>;
+        };
+
+        const TTSText = ({ text, children, className = "" }) => {
+            const { speak } = React.useContext(TTSContext);
+            return (
+                <div 
+                    onClick={(e) => { e.stopPropagation(); speak(text); }}
+                    className={`group cursor-pointer flex gap-3 items-start p-5 md:p-6 rounded-2xl hover:bg-slate-200/50 hover:shadow-md border border-transparent hover:border-slate-300 transition-all active:scale-[0.99] ${className}`}
+                    title="Push to listen"
+                >
+                    <div className="flex-1 w-full">{children}</div>
+                </div>
+            );
+        };
+
+        const conversationData = {
+            travel: {
+                title: "Travel (旅行)", icon: "✈️", color: "bg-blue-100 border-blue-300",
+                vocab: ["abroad (出国)", "destination (目的地)", "flight (航班)", "luggage (行李)", "explore (探索)", "culture (文化)", "tourist (游客)", "guidebook (指南)", "souvenir (纪念品)", "passport (护照)", "backpack (背包)", "landscape (风景)", "experience (经验)", "accommodation (住宿)", "relaxing (放松)", "adventure (冒险)", "local food (当地食物)", "look after (照顾)", "find out (查明)", "in a year's time (一年后)"],
+                grammar: ["1st Cond: If I travel abroad, I will...", "Inf of Purpose: I travel to explore...", "Uncertainty: I might go to Japan."],
+                tips: ["Use Infinitive of Purpose to explain why.", "Use First Conditional for future plans.", "Discuss school trips vs family holidays."],
+                questions: [
+                    "What is your opinion on travelling abroad?", "If you have a long summer holiday next year, where will you go?",
+                    "Where did you use to go for holidays when you were younger?", "Do you think students must travel to learn about the world?",
+                    "What were you doing during your last flight or train ride?", "Why do people go on holiday?",
+                    "Do you think it is necessary to learn the language before visiting a country?", "Tell me about a school trip you might go on.",
+                    "If you lose your passport abroad, what will you do?", "What was happening when you arrived at your last hotel?",
+                    "Who do you usually look after your luggage when travelling?", "Where do you think you will be travelling in a year's time?"
+                ]
+            },
+            money: {
+                title: "Money (金钱)", icon: "💰", color: "bg-emerald-100 border-emerald-300",
+                vocab: ["pocket money (零花钱)", "save (存钱)", "spend (花费)", "earn (赚)", "expensive (昂贵)", "cheap (便宜)", "afford (买得起)", "bank account (银行账户)", "cash (现金)", "wallet (钱包)", "waste (浪费)", "budget (预算)", "part-time job (兼职)", "discount (打折)", "financial (财务)", "independence (独立)", "give up (放弃)", "pay for (支付)", "value (价值)", "the day after tomorrow (后天)"],
+                grammar: ["Used to: I used to waste money...", "Obligation: I must save for...", "Opinion: In my opinion, teenagers..."],
+                tips: ["Discuss pocket money using 'used to'.", "Use 'have to' for necessary expenses.", "Express opinions clearly: 'I firmly believe...'"],
+                questions: [
+                    "What is your opinion on teenagers having part-time jobs?", "What did you use to spend your pocket money on?",
+                    "If you win the lottery, what will you buy?", "Do you think students have to learn how to manage money?",
+                    "What are you saving up to buy right now?", "Is it better to save money or spend it enjoying yourself?",
+                    "What were you doing the last time you lost some money?", "Do you think branded clothes are a waste of money?",
+                    "Have you ever had to give up buying something you wanted?", "What must you pay for by yourself?",
+                    "If you run out of money, who will you ask for help?", "What are you going to buy the day after tomorrow?"
+                ]
+            },
+            fashion: {
+                title: "Fashion (时尚)", icon: "👕", color: "bg-pink-100 border-pink-300",
+                vocab: ["trendy (时髦的)", "uniform (校服)", "casual (休闲的)", "smart (整洁的)", "brand (品牌)", "designer (设计师)", "comfortable (舒服的)", "fashionable (流行的)", "style (风格)", "outfit (全套)", "accessories (配饰)", "sneakers (运动鞋)", "try on (试穿)", "match (搭配)", "fabric (布料)", "colorful (鲜艳的)", "second-hand (二手的)", "quality (质量)", "stand out (突出)", "in ... years' time (...年后)"],
+                grammar: ["Obligation: We must wear a uniform...", "Opinion: I think fashion is...", "Past Cont: I was shopping when..."],
+                tips: ["Use modals of obligation for school rules.", "Use 'used to' for old fashion choices.", "Express opinions on teenagers and brands."],
+                questions: [
+                    "What do you think about your school uniform?", "Do students have to wear a uniform in your country?",
+                    "What did you use to wear when you were in primary school?", "If you go to a party this weekend, what will you wear?",
+                    "In your opinion, do teenagers care too much about designer brands?", "What were you wearing yesterday?",
+                    "Why do people buy expensive clothes?", "Might you change your fashion style in the future?",
+                    "If you want to stand out, what do you wear?", "Do you think you must follow fashion trends?",
+                    "What were people wearing when you went to the mall?", "What do you think people will wear in 50 years' time?"
+                ]
+            },
+            rules: {
+                title: "Rules (规则)", icon: "⚖️", color: "bg-red-100 border-red-300",
+                vocab: ["strict (严格的)", "allowed (允许的)", "forbidden (禁止的)", "break a rule (违规)", "follow a rule (守规)", "punishment (惩罚)", "fair (公平的)", "homework (作业)", "curfew (门禁)", "mobile phone (手机)", "respect (尊重)", "society (社会)", "law (法律)", "safety (安全)", "behave (表现)", "responsibility (责任)", "obey (服从)", "necessary (必要的)", "give up (放弃)", "find out (查明)"],
+                grammar: ["Obligation: We have to turn off phones...", "Opinion: I don't think it's fair...", "1st Cond: If we break a rule, we will..."],
+                tips: ["Use 'must', 'mustn't', 'have to', and 'don't have to'.", "Use 1st Conditional for consequences.", "Discuss if rules are fair."],
+                questions: [
+                    "What are the strictest rules at your school?", "Do you think we must have rules in society?",
+                    "What will happen if you use your mobile phone in class?", "What rules did you use to hate when you were younger?",
+                    "In your opinion, what makes a good rule?", "What do you have to do at home to help your parents?",
+                    "Do you think your parents' rules are fair?", "Why is it necessary to do homework?",
+                    "What were you doing when you got in trouble at school?", "If a teacher finds out you cheated, what will happen?",
+                    "Did you use to break the rules when you were small?", "What rule might they change next year?"
+                ]
+            },
+            health: {
+                title: "Health (健康)", icon: "🍎", color: "bg-teal-100 border-teal-300",
+                vocab: ["diet (饮食)", "exercise (锻炼)", "junk food (垃圾食品)", "active (活跃的)", "gym (健身房)", "energy (能量)", "vitamins (维生素)", "healthy (健康的)", "unhealthy (不健康的)", "stress (压力)", "relax (放松)", "sleep (睡眠)", "habit (习惯)", "PE class (体育课)", "illness (疾病)", "mental health (心理健康)", "overweight (超重)", "balanced (平衡的)", "look after (照顾)", "work out (锻炼)"],
+                grammar: ["Inf of Purpose: I run to stay fit...", "Used to: I used to eat a lot of candy...", "Past Cont: I was running when..."],
+                tips: ["Discuss past bad habits with 'used to'.", "Use Infinitive of Purpose for healthy actions.", "Discuss PE class obligations."],
+                questions: [
+                    "What is your opinion on the food served in your school?", "What exercise did you use to do in primary school?",
+                    "If you want to get fitter, what will you change?", "Why do teenagers eat so much junk food?",
+                    "Do you think students have to play a sport at school?", "What were you doing to stay healthy during the holiday?",
+                    "How might your diet change when you go to university?", "Is mental health as important as physical health?",
+                    "Who looks after you when you are ill?", "If you don't sleep well, how will you feel the day after tomorrow?",
+                    "Were you eating healthily when you were preparing for exams?", "Why is it important to relax?"
+                ]
+            },
+            language: {
+                title: "Language (外语)", icon: "🗣️", color: "bg-purple-100 border-purple-300",
+                vocab: ["vocabulary (词汇)", "grammar (语法)", "fluent (流利的)", "practice (练习)", "translate (翻译)", "native speaker (母语者)", "mistake (错误)", "accent (口音)", "dictionary (字典)", "skill (技能)", "listening (听力)", "speaking (口语)", "communication (交流)", "bilingual (双语)", "useful (有用的)", "difficult (困难的)", "subtitles (字幕)", "confidence (自信)", "give up (放弃)", "find out (发现)"],
+                grammar: ["Inf of Purpose: I watch movies to improve...", "1st Cond: If I practice, I will...", "Uncertainty: I might study..."],
+                tips: ["Use 1st Conditional for study goals.", "Use Infinitive of Purpose for study methods.", "Talk about past study habits."],
+                questions: [
+                    "What is the most difficult part of learning English?", "How did you use to study English when you first started?",
+                    "If you become fluent in English, what will you do?", "Why is it important to learn a foreign language?",
+                    "Do you think everyone must learn English in the future?", "What were you studying in your last English class?",
+                    "Might you learn a third language in the future?", "How do you use technology to improve your English?",
+                    "Have you ever wanted to give up learning English?", "If you don't know a word, how will you find out what it means?",
+                    "Were you listening to English music yesterday?", "Where will your English be in 5 years' time?"
+                ]
+            },
+            environment: {
+                title: "Environment (环境)", icon: "🌍", color: "bg-green-100 border-green-300",
+                vocab: ["pollution (污染)", "recycle (回收)", "climate change (气候变化)", "protect (保护)", "plastic (塑料)", "global warming (全球变暖)", "rubbish (垃圾)", "public transport (公共交通)", "energy (能源)", "wildlife (野生动物)", "nature (自然)", "plant trees (植树)", "destroy (破坏)", "environmentalist (环保人士)", "sustainable (可持续的)", "eco-friendly (环保的)", "clean up (清理)", "throw away (扔掉)", "look after (照顾)", "in the future (在未来)"],
+                grammar: ["Obligation: We must reduce plastic...", "1st Cond: If we don't recycle, the Earth will...", "Present Cont for Future: I am participating in a clean-up next week."],
+                tips: ["Use 'must' and 'have to' to talk about our duty to the planet.", "Use 1st Conditional for environmental consequences.", "Use Present Continuous to talk about future eco-plans."],
+                questions: [
+                    "What is your opinion on climate change?", "What did your school use to do for the environment when you were younger?",
+                    "If we don't stop using plastic bags, what will happen?", "Do you think everyone must recycle their rubbish?",
+                    "What were you doing to save energy last week?", "Why is it important to protect wildlife?",
+                    "Might you join an environmental group in the future?", "What are you doing to help the environment next weekend?",
+                    "Who should look after the local parks?", "If you see someone throw rubbish on the floor, what will you do?",
+                    "Were people recycling more 10 years ago?", "What do you think the earth will look like in 50 years' time?"
+                ]
+            },
+            festivals: {
+                title: "Festivals (节日)", icon: "🏮", color: "bg-orange-100 border-orange-300",
+                vocab: ["celebrate (庆祝)", "tradition (传统)", "custom (习俗)", "fireworks (烟花)", "parade (游行)", "decorate (装饰)", "lantern (灯笼)", "envelope (信封)", "feast (盛宴)", "gather (聚集)", "relatives (亲戚)", "lucky (幸运的)", "meaningful (有意义的)", "atmosphere (气氛)", "gifts (礼物)", "special (特别的)", "look forward to (期待)", "dress up (打扮)", "prepare for (准备)", "the day after tomorrow (后天)"],
+                grammar: ["Past Cont: We were eating dumplings when...", "Used to: We used to light fireworks, but now we can't.", "Inf of Purpose: We visit relatives to wish them luck."],
+                tips: ["Describe past festival memories with Past Continuous.", "Contrast past and present customs using 'used to'.", "Explain the reason for traditions using Infinitive of Purpose."],
+                questions: [
+                    "What is your favorite festival and why?", "How did you use to celebrate the Spring Festival when you were a child?",
+                    "If you have the chance, which foreign festival will you attend?", "Do you think we must keep traditional customs alive?",
+                    "What were you and your family doing on New Year's Eve last year?", "Why do people give gifts during festivals?",
+                    "Might you celebrate your next birthday differently?", "Are you doing anything special for the next big festival?",
+                    "Why do people travel long distances to be with family?", "If it rains during the outdoor festival, what will you do?",
+                    "What was happening in your city during the last national holiday?", "What festival are you preparing for right now?"
+                ]
+            },
+            entertainment: {
+                title: "Entertainment (娱乐)", icon: "🎬", color: "bg-indigo-100 border-indigo-300",
+                vocab: ["cinema (电影院)", "streaming (流媒体)", "concert (音乐会)", "video games (电子游戏)", "comedy (喜剧)", "actor (演员)", "director (导演)", "special effects (特效)", "plot (情节)", "character (角色)", "screen (屏幕)", "stage (舞台)", "performance (表演)", "relaxing (放松的)", "boring (无聊的)", "exciting (令人兴奋的)", "find out (查明)", "give up (放弃)", "look forward to (期待)", "this weekend (这个周末)"],
+                grammar: ["Present Cont for Future: I'm watching a new movie tonight.", "Used to: I used to play video games all day...", "Opinion: In my opinion, books are better than movies."],
+                tips: ["Use Present Continuous for arranged entertainment plans.", "Give strong opinions on movies or games.", "Discuss changes in how you spend free time using 'used to'."],
+                questions: [
+                    "What is your opinion on streaming services like Netflix?", "What kind of movies did you use to watch when you were younger?",
+                    "If your favorite singer comes to your city, will you buy a ticket?", "Do you think teenagers must limit their screen time?",
+                    "What were you watching on TV at 8 PM last night?", "Why do people enjoy going to the cinema instead of watching at home?",
+                    "Might you go to a live concert this year?", "What are you doing for entertainment this weekend?",
+                    "If you find out a movie has bad reviews, will you still watch it?", "Have you ever given up watching a boring TV series?",
+                    "Were you playing video games when I called you?", "What type of entertainment do you think we will have in 20 years' time?"
+                ]
+            },
+            music: {
+                title: "Music (音乐)", icon: "🎧", color: "bg-cyan-100 border-cyan-300",
+                vocab: ["instrument (乐器)", "piano (钢琴)", "guitar (吉他)", "band (乐队)", "singer (歌手)", "lyrics (歌词)", "melody (旋律)", "classical (古典的)", "pop (流行)", "rock (摇滚)", "live (现场的)", "headphones (耳机)", "volume (音量)", "download (下载)", "playlist (播放列表)", "practice (练习)", "find out (发现)", "give up (放弃)", "take up (开始学)", "next week (下周)"],
+                grammar: ["Inf of Purpose: I listen to music to relax.", "1st Cond: If I practice the piano, I will improve.", "Used to: I used to hate classical music, but now..."],
+                tips: ["Explain why you listen to music using Infinitive of Purpose.", "Discuss learning an instrument using 1st Conditional.", "Talk about how your music taste has changed with 'used to'."],
+                questions: [
+                    "What is your opinion on classical music?", "What songs did you use to listen to when you were in primary school?",
+                    "If you could learn any instrument, what would you choose?", "Do you think schools must teach music to all students?",
+                    "What were you doing while listening to music yesterday?", "Why do people listen to music when they study?",
+                    "Might you go to a music festival next summer?", "Are you learning any new songs next week?",
+                    "If you find out your favorite band is breaking up, how will you feel?", "Have you ever given up learning a musical instrument?",
+                    "Were your parents listening to different music when they were young?", "Who do you think will be a famous singer in 5 years' time?"
+                ]
+            },
+            shopping: {
+                title: "Shopping (购物)", icon: "🛍️", color: "bg-yellow-100 border-yellow-300",
+                vocab: ["mall (购物中心)", "online shopping (网购)", "customer (顾客)", "delivery (快递)", "try on (试穿)", "receipt (收据)", "return (退货)", "sales (促销)", "window shopping (逛街)", "queue (排队)", "credit card (信用卡)", "convenient (方便的)", "review (评价)", "size (尺码)", "bargain (讲价)", "supermarket (超市)", "quality (质量)", "look for (寻找)", "sell out (售罄)", "tomorrow (明天)"],
+                grammar: ["Used to: I used to shop at the mall, but now I buy online.", "Past Cont: I was looking at phones when the shop closed.", "Opinion: I believe online shopping is more convenient."],
+                tips: ["Compare past and present habits using 'used to'.", "Express opinions on the safety or convenience of online shopping.", "Narrate shopping experiences with Past Continuous."],
+                questions: [
+                    "What is your opinion on online shopping?", "What were you looking for the last time you went to a mall?",
+                    "If you buy clothes online and they don't fit, what will you do?", "Where did your family use to buy food when you were younger?",
+                    "Do you think physical shops might disappear in the future?", "Why do some teenagers spend so much time in shopping malls?",
+                    "Do we have to spend a lot of money to buy good gifts?", "What is the best thing you have bought recently?",
+                    "If a product sells out, will you wait for it to return?", "Were you trying on clothes when the fire alarm rang?",
+                    "Who do you usually go window shopping with?", "Are you going shopping for anything special tomorrow?"
+                ]
+            },
+            sports: {
+                title: "Sports (运动)", icon: "🏃", color: "bg-rose-100 border-rose-300",
+                vocab: ["team (队伍)", "match (比赛)", "stadium (体育场)", "coach (教练)", "referee (裁判)", "score (得分)", "win (赢)", "lose (输)", "tournament (锦标赛)", "athlete (运动员)", "practice (练习)", "fan (球迷)", "equipment (装备)", "injury (受伤)", "competitive (有竞争力的)", "medal (奖牌)", "jogging (慢跑)", "take up (开始学)", "give up (放弃)", "the day after tomorrow (后天)"],
+                grammar: ["1st Cond: If we win the match, we will celebrate.", "Past Cont: We were playing football when it started to snow.", "Uncertainty: I might join the basketball team next year."],
+                tips: ["Use Past Continuous to tell a sports story.", "Use Infinitive of purpose ('I train every day to win').", "Give opinions on whether sports should be mandatory."],
+                questions: [
+                    "What sports did you use to play when you were a child?", "What were you doing when your favourite team won their last match?",
+                    "If you have free time this weekend, will you play a sport?", "In your opinion, is it more important to win or to have fun?",
+                    "Do you think students have to play team sports to learn cooperation?", "Why do people enjoy watching sports on TV?",
+                    "What sport might you try in the future?", "How often must professional athletes train?",
+                    "If you get an injury, will you give up playing?", "Were you watching the Olympics on TV last night?",
+                    "Why do some people take up jogging when they get older?", "Are you playing any matches the day after tomorrow?"
+                ]
+            }
+        };
+
+        const mockExams = [
+            { id: 1, title: "Mock 1: Rules & Fashion", topic: "My School Rules", areas: ["Rules", "Fashion"], vocab: ["strict", "uniform", "fair", "must", "allowed", "trendy", "sneakers"], script: [ { role: "E", text: "Good morning. Please give me your topic form. What is your topic?" }, { role: "C", text: "My topic is about the rules at my secondary school." }, { role: "E", text: "In your opinion, what is the most unfair rule at your school?" }, { role: "E", text: "What will happen if a student breaks that rule?" }, { role: "E", text: "What rules did you use to have in primary school?" }, { role: "E", text: "Do you think schools must have strict rules?" }, { role: "Note", text: "WAIT: Student must ask: 'What do you think about school rules?'" }, { role: "E", text: "Let's move on to Fashion. Do you have to wear a uniform at school?" }, { role: "E", text: "What did you use to wear when you were younger?" }, { role: "E", text: "If you go to a party this weekend, what will you wear?" } ] },
+            { id: 2, title: "Mock 2: Health & Money", topic: "My Fitness Routine", areas: ["Health", "Money"], vocab: ["gym", "diet", "junk food", "exercise", "expensive", "save", "budget"], script: [ { role: "E", text: "Hello. What are we going to talk about today?" }, { role: "C", text: "I'm going to talk about my fitness routine and health." }, { role: "E", text: "What exercise did you use to do when you were a child?" }, { role: "E", text: "Why do you go to the gym or play sports now?" }, { role: "E", text: "If you don't have time to exercise next week, what will you do?" }, { role: "E", text: "In your opinion, why do teenagers eat junk food?" }, { role: "Note", text: "WAIT: Student must ask: 'How do you stay healthy?'" }, { role: "E", text: "Let's talk about Money. Do you get pocket money from your parents?" }, { role: "E", text: "What were you saving up for last year?" }, { role: "E", text: "Do you think teenagers must learn how to manage their money?" } ] },
+            { id: 3, title: "Mock 3: Travel & Language", topic: "A Dream Holiday", areas: ["Travel", "Language"], vocab: ["abroad", "culture", "explore", "fluent", "translate", "vocabulary", "useful"], script: [ { role: "E", text: "What is your topic sheet about?" }, { role: "C", text: "It's about my dream holiday to the UK." }, { role: "E", text: "Why do you want to travel to the UK?" }, { role: "E", text: "Where did you use to go on holiday when you were small?" }, { role: "E", text: "If you go to London, what will you visit first?" }, { role: "E", text: "What were you doing during your last long flight?" }, { role: "Note", text: "WAIT: Student must ask: 'Have you ever been to the UK?'" }, { role: "E", text: "Let's talk about Language. How do you learn English?" }, { role: "E", text: "Do you think it is necessary to live abroad to become fluent?" }, { role: "E", text: "What language might you study in the future?" } ] },
+            { id: 4, title: "Mock 4: Environment & Shopping", topic: "Recycling at Home", areas: ["Environment", "Shopping"], vocab: ["pollution", "recycle", "plastic", "mall", "online shopping", "convenient"], script: [ { role: "E", text: "Please tell me your topic." }, { role: "C", text: "My topic is about recycling at home." }, { role: "E", text: "What did your family use to throw away that you now recycle?" }, { role: "E", text: "Why do you think we must reduce plastic waste?" }, { role: "E", text: "If we don't protect the environment, what will happen?" }, { role: "E", text: "What were you doing to help the environment last week?" }, { role: "Note", text: "WAIT: Student must ask: 'Do you recycle?'" }, { role: "E", text: "Shopping. Do you prefer shopping online or in a mall?" }, { role: "E", text: "What were you looking for the last time you went shopping?" }, { role: "E", text: "Do you think physical shops might disappear?" } ] },
+            { id: 5, title: "Mock 5: Festivals & Entertainment", topic: "Chinese New Year", areas: ["Festivals", "Entertainment"], vocab: ["celebrate", "tradition", "fireworks", "cinema", "streaming", "special effects"], script: [ { role: "E", text: "Hello. What is your topic today?" }, { role: "C", text: "My topic is the Chinese New Year festival." }, { role: "E", text: "How did you use to celebrate it when you were younger?" }, { role: "E", text: "What were you doing on New Year's Eve last year?" }, { role: "E", text: "Why do people travel to be with their families?" }, { role: "E", text: "If it rains during the festival, what will you do?" }, { role: "Note", text: "WAIT: Student must ask: 'What is your favorite festival?'" }, { role: "E", text: "Entertainment. What kind of movies do you like?" }, { role: "E", text: "What were you watching on TV last night?" }, { role: "E", text: "Do you think teenagers must limit their screen time?" } ] },
+            { id: 6, title: "Mock 6: Music & Sports", topic: "Learning the Piano", areas: ["Music", "Sports"], vocab: ["instrument", "practice", "classical", "team", "match", "tournament"], script: [ { role: "E", text: "What topic have you prepared?" }, { role: "C", text: "I'm going to talk about learning to play the piano." }, { role: "E", text: "When did you start learning?" }, { role: "E", text: "What music did you use to hate but now like?" }, { role: "E", text: "If you practice every day, how will you improve?" }, { role: "E", text: "Why do people listen to music when they study?" }, { role: "Note", text: "WAIT: Student must ask: 'Do you play an instrument?'" }, { role: "E", text: "Sports. Do you prefer team sports or individual sports?" }, { role: "E", text: "What were you doing when your favorite team won their last match?" }, { role: "E", text: "Do you think students have to play sports at school?" } ] },
+            { id: 7, title: "Mock 7: Travel & Rules", topic: "A Difficult Journey", areas: ["Travel", "Rules"], vocab: ["flight", "luggage", "explore", "strict", "forbidden", "punishment"], script: [ { role: "E", text: "Good afternoon. What is your topic?" }, { role: "C", text: "My topic is a difficult train journey I had last year." }, { role: "E", text: "What was happening when the train stopped?" }, { role: "E", text: "Did you use to travel a lot when you were small?" }, { role: "E", text: "Why do people like to explore new countries?" }, { role: "E", text: "If you lose your luggage next time, what will you do?" }, { role: "Note", text: "WAIT: Student must ask: 'Have you ever had a bad journey?'" }, { role: "E", text: "Rules. What are the rules about using phones at your school?" }, { role: "E", text: "Do you think we must have strict rules in society?" }, { role: "E", text: "What happens if a student breaks a rule?" } ] },
+            { id: 8, title: "Mock 8: Money & Shopping", topic: "Saving for a Phone", areas: ["Money", "Shopping"], vocab: ["pocket money", "budget", "expensive", "online shopping", "receipt", "discount"], script: [ { role: "E", text: "Hello. What are we discussing today?" }, { role: "C", text: "I want to talk about how I am saving money for a new phone." }, { role: "E", text: "How did you use to spend your pocket money?" }, { role: "E", text: "Why do teenagers want expensive phones?" }, { role: "E", text: "If you don't save enough money, what will you do?" }, { role: "E", text: "Do you think students must learn to budget?" }, { role: "Note", text: "WAIT: Student must ask: 'Are you good at saving money?'" }, { role: "E", text: "Shopping. Do you usually shop online or in stores?" }, { role: "E", text: "What were you looking for the last time you went to the mall?" }, { role: "E", text: "Is it necessary to spend a lot of money on gifts?" } ] },
+            { id: 9, title: "Mock 9: Health & Environment", topic: "Eating Healthily", areas: ["Health", "Environment"], vocab: ["diet", "junk food", "vitamins", "pollution", "recycle", "sustainable"], script: [ { role: "E", text: "Please tell me your topic." }, { role: "C", text: "My topic is about eating a healthy diet." }, { role: "E", text: "What unhealthy food did you use to eat?" }, { role: "E", text: "Why do you eat more vegetables now?" }, { role: "E", text: "If you want to get fitter, what exercise will you do?" }, { role: "E", text: "Were you eating healthily during the exam period?" }, { role: "Note", text: "WAIT: Student must ask: 'Do you think your diet is healthy?'" }, { role: "E", text: "Environment. What is your school doing to reduce pollution?" }, { role: "E", text: "Do you think everyone must recycle?" }, { role: "E", text: "What will happen if we don't protect wildlife?" } ] },
+            { id: 10, title: "Mock 10: Language & Music", topic: "Learning English with Songs", areas: ["Language", "Music"], vocab: ["fluent", "lyrics", "translate", "melody", "pop", "practice"], script: [ { role: "E", text: "What is your topic sheet about?" }, { role: "C", text: "It's about how I use English pop songs to learn the language." }, { role: "E", text: "How did you use to study English vocabulary?" }, { role: "E", text: "Why do you use songs to practice listening?" }, { role: "E", text: "What were you doing when you first heard your favorite English song?" }, { role: "E", text: "If you learn all the lyrics, will it help your speaking?" }, { role: "Note", text: "WAIT: Student must ask: 'Do you like listening to English music?'" }, { role: "E", text: "Music. Do you prefer listening to live music or downloaded tracks?" }, { role: "E", text: "Might you go to a concert this year?" }, { role: "E", text: "Do you think children have to learn an instrument?" } ] },
+            { id: 11, title: "Mock 11: Fashion & Entertainment", topic: "My Favorite Actor's Style", areas: ["Fashion", "Entertainment"], vocab: ["trendy", "brand", "style", "cinema", "actor", "streaming"], script: [ { role: "E", text: "What topic have you prepared?" }, { role: "C", text: "I have prepared the topic: My favorite actor's fashion style." }, { role: "E", text: "What did he use to wear in his early movies?" }, { role: "E", text: "Why do people want to copy celebrities' styles?" }, { role: "E", text: "If you could buy his outfit, would you?" }, { role: "E", text: "What were you wearing the last time you went to the cinema?" }, { role: "Note", text: "WAIT: Student must ask: 'Do you follow celebrity fashion?'" }, { role: "E", text: "Entertainment. What is your opinion on streaming services?" }, { role: "E", text: "What kind of movies did you use to watch?" }, { role: "E", text: "What are you doing for entertainment this weekend?" } ] },
+            { id: 12, title: "Mock 12: Sports & Festivals", topic: "The School Sports Festival", areas: ["Sports", "Festivals"], vocab: ["stadium", "match", "medal", "celebrate", "parade", "atmosphere"], script: [ { role: "E", text: "Hello. What is your topic?" }, { role: "C", text: "My topic is our annual school sports festival." }, { role: "E", text: "What sports did you use to compete in?" }, { role: "E", text: "What were you doing when your class won the relay race?" }, { role: "E", text: "Why do schools organize these festivals?" }, { role: "E", text: "If it rains on sports day next year, what will the school do?" }, { role: "Note", text: "WAIT: Student must ask: 'Did you enjoy sports day at school?'" }, { role: "E", text: "Festivals. What is your favorite national festival?" }, { role: "E", text: "How did you use to celebrate it when you were small?" }, { role: "E", text: "Are you doing anything special for the next festival?" } ] }
+        ];
+
+        const sampleTopics = {
+            "travel": { title: "My School Trip to Beijing", point1: "PAST HABIT: I used to travel only with my parents.", point2: "PAST CONT: Last year, I was taking photos when it started raining.", point3: "OPINION: I think school trips are better than family holidays.", point4: "COND/FUTURE: If I pass my exams, I will go to Japan.", question: "Do you think travelling is good for students?", vocab: ["school trip", "abroad", "explore", "landscape"] },
+            "money": { title: "Managing Pocket Money", point1: "PAST HABIT: I used to spend all my money on snacks.", point2: "PAST CONT: Yesterday, I was looking at a game, but decided to save.", point3: "OPINION: I strongly believe teenagers must budget money.", point4: "COND/FUTURE: If I save weekly, I will buy a new phone.", question: "What did you use to spend money on?", vocab: ["budget", "save", "waste", "afford"] },
+            "fashion": { title: "School Uniforms", point1: "PAST HABIT: I used to wear bright clothes when young.", point2: "PAST CONT: I was shopping for sneakers when I saw my teacher.", point3: "OPINION: We must wear uniforms so everyone looks equal.", point4: "COND/FUTURE: If they remove the rule, I will wear jeans.", question: "What is your opinion on uniforms?", vocab: ["uniform", "trendy", "casual", "brand"] },
+            "rules": { title: "School Rules", point1: "PAST HABIT: In primary school, rules used to be relaxed.", point2: "PAST CONT: I was using my phone when the teacher caught me.", point3: "OPINION: I believe homework rules are too strict.", point4: "COND/FUTURE: If students break rules, they will get punished.", question: "Are school rules too strict?", vocab: ["strict", "forbidden", "punishment", "fair"] },
+            "health": { title: "Staying Fit", point1: "PAST HABIT: I used to eat junk food every day.", point2: "PAST CONT: I was jogging when I felt tired, but kept going.", point3: "OPINION: Teenagers must exercise to stay healthy.", point4: "COND/FUTURE: If I join the team, I will get fitter.", question: "How do you stay active?", vocab: ["diet", "exercise", "active", "energy"] },
+            "language": { title: "Improving English", point1: "PAST HABIT: I used to translate every word into Chinese.", point2: "PAST CONT: I was watching a movie when I understood it all.", point3: "OPINION: The best way to learn is with native speakers.", point4: "COND/FUTURE: If I practice, I will be fluent.", question: "What language is hardest?", vocab: ["fluent", "vocabulary", "practice", "translate"] },
+            "environment": { title: "Recycling at Home", point1: "PAST HABIT: We used to throw everything in one bin.", point2: "PAST CONT: I was watching a documentary when I realized the problem.", point3: "OPINION: Everyone must recycle to protect the earth.", point4: "COND/FUTURE: If we don't act, climate change will get worse.", question: "Do you recycle at home?", vocab: ["pollution", "recycle", "plastic", "climate change"] },
+            "festivals": { title: "Spring Festival", point1: "PAST HABIT: We used to light fireworks, but now it's forbidden.", point2: "PAST CONT: We were eating dumplings when midnight struck.", point3: "OPINION: It's important to keep traditions alive.", point4: "COND/FUTURE: If I have time next year, I will make lanterns.", question: "What is your favorite festival?", vocab: ["celebrate", "tradition", "fireworks", "custom"] },
+            "entertainment": { title: "Going to the Cinema", point1: "PAST HABIT: I used to watch cartoons every morning.", point2: "PAST CONT: I was playing a video game when you called.", point3: "OPINION: Cinemas are better than watching at home.", point4: "COND/FUTURE: If the new movie is good, I will see it twice.", question: "Do you prefer cinemas or streaming?", vocab: ["cinema", "streaming", "special effects", "plot"] },
+            "music": { title: "Learning the Guitar", point1: "PAST HABIT: I used to hate practicing scales.", point2: "PAST CONT: I was playing a song when a string broke.", point3: "OPINION: Schools must teach music to all students.", point4: "COND/FUTURE: If I practice daily, I will join a band.", question: "Do you play an instrument?", vocab: ["instrument", "practice", "melody", "band"] },
+            "shopping": { title: "Online Shopping", point1: "PAST HABIT: We used to go to the mall every weekend.", point2: "PAST CONT: I was looking for shoes online until 11 PM.", point3: "OPINION: Online shopping is much more convenient.", point4: "COND/FUTURE: If the clothes don't fit, I will return them.", question: "Do you shop online?", vocab: ["mall", "delivery", "convenient", "return"] },
+            "sports": { title: "Playing Basketball", point1: "PAST HABIT: I used to be very bad at catching the ball.", point2: "PAST CONT: We were playing a match when it started raining.", point3: "OPINION: Team sports teach you how to cooperate.", point4: "COND/FUTURE: If we win tomorrow, we will celebrate.", question: "Do you like team sports?", vocab: ["team", "match", "tournament", "coach"] }
+        };
+
+        const exampleData = {
+            travel: [
+                { q: "Where did you use to go on holiday when you were younger?", a: "When I was in primary school, my family and I used to go to a small beach town every summer. We didn't use to travel abroad because it was too expensive.", analysis: [{type: 'grammar', text: 'Used to (Past Habit)'}, {type: 'vocab', text: 'abroad, expensive'}] },
+                { q: "If you have a long holiday next year, where will you go?", a: "If I have enough money, I will travel to Japan to explore the culture. I might also visit some famous museums in Tokyo.", analysis: [{type: 'grammar', text: '1st Conditional, Inf of Purpose, Uncertainty (might)'}, {type: 'vocab', text: 'explore, culture, museums'}] }
+            ],
+            money: [
+                { q: "What did you use to spend your pocket money on?", a: "I used to waste all my pocket money on junk food and toys. However, now I must save it because I want to buy a new computer.", analysis: [{type: 'grammar', text: 'Used to, Obligation (must)'}, {type: 'vocab', text: 'pocket money, waste, save'}] },
+                { q: "Do you think students have to learn how to manage money?", a: "In my opinion, students absolutely have to learn how to budget. If they don't learn now, they will have financial problems in the future.", analysis: [{type: 'grammar', text: 'Opinion, Obligation (have to), 1st Conditional'}, {type: 'vocab', text: 'budget, financial problems'}] }
+            ],
+            fashion: [
+                { q: "What were you wearing yesterday?", a: "Yesterday, I was wearing my smart school uniform because we had a special assembly. I was feeling quite uncomfortable in the formal shoes.", analysis: [{type: 'grammar', text: 'Past Continuous (was wearing, was feeling)'}, {type: 'vocab', text: 'smart, uniform, formal'}] },
+                { q: "Do you think teenagers must follow fashion trends?", a: "I don't think teenagers must follow trends. In my opinion, it is more important to wear clothes that are comfortable rather than buying expensive designer brands.", analysis: [{type: 'grammar', text: 'Opinion, Obligation (must)'}, {type: 'vocab', text: 'trends, comfortable, designer brands'}] }
+            ],
+            rules: [
+                { q: "What will happen if you use your phone in class?", a: "If a teacher catches you using your phone, they will take it away immediately. You also have to stay after school for a punishment.", analysis: [{type: 'grammar', text: '1st Conditional, Obligation (have to)'}, {type: 'vocab', text: 'catches, immediately, punishment'}] },
+                { q: "What rules did you use to hate when you were younger?", a: "I used to hate having a strict curfew. I had to be in bed by 8 PM, but now my parents are more relaxed about my bedtime.", analysis: [{type: 'grammar', text: 'Used to, Obligation (had to)'}, {type: 'vocab', text: 'strict, curfew, relaxed'}] }
+            ],
+            health: [
+                { q: "What were you doing to stay healthy during the holiday?", a: "During the holiday, I was jogging in the park every morning to improve my fitness. I was also trying to eat a more balanced diet.", analysis: [{type: 'grammar', text: 'Past Continuous, Inf of Purpose (to improve)'}, {type: 'vocab', text: 'jogging, fitness, balanced diet'}] },
+                { q: "If you want to get fitter, what will you change?", a: "If I want to get fitter, I will definitely give up eating junk food. I might also take up swimming because it is very good for your whole body.", analysis: [{type: 'grammar', text: '1st Conditional, Uncertainty (might)'}, {type: 'vocab', text: 'fitter, give up, junk food, take up'}] }
+            ],
+            language: [
+                { q: "How did you use to study English?", a: "I used to just memorize long vocabulary lists, which was very boring. Now, I watch movies with subtitles to practice my listening skills.", analysis: [{type: 'grammar', text: 'Used to, Inf of Purpose (to practice)'}, {type: 'vocab', text: 'memorize, vocabulary, subtitles'}] },
+                { q: "If you become fluent in English, what will you do?", a: "If I become fluent, I will apply to study at a university in the UK or America. Knowing English is incredibly useful for international communication.", analysis: [{type: 'grammar', text: '1st Conditional'}, {type: 'vocab', text: 'fluent, apply, useful, communication'}] }
+            ],
+            environment: [
+                { q: "What were you doing to save energy last week?", a: "Last week, I was turning off all the lights when I left a room. I was also walking to school instead of taking the bus to reduce pollution.", analysis: [{type: 'grammar', text: 'Past Continuous, Inf of Purpose'}, {type: 'vocab', text: 'energy, reduce, pollution'}] },
+                { q: "If we don't stop using plastic bags, what will happen?", a: "If we don't stop using plastic, we will destroy the oceans. In my opinion, the government must ban single-use plastics completely.", analysis: [{type: 'grammar', text: '1st Conditional, Opinion, Obligation'}, {type: 'vocab', text: 'destroy, oceans, ban, single-use'}] }
+            ],
+            festivals: [
+                { q: "How did you use to celebrate the Spring Festival?", a: "We used to light a lot of loud fireworks in the street. Now, we are not allowed to do that because of safety rules, so we watch the parade on TV instead.", analysis: [{type: 'grammar', text: 'Used to, Obligation (allowed to)'}, {type: 'vocab', text: 'fireworks, safety, parade'}] },
+                { q: "What were you doing on New Year's Eve last year?", a: "I was eating traditional dumplings with my relatives when midnight struck. We were all laughing and having a wonderful time together.", analysis: [{type: 'grammar', text: 'Past Continuous (was eating, were laughing)'}, {type: 'vocab', text: 'traditional, dumplings, relatives'}] }
+            ],
+            entertainment: [
+                { q: "What kind of movies did you use to watch?", a: "I used to watch a lot of cartoons when I was in primary school. Now, I prefer watching sci-fi movies for the amazing special effects.", analysis: [{type: 'grammar', text: 'Used to'}, {type: 'vocab', text: 'cartoons, sci-fi, special effects'}] },
+                { q: "If your favorite singer comes to your city, will you go?", a: "If they come to my city, I will definitely buy a ticket to the concert. I might even queue for hours to get a seat near the stage.", analysis: [{type: 'grammar', text: '1st Conditional, Uncertainty (might)'}, {type: 'vocab', text: 'concert, queue, stage'}] }
+            ],
+            music: [
+                { q: "Why do people listen to music when they study?", a: "In my opinion, people listen to classical music to relax their minds and focus better. It helps block out distracting background noise.", analysis: [{type: 'grammar', text: 'Opinion, Inf of Purpose (to relax)'}, {type: 'vocab', text: 'classical, focus, distracting'}] },
+                { q: "What were you doing while listening to music yesterday?", a: "Yesterday evening, I was doing my math homework while listening to some pop music on my headphones. It made the work feel less boring.", analysis: [{type: 'grammar', text: 'Past Continuous (was doing)'}, {type: 'vocab', text: 'pop music, headphones, boring'}] }
+            ],
+            shopping: [
+                { q: "What is your opinion on online shopping?", a: "I strongly believe that online shopping is much more convenient. However, you must be careful because you cannot try on the clothes before buying them.", analysis: [{type: 'grammar', text: 'Opinion, Obligation (must)'}, {type: 'vocab', text: 'convenient, careful, try on'}] },
+                { q: "If you buy clothes online and they don't fit, what will you do?", a: "If they don't fit, I will send them back and ask for a refund. I might also check the reviews to see if other customers had the same problem with the size.", analysis: [{type: 'grammar', text: '1st Conditional, Uncertainty (might)'}, {type: 'vocab', text: 'refund, reviews, customers, size'}] }
+            ],
+            sports: [
+                { q: "What were you doing when your team won their last match?", a: "I was sitting in the stadium, cheering very loudly. When they scored the final goal, everyone was jumping up and down.", analysis: [{type: 'grammar', text: 'Past Continuous (was sitting, was jumping)'}, {type: 'vocab', text: 'stadium, cheering, scored'}] },
+                { q: "If you get an injury, will you give up playing?", a: "If I get a serious injury, I will have to rest for a few months, but I won't give up playing completely. I might become an assistant coach instead.", analysis: [{type: 'grammar', text: '1st Conditional, Obligation (have to), Uncertainty'}, {type: 'vocab', text: 'injury, give up, assistant coach'}] }
+            ]
+        };
+
+        const frameworkData = {
+            travel: {
+                prompt: "Tell me about a school trip you went on.",
+                paraphrases: ["I'd like to talk about a journey I took with my classmates...", "Let me tell you about an educational trip we went on...", "One memorable excursion with my school was..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O. (Opinion, Reason, Example, Opinion)", sentences: [{label: "Opinion", text: "In my opinion, school trips are amazing."}, {label: "Reason", text: "We go on these trips to learn outside the classroom."}, {label: "Example", text: "For example, I was exploring a museum when I learned about dinosaurs."}, {label: "Opinion", text: "Therefore, I think every student must go on school trips."}] },
+                    peel: { title: "P.E.E.L. (Point, Evidence, Explain, Link)", sentences: [{label: "Point", text: "School trips are highly educational."}, {label: "Evidence", text: "I used to think they were just for fun, but I was wrong."}, {label: "Explain", text: "If we visit historical sites, we will understand the past better."}, {label: "Link", text: "That is why travelling is a vital part of education."}] },
+                    ppf: { title: "P.P.F. (Past, Present, Future)", sentences: [{label: "Past", text: "We used to only go to local parks for trips."}, {label: "Present", text: "Currently, schools must organize trips to different cities to broaden our minds."}, {label: "Future", text: "If I have the chance next year, I will definitely join the trip to Beijing."}] }
+                }
+            },
+            money: {
+                prompt: "What is your opinion on teenagers having part-time jobs?",
+                paraphrases: ["Regarding teenagers working...", "When it comes to students having jobs...", "My view on young people earning money is..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O. (Opinion, Reason, Example, Opinion)", sentences: [{label: "Opinion", text: "I firmly believe teenagers should get part-time jobs."}, {label: "Reason", text: "They must learn the value of money early."}, {label: "Example", text: "For instance, my brother was working in a cafe to save for a laptop."}, {label: "Opinion", text: "So, I think working is an excellent idea for students."}] },
+                    peel: { title: "P.E.E.L. (Point, Evidence, Explain, Link)", sentences: [{label: "Point", text: "Having a job teaches responsibility."}, {label: "Evidence", text: "I used to waste my pocket money until I had to earn it myself."}, {label: "Explain", text: "If teenagers work, they will understand how hard it is to make money."}, {label: "Link", text: "This is why part-time jobs are highly beneficial."}] },
+                    ppf: { title: "P.P.F. (Past, Present, Future)", sentences: [{label: "Past", text: "In the past, students used to just focus on studying."}, {label: "Present", text: "Today, many teenagers must work to afford expensive gadgets."}, {label: "Future", text: "If I find a good job next summer, I will save 50% of my earnings."}] }
+                }
+            },
+            fashion: {
+                prompt: "Do you think teenagers care too much about designer brands?",
+                paraphrases: ["Concerning young people and expensive labels...", "My thoughts on teens wearing designer clothes...", "Regarding the obsession with famous fashion brands..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "In my opinion, yes, teenagers care too much about brands."}, {label: "Reason", text: "They buy these clothes just to impress their friends."}, {label: "Example", text: "I was shopping with a friend and she spent all her money on one shirt."}, {label: "Opinion", text: "Therefore, I think this obsession is quite foolish."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Brand obsession causes financial stress."}, {label: "Evidence", text: "Teenagers used to wear simple clothes, but now they demand luxury items."}, {label: "Explain", text: "If they spend all their money on clothes, they won't be able to save for the future."}, {label: "Link", text: "Thus, caring about brands is a negative trend."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "I used to beg my parents for expensive sneakers."}, {label: "Present", text: "Now, I believe we must focus on comfort rather than the label."}, {label: "Future", text: "If a brand is too expensive, I simply won't buy it."}] }
+                }
+            },
+            rules: {
+                prompt: "What rules do you have to follow at school?",
+                paraphrases: ["Regarding the regulations at my school...", "Let me explain the strict policies we have...", "Concerning what is allowed and forbidden in class..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "I think most of our school rules are quite fair."}, {label: "Reason", text: "We must have rules to maintain a quiet study environment."}, {label: "Example", text: "For example, if a student uses a phone, the teacher will take it away."}, {label: "Opinion", text: "So, the rules are necessary for our education."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "School rules ensure student safety and focus."}, {label: "Evidence", text: "Before the new phone rule, students were playing games during lessons."}, {label: "Explain", text: "If everyone follows the rules, the teachers will be able to teach better."}, {label: "Link", text: "This shows why strict regulations are important."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "In primary school, the rules used to be very relaxed."}, {label: "Present", text: "Currently, we have to wear uniforms and stay quiet in the halls."}, {label: "Future", text: "If they change the rules next year, I hope they allow us to use tablets."}] }
+                }
+            },
+            health: {
+                prompt: "What do you do to stay healthy?",
+                paraphrases: ["Regarding my fitness routine...", "Let me tell you about my healthy habits...", "Concerning how I keep fit and active..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "I believe staying active is incredibly important."}, {label: "Reason", text: "I exercise regularly to keep my energy levels high."}, {label: "Example", text: "Yesterday, I was jogging in the park for an hour."}, {label: "Opinion", text: "Therefore, I think everyone must find time for sports."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "A balanced diet is vital for health."}, {label: "Evidence", text: "I used to eat a lot of junk food and I felt terrible."}, {label: "Explain", text: "If you eat too much sugar, you will gain weight and feel tired."}, {label: "Link", text: "That is why I now focus on eating vegetables and fruit."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "I used to be quite lazy and played video games all day."}, {label: "Present", text: "Now, I have to go to basketball practice three times a week."}, {label: "Future", text: "If I keep training, I will be very fit by the summer."}] }
+                }
+            },
+            language: {
+                prompt: "Why is it important to learn a foreign language?",
+                paraphrases: ["Concerning the benefits of learning languages...", "My view on studying a second language is...", "Regarding the importance of being bilingual..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "In my opinion, learning English is absolutely essential."}, {label: "Reason", text: "You must learn it to communicate internationally."}, {label: "Example", text: "I was travelling abroad and I had to use English to ask for directions."}, {label: "Opinion", text: "So, language skills are vital for the modern world."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Languages open up career opportunities."}, {label: "Evidence", text: "People who only speak one language used to find jobs easily, but not anymore."}, {label: "Explain", text: "If you speak English fluently, you will have a better chance of working abroad."}, {label: "Link", text: "Thus, language learning is an investment in your future."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "I used to think grammar was the most important part of English."}, {label: "Present", text: "Now, I watch movies without subtitles to improve my listening."}, {label: "Future", text: "If I pass my Trinity exam, I might study Spanish next."}] }
+                }
+            },
+            environment: {
+                prompt: "What should we do to protect the environment?",
+                paraphrases: ["Regarding environmental protection...", "When it comes to saving our planet...", "My thoughts on being eco-friendly are..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "I firmly believe we must all take action immediately."}, {label: "Reason", text: "We have to reduce plastic to save the oceans."}, {label: "Example", text: "Last week, I was picking up rubbish at the local beach."}, {label: "Opinion", text: "Therefore, small actions are crucial for our planet."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Recycling is the easiest way to help."}, {label: "Evidence", text: "We used to throw everything in one bin, causing huge landfills."}, {label: "Explain", text: "If everyone recycles paper and plastic, we will save millions of trees."}, {label: "Link", text: "This shows that individual habits make a big difference."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "People used to ignore the problem of global warming."}, {label: "Present", text: "Today, we must use public transport to reduce pollution."}, {label: "Future", text: "If we don't act now, the damage will be irreversible."}] }
+                }
+            },
+            festivals: {
+                prompt: "How do you usually celebrate festivals?",
+                paraphrases: ["Concerning our traditional celebrations...", "Let me tell you about my holiday customs...", "Regarding how my family spends festivals..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "In my opinion, festivals are the best time of the year."}, {label: "Reason", text: "We celebrate them to spend time with our relatives."}, {label: "Example", text: "During the last festival, I was eating dumplings while watching the parade."}, {label: "Opinion", text: "So, I think these traditions are very meaningful."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Festivals keep our culture alive."}, {label: "Evidence", text: "We used to light fireworks, but now we focus on family dinners."}, {label: "Explain", text: "If we forget our traditions, we will lose a part of our history."}, {label: "Link", text: "That is why we must continue to celebrate them."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "When I was young, I used to only care about getting lucky money."}, {label: "Present", text: "Now, I have to help my parents prepare the feast."}, {label: "Future", text: "If I live abroad in the future, I will still celebrate the Spring Festival."}] }
+                }
+            },
+            entertainment: {
+                prompt: "Do you prefer going to the cinema or watching movies at home?",
+                paraphrases: ["When it comes to watching films...", "Regarding my entertainment preferences...", "My choice between the cinema and streaming is..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "I believe going to the cinema is much better."}, {label: "Reason", text: "You must go to a theater to truly experience the special effects."}, {label: "Example", text: "I was watching a sci-fi movie in 3D and it was incredible."}, {label: "Opinion", text: "Therefore, the cinema provides a superior experience."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Watching movies at home is more convenient."}, {label: "Evidence", text: "I used to go to the cinema every week, but tickets became too expensive."}, {label: "Explain", text: "If you use a streaming service, you will save a lot of money."}, {label: "Link", text: "This is why home entertainment is becoming so popular."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "We used to rent DVDs from a local store."}, {label: "Present", text: "Nowadays, we have to pay monthly subscriptions for streaming apps."}, {label: "Future", text: "If virtual reality improves, we might watch movies inside the film itself."}] }
+                }
+            },
+            music: {
+                prompt: "What kind of music do you like?",
+                paraphrases: ["Concerning my taste in music...", "Let me tell you about my favorite genres...", "Regarding the songs I listen to..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "In my opinion, pop music is the most uplifting genre."}, {label: "Reason", text: "I listen to it to feel energetic before school."}, {label: "Example", text: "Yesterday, I was listening to my favorite band while doing homework."}, {label: "Opinion", text: "So, music is a great way to improve your mood."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Learning an instrument is highly beneficial."}, {label: "Evidence", text: "I used to hate practicing the piano, but now I enjoy it."}, {label: "Explain", text: "If you learn to read music, you will develop better concentration."}, {label: "Link", text: "That is why schools must teach music to students."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "I used to only listen to whatever my parents played in the car."}, {label: "Present", text: "Now, I have to use headphones to listen to my own playlists."}, {label: "Future", text: "If my favorite singer has a concert, I will definitely buy tickets."}] }
+                }
+            },
+            shopping: {
+                prompt: "What is your opinion on online shopping?",
+                paraphrases: ["My views on buying things online are...", "Regarding e-commerce and internet shopping...", "When comparing online stores to real shops..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "I strongly believe online shopping is fantastic."}, {label: "Reason", text: "You use it to save time and find better discounts."}, {label: "Example", text: "I was looking for a rare book and found it online instantly."}, {label: "Opinion", text: "Therefore, it is the most efficient way to shop."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Online shopping can sometimes be risky."}, {label: "Evidence", text: "I used to buy clothes online, but the sizes were often wrong."}, {label: "Explain", text: "If you can't try the clothes on, you might waste your money."}, {label: "Link", text: "This is the main disadvantage of shopping on the internet."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "People used to spend hours walking around the mall."}, {label: "Present", text: "Currently, we must read online reviews before we purchase anything."}, {label: "Future", text: "If delivery gets faster, physical shops might disappear completely."}] }
+                }
+            },
+            sports: {
+                prompt: "Do you prefer team sports or individual sports?",
+                paraphrases: ["Concerning my sporting preferences...", "When choosing between team and solo sports...", "My view on different types of sports is..."],
+                frameworks: {
+                    oreo: { title: "O.R.E.O.", sentences: [{label: "Opinion", text: "In my view, team sports are much more beneficial."}, {label: "Reason", text: "You play them to learn cooperation and communication."}, {label: "Example", text: "I was playing in a football match and we had to work together to win."}, {label: "Opinion", text: "So, team sports teach you important life skills."}] },
+                    peel: { title: "P.E.E.L.", sentences: [{label: "Point", text: "Individual sports build self-discipline."}, {label: "Evidence", text: "I used to run alone every morning to prepare for a race."}, {label: "Explain", text: "If you play an individual sport, you must push yourself without relying on others."}, {label: "Link", text: "This shows why solo sports are great for mental strength."}] },
+                    ppf: { title: "P.P.F.", sentences: [{label: "Past", text: "I used to be very bad at catching a ball when I was young."}, {label: "Present", text: "Now, I have to train twice a week for my school team."}, {label: "Future", text: "If we win the tournament tomorrow, we will have a massive celebration."}] }
+                }
+            }
+        };
+
+        const PhaseTimer = ({ timeLeft, timerActive, toggleTimer, resetTimer, formatTime }) => (
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border ${timeLeft < 30 ? 'bg-red-100 border-red-500 text-red-700 animate-pulse' : 'bg-white border-slate-200 text-slate-700'}`}>
+                <Clock className="w-4 h-4" />
+                <span className="font-mono font-bold text-lg w-12 text-center">{formatTime(timeLeft)}</span>
+                <button onClick={toggleTimer} className="text-xs font-bold hover:text-indigo-600">{timerActive ? 'PAUSE' : 'START'}</button>
+                <button onClick={resetTimer} className="text-xs font-bold hover:text-red-600">RESET</button>
+            </div>
+        );
+
+        const GrammarChecklist = ({ onReward }) => {
+            const [checkedItems, setCheckedItems] = useState({
+                past_cont: false, used_to: false, conditional: false, obligation: false,
+                uncertainty: false, purpose: false, opinion: false, question: false
+            });
+
+            const handleCheck = (key) => {
+                if (!checkedItems[key]) {
+                    onReward(5); 
+                    setCheckedItems(prev => ({ ...prev, [key]: true }));
+                } else {
+                    setCheckedItems(prev => ({ ...prev, [key]: false }));
+                }
+            };
+
+            return (
+                <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 flex-shrink-0 h-full overflow-y-auto shadow-inner">
+                    <div className="text-xs font-black text-indigo-800 uppercase tracking-wider mb-3 flex items-center gap-1">
+                        <CheckSquare size={16}/> GESE 6 Checklist (+5)
+                    </div>
+                    <div className="space-y-1.5">
+                        {[
+                            { k: 'past_cont', label: 'Past Cont. (was ...ing)' },
+                            { k: 'used_to', label: 'Used to (past habits)' },
+                            { k: 'conditional', label: '1st Cond. (If X, I will Y)' },
+                            { k: 'obligation', label: 'Obligation (must/have to)' },
+                            { k: 'uncertainty', label: 'Possibility (might/may)' },
+                            { k: 'purpose', label: 'Inf. of Purpose (to do X)' },
+                            { k: 'opinion', label: 'Opinion (In my opinion...)' },
+                            { k: 'question', label: 'Ask a Question?' }
+                        ].map(item => (
+                            <button 
+                                key={item.k}
+                                onClick={() => handleCheck(item.k)}
+                                className={`w-full text-left text-xs px-2.5 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-all duration-200 border ${
+                                    checkedItems[item.k] 
+                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold shadow-sm animate-pop' 
+                                    : 'bg-white text-slate-700 border-indigo-50 hover:border-indigo-300 hover:bg-indigo-100/50'
+                                }`}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <div className={`w-3.5 h-3.5 rounded-md border flex items-center justify-center transition-colors ${
+                                        checkedItems[item.k] ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300'
+                                    }`}>
+                                        {checkedItems[item.k] && <Check className="w-2.5 h-2.5 text-white" />}
+                                    </div>
+                                    {item.label}
+                                </span>
+                                {checkedItems[item.k] && <span className="text-[10px] text-emerald-600 font-black">+5</span>}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const ConversationTool = ({ timerProps }) => {
+            const [selectedArea, setSelectedArea] = useState(null);
+            const [currentQuestion, setCurrentQuestion] = useState(null);
+            const [usedWords, setUsedWords] = useState({}); 
+
+            const pickRandomQuestion = (areaKey) => {
+                const qs = conversationData[areaKey].questions;
+                const randomQ = qs[Math.floor(Math.random() * qs.length)];
+                setCurrentQuestion(randomQ);
+            };
+
+            const toggleWord = (word) => {
+                setUsedWords(prev => ({
+                    ...prev,
+                    [selectedArea]: {
+                        ...prev[selectedArea],
+                        [word]: !prev[selectedArea]?.[word]
+                    }
+                }));
+            };
+
+            return (
+                <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex justify-between items-center mb-4 flex-shrink-0 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-xl font-black text-slate-800 flex items-center gap-2 tracking-tight">
+                                <MessageSquare className="w-6 h-6 text-indigo-600" />
+                                Conversation Phase (5 mins)
+                            </h2>
+                            {selectedArea && (
+                                <button 
+                                    onClick={() => pickRandomQuestion(selectedArea)}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg font-bold shadow-md active:transform active:scale-95 transition-all flex items-center gap-2 text-sm"
+                                >
+                                    <RotateCcw className="w-4 h-4" /> Next Question
+                                </button>
+                            )}
+                        </div>
+                        <PhaseTimer {...timerProps} />
+                    </div>
+                    
+                    <div className="flex-shrink-0 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 mb-4">
+                        {Object.entries(conversationData).map(([key, data]) => (
+                            <button
+                            key={key}
+                            onClick={() => { setSelectedArea(key); pickRandomQuestion(key); }}
+                            className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center ${
+                                selectedArea === key 
+                                ? 'border-indigo-600 shadow-md bg-white scale-105 transform z-10' 
+                                : 'border-transparent opacity-80 hover:opacity-100 hover:bg-white/50 hover:shadow-sm'
+                            } ${data.color}`}
+                            >
+                            <div className="text-2xl mb-1">{data.icon}</div>
+                            <div className="font-bold text-slate-800 text-[10px] leading-tight">{data.title}</div>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex-grow flex gap-4 overflow-hidden">
+                        {selectedArea && (
+                            <div className="w-80 bg-indigo-50/50 rounded-2xl border border-indigo-100 p-4 overflow-y-auto flex-shrink-0 animate-in fade-in slide-in-from-left-4 hidden md:flex flex-col">
+                                <div className="flex items-center gap-2 mb-3 text-indigo-900 font-black tracking-wide border-b border-indigo-200/60 pb-2 uppercase text-xs">
+                                    <Layers size={16} className="text-indigo-500" /> Grade 6 Structures
+                                </div>
+                                <ul className="space-y-2 mb-6">
+                                    {conversationData[selectedArea].grammar.map((rule, i) => (
+                                        <li key={i} className="bg-white px-3 py-2 rounded-lg text-sm font-medium text-indigo-900 shadow-sm border border-indigo-100/50">
+                                            {rule}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="flex items-center gap-2 mb-3 mt-2 text-amber-700 font-black tracking-wide border-b border-amber-200/60 pb-2 uppercase text-xs">
+                                    <Lightbulb size={16} className="text-amber-500" /> Pro Tips
+                                </div>
+                                <ul className="space-y-2">
+                                    {conversationData[selectedArea].tips.map((tip, i) => (
+                                        <li key={i} className="bg-amber-50/50 px-3 py-2.5 rounded-lg text-xs font-medium text-amber-900 border border-amber-200/50 flex gap-2 shadow-sm">
+                                            <span className="text-amber-500 font-black flex-shrink-0 mt-0.5">★</span> 
+                                            <span className="leading-relaxed">{tip}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-start justify-center text-left relative transition-all overflow-hidden">
+                        {selectedArea ? (
+                            <>
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-400 to-purple-400"></div>
+                            <span className="absolute top-6 left-6 text-xs font-black uppercase text-indigo-400 tracking-wider bg-indigo-50 px-3 py-1 rounded-full">
+                                Topic: {conversationData[selectedArea].title}
+                            </span>
+                            <TTSText text={currentQuestion} className="w-full mt-10 bg-indigo-50/40 border border-indigo-100/50 shadow-sm" iconColor="text-indigo-600">
+                                <p className="text-3xl md:text-4xl font-semibold text-slate-800 leading-tight animate-in fade-in slide-in-from-top-4 duration-500">
+                                    "{currentQuestion}"
+                                </p>
+                            </TTSText>
+                            </>
+                        ) : (
+                            <div className="w-full h-full text-center text-slate-400 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border-2 border-dashed border-slate-200">
+                                <MessageSquare className="w-16 h-16 mb-4 text-slate-300" />
+                                <p className="font-medium text-lg">Select a topic above to generate questions.</p>
+                            </div>
+                        )}
+                        </div>
+
+                        {selectedArea && (
+                            <div className="w-80 bg-slate-50 rounded-2xl border border-slate-200 p-4 overflow-y-auto flex-shrink-0 animate-in fade-in slide-in-from-right-4 hidden md:flex flex-col">
+                                <div className="flex items-center gap-2 mb-3 text-slate-800 font-black tracking-wide border-b border-slate-200 pb-2 uppercase text-xs">
+                                    <BookOpen size={16} className="text-blue-500" /> Lexis & Expressions
+                                </div>
+                                <div className="text-[10px] uppercase font-bold text-slate-400 mb-3 tracking-wider bg-slate-100 p-2 rounded text-center">Click words to mark as used</div>
+                                <ul className="space-y-1.5">
+                                    {conversationData[selectedArea].vocab.map((word, i) => (
+                                        <button 
+                                            key={i} 
+                                            onClick={() => toggleWord(word)}
+                                            className={`w-full text-left px-3 py-2 rounded-lg text-sm shadow-sm border transition-all duration-200 flex items-center justify-between font-medium ${
+                                                usedWords[selectedArea]?.[word]
+                                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300 transform scale-[1.02]'
+                                                : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:shadow-md'
+                                            }`}
+                                        >
+                                            {word}
+                                            {usedWords[selectedArea]?.[word] && <Check className="w-4 h-4 text-emerald-600" />}
+                                        </button>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const MockExamTool = ({ timerProps, onReward }) => {
+            const [selectedMock, setSelectedMock] = useState(null);
+            const [lineIndex, setLineIndex] = useState(0);
+            const [usedWords, setUsedWords] = useState({}); 
+
+            const handleNextLine = () => {
+                if (selectedMock && lineIndex < selectedMock.script.length) {
+                    setLineIndex(prev => prev + 1);
+                }
+            };
+
+            const handlePrevLine = () => {
+                if (selectedMock && lineIndex > 0) {
+                    setLineIndex(prev => prev - 1);
+                }
+            };
+
+            const toggleWord = (word) => {
+                setUsedWords(prev => ({ ...prev, [word]: !prev[word] }));
+            };
+
+            return (
+                <div className="h-full flex flex-col">
+                        {!selectedMock ? (
+                            <div className="h-full flex flex-col">
+                            <div className="flex justify-between items-center mb-4 flex-shrink-0 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                                <h2 className="text-xl font-black text-slate-800 flex items-center gap-2 tracking-tight">
+                                    <Play className="w-6 h-6 text-rose-500 fill-current" />
+                                    Mock Exam Simulator (GESE 6)
+                                </h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 pb-2">
+                                {mockExams.map((mock, i) => (
+                                <button
+                                    key={mock.id}
+                                    onClick={() => { setSelectedMock(mock); setUsedWords({}); }}
+                                    className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-400 hover:shadow-md transition-all text-left group h-full flex flex-col relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="font-black text-slate-800 group-hover:text-rose-600 text-base mb-1">{mock.title}</div>
+                                    <div className="text-sm font-medium text-indigo-600 mb-2">Topic: {mock.topic}</div>
+                                    <div className="mt-auto flex gap-1 flex-wrap">
+                                        {mock.areas.map((area, idx) => (
+                                            <span key={idx} className="text-[10px] font-bold uppercase bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{area}</span>
+                                        ))}
+                                    </div>
+                                </button>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                    <div className="flex flex-col h-full overflow-hidden">
+                        <div className="flex items-center justify-between mb-4 flex-shrink-0 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                            <div className="flex items-center gap-4">
+                                <h3 className="font-black text-xl text-slate-800 flex items-center gap-2"><Play className="w-5 h-5 text-rose-500" /> {selectedMock.title}</h3>
+                                <PhaseTimer {...timerProps} />
+                            </div>
+                            <button onClick={() => { setSelectedMock(null); setLineIndex(0); }} className="text-sm text-red-600 font-bold hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-200">End Simulation</button>
+                        </div>
+                        
+                        <div className="flex gap-4 h-full overflow-hidden">
+                            <div className="flex-grow flex flex-col h-full overflow-hidden">
+                                <div className="flex-grow overflow-y-auto bg-slate-50 rounded-2xl p-6 mb-4 border border-slate-200 shadow-inner">
+                                {selectedMock.script.slice(0, lineIndex + 1).map((line, idx) => (
+                                    <div key={idx} className={`mb-4 flex ${line.role === 'E' ? 'justify-start' : (line.role === 'Note' ? 'justify-center' : 'justify-end')}`}>
+                                        <TTSText 
+                                            text={line.text}
+                                            className={`max-w-[85%] text-sm md:text-base shadow-sm font-medium
+                                            ${line.role === 'E' ? 'bg-white text-slate-800 border-l-4 border-l-indigo-500' : ''}
+                                            ${line.role === 'C' ? 'bg-indigo-100 text-indigo-900 italic' : ''}
+                                            ${line.role === 'Note' ? 'bg-amber-100 text-amber-900 font-bold border-2 border-amber-300 animate-pulse text-center' : ''}
+                                        `}>
+                                            {line.text}
+                                        </TTSText>
+                                    </div>
+                                ))}
+                                <div id="scroll-anchor"></div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3 flex-shrink-0">
+                                    <button onClick={() => setLineIndex(0)} className="bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-300 transition-colors">Restart</button>
+                                    <button onClick={handlePrevLine} disabled={lineIndex === 0} className="bg-slate-300 text-slate-800 py-3.5 rounded-xl font-bold hover:bg-slate-400 disabled:opacity-50 transition-colors">Previous Line</button>
+                                    <button onClick={handleNextLine} disabled={lineIndex >= selectedMock.script.length - 1} className="bg-indigo-600 text-white py-3.5 rounded-xl font-bold hover:bg-indigo-700 shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+                                        Next Line <Play className="w-4 h-4 fill-current" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="hidden lg:flex gap-4 flex-shrink-0 h-full">
+                                <div className="w-72 h-full overflow-y-auto">
+                                     <GrammarChecklist onReward={onReward} />
+                                </div>
+
+                                <div className="w-72 bg-slate-50 rounded-2xl border border-slate-200 p-4 overflow-y-auto h-full shadow-inner">
+                                    <div className="flex items-center gap-2 mb-3 text-slate-800 font-black tracking-wide border-b border-slate-200 pb-2 uppercase text-xs">
+                                        <BookOpen size={16} className="text-blue-500" /> Target Lexis
+                                    </div>
+                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-3 tracking-wider text-center">Click words to mark as used</div>
+                                    <ul className="space-y-1.5">
+                                        {selectedMock.vocab.map((word, i) => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => toggleWord(word)}
+                                                className={`w-full text-left px-3 py-2 rounded-lg text-sm shadow-sm border transition-all duration-200 flex items-center justify-between font-medium ${
+                                                    usedWords[word]
+                                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300 transform scale-[1.02]'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:shadow-md'
+                                                }`}
+                                            >
+                                                {word}
+                                                {usedWords[word] && <Check className="w-4 h-4 text-emerald-600" />}
+                                            </button>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    )}
+                </div>
+            );
+        };
+
+        const TopicBuilder = ({ timerProps, onReward }) => {
+            const { speak } = React.useContext(TTSContext);
+            const [topicData, setTopicData] = useState({ title: "", point1: "", point2: "", point3: "", point4: "", question: "", vocab: [] });
+            
+            const loadTopic = (key) => {
+                if(key === "") return;
+                const t = sampleTopics[key];
+                if(!t) return;
+                setTopicData({ 
+                    title: t.title, point1: t.point1, point2: t.point2, point3: t.point3, 
+                    point4: t.point4, question: t.question, vocab: t.vocab 
+                });
+            };
+
+            const handleChange = (field, value) => setTopicData(prev => ({ ...prev, [field]: value }));
+
+            return (
+                <div className="h-full overflow-hidden flex flex-col">
+                    <div className="flex justify-between items-center mb-4 flex-shrink-0 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                        <h2 className="text-xl font-black text-slate-800 flex items-center gap-2 tracking-tight">
+                            <BookOpen className="w-6 h-6 text-purple-600" /> Topic Planner (Level 6)
+                        </h2>
+                        <div className="flex gap-3 items-center">
+                            <PhaseTimer {...timerProps} />
+                            <select onChange={(e) => loadTopic(e.target.value)} className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-1.5 px-3 rounded-lg shadow-md border-none outline-none cursor-pointer transition-colors">
+                                <option value="">Load Sample Topic...</option>
+                                <option value="travel">Travel</option>
+                                <option value="money">Money</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="rules">Rules</option>
+                                <option value="health">Health</option>
+                                <option value="language">Language</option>
+                                <option value="environment">Environment</option>
+                                <option value="festivals">Festivals</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="music">Music</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="sports">Sports</option>
+                            </select>
+                            <button onClick={() => setTopicData({ title: "", point1: "", point2: "", point3: "", point4: "", question: "", vocab: [] })} className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-bold py-1.5 px-3 rounded-lg transition-colors">Clear</button>
+                        </div>
+                    </div>
+                    
+                    <div className="flex gap-4 h-full overflow-hidden">
+                        <div className="bg-white p-0 rounded-2xl shadow-sm border border-slate-200 overflow-y-auto flex-grow flex flex-col">
+                            <div className="space-y-1 flex-shrink-0 p-4 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
+                                <div className="mb-2">
+                                    <label 
+                                        onClick={() => speak(topicData.title)} 
+                                        className="text-xs font-black uppercase text-slate-700 tracking-wider cursor-pointer bg-slate-200 hover:bg-slate-300 p-2.5 rounded-lg transition-all inline-block shadow-sm"
+                                    >
+                                        Prepared Topic Title (Listen)
+                                    </label>
+                                </div>
+                                <input 
+                                    value={topicData.title} 
+                                    onChange={(e) => handleChange('title', e.target.value)}
+                                    placeholder="Enter your topic title..."
+                                    type="text" 
+                                    className="w-full p-2.5 border border-slate-300 rounded-lg font-black text-lg bg-white focus:ring-2 focus:ring-purple-300 outline-none transition-shadow shadow-sm" 
+                                />
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-grow p-4 bg-slate-100/50">
+                                <div className="p-3 border border-blue-200 rounded-xl bg-blue-50/50 flex flex-col h-full shadow-sm">
+                                    <label 
+                                        onClick={() => speak(topicData.point1)} 
+                                        className="text-xs font-black text-blue-800 uppercase tracking-wide cursor-pointer bg-blue-200 hover:bg-blue-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        1. Past Habit (Used to...) - Listen
+                                    </label>
+                                    <textarea 
+                                        value={topicData.point1} 
+                                        onChange={(e) => handleChange('point1', e.target.value)}
+                                        placeholder="I used to..."
+                                        className="w-full bg-white p-3 rounded-lg text-sm font-medium resize-none flex-grow leading-relaxed border border-blue-100 focus:ring-2 focus:ring-blue-300 outline-none shadow-inner"
+                                    ></textarea>
+                                </div>
+                                <div className="p-3 border border-emerald-200 rounded-xl bg-emerald-50/50 flex flex-col h-full shadow-sm">
+                                    <label 
+                                        onClick={() => speak(topicData.point2)} 
+                                        className="text-xs font-black text-emerald-800 uppercase tracking-wide cursor-pointer bg-emerald-200 hover:bg-emerald-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        2. Past Cont. (was/were ...ing) - Listen
+                                    </label>
+                                    <textarea 
+                                        value={topicData.point2} 
+                                        onChange={(e) => handleChange('point2', e.target.value)}
+                                        placeholder="Last week, I was doing..."
+                                        className="w-full bg-white p-3 rounded-lg text-sm font-medium resize-none flex-grow leading-relaxed border border-emerald-100 focus:ring-2 focus:ring-emerald-300 outline-none shadow-inner"
+                                    ></textarea>
+                                </div>
+                                <div className="p-3 border border-amber-200 rounded-xl bg-amber-50/50 flex flex-col h-full shadow-sm">
+                                    <label 
+                                        onClick={() => speak(topicData.point3)} 
+                                        className="text-xs font-black text-amber-800 uppercase tracking-wide cursor-pointer bg-amber-200 hover:bg-amber-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        3. Opinion (I think...) - Listen
+                                    </label>
+                                    <textarea 
+                                        value={topicData.point3} 
+                                        onChange={(e) => handleChange('point3', e.target.value)}
+                                        placeholder="In my opinion..."
+                                        className="w-full bg-white p-3 rounded-lg text-sm font-medium resize-none flex-grow leading-relaxed border border-amber-100 focus:ring-2 focus:ring-amber-300 outline-none shadow-inner"
+                                    ></textarea>
+                                </div>
+                                <div className="p-3 border border-pink-200 rounded-xl bg-pink-50/50 flex flex-col h-full shadow-sm">
+                                    <label 
+                                        onClick={() => speak(topicData.point4)} 
+                                        className="text-xs font-black text-pink-800 uppercase tracking-wide cursor-pointer bg-pink-200 hover:bg-pink-300 p-2.5 rounded-lg transition-all inline-block mb-3 shadow-sm w-fit"
+                                    >
+                                        4. Cond/Future (If... I will...) - Listen
+                                    </label>
+                                    <textarea 
+                                        value={topicData.point4} 
+                                        onChange={(e) => handleChange('point4', e.target.value)}
+                                        placeholder="If I have time, I will..."
+                                        className="w-full bg-white p-3 rounded-lg text-sm font-medium resize-none flex-grow leading-relaxed border border-pink-100 focus:ring-2 focus:ring-pink-300 outline-none shadow-inner"
+                                    ></textarea>
+                                </div>
+                            </div>
+
+                            <div className="p-4 bg-red-50 border-t border-red-200 rounded-b-2xl flex items-center gap-4 flex-shrink-0">
+                                <AlertCircle className="text-red-500 w-8 h-8 flex-shrink-0" />
+                                <div className="flex-grow">
+                                    <div className="mb-2">
+                                        <label 
+                                            onClick={() => speak(topicData.question)} 
+                                            className="text-xs font-black text-red-800 uppercase tracking-wide cursor-pointer bg-red-200 hover:bg-red-300 p-2.5 rounded-lg transition-all inline-block shadow-sm"
+                                        >
+                                            Question for Examiner (Listen)
+                                        </label>
+                                    </div>
+                                    <input 
+                                        value={topicData.question} 
+                                        onChange={(e) => handleChange('question', e.target.value)}
+                                        placeholder="What is your opinion on...?"
+                                        type="text" 
+                                        className="w-full p-2.5 border border-red-200 rounded-lg text-sm font-bold bg-white focus:ring-2 focus:ring-red-400 outline-none shadow-sm" 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="hidden lg:flex gap-4 flex-shrink-0 h-full overflow-hidden">
+                            <div className="w-72 h-full overflow-y-auto">
+                                <GrammarChecklist onReward={onReward} />
+                            </div>
+
+                            <div className="w-72 bg-slate-50 rounded-2xl border border-slate-200 p-4 overflow-y-auto h-full shadow-inner">
+                                <div className="flex items-center gap-2 mb-3 text-slate-800 font-black tracking-wide border-b border-slate-200 pb-2 uppercase text-xs">
+                                    <BookOpen size={16} className="text-purple-500" /> Word Bank (Sample)
+                                </div>
+                                {topicData.vocab.length > 0 ? (
+                                    <ul className="space-y-1.5 mt-2">
+                                        {topicData.vocab.map((word, i) => (
+                                            <li key={i} className="bg-white px-3 py-2 rounded-lg text-sm font-medium text-slate-700 shadow-sm border border-slate-200">
+                                                {word}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <div className="text-sm font-medium text-slate-400 text-center mt-6 p-4 border-2 border-dashed border-slate-300 rounded-xl">Load a sample topic to populate vocabulary.</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SyllabusInfo = () => (
+            <div className="h-full overflow-hidden flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200">
+                <div className="flex items-center gap-2 mb-0 flex-shrink-0 bg-slate-800 text-white p-4 rounded-t-2xl">
+                    <Info className="w-6 h-6 text-blue-400" />
+                    <h2 className="text-xl font-black tracking-tight">GESE Grade 6 Syllabus Reference</h2>
+                </div>
+                <div className="overflow-y-auto p-6 space-y-8 flex-grow bg-slate-50">
+                    
+                    <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 className="text-lg font-black text-indigo-900 mb-4 flex items-center gap-2"><MessageSquare className="w-5 h-5"/> Communicative Functions</h3>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {["Expressing and requesting opinions and impressions", "Expressing intention and purpose", "Expressing obligation and necessity", "Expressing certainty and uncertainty", "Describing past actions over a period of time"].map((f, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm font-medium text-slate-700 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100"><Check className="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0"/> {f}</li>
+                            ))}
+                        </ul>
+                    </section>
+
+                    <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 className="text-lg font-black text-emerald-900 mb-4 flex items-center gap-2"><Layers className="w-5 h-5"/> Grammatical Structures</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs uppercase bg-emerald-50 text-emerald-800 font-black">
+                                    <tr><th className="px-4 py-3 rounded-tl-lg">Structure</th><th className="px-4 py-3">Example Usage</th><th className="px-4 py-3 rounded-tr-lg">Pedagogical Focus</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-b border-slate-100"><td className="px-4 py-3 font-bold text-slate-800">Zero & 1st conditionals</td><td className="px-4 py-3 italic text-slate-600">"If I travel abroad, I will need a passport"</td><td className="px-4 py-3 text-slate-600">Form-meaning mapping</td></tr>
+                                    <tr className="border-b border-slate-100 bg-slate-50/50"><td className="px-4 py-3 font-bold text-slate-800">Present cont. for future</td><td className="px-4 py-3 italic text-slate-600">"I'm meeting my friend tomorrow"</td><td className="px-4 py-3 text-slate-600">Temporal reference; planning</td></tr>
+                                    <tr className="border-b border-slate-100"><td className="px-4 py-3 font-bold text-slate-800">Past continuous tense</td><td className="px-4 py-3 italic text-slate-600">"I was studying when you called"</td><td className="px-4 py-3 text-slate-600">Narrative sequencing</td></tr>
+                                    <tr className="border-b border-slate-100 bg-slate-50/50"><td className="px-4 py-3 font-bold text-slate-800">Modal verbs (must, might...)</td><td className="px-4 py-3 italic text-slate-600">"You must wear a helmet"</td><td className="px-4 py-3 text-slate-600">Deontic vs. epistemic modality</td></tr>
+                                    <tr><td className="px-4 py-3 font-bold text-slate-800">Infinitive of purpose</td><td className="px-4 py-3 italic text-slate-600">"I study English to communicate"</td><td className="px-4 py-3 text-slate-600">Goal-oriented language</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 className="text-lg font-black text-amber-900 mb-4 flex items-center gap-2"><BookOpen className="w-5 h-5"/> Lexical Expectations</h3>
+                            <ul className="space-y-3">
+                                <li className="flex items-start gap-2 text-sm font-medium text-slate-700"><Check className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"/> Topic-specific vocabulary aligned with prepared theme</li>
+                                <li className="flex items-start gap-2 text-sm font-medium text-slate-700"><Check className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"/> Subject-area lexis for the 6 Conversation phase domains</li>
+                                <li className="flex items-start gap-2 text-sm font-medium text-slate-700 bg-amber-50 p-2 rounded border border-amber-100"><span className="font-bold text-amber-800">Temporal expressions:</span> the day after tomorrow, in a year's time, in … years' time</li>
+                                <li className="flex items-start gap-2 text-sm font-medium text-slate-700 bg-amber-50 p-2 rounded border border-amber-100"><span className="font-bold text-amber-800">High-frequency phrasal verbs:</span> look after, give up, find out</li>
+                            </ul>
+                        </section>
+
+                        <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 className="text-lg font-black text-rose-900 mb-4 flex items-center gap-2"><Play className="w-5 h-5"/> Phonological Criteria</h3>
+                            <ul className="space-y-3 text-sm font-medium text-slate-700">
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Clear pronunciation of topic vocabulary</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Sentence stress for meaning clarification</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Intonation patterns for complex question forms</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Connected speech features (weak forms, linking)</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-rose-500"/> Avoidance of recitation patterns</li>
+                            </ul>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const ExamplesTool = ({ timerProps }) => {
+            const [selectedArea, setSelectedArea] = useState(null);
+
+            return (
+                <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex justify-between items-center mb-4 flex-shrink-0 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                        <h2 className="text-xl font-black text-slate-800 flex items-center gap-2 tracking-tight">
+                            <Star className="w-6 h-6 text-amber-500 fill-current" />
+                            Model Answers (Level 6)
+                        </h2>
+                        <PhaseTimer {...timerProps} />
+                    </div>
+
+                    <div className="flex-shrink-0 flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                        {Object.keys(exampleData).map(key => (
+                            <button
+                                key={key}
+                                onClick={() => setSelectedArea(key)}
+                                className={`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap shadow-sm border ${
+                                    selectedArea === key 
+                                    ? 'bg-amber-500 text-white border-amber-600 scale-105 transform' 
+                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                }`}
+                            >
+                                {conversationData[key].title}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex-grow overflow-y-auto bg-slate-50 rounded-2xl border border-slate-200 p-6 shadow-inner">
+                        {!selectedArea ? (
+                            <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                                 <Lightbulb className="w-16 h-16 mb-4 text-slate-300" />
+                                 <p className="font-medium text-lg">Select a topic to see Grade 6 Model Answers.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {exampleData[selectedArea].map((ex, i) => (
+                                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-in fade-in slide-in-from-bottom-4">
+                                        <TTSText text={ex.q} className="mb-4 bg-slate-50 border border-slate-100 shadow-sm" iconColor="text-indigo-500">
+                                            <div className="font-black text-lg text-slate-800 flex gap-3 items-center">
+                                                <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-sm">Q</span> 
+                                                {ex.q}
+                                            </div>
+                                        </TTSText>
+                                        <TTSText text={ex.a} className="bg-indigo-50 border border-indigo-100 mb-6 shadow-sm" iconColor="text-amber-600">
+                                            <div className="text-indigo-900 text-base font-medium leading-relaxed flex gap-3">
+                                                <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg text-sm h-fit">A</span>
+                                                "{ex.a}"
+                                            </div>
+                                        </TTSText>
+                                        <div className="flex flex-col md:flex-row gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                            <div className="flex-1">
+                                                <div className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-wider flex items-center gap-1"><Layers size={12}/> Grammar Focus</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {ex.analysis.find(a => a.type === 'grammar').text.split(',').map((g, idx) => (
+                                                        <span key={idx} className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded shadow-sm">{g.trim()}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-wider flex items-center gap-1"><BookOpen size={12}/> Vocab Focus</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {ex.analysis.find(a => a.type === 'vocab').text.split(',').map((v, idx) => (
+                                                        <span key={idx} className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded shadow-sm">{v.trim()}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const FrameworksTool = ({ timerProps }) => {
+            const [selectedTopic, setSelectedTopic] = useState(null);
+            const [selectedFramework, setSelectedFramework] = useState('oreo');
+
+            const data = selectedTopic ? frameworkData[selectedTopic] : null;
+
+            return (
+                <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex justify-between items-center mb-4 flex-shrink-0 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                        <h2 className="text-xl font-black text-slate-800 flex items-center gap-2 tracking-tight">
+                            <Layers className="w-6 h-6 text-emerald-500" />
+                            Structure & Paraphrase (Level 6)
+                        </h2>
+                        <PhaseTimer {...timerProps} />
+                    </div>
+
+                    <div className="flex-shrink-0 flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+                        {Object.keys(frameworkData).map(key => (
+                            <button
+                                key={key}
+                                onClick={() => setSelectedTopic(key)}
+                                className={`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap shadow-sm border ${
+                                    selectedTopic === key 
+                                    ? 'bg-emerald-500 text-white border-emerald-600 scale-105 transform' 
+                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                }`}
+                            >
+                                {conversationData[key].title}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex-grow flex gap-4 overflow-hidden">
+                        {!selectedTopic ? (
+                             <div className="w-full h-full text-center text-slate-400 flex flex-col items-center justify-center bg-white rounded-2xl border border-slate-200 shadow-sm">
+                                <Layers className="w-16 h-16 mb-4 text-slate-300" />
+                                <p className="font-medium text-lg">Select a topic to view paraphrasing frameworks.</p>
+                             </div>
+                        ) : (
+                            <>
+                        {/* Left Column: Prompt and Paraphrasing */}
+                        <div className="w-1/3 flex flex-col gap-4 overflow-y-auto pr-2">
+                            <div className="bg-slate-800 text-white p-5 rounded-2xl shadow-md border border-slate-700">
+                                <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 mb-3">Examiner Prompt</div>
+                                <TTSText text={data.prompt} className="bg-slate-700/50 border border-slate-600 shadow-sm hover:bg-slate-700" iconColor="text-emerald-400">
+                                    <div className="text-xl font-semibold leading-tight text-white">"{data.prompt}"</div>
+                                </TTSText>
+                            </div>
+
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex-grow flex flex-col">
+                                <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
+                                    <div className="bg-emerald-100 text-emerald-700 w-6 h-6 rounded-md flex items-center justify-center font-black text-sm">1</div>
+                                    <h3 className="font-black text-slate-800 text-base">Paraphrase the Opening</h3>
+                                </div>
+                                <p className="text-xs text-slate-500 mb-4 font-medium">Never repeat the question exactly. Choose one of these advanced openings:</p>
+                                
+                                <div className="space-y-4 flex-grow overflow-y-auto">
+                                    {data.paraphrases.map((para, idx) => (
+                                        <TTSText key={idx} text={para} className="bg-emerald-50/50 border border-emerald-100 shadow-sm hover:border-emerald-300" iconColor="text-emerald-600">
+                                            <div className="text-emerald-900 font-semibold text-sm leading-relaxed">
+                                                "{para}"
+                                            </div>
+                                        </TTSText>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column: Frameworks */}
+                        <div className="w-2/3 flex flex-col gap-4 overflow-hidden">
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full">
+                                <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3 flex-shrink-0">
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-md flex items-center justify-center font-black text-sm">2</div>
+                                        <h3 className="font-black text-slate-800 text-base">Structure the Answer</h3>
+                                    </div>
+                                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                                        {['oreo', 'peel', 'ppf'].map(fw => (
+                                            <button 
+                                                key={fw}
+                                                onClick={() => setSelectedFramework(fw)}
+                                                className={`px-4 py-1.5 rounded-md text-xs font-black uppercase tracking-wider transition-all ${
+                                                    selectedFramework === fw ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                                }`}
+                                            >
+                                                {fw}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="text-center mb-6 flex-shrink-0">
+                                    <h4 className="font-black text-indigo-900 text-lg bg-indigo-50 inline-block px-4 py-1.5 rounded-lg border border-indigo-100">{data.frameworks[selectedFramework].title}</h4>
+                                </div>
+
+                                <div className="space-y-4 relative flex-grow overflow-y-auto pl-4 pb-4 mt-2">
+                                    {/* Connecting Line */}
+                                    <div className="absolute left-[31px] top-6 bottom-8 w-1 bg-indigo-100 rounded-full z-0"></div>
+
+                                    {data.frameworks[selectedFramework].sentences.map((sent, idx) => (
+                                        <div key={idx} className="flex gap-4 relative z-10 animate-in fade-in slide-in-from-right-4" style={{ animationDelay: `${idx * 100}ms` }}>
+                                            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white mt-3">
+                                                {sent.label.charAt(0)}
+                                            </div>
+                                            <TTSText text={sent.text} className="bg-white border border-indigo-100 flex-grow shadow-sm hover:shadow-md">
+                                                <div>
+                                                    <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1.5">{sent.label}</div>
+                                                    <div className="text-indigo-900 text-base font-semibold leading-relaxed">"{sent.text}"</div>
+                                                </div>
+                                            </TTSText>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('conversation'); 
+            const [score, setScore] = useState(0);
+            const [rewards, setRewards] = useState([]);
+            
+            const [timeLeft, setTimeLeft] = useState(300);
+            const [timerActive, setTimerActive] = useState(false);
+
+            const playWinSound = useCallback(() => {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const t = ctx.currentTime;
+                [440, 554, 659, 880].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.1, t + i * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.5);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(t + i * 0.05);
+                    osc.stop(t + i * 0.05 + 0.5);
+                });
+            }, []);
+
+            const triggerReward = useCallback((amount = 10) => {
+                setScore(s => s + amount);
+                playWinSound();
+                const newRewards = Array.from({ length: 8 }).map(() => ({
+                    id: Math.random().toString(36).substr(2, 9),
+                    x: 30 + Math.random() * 40, 
+                    y: 40 + Math.random() * 30,
+                    emoji: ['🪙', '⭐', '✨', '🏆', '🎉'][Math.floor(Math.random() * 5)],
+                    scale: 0.5 + Math.random()
+                }));
+                
+                setRewards(prev => [...prev, ...newRewards]);
+                
+                setTimeout(() => {
+                    const idsToRemove = newRewards.map(r => r.id);
+                    setRewards(prev => prev.filter(r => !idsToRemove.includes(r.id)));
+                }, 2000);
+            }, [playWinSound]);
+
+            useEffect(() => {
+                let interval = null;
+                if (timerActive && timeLeft > 0) {
+                    interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
+                } else if (timeLeft === 0) setTimerActive(false);
+                return () => clearInterval(interval);
+            }, [timerActive, timeLeft]);
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m}:${s < 10 ? '0' : ''}${s}`;
+            };
+
+            const timerProps = { timeLeft, timerActive, toggleTimer: () => setTimerActive(!timerActive), resetTimer: () => { setTimerActive(false); setTimeLeft(300); }, formatTime };
+
+            return (
+                <TTSProvider>
+                <div className="bg-slate-100 font-sans text-slate-900 h-screen flex flex-col overflow-hidden relative">
+                    <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+                        {rewards.map(r => (
+                            <div key={r.id} className="animate-float-up absolute text-4xl drop-shadow-md" style={{ left: `${r.x}%`, top: `${r.y}%`, transform: `scale(${r.scale})` }}>
+                                {r.emoji}
+                            </div>
+                        ))}
+                    </div>
+
+                    <header className="bg-slate-800 text-white px-4 py-2 shadow-lg flex items-center justify-between shrink-0 z-20 border-b border-slate-700">
+                        <div className="flex items-center gap-4">
+                            <div className="font-black text-lg tracking-tight text-white flex items-center gap-2">
+                                <span className="bg-indigo-500 text-white px-2 py-0.5 rounded text-sm">GESE 6</span> Classroom
+                            </div>
+                            <div className="h-6 w-px bg-slate-600 mx-2"></div>
+                            <div className="flex gap-1.5">
+                                {[
+                                    { id: 'conversation', icon: MessageSquare, label: 'Talk' },
+                                    { id: 'frameworks', icon: Layers, label: 'Structure' },
+                                    { id: 'dashboard', icon: BookOpen, label: 'Plan' },
+                                    { id: 'examples', icon: Star, label: 'Models' },
+                                    { id: 'mock', icon: Play, label: 'Mock' },
+                                    { id: 'syllabus', icon: Info, label: 'Spec' }
+                                ].map(tab => (
+                                    <button 
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)} 
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 ${
+                                            activeTab === tab.id 
+                                            ? 'bg-indigo-500 text-white shadow-inner' 
+                                            : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                                        }`}
+                                    >
+                                        <tab.icon size={14} className={activeTab === tab.id ? 'opacity-100' : 'opacity-70'} /> 
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <div className="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-1.5 flex items-center gap-2 shadow-inner">
+                                <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Score</span>
+                                <span className="text-base font-black text-amber-400">{score}</span>
+                            </div>
+                            <button onClick={() => triggerReward(10)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black py-1.5 px-4 rounded-lg shadow-lg active:scale-95 flex items-center gap-1.5 text-xs transition-all border border-orange-400">
+                                <Trophy size={14} className="text-amber-100 drop-shadow-sm" /> Award
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-6 h-full overflow-hidden relative flex flex-col z-10">
+                        <div className="bg-white rounded-2xl shadow-xl h-full overflow-hidden border border-slate-200/60 flex-grow ring-1 ring-slate-900/5">
+                            <div className="h-full p-4 md:p-6 bg-slate-50/30">
+                                {activeTab === 'dashboard' && <TopicBuilder timerProps={timerProps} onReward={triggerReward} />}
+                                {activeTab === 'conversation' && <ConversationTool timerProps={timerProps} />}
+                                {activeTab === 'mock' && <MockExamTool timerProps={timerProps} onReward={triggerReward} />}
+                                {activeTab === 'syllabus' && <SyllabusInfo />}
+                                {activeTab === 'examples' && <ExamplesTool timerProps={timerProps} />}
+                                {activeTab === 'frameworks' && <FrameworksTool timerProps={timerProps} />}
+                            </div>
+                        </div>
+                    </main>
+                </div>
+                </TTSProvider>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

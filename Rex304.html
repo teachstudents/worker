@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global English Curriculum App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        primary: '#6b21a8', 
+                        secondary: '#1d4ed8', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tighter, customized typography */
+        .content-body h2 { 
+            font-family: 'Merriweather', serif;
+            color: #4c1d95; /* Purple-900 */
+            font-size: 2.25rem; 
+            font-weight: 900; 
+            margin-top: 2.5rem; 
+            margin-bottom: 1rem; 
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .content-body h3 { 
+            font-family: 'Merriweather', serif;
+            color: #1e3a8a; /* Blue-900 */
+            font-size: 1.75rem; 
+            font-weight: 700; 
+            margin-top: 2rem; 
+            margin-bottom: 0.75rem; 
+        }
+
+        .content-body h4 { 
+            font-family: 'Inter', sans-serif;
+            color: #b91c1c; /* Red-700 */
+            font-size: 1.35rem; 
+            font-weight: 800; 
+            margin-top: 1.5rem; 
+            margin-bottom: 0.5rem; 
+            letter-spacing: 0.025em;
+        }
+
+        .content-body p { 
+            font-family: 'Inter', sans-serif;
+            color: #1f2937; /* Gray-800 for softer high-contrast readability */
+            font-size: 1.15rem; 
+            line-height: 1.8; /* Breathable spacing */
+            margin-bottom: 1.25rem; 
+        }
+
+        .content-body ul, .content-body ol { 
+            font-family: 'Fira Code', monospace;
+            color: #15803d; /* Green-700 */
+            font-size: 1.05rem;
+            line-height: 1.7; 
+            padding-left: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            margin-left: 1rem;
+            list-style-type: disc;
+            border-left: 3px solid #dcfce7; /* Subtle visual anchor for lists */
+        }
+
+        .content-body li {
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+        
+        .content-body strong {
+            font-weight: 700;
+            color: #4338ca; /* Indigo-700 to make key terms pop */
+            background-color: #e0e7ff; /* Very light indigo background highlight */
+            padding: 0 0.2rem;
+            border-radius: 0.25rem;
+        }
+
+        .content-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+
+        .content-body th, .content-body td {
+            border: 1px solid #d1d5db;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .content-body th {
+            background-color: #f3f4f6;
+            font-weight: 700;
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-white text-black h-screen overflow-hidden flex flex-col font-sans">
+
+    <!-- Header & Go Back Panel -->
+    <header class="flex-shrink-0 border-b-2 border-gray-200 bg-white/95 backdrop-blur-md z-30 px-4 sm:px-8 py-3 sm:py-4 flex justify-between items-center shadow-sm sticky top-0">
+        <button onclick="openPanel()" class="flex items-center gap-2 sm:gap-3 bg-blue-50 text-blue-800 hover:bg-blue-100 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-black transition-all shadow-sm text-sm sm:text-lg border border-blue-200">
+            <i data-lucide="menu" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            <span class="hidden sm:inline">Menu</span>
+        </button>
+
+        <!-- Dynamic Unit Title & TTS Trigger placed high up in the header -->
+        <div class="flex-1 text-center mx-4 cursor-pointer group" onclick="toggleTTS()" title="Click to Read Aloud">
+            <h1 class="text-lg sm:text-2xl md:text-3xl font-black text-purple-900 font-serif flex items-center justify-center gap-2 sm:gap-3 transition-colors group-hover:text-purple-600 truncate">
+                <i data-lucide="volume-2" class="w-5 h-5 sm:w-7 sm:h-7 text-purple-500 group-hover:text-purple-400 flex-shrink-0"></i>
+                <span id="header-title-text" class="truncate">Unit Title</span>
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="navigate(-1)" id="header-prev" class="flex items-center justify-center bg-gray-100 text-gray-800 hover:bg-gray-200 p-2 sm:px-5 sm:py-3 rounded-xl font-bold transition disabled:opacity-40 disabled:cursor-not-allowed border border-gray-300">
+                <i data-lucide="chevron-left" class="w-5 h-5 sm:w-6 sm:h-6"></i> <span class="hidden sm:inline ml-1">Prev</span>
+            </button>
+            <button onclick="navigate(1)" id="header-next" class="flex items-center justify-center bg-purple-700 text-white hover:bg-purple-800 p-2 sm:px-5 sm:py-3 rounded-xl font-bold transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-purple-500/30">
+                <span class="hidden sm:inline mr-1">Next</span> <i data-lucide="chevron-right" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative bg-white">
+        
+        <!-- Off-Canvas Sidebar Navigation -->
+        <aside id="sidebar" class="absolute inset-y-0 left-0 z-40 w-80 md:w-96 bg-white border-r-2 border-gray-200 transform -translate-x-full transition-transform duration-400 ease-in-out flex flex-col shadow-2xl">
+            <div class="p-6 border-b-2 border-gray-200 flex justify-between items-center bg-gray-50">
+                <h1 class="text-2xl font-black text-purple-900 flex items-center gap-3 font-serif">
+                    <i data-lucide="book-open" class="w-7 h-7"></i>
+                    Curriculum
+                </h1>
+                <button onclick="closePanel()" class="p-2 rounded-full hover:bg-gray-200 transition-colors text-gray-500">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 bg-white border-b-2 border-gray-100">
+                <div class="flex justify-between text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">
+                    <span>Progress</span>
+                    <span id="progress-text">1 / 13</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progress-bar" class="bg-purple-600 h-3 rounded-full transition-all duration-500 shadow-sm" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <nav id="nav-links" class="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-2">
+                <!-- Navigation items injected via JS -->
+            </nav>
+        </aside>
+
+        <!-- Overlay for sidebar -->
+        <div id="sidebar-overlay" class="absolute inset-0 bg-black/40 z-30 hidden backdrop-blur-sm transition-opacity" onclick="closePanel()"></div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 h-full overflow-y-auto scroll-smooth" id="main-scroll">
+            <!-- Adjusted padding to start content much higher up -->
+            <div class="max-w-4xl mx-auto px-6 sm:px-12 py-8 sm:py-12 fade-in" id="content-area">
+                <!-- Content injected via JS -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const curriculumData = [
+            {
+                title: "Unit 1: Images of Life",
+                voice: "Brian",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>This is designed for English as a Foreign Language learners at an upper intermediate to advanced level. Students develop academic reading, writing, speaking, and listening skills while engaging with global issues, ethical dilemmas, and real world communication tasks.</p>
+                    
+                    <h3>2. Target Learners</h3>
+                    <p>This unit is designed for:</p>
+                    <ul>
+                        <li>English as a Foreign Language students</li>
+                        <li>Approximately B2 to C1 on the Common European Framework of Reference for Languages</li>
+                        <li>Learners preparing for academic study, global communication, and ethical digital citizenship</li>
+                    </ul>
+                    <p>Students are expected to:</p>
+                    <ul>
+                        <li>Engage in extended reading</li>
+                        <li>Participate in structured academic discussions</li>
+                        <li>Produce handwritten and digital writing</li>
+                        <li>Reflect on ethical and cultural issues</li>
+                        <li>Use generative artificial intelligence responsibly</li>
+                    </ul>
+
+                    <h3>3. Texts Used in Unit 1</h3>
+                    <p>Unit 1 uses two texts from Reading Explorer 4 (Third Edition):</p>
+                    <ol>
+                        <li><strong>“The Visual Village”</strong> <br>A nonfiction article exploring how smartphones, citizen journalism, and digital editing have changed truth, memory, and public perception.</li>
+                        <li><strong>“My Journey in Photographs”</strong> <br>An interview with National Geographic photographer Annie Griffiths, focusing on connection, empathy, gender, and cultural storytelling.</li>
+                    </ol>
+                    <p>Both texts are essential to the unit’s exploration of truth, representation, and human connection.</p>
+
+                    <h3>4. Unit Theme</h3>
+                    <p>Images, truth, and human connection. Students examine how cameras and editing tools influence what we see, what we believe, and how we relate to other people and cultures.</p>
+
+                    <h3>5. Big Questions for Unit 1</h3>
+                    <p>The unit is guided by two overarching questions:</p>
+                    <ol>
+                        <li>Do photographs reflect reality, or do they shape it?</li>
+                        <li>How does the camera help us connect with people and understand different cultures?</li>
+                    </ol>
+                    <p>These questions appear in discussions, writing tasks, debates, and the final performance task.</p>
+
+                    <h3>6. Combined Vocabulary List (Unit 1A + Unit 1B)</h3>
+                    <h4>Unit 1A Vocabulary (Truth, Editing, Ethics)</h4>
+                    <ul>
+                        <li>controversy</li><li>dramatic</li><li>embrace</li><li>instantly</li><li>obsessed</li><li>profound</li><li>relevant</li><li>represent</li><li>tremendous</li>
+                    </ul>
+                    <h4>Unit 1B Vocabulary (Connection, Culture, Empathy)</h4>
+                    <ul>
+                        <li>enrich</li><li>expectation</li><li>overcome</li><li>portrait</li><li>project</li><li>sincere</li><li>teamwork</li><li>thus</li><li>tuition</li><li>turn out</li>
+                    </ul>
+
+                    <h3>7. Skills Outcomes for Unit 1</h3>
+                    <p>By the end of Unit 1, students will be able to:</p>
+                    <h4>Reading Skills</h4>
+                    <ul>
+                        <li>Scan long texts for specific details</li>
+                        <li>Identify author stance and distinguish it from quoted voices</li>
+                        <li>Compare written and spoken versions of similar content</li>
+                        <li>Interpret images and captions critically</li>
+                    </ul>
+                    <h4>Vocabulary Skills</h4>
+                    <ul>
+                        <li>Use Unit 1 vocabulary accurately in speaking and writing</li>
+                        <li>Understand and apply polysemy (words with multiple meanings)</li>
+                        <li>Use context clues to determine meaning</li>
+                    </ul>
+                    <h4>Speaking Skills</h4>
+                    <ul>
+                        <li>Defend viewpoints with reasons and examples</li>
+                        <li>Respond spontaneously in ninety second recordings</li>
+                        <li>Present ideas clearly in low stakes micro presentations</li>
+                        <li>Participate in debates with artificial intelligence</li>
+                    </ul>
+                    <h4>Writing Skills</h4>
+                    <ul>
+                        <li>Write clear, detailed paragraphs with evidence</li>
+                        <li>Produce handwritten drafts to encourage deep thinking</li>
+                        <li>Write reflective and analytical responses</li>
+                        <li>Create ethical critiques of images and captions</li>
+                    </ul>
+                    <h4>Critical Thinking and Ethics</h4>
+                    <ul>
+                        <li>Evaluate how cropping, filters, and artificial intelligence manipulate meaning</li>
+                        <li>Analyze cultural representation and stereotypes</li>
+                        <li>Reflect on ethical responsibilities in storytelling</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT SYSTEM</h2>
+                    <h3>1. Daily Ninety Second Audio Assessments</h3>
+                    <p>At the end of every lesson, students complete a ninety second audio recording. This is a core feature of the unit and serves several instructional purposes:</p>
+                    <h4>Purpose of the Daily Audio</h4>
+                    <ul>
+                        <li>To build fluency through short, focused speaking tasks</li>
+                        <li>To reduce anxiety by keeping the task low stakes and predictable</li>
+                        <li>To reinforce vocabulary from both Unit 1A and Unit 1B</li>
+                        <li>To strengthen spontaneous speaking skills aligned with the Common European Framework of Reference for Languages</li>
+                        <li>To provide daily evidence of learning and authentic student voice</li>
+                        <li>To support self efficacy through consistent mastery experiences</li>
+                    </ul>
+
+                    <h3>2. Unified Summative Performance Task</h3>
+                    <p>Students will create a portfolio of three components:</p>
+                    <h4>Component 1 — The Artificial Intelligence Photo Editor’s Dilemma</h4>
+                    <p><strong>Task Description:</strong> Students will create an altered or artificially generated image that changes the meaning of the original scene. They will then write a short editorial defense explaining whether the image should be published.</p>
+                    
+                    <h4>Component 2 — The Unethical Travel Blogger’s Dilemma</h4>
+                    <p><strong>Task Description:</strong> Students will create a “travel photo” that misrepresents a culture or person for attention. They will then write two pieces: A defense from the perspective of an influencer, and a critique from the perspective of Annie Griffiths.</p>
+
+                    <h4>Component 3 — Final Reflection: The Ethical Storyteller’s Code</h4>
+                    <p><strong>Task Description:</strong> Students will write a final reflection synthesizing what they learned about truth, editing, and cultural representation, proposing three personal ethical guidelines for future storytelling.</p>
+
+                    <h2>SECTION 4 — DETAILED LESSON PLANS (Lessons 1–10)</h2>
+                    
+                    <h4>LESSON 1 — Visual Truth Hook and Vocabulary Launch</h4>
+                    <p><strong>Purpose:</strong> Students will begin the unit by questioning visual truth and learning the first set of vocabulary words. They will analyze two contrasting photographs and discuss how images influence perception.</p>
+                    <p><strong>Ninety Second Audio Prompt:</strong> "In ninety seconds, define citizen journalism and use the word instantly. Then give one specific example from your own life."</p>
+
+                    <h4>LESSON 2 — Reading A: The Visual Village and Argument Mapping</h4>
+                    <p><strong>Purpose:</strong> Students will read “The Visual Village” and map the author’s argument using a flow chart. They will identify the author’s stance and analyze how technological changes influence truth.</p>
+                    <p><strong>Ninety Second Audio Prompt:</strong> "In ninety seconds, summarize the author’s argument about shifting standards and use the word obsessed."</p>
+
+                    <h4>LESSON 3 — Polysemy Missions and Ethical Decision Making</h4>
+                    <p><strong>Purpose:</strong> Students will learn how multiple meanings of a single word (polysemy) influence interpretation. They will apply this understanding in role based missions that require ethical decision making and precise vocabulary use.</p>
+                    <p><strong>Ninety Second Audio Prompt:</strong> "In ninety seconds, state your verdict from your mission and use the word relevant. Explain why your decision is fair."</p>
+
+                    <h4>LESSON 4 — Artificial Intelligence Lab: The Unseen Edit</h4>
+                    <p><strong>Purpose:</strong> Students will learn how cropping, framing, and omission can manipulate meaning. They will generate “outside the frame” content using imagination or artificial intelligence to reveal hidden bias.</p>
+
+                    <h4>LESSON 5 — Debate with Artificial Intelligence: Filters and Truth</h4>
+                    <p><strong>Purpose:</strong> Students will practice defending a viewpoint and rebutting counterarguments about the ethics of filters in news photography.</p>
+
+                    <h4>LESSON 6 — Reading B: My Journey in Photographs and Scanning Skills</h4>
+                    <p><strong>Purpose:</strong> Students will read “My Journey in Photographs” and practice scanning for specific details about Annie Griffiths’ early career, education, and global experiences.</p>
+
+                    <h4>LESSON 7 — Video and Text Comparison: A Photographer’s Life</h4>
+                    <p><strong>Purpose:</strong> Students will compare the written interview with Annie Griffiths to a video segment of her speaking. They will analyze sincerity, tone, and emotional impact.</p>
+
+                    <h4>LESSON 8 — Gender and Culture Synthesis: “Half the Sky”</h4>
+                    <p><strong>Purpose:</strong> Students will synthesize Annie Griffiths’ observations about women with local examples and connect them to Sustainable Development Goal 5 (Gender Equality).</p>
+
+                    <h4>LESSON 9 — Analog Writing Workshop: Letter of Expectation</h4>
+                    <p><strong>Purpose:</strong> Students will write a handwritten “Letter of Expectation” to their future self, reflecting on their goals, challenges, and personal growth.</p>
+
+                    <h4>LESSON 10 — Creation Studio and Micro Presentations</h4>
+                    <p><strong>Purpose:</strong> Students will complete the unified summative performance task by creating manipulated images, writing ethical analyses, and presenting their work in micro presentations.</p>
+                `
+            },
+            {
+                title: "Unit 2: Natural Attraction",
+                voice: "Emma",
+                content: `
+                    <h2>SECTION 1 — COURSE AND UNIT OVERVIEW</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>Unit 2 explores how organisms communicate, survive, and attract mates through light, color, movement, and display. Students investigate bioluminescence in marine ecosystems, the elaborate mating rituals of birds of paradise, and the adaptive strategies revealed in the Jellyfish video. Through inquiry, modeling, design, and synthesis, students develop academic English skills while engaging with scientific reasoning, evolutionary theory, and multimodal communication.</p>
+                    <p>This unit uses a 3 Phase Scientific Inquiry Model:</p>
+                    <ul>
+                        <li><strong>Phase 1 — Phenomena:</strong> Students explore bioluminescence as a survival strategy, using the Jellyfish video as an anchor phenomenon.</li>
+                        <li><strong>Phase 2 — Display:</strong> Students analyze birds of paradise and the evolutionary pressures behind extreme display behaviors.</li>
+                        <li><strong>Phase 3 — Synthesis:</strong> Students design a nature inspired communication system that balances survival and attraction, supported by GenAI as a non judgmental tutor.</li>
+                    </ul>
+
+                    <h3>2. Target Learners</h3>
+                    <p>This unit is designed for:</p>
+                    <ul>
+                        <li>English as a Foreign Language students</li>
+                        <li>B2 to C1 learners on the Common European Framework of Reference for Languages</li>
+                        <li>Students preparing for academic study in biology, ecology, design, or global sustainability</li>
+                    </ul>
+                    <p>Students are expected to:</p>
+                    <ul>
+                        <li>Read scientific texts</li>
+                        <li>Analyze biological systems</li>
+                        <li>Compare multimodal sources</li>
+                        <li>Produce analog and digital writing</li>
+                        <li>Use GenAI responsibly for idea development and clarity</li>
+                    </ul>
+
+                    <h3>3. Texts and Media Used in Unit 2</h3>
+                    <ul>
+                        <li><strong>Reading 2A — Living Light:</strong> A scientific article explaining bioluminescence, survival strategies, predator–prey dynamics, and the ecological pressures of the deep sea.</li>
+                        <li><strong>Reading 2B — Feathers of Love:</strong> A nonfiction article describing birds of paradise, sexual selection, display rituals, and evolutionary trade offs.</li>
+                        <li><strong>Video — Jellyfish:</strong> A National Geographic video exploring jellyfish biology, bioluminescence, and adaptation.</li>
+                    </ul>
+
+                    <h3>4. Unit Theme</h3>
+                    <p>Nature communicates through light, color, movement, and display. Students explore how organisms survive, attract mates, and signal information through biological design.</p>
+
+                    <h3>5. Big Questions for Unit 2</h3>
+                    <ol>
+                        <li>How do organisms use light, color, and movement to survive and attract mates?</li>
+                        <li>What can bioluminescence and display behavior teach us about communication in nature?</li>
+                        <li>How do environmental pressures shape the evolution of signaling systems?</li>
+                        <li>How can humans design better communication systems by studying nature?</li>
+                    </ol>
+
+                    <h3>6. Combined Vocabulary List (Unit 2A + Unit 2B)</h3>
+                    <h4>Unit 2A Vocabulary (Bioluminescence & Survival)</h4>
+                    <ul>
+                        <li>astonishing</li><li>countless</li><li>descend</li><li>disturb</li><li>factor</li><li>flash</li><li>invisible</li><li>layer</li><li>predator</li><li>transparent</li>
+                    </ul>
+                    <h4>Unit 2B Vocabulary (Display, Ritual, Evolution)</h4>
+                    <ul>
+                        <li>absurd</li><li>bounce</li><li>breed</li><li>commence</li><li>evolution</li><li>harsh</li><li>noble</li><li>prominently</li><li>ritual</li><li>undergo</li>
+                    </ul>
+
+                    <h3>7. Skills Outcomes for Unit 2</h3>
+                    <h4>Reading Skills</h4>
+                    <ul>
+                        <li>Identify cause and effect relationships</li>
+                        <li>Interpret scientific diagrams and concept maps</li>
+                        <li>Recognize figurative language</li>
+                        <li>Compare multimodal sources (text + video)</li>
+                        <li>Synthesize information across readings</li>
+                    </ul>
+                    <h4>Vocabulary Skills</h4>
+                    <ul>
+                        <li>Use scientific and descriptive vocabulary accurately</li>
+                        <li>Understand polysemy and context dependent meaning</li>
+                        <li>Apply vocabulary in design and explanation tasks</li>
+                    </ul>
+                    <h4>Speaking Skills</h4>
+                    <ul>
+                        <li>Explain scientific phenomena clearly</li>
+                        <li>Present design ideas with confidence</li>
+                        <li>Respond to follow up questions</li>
+                        <li>Record daily ninety second audio reflections</li>
+                    </ul>
+                    <h4>Writing Skills</h4>
+                    <ul>
+                        <li>Produce handwritten scientific rationales</li>
+                        <li>Write clear explanations of survival and display strategies</li>
+                        <li>Synthesize ideas from multiple sources</li>
+                        <li>Create design proposals</li>
+                    </ul>
+                    <h4>Critical Thinking</h4>
+                    <ul>
+                        <li>Evaluate evolutionary trade offs</li>
+                        <li>Analyze survival vs. attraction</li>
+                        <li>Apply systems thinking</li>
+                        <li>Use GenAI to refine reasoning</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT SYSTEM</h2>
+                    <h3>1. Daily Ninety Second Audio Assessments</h3>
+                    <p>At the end of every lesson, students record a ninety second audio reflection. This routine builds fluency, reinforces vocabulary, and strengthens scientific communication.</p>
+
+                    <h3>2. Unified Summative Performance Task</h3>
+                    <p><strong>THE ATTRACTION & SURVIVAL SHOWCASE: Designing a Nature Inspired Communication System</strong></p>
+                    <p><strong>Goal:</strong> Design a nature inspired communication system that balances survival (camouflage, warning, defense) and attraction (display, signaling, ritual). Your system must be inspired by one bioluminescent organism, one bird of paradise, and one insight from the Jellyfish video.</p>
+                    <p><strong>Role:</strong> You are a bio designer working for a research team developing communication systems for environmental monitoring, wildlife conservation, emergency signaling, or human–machine interaction.</p>
+                    <p><strong>Product:</strong> A design portfolio including: Biological Model Analysis, Communication System Blueprint, Evolutionary Rationale, GenAI Supported Revision, and a Micro Presentation.</p>
+
+                    <h2>SECTION 3 — LESSON PLANS</h2>
+                    
+                    <h4>PHASE 1 — PHENOMENA (Lessons 1–3)</h4>
+                    <p><strong>Lesson 1 — Anchor Phenomenon: Jellyfish & the Mystery of Light</strong> <br>Purpose: Introduce bioluminescence through the Jellyfish video and spark curiosity. Focus on what bioluminescence is, why organisms glow, and how the ocean environment shapes adaptation.</p>
+                    <p><strong>Lesson 2 — Reading 2A: Living Light (Survival Strategies)</strong> <br>Purpose: Deepen understanding of bioluminescence as a survival mechanism. Focus on camouflage, predator avoidance, "burglar alarm" effect, and transparency.</p>
+                    <p><strong>Lesson 3 — Concept Mapping: Light as Communication</strong> <br>Purpose: Transform the reading into a visual model. Focus on offense, defense, reproduction, and environmental pressures.</p>
+
+                    <h4>PHASE 2 — DISPLAY (Lessons 4–6)</h4>
+                    <p><strong>Lesson 4 — Reading 2B: Feathers of Love (Display & Ritual)</strong> <br>Purpose: Introduce display behavior and sexual selection. Focus on dance rituals, color signaling, evolutionary trade offs, and environmental safety.</p>
+                    <p><strong>Lesson 5 — Figurative Language & Scientific Description</strong> <br>Purpose: Analyze how language shapes understanding of display. Focus on simile, metaphor, personification, and how writers "display" ideas.</p>
+                    <p><strong>Lesson 6 — Comparative Analysis: Survival vs. Attraction</strong> <br>Purpose: Compare bioluminescence and display behavior. Focus on why some organisms hide, why others attract attention, evolutionary pressures, and environmental constraints.</p>
+
+                    <h4>PHASE 3 — SYNTHESIS (Lessons 7–10)</h4>
+                    <p><strong>Lesson 7 — Design Studio 1: Nature’s Communication Systems</strong> <br>Purpose: Identify communication principles in nature. Focus on light, color, movement, pattern, and timing.</p>
+                    <p><strong>Lesson 8 — Design Studio 2: Blueprint Drafting (Analog First)</strong> <br>Purpose: Students draft their communication system by hand. Focus on survival signal, attraction signal, environmental adaptation, and evolutionary rationale.</p>
+                    <p><strong>Lesson 9 — Scientific Rationale Writing Workshop</strong> <br>Purpose: Students write the evolutionary rationale for their design. Focus on trade offs, adaptation, selection pressures, and environmental constraints.</p>
+                    <p><strong>Lesson 10 — GRASPS Showcase: The Attraction & Survival System</strong> <br>Purpose: Students present their final design. Focus on biological inspiration, communication system, evolutionary rationale, and GenAI supported revision.</p>
+                `
+            },
+            {
+                title: "Unit 3: Food & Health",
+                voice: "Andrew",
+                content: `
+                    <h2>SECTION 1 — OVERVIEW</h2>
+                    <p>Unit 3 explores how global food systems, biotechnology, and public health intersect. Students investigate how foodborne outbreaks spread, how global supply chains complicate safety, how biotechnology can both solve and create problems, and how societies make decisions under uncertainty.</p>
+                    
+                    <h3>Core Phenomena (Phase 1 Anchors)</h3>
+                    <ul>
+                        <li><strong>Phenomenon 1 — The Mango Salmonella Outbreak:</strong> 79 patients across 13 states. All linked to mangoes washed in contaminated water. PulseNet DNA analysis reveals the connection.</li>
+                        <li><strong>Phenomenon 2 — Factory Farming & Bacterial Spread:</strong> E. coli O157:H7 spreading rapidly in confined cattle. Contamination occurring early in the supply chain.</li>
+                        <li><strong>Phenomenon 3 — Golden Rice Debate:</strong> Vitamin A deficiency vs. biotech skepticism. Conflicting expert claims. Ethical and environmental trade offs.</li>
+                    </ul>
+
+                    <h3>Essential Questions</h3>
+                    <ol>
+                        <li>How safe is our food, and who is responsible for keeping it safe?</li>
+                        <li>Should we trust biotechnology to solve global food challenges?</li>
+                        <li>How can we design systems that reduce risk in a globalized food world?</li>
+                    </ol>
+
+                    <h3>Unit Vocabulary</h3>
+                    <h4>Unit 3A — Food Safety</h4>
+                    <ul>
+                        <li>compulsory</li><li>confine</li><li>contaminate</li><li>determine</li><li>digestion</li><li>feasible</li><li>infect</li><li>integral</li><li>nationwide</li><li>optimistic</li>
+                    </ul>
+                    <h4>Unit 3B — Biotech Foods</h4>
+                    <ul>
+                        <li>allergic</li><li>alternative</li><li>conventional</li><li>deficiency</li><li>diminish</li><li>modify</li><li>notwithstanding</li><li>nutritional</li><li>revolution</li><li>trait</li>
+                    </ul>
+
+                    <h2>SECTION 2 — UNIT LONG PERFORMANCE TASK (GRASPS)</h2>
+                    <p>Students design a Smart Food Safety System that:</p>
+                    <ul>
+                        <li>Detects contamination early</li>
+                        <li>Maps global supply chains</li>
+                        <li>Uses biotech OR data tracking insights</li>
+                        <li>Reduces risk in a school cafeteria</li>
+                        <li>Includes an analog blueprint, scientific rationale, GenAI supported revision, and is presented to an authentic audience.</li>
+                    </ul>
+
+                    <h2>SECTION 3 — LESSON ARC</h2>
+                    <h4>PHASE 1 — Phenomena (Lessons 1–3)</h4>
+                    <p><strong>Lesson 1 — Phenomenon Launch: The Mango Outbreak Mystery</strong><br> Students describe the phenomenon of a foodborne outbreak, identify early cause–effect relationships in contamination, and explain why a single bacterium can be dangerous.</p>
+                    <p><strong>Lesson 2 — Global Food Chains & Hidden Risks</strong><br> Students explain how global supply chains increase food safety risks, map the journey of a food item from farm to table, and identify hidden contamination points.</p>
+                    <p><strong>Lesson 3 — PulseNet & Scientific Detection</strong><br> Students explain how PulseNet uses DNA to link outbreaks, describe how scientists determine the source of contamination, and evaluate early arguments about responsibility.</p>
+
+                    <h4>PHASE 2 — Display / Debate (Lessons 4–6)</h4>
+                    <p><strong>Lesson 4 — Reading 3B: What Are Biotech Foods?</strong><br> Students explain what biotech foods are and how they differ from conventional breeding, and identify claims and examples in the reading.</p>
+                    <p><strong>Lesson 5 — Evaluating Arguments: The Biotech Debate</strong><br> Students identify arguments for and against biotech foods, and evaluate evidence (statistics, expert opinions, examples) using a T-chart.</p>
+                    <p><strong>Lesson 6 — Ethical & Environmental Trade Offs</strong><br> Students explain how biotech foods relate to global hunger and evaluate ethical arguments about golden rice.</p>
+
+                    <h4>PHASE 3 — Synthesis (Lessons 7–10)</h4>
+                    <p><strong>Lesson 7 — Design Studio 1: Mapping the School Food System</strong><br> Students map the journey of food through their own school cafeteria, identifying contamination risks and control points.</p>
+                    <p><strong>Lesson 8 — Design Studio 2: Blueprint Drafting (Analog First)</strong><br> Students draft an analog blueprint of their Smart Food Safety System, identifying system components (detection, tracking, prevention).</p>
+                    <p><strong>Lesson 9 — Scientific Rationale Writing Workshop</strong><br> Students write a scientific rationale explaining their design, using cause–effect language to justify system components.</p>
+                    <p><strong>Lesson 10 — GRASPS Showcase: Smart Food Safety System</strong><br> Students present their Smart Food Safety System clearly and confidently, explaining the scientific rationale behind their design.</p>
+                `
+            },
+            {
+                title: "Unit 4: Design by Nature",
+                voice: "Brian",
+                content: `
+                    <h2>SECTION 1 — COURSE AND UNIT OVERVIEW</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>This unit explores how humans learn from nature to solve complex problems. Students examine biomimicry—design inspired by biological structures and processes—and swarm intelligence, the collective behavior of animals such as ants, bees, fish, and birds. Through reading, discussion, design challenges, and ethical reflection, students develop academic English skills while engaging with scientific reasoning, systems thinking, and innovation.</p>
+                    
+                    <h3>2. Texts Used</h3>
+                    <ol>
+                        <li><strong>“Inspired by Nature”</strong><br>A nonfiction article exploring how engineers and designers study biological structures and processes to create innovative solutions.</li>
+                        <li><strong>“The Genius of Swarms”</strong><br>A scientific article examining how collective intelligence in animals can inspire human systems, robotics, and decision making.</li>
+                    </ol>
+
+                    <h3>3. Big Questions</h3>
+                    <ol>
+                        <li>How can nature inspire better human design?</li>
+                        <li>What can collective intelligence teach us about solving complex problems?</li>
+                    </ol>
+
+                    <h3>4. Combined Vocabulary List</h3>
+                    <h4>Unit 4A Vocabulary (Biomimicry and Design)</h4>
+                    <ul>
+                        <li>adapt</li><li>flexible</li><li>function</li><li>mimic</li><li>structure</li><li>survive</li><li>unique</li><li>vary</li><li>version</li>
+                    </ul>
+                    <h4>Unit 4B Vocabulary (Swarm Intelligence and Systems Thinking)</h4>
+                    <ul>
+                        <li>complex</li><li>coordinate</li><li>emerge</li><li>instinct</li><li>intelligent</li><li>pattern</li><li>respond</li><li>strategy</li><li>unity</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT SYSTEM</h2>
+                    <h3>Unified Summative Performance Task: THE BIOMIMETIC DESIGN CHALLENGE</h3>
+                    <p>Students will create a design portfolio with three components:</p>
+                    <h4>Component 1 — Biological Model Analysis</h4>
+                    <p>Students select a biological organism or system (e.g., gecko feet, shark skin, termite mounds) and analyze its structure, function, survival benefits, and why it is a strong model for human design.</p>
+                    <h4>Component 2 — Biomimetic Design Proposal</h4>
+                    <p>Students design a human invention inspired by their biological model (e.g., a building inspired by termite mounds, a medical adhesive inspired by gecko feet).</p>
+                    <h4>Component 3 — Swarm Based Improvement</h4>
+                    <p>Students apply principles of swarm intelligence (e.g., coordination, emergent behavior) to optimize their design system to respond to environmental changes.</p>
+
+                    <h2>SECTION 3 — LESSON ARC</h2>
+                    <h4>Lesson 1 — Nature as Engineer: Visual Hook + Vocabulary Launch</h4>
+                    <p>Students begin by examining surprising biological structures and functions, learning vocabulary and exploring how nature solves problems through adaptation.</p>
+                    
+                    <h4>Lesson 2 — Reading A: Inspired by Nature + Structure–Function Mapping</h4>
+                    <p>Students read “Inspired by Nature” and map the structure–function relationships described in the text, identifying how biological systems inspire human design.</p>
+                    
+                    <h4>Lesson 3 — Polysemy Missions: Scientific Vocabulary in Action</h4>
+                    <p>Students learn how scientific vocabulary shifts meaning across contexts and apply these meanings in role based missions requiring ethical decision making.</p>
+                    
+                    <h4>Lesson 4 — Artificial Intelligence Lab: Reverse Engineering Nature</h4>
+                    <p>Students analyze a biological system and “reverse engineer” it by identifying the design principles that make it effective, using AI as a thinking partner.</p>
+                    
+                    <h4>Lesson 5 — Debate with Artificial Intelligence: Should Humans Copy Nature?</h4>
+                    <p>Students debate whether humans should copy nature in engineering and design, practicing defending a viewpoint and responding to counterarguments.</p>
+                    
+                    <h4>Lesson 6 — Reading B: The Genius of Swarms + Systems Thinking</h4>
+                    <p>Students read “The Genius of Swarms” and identify how collective intelligence emerges from simple rules, analyzing how swarm behavior inspires human systems.</p>
+                    
+                    <h4>Lesson 7 — Video + Text Comparison: Collective Intelligence in Action</h4>
+                    <p>Students compare the written explanation of swarm intelligence to a video demonstration, analyzing coordination, pattern formation, and system efficiency.</p>
+                    
+                    <h4>Lesson 8 — Synthesis: Biomimicry + Swarm Intelligence for Human Systems</h4>
+                    <p>Students synthesize ideas from both readings and apply them to real world problems, connecting biological models and swarm behavior to human design challenges.</p>
+                    
+                    <h4>Lesson 9 — Analog Writing Workshop: Scientific Design Rationale</h4>
+                    <p>Students write a handwritten scientific rationale explaining their biomimetic design and swarm based improvement, preparing for the summative portfolio.</p>
+                    
+                    <h4>Lesson 10 — Creation Studio + Micro Presentations</h4>
+                    <p>Students complete the summative performance task by creating their biomimetic design portfolio and presenting their work in micro presentations.</p>
+                `
+            },
+            {
+                title: "Unit 5: Human Journey",
+                voice: "Emma",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW</h2>
+                    <h3>1. Big Idea</h3>
+                    <p>Human migration is the story of how our species spread across the world. Through DNA, artifacts, and navigation traditions, we can reconstruct where we came from — and why humans continue to explore.</p>
+                    
+                    <h3>2. Essential Questions</h3>
+                    <ol>
+                        <li>How do scientists use DNA to trace ancient human migration?</li>
+                        <li>Why do humans migrate — survival, curiosity, opportunity, or something deeper?</li>
+                        <li>How did the Lapita and Polynesians navigate the Pacific without modern tools?</li>
+                        <li>What is the difference between fact and speculation in scientific research?</li>
+                        <li>How does the “explorer gene” influence our understanding of human behavior?</li>
+                    </ol>
+
+                    <h3>3. Themes</h3>
+                    <ul>
+                        <li>Human origins</li>
+                        <li>Migration and adaptation</li>
+                        <li>Curiosity and exploration</li>
+                        <li>Navigation and innovation</li>
+                        <li>Evidence and uncertainty</li>
+                        <li>Identity and ancestry</li>
+                    </ul>
+
+                    <h2>SECTION 2 — THE LESSON ARC</h2>
+                    <h4>Lesson 1: Where did we come from? How do we know?</h4>
+                    <p>Focus: Pre-reading, vocabulary, schema activation, and conceptual framing using migration maps and predictions.</p>
+
+                    <h4>Lesson 2: Reading 5A — Comprehension & Analysis (The DNA Trail)</h4>
+                    <p>Purpose: Students understand how DNA evidence (mtDNA, Y-chromosome) reconstructs ancient human migration by tracking mutations as "breadcrumbs".</p>
+
+                    <h4>Lesson 3: Reading Skill — Synthesizing Information (Maps + Text)</h4>
+                    <p>Purpose: Students learn how to match text to maps, understand how visuals extend meaning, and synthesize across modalities.</p>
+
+                    <h4>Lesson 4: Critical Thinking — Why Humans Move</h4>
+                    <p>Purpose: Categorize ancient vs. modern motives (Survival, Curiosity, Opportunity, Pressure) and debate if migration is a sign of human weakness or strength.</p>
+
+                    <h4>Lesson 6: Reading 5B — Fantastic Voyage (Lapita & Polynesians)</h4>
+                    <p>Purpose: Learn about Lapita and Polynesian expansion and navigation without instruments, annotating for wind, ocean clues, and navigation techniques.</p>
+
+                    <h4>Lesson 7: Reading Skill — Fact vs. Speculation</h4>
+                    <p>Purpose: Teach signal words to distinguish fact (discovered, found, measured) from speculation (may, might, possibly, believe).</p>
+
+                    <h2>SECTION 3 — GRASPS SUMMATIVE TASKS</h2>
+                    <h3>Task 1 — WRITING: The Human Journey: Why Do We Explore?</h3>
+                    <p><strong>Goal:</strong> Write an analytical essay (250–300 words) explaining what drives humans to explore, integrating both scientific and historical perspectives from "The DNA Trail," "Fantastic Voyage," and "Restless Genes."</p>
+                    <p><strong>Role:</strong> Anthropology researcher preparing a written piece for a museum exhibition.</p>
+
+                    <h3>Task 2 — SPEAKING: The Migration Debate</h3>
+                    <p><strong>Goal:</strong> Deliver a 2-minute speech arguing whether human migration is driven more by curiosity or survival, followed by a 1-minute rebuttal.</p>
+                    <p><strong>Role:</strong> Guest speaker at an international anthropology conference.</p>
+                `
+            },
+            {
+                title: "Unit 6A: How Money Made Us Modern",
+                voice: "Andrew",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW</h2>
+                    <h3>1. Big Idea</h3>
+                    <p>Money is not just a tool for buying and selling — it is a shared story that humans invented to create trust, cooperation, and large scale societies. From clay tokens to gold coins to paper bills, the evolution of money reflects the evolution of civilization itself.</p>
+
+                    <h3>2. Essential Questions</h3>
+                    <ol>
+                        <li>What is money, and why does it have value?</li>
+                        <li>How did early forms of currency shape trade and human cooperation?</li>
+                        <li>Why did societies shift from commodity money to paper and fiat money?</li>
+                        <li>How does trust — not metal — determine the stability of a currency?</li>
+                        <li>What does the history of money reveal about human judgment and risk?</li>
+                    </ol>
+
+                    <h3>3. Core Vocabulary</h3>
+                    <ul>
+                        <li>commodity</li><li>convenience</li><li>essentially</li><li>judgment</li><li>payment</li><li>policy</li><li>signify</li><li>stable</li><li>transaction</li><li>trigger</li>
+                    </ul>
+
+                    <h2>SECTION 2 — LESSON PLAN ARC</h2>
+                    <h4>Lesson 1: What is money, and why does it matter?</h4>
+                    <p>Focus: Identify early forms of money (clay tokens, cowrie shells) and why they were used to track value.</p>
+                    
+                    <h4>Lesson 2: Reading 6A — How Money Made Us Modern</h4>
+                    <p>Focus: Understanding commodity money, coins, early trade, and why tangible value built trust.</p>
+
+                    <h4>Lesson 3: Reading Skill — Understanding the Function of Sentences</h4>
+                    <p>Focus: Identify sentences that Define, Classify, Quote, Report, Show cause-effect, Show condition, or Name.</p>
+
+                    <h4>Lesson 4: Critical Thinking — Trust, Inflation, and Stability</h4>
+                    <p>Focus: Explain fiat money, government policy, inflation, and stability. Debate commodity money vs. fiat money.</p>
+
+                    <h2>SECTION 3 — GRASPS WRITING TASK: "Is Money Real?"</h2>
+                    <p><strong>Goal:</strong> Write an analytical response (180–220 words) explaining whether money is “real” or whether it is simply a shared story humans agree to believe.</p>
+                    <p><strong>Role:</strong> Economic historian preparing an explanation for a museum exhibit titled “The Evolution of Money.”</p>
+                    <p><strong>Requirements:</strong> Include examples of commodity money and fiat money, explain why trust and policy influence stability, and show how money triggered changes in trade and society.</p>
+                `
+            },
+            {
+                title: "Unit 6B: The Rise of Virtual Money",
+                voice: "Brian",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW</h2>
+                    <h3>1. Big Idea</h3>
+                    <p>Virtual money challenges our traditional understanding of value, trust, and financial systems. As cryptocurrency and blockchain technology reshape global transactions, societies must decide whether digital currencies represent progress, risk, or a complete re-imagining of what money is.</p>
+
+                    <h3>2. Essential Questions</h3>
+                    <ol>
+                        <li>What makes virtual money different from traditional currency?</li>
+                        <li>How does blockchain technology create trust without a central authority?</li>
+                        <li>Why do people invest in cryptocurrencies despite volatility and risk?</li>
+                        <li>What are the benefits and drawbacks of decentralized money?</li>
+                        <li>How might virtual currencies change global trade and personal finance?</li>
+                    </ol>
+
+                    <h3>3. Core Vocabulary</h3>
+                    <ul>
+                        <li>asset</li><li>drawback</li><li>drug</li><li>fraud</li><li>principle</li><li>scarce</li><li>sophisticated</li><li>stocks</li><li>supposedly</li><li>verify</li>
+                    </ul>
+
+                    <h2>SECTION 2 — LESSON PLAN ARC</h2>
+                    <h4>Lesson 6: Reading 6B — The Rise of Virtual Money</h4>
+                    <p>Focus: Understanding cryptocurrency, blockchain, and decentralization. Explain what virtual currency is and how Bitcoin works without a middleman.</p>
+
+                    <h4>Lesson 7: Reading Skill — Summarizing + Outlining</h4>
+                    <p>Focus: Identify main ideas vs. supporting details and create structured Roman numeral outlines to summarize complex technical processes.</p>
+
+                    <h4>Lesson 9: GRASPS Writing Task — Synthesis of 6A + 6B</h4>
+                    <p>Focus: "Is Money Real, or Is It a Shared Story?" Students draft analytical responses pulling evidence from the commodity/fiat history of 6A and the crypto/blockchain reality of 6B.</p>
+
+                    <h4>Lesson 10: Speaking GRASPS — Debate: Cashless vs. Crypto</h4>
+                    <p>Focus: Structured academic debate. Team A argues for a cashless society (centralized digital payments). Team B argues for a cryptocurrency society (decentralized digital money).</p>
+
+                    <h2>SECTION 3 — GRASPS SPEAKING TASK</h2>
+                    <p><strong>Goal:</strong> Deliver a 2-minute academic speech arguing for one financial future (Cashless vs. Crypto) using evidence from Unit 6A and Unit 6B.</p>
+                    <p><strong>Role:</strong> Financial advisor presenting at a youth economics forum.</p>
+                    <p><strong>Requirements:</strong> Use historical evidence (commodity → fiat → policy → stability) and technical evidence (blockchain, verification, scarcity, decentralization).</p>
+                `
+            },
+            {
+                title: "Unit 7: Group Behavior",
+                voice: "Emma",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>This EFL course develops advanced reading, speaking, writing, and critical thinking skills through global, culturally relevant nonfiction texts. Students engage with complex ideas, analyze human behavior, and practice academic English aligned with CEFR B2–C1 expectations. The course integrates responsible use of generative artificial intelligence, ethical reasoning, and the United Nations Sustainable Development Goals to prepare students for international communication, university study, and global citizenship.</p>
+                    <p>Unit 7 examines group behavior, exploring why humans cooperate in large crowds, why conflict sometimes emerges, and how online environments shape aggression and identity. Students compare physical crowds with digital communities and evaluate how shared identity, anonymity, and social norms influence behavior.</p>
+
+                    <h3>2. Target Learners</h3>
+                    <p>This unit is designed for EFL students who:</p>
+                    <ul>
+                        <li>Are reading at CEFR B1+ to B2 and working toward B2–C1</li>
+                        <li>Need structured academic vocabulary development</li>
+                        <li>Benefit from explicit reading skill instruction</li>
+                        <li>Are preparing for international programs, IELTS/TOEFL pathways, or bilingual curricula</li>
+                        <li>Engage deeply with social issues, digital citizenship, and ethical reasoning</li>
+                        <li>Thrive with clear routines, scaffolded tasks, and opportunities for mastery experiences</li>
+                    </ul>
+                    <h4>Localization considerations:</h4>
+                    <ul>
+                        <li>Students are familiar with large scale events (Gaokao, Spring Festival travel, school assemblies).</li>
+                        <li>Students regularly use social media platforms (WeChat, QQ, Xiaohongshu) and can connect personally to online behavior themes.</li>
+                        <li>Students benefit from structured debate formats and guided writing models.</li>
+                    </ul>
+
+                    <h3>3. Texts Used</h3>
+                    <ul>
+                        <li><strong>Reading Explorer 4, Unit 7A: “A Crowd in Harmony”</strong> <br>Focus: Kumbh Mela, crowd psychology, shared identity, cooperation</li>
+                        <li><strong>Reading Explorer 4, Unit 7B: “Our Online Behavior”</strong> <br>Focus: online aggression, anonymity, evolutionary psychology, digital citizenship</li>
+                    </ul>
+                    <p>Both texts support CEFR B2–C1 reading outcomes and provide rich opportunities for synthesis.</p>
+
+                    <h3>4. Unit Theme</h3>
+                    <p>Group Behavior: Why Humans Cooperate, Why We Clash, and How We Behave Online. Students explore how humans act in large groups, why cooperation emerges, why conflict sometimes erupts, and how digital environments change our behavior.</p>
+
+                    <h3>5. Big Questions</h3>
+                    <ol>
+                        <li>Why do humans cooperate so effectively in large groups?</li>
+                        <li>What causes harmony in some crowds and conflict in others?</li>
+                        <li>How does shared identity influence behavior and decision making?</li>
+                        <li>Why does online anonymity increase aggression?</li>
+                        <li>How can individuals and communities reduce conflict and promote cooperation?</li>
+                        <li>What responsibilities do we have when participating in digital spaces?</li>
+                    </ol>
+
+                    <h3>6. Vocabulary List (Integrated 7A + 7B)</h3>
+                    <h4>Unit 7A Vocabulary</h4>
+                    <ul>
+                        <li>harmony</li><li>progresses</li><li>prospective</li><li>society</li><li>suspect</li><li>sacred</li><li>overcrowded</li><li>bathe</li><li>devout</li><li>deter</li>
+                    </ul>
+                    <h4>Unit 7B Vocabulary</h4>
+                    <ul>
+                        <li>aggression</li><li>anonymity</li><li>harassment</li><li>contemporary</li><li>division</li><li>humanity</li><li>pressure</li><li>collaboration</li><li>substantial</li><li>confront</li>
+                    </ul>
+
+                    <h3>7. Skills Outcomes</h3>
+                    <p>By the end of Unit 7, students will be able to:</p>
+                    <h4>Reading (CEFR B2 → C1)</h4>
+                    <ul>
+                        <li>Identify main ideas, supporting details, and author claims in complex nonfiction texts.</li>
+                        <li>Analyze cause effect relationships in crowd behavior and online aggression.</li>
+                        <li>Evaluate psychological explanations using textual evidence.</li>
+                        <li>Compare physical and digital group dynamics.</li>
+                    </ul>
+                    <h4>Speaking (CEFR B2 → C1)</h4>
+                    <ul>
+                        <li>Deliver structured arguments using evidence from both readings.</li>
+                        <li>Participate in debates with clear claims, counterarguments, and rebuttals.</li>
+                        <li>Reflect on personal experiences with group behavior and online communication.</li>
+                    </ul>
+                    <h4>Writing (CEFR B2 → C1)</h4>
+                    <ul>
+                        <li>Produce analytical paragraphs synthesizing ideas from 7A and 7B.</li>
+                        <li>Use academic vocabulary accurately and appropriately.</li>
+                        <li>Integrate evidence, examples, and personal reflection ethically.</li>
+                    </ul>
+                    <h4>Vocabulary (CEFR B2)</h4>
+                    <ul>
+                        <li>Use unit vocabulary in speaking and writing with precision.</li>
+                        <li>Recognize word roots, affixes, and context clues.</li>
+                        <li>Apply vocabulary to real world scenarios (crowds, online behavior, conflict resolution).</li>
+                    </ul>
+
+                    <h3>8. CEFR Standards (B2 → C1)</h3>
+                    <h4>Reading</h4>
+                    <ul>
+                        <li>Can understand extended factual and abstract texts (B2).</li>
+                        <li>Can identify implicit meaning and evaluate arguments (C1).</li>
+                    </ul>
+                    <h4>Speaking</h4>
+                    <ul>
+                        <li>Can express viewpoints clearly and support them with evidence (B2).</li>
+                        <li>Can develop well structured arguments with nuance (C1).</li>
+                    </ul>
+                    <h4>Writing</h4>
+                    <ul>
+                        <li>Can write clear, detailed texts on complex subjects (B2).</li>
+                        <li>Can synthesize information from multiple sources (C1).</li>
+                    </ul>
+                    <h4>Vocabulary</h4>
+                    <ul>
+                        <li>Can use a broad range of vocabulary related to social issues, psychology, and digital behavior (B2).</li>
+                    </ul>
+
+                    <h3>9. Sustainable Development Goals Alignment</h3>
+                    <p>This unit aligns with:</p>
+                    <h4>SDG 4 — Quality Education</h4>
+                    <p>Students develop critical thinking, digital literacy, and ethical reasoning.</p>
+                    <h4>SDG 16 — Peace, Justice, and Strong Institutions</h4>
+                    <p>Students explore conflict resolution, cooperation, and responsible online behavior.</p>
+
+                    <h3>10. Responsible Use of Generative Artificial Intelligence</h3>
+                    <p>Students learn to use AI as:</p>
+                    <ul>
+                        <li>A non judgmental tutor for clarity, tone, and vocabulary</li>
+                        <li>A tool for checking understanding, not generating full assignments</li>
+                        <li>A partner for rephrasing, summarizing, and explaining concepts</li>
+                        <li>A support for ethical decision making and bias awareness</li>
+                    </ul>
+                    <p>AI is used after students produce analog work (TPACK: analog first → AI second). Students are explicitly taught how to maintain academic integrity, avoid plagiarism, evaluate AI output critically, and preserve authentic voice.</p>
+
+                    <h3>11. Motivation Model (ARCS)</h3>
+                    <ul>
+                        <li><strong>Attention:</strong> Dramatic crowd images, online aggression scenarios, real world examples. Mystery questions: “Why do millions cooperate without chaos?”</li>
+                        <li><strong>Relevance:</strong> Students connect content to Chinese festivals, school events, and social media use.</li>
+                        <li><strong>Confidence:</strong> Clear routines, scaffolded tasks, vocabulary clusters, reading strategies. Daily 90 second audio builds fluency and mastery.</li>
+                        <li><strong>Satisfaction:</strong> GRASPS tasks allow students to create meaningful products. Debate and synthesis writing provide authentic achievement.</li>
+                    </ul>
+
+                    <h3>12. Self Efficacy Framework</h3>
+                    <p>Each lesson includes mastery experiences, vicarious experiences, social persuasion, and emotional regulation. Daily reflection prompts include:</p>
+                    <ul>
+                        <li>Reality: “Where do I see this in my life?”</li>
+                        <li>Importance: “Why does this matter for my future?”</li>
+                        <li>Application: “What action can I take?”</li>
+                    </ul>
+
+                    <h3>13. Differentiation Tools (DI + UDL)</h3>
+                    <ul>
+                        <li><strong>Representation:</strong> Visuals, audio tasks, text scaffolds (sentence frames).</li>
+                        <li><strong>Action/Expression:</strong> Choice of examples, multiple speaking formats, graphic organizers.</li>
+                        <li><strong>Engagement:</strong> Real world relevance, personal connections, collaborative tasks.</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT SYSTEM</h2>
+                    <h3>1. Daily Ninety Second Audio Assessment</h3>
+                    <p><strong>Purpose:</strong> The daily ninety second audio task provides low stakes, high frequency speaking practice that builds fluency, confidence, and spontaneous language production. It also ensures students practice authentic, original speech, reducing dependence on memorized or AI generated text.</p>
+                    <p><strong>Procedure:</strong> Students receive a daily prompt connected to the lesson. They record 90 seconds of spontaneous speech on their device. Teacher checks for clarity, vocabulary, coherence, and authentic voice. Ethical AI Integration: Students may use AI <em>after</em> recording to check clarity, tone, and organization, but not to generate the script.</p>
+
+                    <h3>2. Unified GRASPS (Summative Assessment)</h3>
+                    <p><strong>GRASPS Task Title:</strong> “How Should Humans Behave in Groups? A Comparative Analysis of Physical Crowds and Online Communities.”</p>
+                    <p><strong>G — Goal:</strong> Students will create a two part summative product: A written analytical paragraph (Lesson 9) and a spoken micro presentation (Lesson 10). Both must synthesize ideas from both readings and apply them to real world group behavior.</p>
+                    <p><strong>R — Role:</strong> Students act as youth behavior analysts preparing a recommendation for a fictional international organization promoting peaceful communities (SDG 16).</p>
+                    <p><strong>A — Audience:</strong> Teachers, Classmates, Youth leaders, Members of the fictional organization.</p>
+                    <p><strong>S — Situation:</strong> Human behavior in groups is becoming increasingly important — both in physical crowds and online communities. Students must analyze the psychological factors that promote harmony or aggression and propose solutions.</p>
+                    <p><strong>P — Product / Performance:</strong></p>
+                    <ul>
+                        <li><strong>Part 1 — Writing (Lesson 9):</strong> A 180–220 word analytical paragraph that synthesizes 7A + 7B, uses 6–8 vocabulary words, includes one example from each text, includes one personal reflection (authenticity requirement), and proposes one actionable solution.</li>
+                        <li><strong>Part 2 — Speaking (Lesson 10):</strong> A 2 minute micro presentation that presents the student’s written argument, includes a counterargument, uses vocabulary from both lessons, and demonstrates clear structure and fluency.</li>
+                    </ul>
+
+                    <h3>3. Rubrics</h3>
+                    <h4>A. Writing Rubric (20 points)</h4>
+                    <ul>
+                        <li><strong>Content & Accuracy (4pts):</strong> Uses evidence from both texts; accurate explanation of psychological concepts.</li>
+                        <li><strong>Organization (4pts):</strong> Clear structure; logical flow; effective transitions.</li>
+                        <li><strong>Vocabulary Use (4pts):</strong> Natural, accurate use of 6–8 target words.</li>
+                        <li><strong>Critical Thinking (4pts):</strong> Insightful analysis; synthesis of ideas; personal reflection.</li>
+                        <li><strong>Language Control (4pts):</strong> Grammar, punctuation, and clarity.</li>
+                    </ul>
+                    <h4>B. Speaking Rubric (20 points)</h4>
+                    <ul>
+                        <li><strong>Clarity & Fluency (4pts):</strong> Smooth delivery; minimal hesitation.</li>
+                        <li><strong>Structure (4pts):</strong> Clear introduction, body, conclusion.</li>
+                        <li><strong>Vocabulary Use (4pts):</strong> Accurate use of target vocabulary.</li>
+                        <li><strong>Argumentation (4pts):</strong> Strong claim, evidence, counterargument.</li>
+                        <li><strong>Authenticity (4pts):</strong> Personal insight; original voice.</li>
+                    </ul>
+
+                    <h2>SECTION 3 — LESSON PLANS</h2>
+                    
+                    <h4>LESSON 1 — ENGAGE</h4>
+                    <p><strong>Focus:</strong> Introduction to Group Behavior + Vocabulary Activation</p>
+                    <p><strong>Cognitive Tool:</strong> Perceiving. <strong>ARCS:</strong> Attention.</p>
+                    <p><strong>Purpose:</strong> Students activate background knowledge about crowds, festivals, and online communities. They explore why humans gather and how behavior changes in groups.</p>
+                    <p><strong>Core Tasks:</strong> Image analysis (Kumbh Mela, Chinese festivals, school assemblies), Vocabulary preview (harmony, suspect, society, aggression, anonymity), Prediction chart for 7A.</p>
+
+                    <h4>LESSON 2 — READING A (7A: A Crowd in Harmony)</h4>
+                    <p><strong>Focus:</strong> Main Ideas + Details + Crowd Psychology</p>
+                    <p><strong>Cognitive Tool:</strong> Patterning. <strong>ARCS:</strong> Confidence (Skill).</p>
+                    <p><strong>Purpose:</strong> Students read 7A to understand how shared identity creates harmony in massive crowds.</p>
+                    <p><strong>Core Tasks:</strong> Identify main ideas in paragraphs A–D, Analyze crowd control strategies, Discuss psychological cooperation.</p>
+
+                    <h4>LESSON 3 — MISSIONS (TBLT: Vocabulary + Ethics)</h4>
+                    <p><strong>Focus:</strong> Vocabulary Clusters + Ethical Scenarios</p>
+                    <p><strong>Cognitive Tool:</strong> Abstracting. <strong>ARCS:</strong> Confidence (Lexical Mastery).</p>
+                    <p><strong>Purpose:</strong> Students complete task based missions using vocabulary from 7A and ethical decision making scenarios.</p>
+                    <p><strong>Core Tasks:</strong> Polysemy exploration (suspect, pressure, division), Ethical roles (judge, advisor, participant), Mini case: “Who caused the stampede?”</p>
+
+                    <h4>LESSON 4 — AI COGNITIVE LAB</h4>
+                    <p><strong>Focus:</strong> Modeling Crowd Behavior + Responsible AI Use</p>
+                    <p><strong>Cognitive Tool:</strong> Modeling. <strong>ARCS:</strong> Satisfaction (Design).</p>
+                    <p><strong>Purpose:</strong> Students model crowd behavior using diagrams and AI supported clarity checks.</p>
+                    <p><strong>Core Tasks:</strong> Create a visual model of “shared identity → cooperation”, Analog first → AI second clarity check, Evaluate AI explanations for accuracy.</p>
+
+                    <h4>LESSON 5 — DEBATE WITH AI (7A Synthesis)</h4>
+                    <p><strong>Focus:</strong> Argumentation + Speaking</p>
+                    <p><strong>Cognitive Tool:</strong> Embodied Thinking. <strong>ARCS:</strong> Relevance.</p>
+                    <p><strong>Purpose:</strong> Students debate whether large crowds are safe or dangerous, using evidence from 7A.</p>
+                    <p><strong>Core Tasks:</strong> Claim → Evidence → Reasoning, AI counterargument generation (ethical use), Structured mini debate.</p>
+
+                    <h4>LESSON 6 — READING B (7B: Our Online Behavior)</h4>
+                    <p><strong>Focus:</strong> Online Aggression + Evolutionary Psychology</p>
+                    <p><strong>Cognitive Tool:</strong> Perceiving + Embodied Thinking. <strong>ARCS:</strong> Attention.</p>
+                    <p><strong>Purpose:</strong> Students read 7B to understand how anonymity and social context influence online aggression.</p>
+                    <p><strong>Core Tasks:</strong> Identify causes of online hostility, Compare physical vs. digital group behavior, Analyze anonymity and consequences.</p>
+
+                    <h4>LESSON 7 — SYNTHESIS (7A + 7B)</h4>
+                    <p><strong>Focus:</strong> Integrating Ideas Across Texts</p>
+                    <p><strong>Cognitive Tool:</strong> Synthesizing. <strong>ARCS:</strong> Confidence (Synthesis).</p>
+                    <p><strong>Purpose:</strong> Students integrate insights from both readings to understand universal patterns in group behavior.</p>
+                    <p><strong>Core Tasks:</strong> Venn diagram (physical crowds vs. online crowds), Cause effect chain (identity → behavior → consequences), Prepare evidence for GRASPS.</p>
+
+                    <h4>LESSON 8 — ANALOG WRITING LAB</h4>
+                    <p><strong>Focus:</strong> Analytical Writing + Vocabulary Integration</p>
+                    <p><strong>Cognitive Tool:</strong> Abstracting + Synthesizing. <strong>ARCS:</strong> Satisfaction.</p>
+                    <p><strong>Purpose:</strong> Students handwrite a draft analytical paragraph synthesizing 7A + 7B.</p>
+                    <p><strong>Core Tasks:</strong> Analog drafting (no AI), AI clarity check (after writing), Vocabulary integration checklist.</p>
+
+                    <h4>LESSON 9 — GRASPS CREATION (Writing)</h4>
+                    <p><strong>Focus:</strong> Summative Writing Task</p>
+                    <p><strong>Cognitive Tool:</strong> Transforming. <strong>ARCS:</strong> Satisfaction (Creation).</p>
+                    <p><strong>Purpose:</strong> Students produce the final GRASPS analytical paragraph.</p>
+                    <p><strong>Core Tasks:</strong> 180–220 word synthesis paragraph, Evidence from 7A + 7B, Personal reflection (authenticity requirement), Peer review.</p>
+
+                    <h4>LESSON 10 — MICRO PRESENTATIONS (Speaking GRASPS)</h4>
+                    <p><strong>Focus:</strong> Summative Speaking Task</p>
+                    <p><strong>Cognitive Tool:</strong> Synthesizing. <strong>ARCS:</strong> Satisfaction (Pride).</p>
+                    <p><strong>Purpose:</strong> Students deliver a 2 minute micro presentation synthesizing both readings and proposing solutions.</p>
+                    <p><strong>Core Tasks:</strong> Present claim → evidence → counterargument → solution, Use vocabulary from 7A + 7B, Peer evaluation, Celebration of learning.</p>
+
+                    <h2>SECTION 5: TEACHER REFLECTION & EXTENSION IDEAS</h2>
+                    <h3>1. What Worked Well in Unit 7</h3>
+                    <ul>
+                        <li><strong>High Relevance to Students’ Lives:</strong> Both readings connect directly to lived experiences (school assemblies, Spring Festival migration, WeChat, gaming platforms).</li>
+                        <li><strong>Clear Psychological Frameworks:</strong> Students responded well to the concepts of shared identity → cooperation and anonymity → aggression.</li>
+                        <li><strong>Vocabulary Clusters:</strong> Grouping vocabulary by theme improved retention and transfer.</li>
+                        <li><strong>Daily Ninety Second Audio:</strong> Built fluency, confidence, spontaneous speaking ability, and authentic voice (anti plagiarism).</li>
+                        <li><strong>GRASPS Integration:</strong> Demonstrated clear CEFR B2→C1 progression.</li>
+                    </ul>
+
+                    <h3>2. What to Adjust Next Time</h3>
+                    <ul>
+                        <li><strong>Support for Abstract Concepts:</strong> Use more visuals, diagrams, and analogies earlier in the unit for evolutionary psychology.</li>
+                        <li><strong>More Modeling of Analytical Writing:</strong> Add one model paragraph in Lesson 8 before drafting.</li>
+                        <li><strong>Clearer Boundaries for AI Use:</strong> Reinforce TPACK rule: Analog first → AI second → Human revision last.</li>
+                        <li><strong>More Time for Debate Preparation:</strong> Add a 3 minute “counterargument brainstorm” before the debate in Lesson 5.</li>
+                    </ul>
+
+                    <h3>3. Cross Curricular Connections</h3>
+                    <ul>
+                        <li><strong>Psychology:</strong> group identity, cooperation, aggression, social influence</li>
+                        <li><strong>Sociology:</strong> crowd behavior, social norms, collective action</li>
+                        <li><strong>Digital Citizenship / ICT:</strong> online harassment, anonymity, responsible communication, media literacy</li>
+                        <li><strong>Civics / Moral Education:</strong> conflict resolution, empathy, community responsibility, SDG 16</li>
+                        <li><strong>Chinese Language & Literature:</strong> compare classical texts on harmony and society, analyze Confucian ideas.</li>
+                    </ul>
+
+                    <h3>4. Optional Extension Activities</h3>
+                    <ul>
+                        <li><strong>“Harmony Map” Project:</strong> Create a visual map showing where harmony/conflict appears in school and how to improve it.</li>
+                        <li><strong>Online Behavior Case Study:</strong> Analyze a real online conflict and propose solutions.</li>
+                        <li><strong>Crowd Simulation Role Play:</strong> Simulate peaceful crowds, losing harmony, and recovering cooperation.</li>
+                        <li><strong>Digital Citizenship Campaign:</strong> Design posters promoting respectful online communication.</li>
+                        <li><strong>Comparative Cultural Study:</strong> Compare Kumbh Mela, Spring Festival travel, Hajj, and World Cup crowds.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Unit 8: Investigations",
+                voice: "Andrew",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>Students explore the mysterious death of Napoleon Bonaparte and the modern science of toxicology. They learn how experts gather evidence, evaluate motives, and use scientific tools to uncover truth. The unit strengthens critical thinking, argumentation, and evidence based reasoning — essential skills for CEFR B2–C1 learners preparing for international programs.</p>
+
+                    <h3>2. Target Learners</h3>
+                    <p>This unit is designed for students who:</p>
+                    <ul>
+                        <li>Are reading at B1+ to B2 and progressing toward C1</li>
+                        <li>Need structured support for academic vocabulary and argumentation</li>
+                        <li>Are preparing for IELTS/TOEFL, AP, A Level, or international pathways</li>
+                        <li>Enjoy mystery, science, and real world problem solving</li>
+                        <li>Benefit from clear routines, scaffolded tasks, and explicit reasoning models</li>
+                    </ul>
+                    <h4>Localization considerations:</h4>
+                    <ul>
+                        <li>Students are familiar with historical narratives and national heroes.</li>
+                        <li>Students have strong interest in crime dramas, detective stories, and forensic science.</li>
+                        <li>Students benefit from explicit instruction on distinguishing fact vs. theory, especially in an era of online misinformation.</li>
+                    </ul>
+
+                    <h3>3. Texts Used</h3>
+                    <h4>Reading Explorer 4 — Unit 8A: “Who Killed the Emperor?”</h4>
+                    <p><strong>Focus:</strong></p>
+                    <ul>
+                        <li>Competing theories about Napoleon’s death</li>
+                        <li>Poisoning vs. natural causes</li>
+                        <li>Historical evidence vs. scientific evidence</li>
+                        <li>Motive, opportunity, and uncertainty</li>
+                    </ul>
+                    <h4>Reading Explorer 4 — Unit 8B: “In the Crime Lab”</h4>
+                    <p><strong>Focus:</strong></p>
+                    <ul>
+                        <li>Modern forensic science</li>
+                        <li>Toxicology, autopsies, and evidence collection</li>
+                        <li>Scientific reasoning and investigative procedures</li>
+                        <li>Ethical considerations in criminal investigations</li>
+                    </ul>
+                    <p>Together, these texts create a powerful contrast between historical mystery and modern science, ideal for synthesis.</p>
+
+                    <h3>4. Unit Theme</h3>
+                    <p>Investigations: How Do We Know What Really Happened? Students explore how humans use evidence, science, and reasoning to uncover truth — and why some mysteries remain unsolved.</p>
+
+                    <h3>5. Big Questions</h3>
+                    <ol>
+                        <li>Can science solve historical mysteries?</li>
+                        <li>Why do people prefer conspiracy theories over simple explanations?</li>
+                        <li>What counts as “evidence,” and who decides?</li>
+                        <li>How do forensic scientists uncover truth from limited clues?</li>
+                        <li>Why is some evidence inconclusive, even with modern technology?</li>
+                        <li>What responsibilities do investigators have when dealing with the dead?</li>
+                    </ol>
+
+                    <h3>6. Vocabulary List (Integrated 8A + 8B)</h3>
+                    <h4>Unit 8A Vocabulary</h4>
+                    <ul>
+                        <li>compelling</li><li>disputed</li><li>grand</li><li>relentless</li><li>revenge</li><li>cease</li><li>inconclusive</li><li>plot</li><li>poison</li><li>symptom</li>
+                    </ul>
+                    <h4>Unit 8B Vocabulary</h4>
+                    <ul>
+                        <li>allegation</li><li>evaluate</li><li>in terms of</li><li>remorse</li><li>suspicious</li><li>candidate</li><li>deprived of</li><li>manipulative</li><li>frankly</li><li>weird</li>
+                    </ul>
+                    <p>Vocabulary is recycled across all 10 lessons, especially in Lessons 3, 5, 7, 8, 9, and 10.</p>
+
+                    <h3>7. Skills Outcomes</h3>
+                    <p>By the end of Unit 8, students will be able to:</p>
+                    <h4>Reading (CEFR B2 → C1)</h4>
+                    <ul>
+                        <li>Evaluate competing theories using textual evidence</li>
+                        <li>Distinguish fact, interpretation, and speculation</li>
+                        <li>Understand scientific processes (toxicology, autopsy, evidence analysis)</li>
+                        <li>Identify author stance and reliability</li>
+                    </ul>
+                    <h4>Speaking (CEFR B2 → C1)</h4>
+                    <ul>
+                        <li>Present a theory with evidence and counterarguments</li>
+                        <li>Explain forensic processes clearly</li>
+                        <li>Participate in structured debates</li>
+                        <li>Deliver a micro presentation defending a verdict</li>
+                    </ul>
+                    <h4>Writing (CEFR B2 → C1)</h4>
+                    <ul>
+                        <li>Produce analytical paragraphs synthesizing 8A and 8B</li>
+                        <li>Use evidence to support or refute a theory</li>
+                        <li>Write a “Final Verdict” report (GRASPS)</li>
+                        <li>Use academic vocabulary accurately</li>
+                    </ul>
+                    <h4>Vocabulary (CEFR B2)</h4>
+                    <ul>
+                        <li>Use technical and investigative vocabulary in context</li>
+                        <li>Recognize word roots, affixes, and idiomatic expressions</li>
+                        <li>Apply vocabulary to real world investigative scenarios</li>
+                    </ul>
+
+                    <h3>8. CEFR Standards (B2 → C1)</h3>
+                    <h4>Reading</h4>
+                    <ul>
+                        <li>B2: Can understand factual and abstract topics, including competing viewpoints</li>
+                        <li>C1: Can critically evaluate evidence and identify inconsistencies</li>
+                    </ul>
+                    <h4>Speaking</h4>
+                    <ul>
+                        <li>B2: Can give clear, detailed explanations</li>
+                        <li>C1: Can present complex arguments with nuance</li>
+                    </ul>
+                    <h4>Writing</h4>
+                    <ul>
+                        <li>B2: Can write clear, detailed texts on complex subjects</li>
+                        <li>C1: Can synthesize multiple sources into a coherent argument</li>
+                    </ul>
+                    <h4>Vocabulary</h4>
+                    <ul>
+                        <li>B2: Can use a broad range of vocabulary related to science, investigation, and reasoning</li>
+                    </ul>
+
+                    <h3>9. Sustainable Development Goals Alignment</h3>
+                    <h4>SDG 16 — Peace, Justice, and Strong Institutions</h4>
+                    <p>Students explore: justice, evidence, truth seeking, forensic science, ethical investigation</p>
+                    <h4>SDG 4 — Quality Education</h4>
+                    <p>Students develop: critical thinking, scientific literacy, evidence based reasoning</p>
+
+                    <h3>10. Responsible Use of Generative Artificial Intelligence</h3>
+                    <p>Students learn to use AI as:</p>
+                    <ul>
+                        <li>a clarity tool (checking tone, organization, vocabulary)</li>
+                        <li>a reasoning assistant (explaining processes, summarizing evidence)</li>
+                        <li>a bias awareness tool (identifying assumptions in theories)</li>
+                    </ul>
+                    <p>AI cannot: generate their GRASPS writing, create their daily audio scripts, or produce original arguments for them.</p>
+                    <p><strong>TPACK rule:</strong> Analog first → AI second → Human revision last.</p>
+                    <p>Students are taught: how to evaluate AI output, how to maintain academic integrity, and how to preserve their authentic voice.</p>
+
+                    <h3>11. Motivation Model (ARCS)</h3>
+                    <ul>
+                        <li><strong>Attention:</strong> Cold case mystery hook, competing theories, forensic science tools.</li>
+                        <li><strong>Relevance:</strong> Students connect investigations to real world crime dramas, historical mysteries, and online misinformation.</li>
+                        <li><strong>Confidence:</strong> Clear routines, vocabulary clusters, step by step forensic modeling.</li>
+                        <li><strong>Satisfaction:</strong> GRASPS “Final Verdict” report, micro presentation defending their conclusion, real world application of investigative reasoning.</li>
+                    </ul>
+
+                    <h3>12. Self Efficacy Framework</h3>
+                    <p>Each lesson includes:</p>
+                    <ul>
+                        <li>Mastery experiences: small wins through structured tasks</li>
+                        <li>Vicarious experiences: model paragraphs, sample reasoning</li>
+                        <li>Social persuasion: teacher feedback, peer review</li>
+                        <li>Emotional regulation: predictable routines, reflection prompts</li>
+                    </ul>
+                    <p>Daily reflection prompts: Reality: “Where do I see this in my life?” | Importance: “Why does this matter for my future?” | Application: “What action can I take?”</p>
+
+                    <h3>13. Differentiation Tools (DI + UDL)</h3>
+                    <ul>
+                        <li><strong>Representation:</strong> Diagrams of forensic processes, timelines of Napoleon’s final days, visual evidence charts.</li>
+                        <li><strong>Action/Expression:</strong> Choice of theory to defend, multiple speaking formats, graphic organizers.</li>
+                        <li><strong>Engagement:</strong> Mystery based learning, real world forensic scenarios, student selected evidence.</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT SYSTEM</h2>
+                    <h3>1. Daily Ninety Second Audio Assessment</h3>
+                    <p><strong>Purpose:</strong> To build spontaneous speaking fluency, evidence based reasoning, and authentic voice while reinforcing vocabulary and concepts from 8A and 8B.</p>
+                    <p><strong>Rationale:</strong></p>
+                    <ul>
+                        <li>Self efficacy: Frequent, low stakes success builds confidence.</li>
+                        <li>CEFR B2→C1: Students must speak spontaneously, not memorize scripts.</li>
+                        <li>Anti plagiarism: Audio ensures authentic student production.</li>
+                        <li>Investigative thinking: Students practice forming hypotheses and evaluating evidence.</li>
+                    </ul>
+
+                    <h3>2. Unified GRASPS (Summative Assessment)</h3>
+                    <p><strong>GRASPS Task Title:</strong> “The Final Verdict: What Really Killed Napoleon Bonaparte?”</p>
+                    <p><strong>G — Goal:</strong> Students will produce a two part summative product: A written forensic verdict report (Lesson 9) and a spoken micro presentation defending their verdict (Lesson 10).</p>
+                    <p><strong>R — Role:</strong> Students act as Crime Scene Investigators (CSI) reopening the historical case of Napoleon’s death.</p>
+                    <p><strong>A — Audience:</strong> Teachers, Classmates, A fictional “International Historical Forensics Council”.</p>
+                    <p><strong>S — Situation:</strong> New evidence has emerged, and the council has reopened the investigation into Napoleon’s death. Students must evaluate poisoning theories, medical theories, environmental theories, forensic evidence, and motives. Students must determine which explanation is most plausible based on evidence.</p>
+                    <p><strong>P — Product / Performance:</strong></p>
+                    <ul>
+                        <li><strong>Part 1 — Writing (Lesson 9):</strong> A 200–240 word forensic verdict report that includes a clear claim, evidence from 8A and 8B, evaluation of competing theories, vocabulary integration (8–10 words), and one personal reflection.</li>
+                        <li><strong>Part 2 — Speaking (Lesson 10):</strong> A 2 minute micro presentation that includes claim, evidence, counterargument, forensic reasoning, and vocabulary.</li>
+                    </ul>
+
+                    <h2>SECTION 3 — DETAILED LESSON PLANS</h2>
+                    
+                    <h4>LESSON 1 — ENGAGE (Unit 8A)</h4>
+                    <p><strong>Focus:</strong> Mystery Hook + Vocabulary Activation<br>
+                    <strong>Cognitive Tool:</strong> Perceiving<br>
+                    <strong>Core Tasks:</strong> Cold case introduction, timeline of Napoleon’s final days, vocabulary preview, prediction chart: “What killed Napoleon?”</p>
+
+                    <h4>LESSON 2 — READING A (8A: Who Killed the Emperor?)</h4>
+                    <p><strong>Focus:</strong> Main Ideas + Competing Theories<br>
+                    <strong>Cognitive Tool:</strong> Patterning<br>
+                    <strong>Core Tasks:</strong> Read paragraphs A–D, identify theories (poisoning, wallpaper, seafood, medical error), patterning chart: theory → evidence → weaknesses.</p>
+
+                    <h4>LESSON 3 — MISSIONS (TBLT: Vocabulary + Evidence Evaluation)</h4>
+                    <p><strong>Focus:</strong> Vocabulary Clusters + Evaluating Evidence<br>
+                    <strong>Core Tasks:</strong> Vocabulary clusters, evidence missions (Prove poisoning / Disprove poisoning / Argue for natural causes). Students must use 5–7 vocabulary words.</p>
+
+                    <h4>LESSON 4 — AI COGNITIVE LAB (Forensic Modeling)</h4>
+                    <p><strong>Focus:</strong> Modeling Forensic Reasoning<br>
+                    <strong>Core Tasks:</strong> Model: “How does a forensic scientist think?”, Analog first → AI second clarity check, build a “Forensic Reasoning Flowchart”.</p>
+
+                    <h4>LESSON 5 — DEBATE WITH AI (8A Synthesis)</h4>
+                    <p><strong>Focus:</strong> Argumentation + Speaking<br>
+                    <strong>Core Tasks:</strong> Teams debate: Team A (Napoleon was murdered) vs. Team B (Napoleon died naturally). Use evidence from 8A.</p>
+
+                    <h4>LESSON 6 — READING B (8B: In the Crime Lab)</h4>
+                    <p><strong>Focus:</strong> Forensic Science + Toxicology<br>
+                    <strong>Cognitive Tool:</strong> Perceiving + Embodied Thinking<br>
+                    <strong>Core Tasks:</strong> Read paragraphs A–D, identify forensic tools (autopsy, tissue sampling, toxicology), compare 1821 vs. modern science.</p>
+
+                    <h4>LESSON 7 — SYNTHESIS (8A + 8B)</h4>
+                    <p><strong>Focus:</strong> Integrating Historical and Scientific Evidence<br>
+                    <strong>Core Tasks:</strong> Venn diagram: historical evidence vs. scientific evidence, evaluate reliability of each theory, build a “Case File” for GRASPS.</p>
+
+                    <h4>LESSON 8 — ANALOG WRITING LAB</h4>
+                    <p><strong>Focus:</strong> Analytical Writing + Vocabulary Integration<br>
+                    <strong>Core Tasks:</strong> Handwrite draft forensic verdict paragraph, AI clarity check (after writing), peer review, vocabulary integration checklist.</p>
+
+                    <h4>LESSON 9 — GRASPS CREATION (Writing)</h4>
+                    <p><strong>Focus:</strong> Summative Writing Task<br>
+                    <strong>Core Tasks:</strong> Write 200–240 word forensic verdict, use evidence from 8A + 8B, include counterargument, submit final written product.</p>
+
+                    <h4>LESSON 10 — MICRO PRESENTATIONS (Speaking GRASPS)</h4>
+                    <p><strong>Focus:</strong> Summative Speaking Task<br>
+                    <strong>Core Tasks:</strong> Deliver 2 minute micro presentation, present claim → evidence → counterargument → verdict, peer evaluation.</p>
+
+                    <h2>SECTION 5 — TEACHER REFLECTION & EXTENSION IDEAS</h2>
+                    <h3>1. What Worked Well in Unit 8</h3>
+                    <ul>
+                        <li><strong>High Engagement Through Mystery:</strong> Students were deeply engaged by the central question: “Who killed Napoleon?” The combination of conspiracy theories, scientific evidence, and historical uncertainty created a natural curiosity loop.</li>
+                        <li><strong>Strong Integration of 8A and 8B:</strong> 8A provides theories and motives, 8B provides scientific tools to evaluate those theories.</li>
+                        <li><strong>Vocabulary Mastery Through Application:</strong> Unit 8 vocabulary is technical and abstract, but students used it effectively because lessons required them to argue, evaluate, compare, justify, and present.</li>
+                        <li><strong>GRASPS as a Real Investigative Task:</strong> Students enjoyed acting as Crime Scene Investigators, and the final verdict reports were some of the strongest writing of the semester.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Unit 9: Rediscovering the Past",
+                voice: "Brian",
+                content: `
+                    <h2>LESSON 1</h2>
+                    <h3>SECTION A — LESSON OVERVIEW</h3>
+                    <p><strong>Lesson Focus:</strong></p>
+                    <ul>
+                        <li>Introduce Unit 9 theme: Rediscovering the Past</li>
+                        <li>Activate schema for archeology, digital preservation, and lost cities</li>
+                        <li>Build foundational vocabulary clusters (Units 1–8 → Unit 9)</li>
+                        <li>Introduce Mishra’s Cognitive Tools for the unit</li>
+                        <li>Establish ARCS motivation and Seven Habits framing</li>
+                        <li>Prepare students for Reading 9A + 9B</li>
+                    </ul>
+                    <p><strong>Learning Objectives (CEFR B2+/C1):</strong> Students will be able to discuss how researchers rediscover the past using tools, technology, and evidence. Activate and categorize vocabulary related to archeology and preservation. Use GenAI to generate and refine predictions about ancient structures. Apply Mishra’s Cognitive Tools to analyze images and concepts. Connect Unit 9 themes to previous units.</p>
+
+                    <h3>SECTION B — ARCS MOTIVATION DESIGN</h3>
+                    <ul>
+                        <li><strong>Attention:</strong> Mystery images of Rani ki Vav, lidar scans, and jungle ruins. Students guess purpose, age, and cultural significance.</li>
+                        <li><strong>Relevance:</strong> Connect to students’ home cultures (heritage sites, myths, lost cities) and prior units.</li>
+                        <li><strong>Confidence:</strong> Structured vocabulary clusters, sentence frames, and GenAI support.</li>
+                        <li><strong>Satisfaction:</strong> Students produce a short, confident prediction paragraph and see immediate success with GenAI refinement.</li>
+                    </ul>
+
+                    <h3>SECTION F — VOCABULARY BANK</h3>
+                    <p>Students sort all vocabulary into: Tools / Structures / Processes / Evidence / Culture / Nature</p>
+                    <ul>
+                        <li><strong>Archeology & Preservation:</strong> preserve, restore, excavate, uncover, reveal, document, evidence, artifact, structure, memorial, precise, verify</li>
+                        <li><strong>Nature & Environment:</strong> vegetation, canopy, terrain, seep, dense, remote, scattered</li>
+                        <li><strong>Technology & Process:</strong> scan, pulses, lidar, digital, virtual, innovation, device, analyze</li>
+                        <li><strong>Culture & Symbolism:</strong> apsaras, goddess, carving, legend, myth, harmony</li>
+                        <li><strong>Action & Movement:</strong> descend, slither, cope, trace</li>
+                        <li><strong>Descriptive & Academic Vocabulary:</strong> firsthand, stunned, dramatic, integral, ancient</li>
+                    </ul>
+
+                    <h2>LESSON 2</h2>
+                    <p><strong>Lesson Focus:</strong> Prepare students for Reading 9A (Virtually Immortal). Build cultural and historical background knowledge. Strengthen prediction skills using visuals and context clues. Connect Unit 9 themes to Units 1–8 through vertical vocabulary recycling.</p>
+                    <p><strong>1. Warm Up: Cultural Preservation (5 minutes):</strong> Teacher prompts: “What structures from your country’s past have been preserved?” “Has anything been rebuilt?” “Why do societies preserve old structures?”</p>
+                    <p><strong>2. Before You Read A (10 minutes):</strong> Students examine the photo of Rani ki Vav. Guiding Questions: What do you notice first? What materials were used? What clues suggest its purpose?</p>
+                    <p><strong>3. Prediction Task (10 minutes):</strong> Students write predictions about the purpose of the structure, who built it, why it was built, what might be inside, and why it might be important today.</p>
+
+                    <h2>LESSON 3</h2>
+                    <p><strong>Lesson Focus:</strong> Students complete their first close reading of paragraphs A–C of Virtually Immortal. Identify setting, context, and the rediscovery narrative. Practice annotation, evidence marking, and text based questioning.</p>
+                    <p><strong>Close Reading: Paragraph A — Setting & Surprise:</strong> Model annotation: “shade trees” → environmental detail, “magnificent temple… but a well” → surprise reveal. Students annotate using three colors: Green = setting, Blue = sensory details, Red = surprises or contradictions.</p>
+                    <p><strong>Close Reading: Paragraph B — Historical Context:</strong> Guiding Questions: Why were stepwells built? How did they evolve over time? What environmental conditions shaped them?</p>
+                    <p><strong>Close Reading: Paragraph C — Rediscovery:</strong> Guiding Questions: Who built Rani ki Vav? Why was it buried? Why was the rediscovery surprising?</p>
+
+                    <h2>LESSON 4</h2>
+                    <p><strong>Lesson Focus:</strong> Deep reading of paragraphs D–F of Virtually Immortal. Understanding digital scanning, preservation, and field challenges. Applying Mishra’s Cognitive Tools to interpret technological processes.</p>
+                    <p><strong>Close Reading: Paragraph D — Purpose of Digital Scanning:</strong> Annotate purpose, process, and problems (Heat, crowds, equipment). Connect "document" (Unit 1) + "evidence" (Unit 3) + "analyze" (Unit 8).</p>
+                    <p><strong>Close Reading: Paragraph F — Scanning Process:</strong> Students draw a simple diagram of the scanning process: scanner → laser → surface → data → 3D model.</p>
+                    <p><strong>GenAI Analogy Cycle:</strong> Prompt: “Explain digital scanning using a metaphor from cooking, sports, or music.” Compare AI’s analogy to their own.</p>
+
+                    <h2>LESSON 5</h2>
+                    <p><strong>Lesson Focus:</strong> Deep reading of paragraphs G–K of Virtually Immortal. Understanding symbolism, mythology, and cultural meaning in the carvings. Using GenAI to generate field note style descriptions.</p>
+                    <p><strong>Close Reading: Paragraph G — Apsaras:</strong> “apsaras” → celestial dancers, “graceful poses” → movement, “carved with precision” → craftsmanship.</p>
+                    <p><strong>Close Reading: Paragraph H — Varaha:</strong> Who is Varaha? What does the boar form symbolize? Why is this carving important?</p>
+                    <p><strong>GenAI Field Note Cycle:</strong> Prompt: “Write a 4 sentence archeological field note describing this carving. Include: what it looks like, what it represents, how it was carved, why it matters.”</p>
+
+                    <h2>LESSON 6</h2>
+                    <p><strong>Lesson Focus:</strong> Consolidate understanding of Reading 9A (Virtually Immortal). Complete Comprehension A and Scanning Task B. Practice Vocabulary A–C from the textbook.</p>
+                    <p><strong>Scanning Task B (10 minutes):</strong> Students locate specific details in the text: reasons heritage is lost, comparison to King Kong, lowest part of the well, definition of apsaras, other Scottish Ten projects. Scanning Race: Students compete in pairs to find answers fastest.</p>
+                    <p><strong>GenAI Answer Checking Cycle:</strong> Prompt: “Check my answers for accuracy. For each incorrect answer, explain why and give a hint—not the full answer.”</p>
+
+                    <h2>LESSON 7</h2>
+                    <p><strong>Lesson Focus:</strong> Synthesize the full reading of 9A (Virtually Immortal). Transform reading comprehension into analytical writing. Practice evidence based reasoning using text details.</p>
+                    <p><strong>Graphic Organizer: “Why Rani ki Vav Matters”:</strong> Students complete a 3 column organizer charting Evidence from Text, Interpretation, and Why It Matters.</p>
+                    <p><strong>Student Writing: Analytical Paragraph:</strong> Prompt: “Write a paragraph explaining why Rani ki Vav is an important site to preserve. Use at least three pieces of evidence from Reading 9A.”</p>
+                    <p><strong>GenAI Revision Cycle:</strong> Prompt: “Improve my paragraph by strengthening the evidence, transitions, and academic tone. Do not change my ideas—only refine them.”</p>
+
+                    <h2>LESSON 8</h2>
+                    <p><strong>Lesson Focus:</strong> Prepare students for Reading 9B (Lure of the Lost City). Build schema around lost cities, myths, jungles, and lidar technology. Activate vocabulary related to exploration, vegetation, danger, and discovery.</p>
+                    <p><strong>Myth vs. Evidence Sorting Activity:</strong> Students sort cards such as “A city of gold lies deep in the jungle” or “Lidar reveals geometric shapes under vegetation” into Myth / Evidence / Uncertain.</p>
+                    <p><strong>GenAI Prediction Cycle:</strong> Prompt: “Generate three possible dangers explorers might face in this jungle. Then critique your own answers for realism.”</p>
+
+                    <h2>LESSON 9</h2>
+                    <p><strong>Lesson Focus:</strong> Deep reading of paragraphs A–G of Lure of the Lost City. Understanding lidar, myth vs. evidence, and exploration challenges.</p>
+                    <p><strong>Close Reading: Paragraph A — Myth & Legend:</strong> “legend” → cultural story, “lost city” → myth, “explorers” → human curiosity.</p>
+                    <p><strong>Close Reading: Paragraph B–C — Lidar Technology:</strong> What is lidar? How does it work? Why is it useful in dense vegetation? Students sketch a simple lidar diagram.</p>
+                    <p><strong>GenAI Multi Level Explanation Cycle:</strong> Prompt: “Explain this sentence at three levels: for a child, for a student, for an expert.”</p>
+
+                    <h2>LESSON 10</h2>
+                    <p><strong>Lesson Focus:</strong> Deep reading of paragraphs H–M of Lure of the Lost City. Understanding artifacts, plazas, urban planning, and ethical dilemmas in archeology.</p>
+                    <p><strong>Close Reading: Paragraph H–I — First Artifacts:</strong> “carved stones” → evidence of human activity, “untouched for centuries” → preservation, “geometric shapes” → urban planning.</p>
+                    <p><strong>Close Reading: Paragraph L–M — Ethical Issues:</strong> Why are archeologists hesitant to dig? What dangers exist? What ethical concerns arise? HOT Question: “Should archeologists excavate the site or leave it untouched? Defend your position.”</p>
+                    <p><strong>GenAI Field Note + Ethical Argument Cycle:</strong> Prompt: “Write a 3 sentence argument for or against excavating this site.”</p>
+
+                    <h2>LESSON 11</h2>
+                    <p><strong>Lesson Focus:</strong> Integrate Reading 9A (Virtually Immortal) and Reading 9B (Lure of the Lost City). Compare two rediscoveries, two environments, two technologies, two cultural contexts.</p>
+                    <p><strong>Comparison Organizer (8 minutes):</strong> Students complete a 5 category comparison chart comparing Rani ki Vav and the Lost City across Environment, Technology, Danger, Cultural Meaning, and Preservation.</p>
+                    <p><strong>Student Writing: Comparative Paragraph:</strong> Prompt: “Write a paragraph comparing the rediscovery of Rani ki Vav and the lost city in Honduras. Use evidence from both readings.”</p>
+                    <p><strong>GenAI Comparative Refinement Cycle:</strong> Prompt: “Improve my comparative paragraph by strengthening transitions, evidence, and academic tone. Keep my ideas the same.”</p>
+
+                    <h2>LESSON 12</h2>
+                    <p><strong>Lesson Focus:</strong> Culminating speaking performance task synthesizing Reading 9A + 9B. Students deliver a structured, evidence based oral presentation demonstrating mastery across reading, vocabulary, critical thinking, and communication.</p>
+                    <p><strong>Speaking Task Introduction:</strong> Prompt: “Compare the rediscovery of Rani ki Vav and the lost city in Honduras. Explain what each site teaches us about the past and why preserving them matters.”</p>
+                    <p><strong>Requirements:</strong> Use at least 6 vocabulary words from the Unit 9 Vocabulary Bank. Include evidence from both readings. Use comparative transitions. Demonstrate one Seven Habit in delivery.</p>
+                    <p><strong>Final Speaking Performance (10 minutes):</strong> Students present in groups of 3–4. Peer Feedback on structure, evidence, vocabulary usage, leadership behavior, and delivery.</p>
+                `
+            },
+            {
+                title: "Unit 10: Healthy Living",
+                voice: "Emma",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW & DESIGN FRAMEWORK</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>This unit develops academic reading, writing, speaking, and listening skills through scientific texts, cultural case studies, and design thinking challenges. Students explore how genetics, lifestyle, environment, and community shape human longevity. They analyze scientific explanations, compare global cultural practices, and apply evidence based reasoning to propose solutions that promote long, healthy lives.</p>
+
+                    <h3>3. Texts Used in Unit 10</h3>
+                    <p>Unit 10 uses two texts from Reading Explorer 4 (Third Edition):</p>
+                    <ol>
+                        <li><strong>“The Science of Living Longer” (Unit 10A):</strong> A nonfiction article exploring genetics, rare conditions, and scientific research on disease resistance and lifespan.</li>
+                        <li><strong>“Secrets of the Blue Zones” (Unit 10B):</strong> A cultural and anthropological examination of Sardinians, Adventists, and Okinawans — three populations with unusually high life expectancy.</li>
+                    </ol>
+                    <p>Both texts are essential to the unit’s exploration of how biology and culture interact to shape longevity.</p>
+
+                    <h3>4. Unit Theme</h3>
+                    <p>Longevity, health, and the systems that shape human life. Students examine how genes, habits, environment, and community structures influence lifespan — and how societies can design healthier futures.</p>
+
+                    <h3>5. Big Question for Unit 10</h3>
+                    <p>What truly determines how long we live — our genes, our choices, or the world we build together? If we could live to 150, should we?</p>
+
+                    <h3>6. Combined Vocabulary List (Unit 10A + Unit 10B)</h3>
+                    <h4>Unit 10A Vocabulary (Genetics & Aging)</h4>
+                    <ul>
+                        <li>chronic, elderly, epidemic, homogeneous, immune, lifespan, mandatory, passed down, relocate, slightly</li>
+                    </ul>
+                    <h4>Unit 10B Vocabulary (Lifestyle & Longevity)</h4>
+                    <ul>
+                        <li>barely, discourage, forbid, guideline, industrious, ironically, lean, longevity, privilege, relieve</li>
+                    </ul>
+
+                    <h3>7. Skills Outcomes for Unit 10</h3>
+                    <ul>
+                        <li><strong>Reading Skills:</strong> Annotate scientific texts for cause and effect; Identify author stance and evidence; Compare scientific and cultural explanations; Interpret charts, interviews, and case studies.</li>
+                        <li><strong>Speaking Skills:</strong> Defend viewpoints with evidence; Respond spontaneously in ninety second recordings; Present ideas clearly in micro presentations; Collaborate in design thinking discussions.</li>
+                        <li><strong>Writing Skills:</strong> Write clear, evidence based paragraphs; Produce handwritten drafts; Synthesize scientific and cultural insights; Create design proposals for healthier communities.</li>
+                        <li><strong>Critical Thinking:</strong> Evaluate the influence of genes, lifestyle, and environment; Analyze cultural practices without stereotyping; Apply evidence to real world design challenges.</li>
+                    </ul>
+
+                    <h3>9. Sustainable Development Goals Alignment</h3>
+                    <p>Unit 10 aligns with:</p>
+                    <ul>
+                        <li><strong>SDG 3: Good Health and Well Being:</strong> Lifestyle habits, Community health, Disease prevention</li>
+                        <li><strong>SDG 10: Reduced Inequalities:</strong> Access to healthy environments, Cultural respect and understanding</li>
+                        <li><strong>SDG 11: Sustainable Cities and Communities:</strong> Designing healthy urban environments, Community support systems</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT & EVIDENCE SYSTEM</h2>
+                    <h3>1. Daily Ninety Second Audio Assessments</h3>
+                    <p>At the end of every lesson, students complete a ninety second audio recording. Purpose: Build fluency, Reduce anxiety, Reinforce vocabulary, Strengthen spontaneous speaking, Provide daily evidence of learning, Support self efficacy.</p>
+                    
+                    <h3>2. Unified Summative Performance Task: The Blue Zone City Plan</h3>
+                    <p>Students design a city that promotes longevity using evidence from both readings. Components include a Written proposal, Visual concept (hand drawn or GenAI supported), Oral presentation, and Reflection on SDG alignment.</p>
+                    
+                    <h3>4. Evidence Requirements</h3>
+                    <p>Students must submit: One scientific summary (Reading A), One cultural comparison (Reading B), One design proposal, One visual concept, One reflection, Two oral recordings.</p>
+
+                    <h2>SECTION 3 — THE 12 LESSON ARC</h2>
+                    
+                    <h4>LESSON 1 — Scientific Curiosity & Vocabulary Launch</h4>
+                    <p><strong>Purpose:</strong> Students activate prior knowledge about longevity, examine visual cues, and learn the first set of Unit 10 vocabulary. They make an initial prediction about the role of genetics in lifespan.<br>
+                    <strong>Core Tasks:</strong> Visual Warm Up of active seniors. Vocabulary Launch (lifespan, inherited, chronic). Blue Zone Calculator. Prediction Writing: “What percentage of lifespan do you think is determined by genes?”</p>
+
+                    <h4>LESSON 2 — Caption Analysis & Genetic Insight</h4>
+                    <p><strong>Purpose:</strong> Students analyze a caption describing a rare genetic condition and refine their predictions about genetic influence on lifespan.<br>
+                    <strong>Core Tasks:</strong> Caption Reading about Norman Apolo Ramirez and Laron syndrome. Discussion: how a single gene can influence disease risk. Vocabulary Application: immune and resistance.</p>
+
+                    <h4>LESSON 3 — Reading A (A–D): Genes, Taste & Behavior</h4>
+                    <p><strong>Purpose:</strong> Students analyze how genes influence taste, food choices, and disease risk.<br>
+                    <strong>Core Tasks:</strong> Annotation Modeling: Underline the cause and circle the effect. Independent Reading Sections A–D. GenAI Summary: ask GenAI to summarize Sections A–D in three sentences.</p>
+
+                    <h4>LESSON 4 — Reading A (E–H): Laron Syndrome & Disease Resistance</h4>
+                    <p><strong>Purpose:</strong> Students analyze interviews with individuals who have Laron syndrome. Interviews humanize scientific concepts.<br>
+                    <strong>Core Tasks:</strong> Reading Sections E–H. Evidence Highlighting: highlight evidence of disease resistance. Comparison Discussion: compare Nicolas, Victor, and Luis.</p>
+
+                    <h4>LESSON 5 — Reading A (I–K): Chance & Wellderly</h4>
+                    <p><strong>Purpose:</strong> Students evaluate the role of chance in longevity and practice scanning skills.<br>
+                    <strong>Core Tasks:</strong> Reading Sections I–K. Cause Effect Signals: circle signal words. Vocabulary Sentences using chronic, mandatory, epidemic.</p>
+
+                    <h4>LESSON 6 — Reading B Warm Up: Cultural Predictions & Reading 10B</h4>
+                    <p><strong>Purpose:</strong> Students shift from scientific explanations to cultural case studies and explore habits that promote longevity in Blue Zones such as Okinawa and Sardinia.<br>
+                    <strong>Core Tasks:</strong> Short In Class Reading paragraphs A–D. Habit Identification: underline all habits mentioned in the text (plant based diet, strong social ties, daily movement). HOT Question Discussion about Blue Zone guidelines.</p>
+
+                    <h4>LESSON 7 — Sardinians: Community, Diet & Quantitative Evidence</h4>
+                    <p><strong>Purpose:</strong> Students analyze Sardinian longevity through quantitative data and cultural habits. Practice scanning for specific details and synthesizing data.<br>
+                    <strong>Core Tasks:</strong> Reading & Annotation: read paragraphs B–E and highlight numerical data. Data Interpretation: interpret the statistic “91 of 17,865”. Cultural Habits Discussion.</p>
+
+                    <h4>LESSON 8 — Adventists & Video Lesson: Blue Zones Documentary</h4>
+                    <p><strong>Purpose:</strong> Students analyze how religious lifestyle practices influence longevity and compare video evidence with textual evidence.<br>
+                    <strong>Core Tasks:</strong> Reading paragraphs F–I. Video Viewing: 3–5 minute clip of Blue Zones documentary. Compare Video vs. Text using a Venn diagram. GenAI Summary of insights.</p>
+
+                    <h4>LESSON 9 — Okinawans & Synthesis: Genes + Lifestyle + Environment</h4>
+                    <p><strong>Purpose:</strong> Students explore Okinawan concepts such as ikigai and moai and synthesize scientific and cultural explanations of longevity.<br>
+                    <strong>Core Tasks:</strong> Reading paragraphs J–N. Concept Exploration: write their own ikigai in one sentence. Community Mapping: identify their own support network (moai). Synthesis Paragraph combining genes + lifestyle + environment.</p>
+
+                    <h4>LESSON 10 — Vocabulary, Reading Skills & Cultural Comparison</h4>
+                    <p><strong>Purpose:</strong> Students synthesize vocabulary and reading skills to compare three long lived cultures.<br>
+                    <strong>Core Tasks:</strong> Chart Sorting: sort details into quantitative vs. qualitative. Cultural Comparison: compare Sardinians, Adventists, and Okinawans. Vocabulary Application.</p>
+
+                    <h4>LESSON 11 — Synthesis of 10A + 10B: Genes, Lifestyle & Environment</h4>
+                    <p><strong>Purpose:</strong> Students synthesize scientific and cultural explanations of longevity to prepare for GRASPS.<br>
+                    <strong>Core Tasks:</strong> Chart Completion comparing genes, lifestyle, environment. Evidence Gathering from both readings. Synthesis Writing. GenAI Refinement.</p>
+
+                    <h4>LESSON 12 — GRASPS Design Studio: Blue Zone City Plan</h4>
+                    <p><strong>Purpose:</strong> Students apply all learning to design a city that promotes longevity.<br>
+                    <strong>GRASPS Goal:</strong> Design a city that promotes longevity using evidence from genetics, lifestyle, and environment. Role: Public Health Ministers. Audience: National Health Council. Product: A Blue Zone City Plan including Walkability, Diet guidelines, Community structures, Stress relief systems, Environmental design, Cultural considerations.</p>
+
+                    <h2>SECTION 5 — EXTENSIONS, REFLECTIONS & FUTURE CONNECTIONS</h2>
+                    <p><strong>1. Reflection:</strong> Students write a final reflection on how their thinking about longevity changed, which factor they believe matters most, and how culture and science interact.</p>
+                    <p><strong>2. Extension Pathways:</strong> Compare Blue Zones to local communities. Analyze urban design in major cities. Create a personal longevity plan. Research additional long lived cultures.</p>
+                    <p><strong>3. Cross Unit Connections:</strong> Unit 1: Truth & representation → evaluating scientific claims. Unit 4: Food & culture → diet and longevity. Unit 12: Global challenges → sustainable cities.</p>
+                `
+            },
+            {
+                title: "Unit 11: Green Solutions",
+                voice: "Andrew",
+                content: `
+                    <h2>SECTION 1 — UNIT OVERVIEW & DESIGN FRAMEWORK</h2>
+                    <h3>1. Unit Description</h3>
+                    <p>This unit develops academic reading, writing, speaking, and listening skills through global case studies of water scarcity, e waste, and sustainable innovation. Students analyze environmental systems, evaluate policy responses, and design solutions that integrate conservation, technology, and community action.</p>
+
+                    <h3>2. Target Learners</h3>
+                    <p>Expected to read complex texts, synthesize multiple sources, and produce evidence based arguments.</p>
+
+                    <h3>3. Texts Used</h3>
+                    <ul>
+                        <li>11A: Saving Water</li>
+                        <li>11B: Technology as Trash</li>
+                        <li>Video: Your Water Footprint</li>
+                    </ul>
+
+                    <h3>4. Unit Theme</h3>
+                    <p>Environmental sustainability through water conservation, waste reduction, and circular economy innovation.</p>
+
+                    <h3>5. Big Question</h3>
+                    <p>How can we redesign our systems to protect the planet before it’s too late?</p>
+
+                    <h3>6. Combined Vocabulary List</h3>
+                    <h4>11A Vocabulary</h4>
+                    <ul>
+                        <li>consumption, crisis, dedication, divert, extent, inherit, related to, shortage, surpass, whereby</li>
+                    </ul>
+                    <h4>11B Vocabulary</h4>
+                    <ul>
+                        <li>discard, infrastructure, notify, piles, toxic, obsolete, hazardous, transition, substance</li>
+                    </ul>
+
+                    <h3>7. Skills Outcomes</h3>
+                    <ul>
+                        <li><strong>Reading:</strong> Identify causes and effects in environmental systems; Evaluate solutions across regions; Interpret data, maps, and case studies</li>
+                        <li><strong>Vocabulary:</strong> Use academic environmental terminology; Apply collocations (extent, toxic substance, hazardous waste)</li>
+                        <li><strong>Speaking:</strong> Present solutions with evidence; Respond in ninety second recordings; Debate policy options</li>
+                        <li><strong>Writing:</strong> Produce analytical paragraphs; Synthesize multiple sources; Propose sustainable solutions</li>
+                    </ul>
+
+                    <h3>9. SDG Alignment</h3>
+                    <ul>
+                        <li>SDG 6: Clean Water & Sanitation</li>
+                        <li>SDG 12: Responsible Consumption & Production</li>
+                        <li>SDG 13: Climate Action</li>
+                    </ul>
+
+                    <h3>10. Responsible Use of GenAI</h3>
+                    <p>Students will: Draft by hand first. Use GenAI for refinement, paraphrasing, and modeling. Provide authenticity evidence (handwriting, personal examples, citations). Never use GenAI to produce final answers.</p>
+
+                    <h3>11. ARCS Motivation Model</h3>
+                    <ul>
+                        <li><strong>Attention:</strong> Global water scarcity map + e waste fires in Ghana</li>
+                        <li><strong>Relevance:</strong> Students connect sustainability to their own consumption</li>
+                        <li><strong>Confidence:</strong> Structured reading skills + vocabulary scaffolds</li>
+                        <li><strong>Satisfaction:</strong> Hybrid GRASPS (City Plan + Innovation Pitch)</li>
+                    </ul>
+
+                    <h3>15. Mishra’s 7 Cognitive Tools</h3>
+                    <ul>
+                        <li><strong>Analogies:</strong> “Water table as a bank account”</li>
+                        <li><strong>Patterns:</strong> Global scarcity trends</li>
+                        <li><strong>Perspective taking:</strong> Villagers in India, workers in Ghana</li>
+                        <li><strong>Narrative:</strong> Case studies</li>
+                        <li><strong>Embodied cognition:</strong> Mapping personal consumption</li>
+                        <li><strong>Abstraction:</strong> Circular economy models</li>
+                        <li><strong>Modeling:</strong> City plan + microfactory design</li>
+                    </ul>
+
+                    <h2>SECTION 2 — ASSESSMENT & EVIDENCE SYSTEM</h2>
+                    <h3>1. Daily Ninety Second Audio</h3>
+                    <p>Aligned to each lesson’s core concept.</p>
+
+                    <h3>2. Hybrid GRASPS</h3>
+                    <ul>
+                        <li>Track 1 — Zero Waste City Plan</li>
+                        <li>Track 2 — Circular Economy Innovation Pitch</li>
+                    </ul>
+
+                    <h3>3. Evidence Requirements</h3>
+                    <p>One scientific summary (11A), One environmental analysis (11B), One design proposal, One visual concept, Two audio recordings, One reflection.</p>
+
+                    <h2>SECTION 4 — DETAILED LESSON PLANS</h2>
+                    
+                    <h4>LESSON 1 — Introduction & Vocabulary (11A)</h4>
+                    <p><strong>Lesson Overview:</strong> Students activate prior knowledge about water scarcity, analyze global maps, and learn key vocabulary.<br>
+                    <strong>Lesson Steps:</strong> 0–5 min — Hook: Students examine the global water scarcity map. 5–12 min — Discussion: “What does ‘waste not, want not’ mean today?” 12–20 min — Vocabulary Launch. 20–30 min — Personal Water Footprint: Students estimate their daily water use.</p>
+
+                    <h4>LESSON 2 — Reading 11A: Saving Water</h4>
+                    <p><strong>Lesson Overview:</strong> Students read about Spain, India, and South Africa’s water challenges.<br>
+                    <strong>Lesson Steps:</strong> Pre Reading Question “What happens when water tables drop?” Short In Class Reading paragraphs A–D. Annotation: Underline causes, circle effects. HOT Question “Why is water conservation more effective than new technology?”</p>
+
+                    <h4>LESSON 3 — Reading Skill: Identifying Sources & Cause–Effect</h4>
+                    <p><strong>Lesson Overview:</strong> Students learn to identify credible sources and trace cause effect chains.<br>
+                    <strong>Lesson Steps:</strong> Signal Word Hunt (due to, therefore, consequently). Source Identification: Students match statements to sources. Cause–Effect Mapping: Students map La Mancha → wells → water table → wetlands.</p>
+
+                    <h4>LESSON 4 — Critical Thinking: Evaluating Solutions</h4>
+                    <p><strong>Lesson Overview:</strong> Students evaluate water solutions in Spain, India, and South Africa.<br>
+                    <strong>Lesson Steps:</strong> Scenario “Which solution is most sustainable?” Evidence Gathering. Debate: Teams argue for Spain, India, or South Africa.</p>
+
+                    <h4>LESSON 5 — Vocabulary Expansion (Collocations & Morphology)</h4>
+                    <p><strong>Lesson Overview:</strong> Students deepen vocabulary through collocations and morphology.<br>
+                    <strong>Lesson Steps:</strong> Morphology Mini Lesson (crisis → critical, consume → consumption). Collocation Practice (reveal the extent, toxic substance, hazardous waste). Personal Application.</p>
+
+                    <h4>LESSON 6 — Reading 11B: Technology as Trash</h4>
+                    <p><strong>Lesson Overview:</strong> Students analyze the global e waste crisis, focusing on Ghana, the Basel Convention, and microfactories.<br>
+                    <strong>Lesson Steps:</strong> Warm Up “What do you do with your old phone?” Short In Class Reading paragraphs A–D. Annotation: highlight Problems (fires, toxins, landfill), Causes (consumption, obsolescence), Solutions (Basel Convention, microfactories). HOT Question Discussion.</p>
+
+                    <h4>LESSON 7 — Reading Skill: Understanding a Writer’s Attitude</h4>
+                    <p><strong>Lesson Overview:</strong> Students analyze how writers express positive, neutral, or negative attitudes toward environmental issues.<br>
+                    <strong>Lesson Steps:</strong> Attitude Classification: Students sort words into positive / neutral / negative. Text Analysis: Students identify attitude markers in paragraphs D–G. HOT Question “Does the writer blame Ghana’s workers? Or someone else?”</p>
+
+                    <h4>LESSON 8 — Video Lesson: Your Water Footprint</h4>
+                    <p><strong>Lesson Overview:</strong> Students analyze how cotton production affects global water consumption.<br>
+                    <strong>Lesson Steps:</strong> Pre Viewing “What cotton items are you wearing right now?” Video Viewing: “Water Footprint” video. Note Taking: Water used, Environmental impacts, Possible solutions. HOT Question “How does cotton production connect to global water scarcity?”</p>
+
+                    <h4>LESSON 9 — Synthesis: Water + Waste + Innovation</h4>
+                    <p><strong>Lesson Overview:</strong> Students synthesize water scarcity, e waste, and circular economy solutions.<br>
+                    <strong>Lesson Steps:</strong> Synthesis Chart: Water problems, Waste problems, Innovation solutions. Evidence Gathering from 11A, 11B, Video. Synthesis Paragraph: “How are water scarcity and e waste connected, and how can innovation solve both?”</p>
+
+                    <h4>LESSON 10 — HYBRID GRASPS PERFORMANCE TASK</h4>
+                    <p><strong>Goal:</strong> Design a Zero Waste City Plan and propose a Circular Economy Innovation that reduces water use and e waste.<br>
+                    <strong>Role:</strong> Environmental Sustainability Council + Innovation Engineers.<br>
+                    <strong>Product Track 1 — Zero Waste City Plan:</strong> Must include Water infrastructure, Recycling systems, Microfactory integration, Public education, Policy recommendations.<br>
+                    <strong>Product Track 2 — Circular Economy Innovation Pitch:</strong> Must include A new product or system, Environmental impact analysis, Business model, GenAI concept art (optional).</p>
+
+                    <h2>SECTION 5 — EXTENSIONS, REFLECTIONS & FUTURE CONNECTIONS</h2>
+                    <p><strong>1. Reflection:</strong> Students write: “How has my understanding of sustainability changed?”</p>
+                    <p><strong>2. Extension Pathways:</strong> Analyze local water infrastructure. Audit personal e waste. Design a microfactory for your city.</p>
+                    <p><strong>3. Cross Unit Connections:</strong> Unit 3: Food systems → sustainability. Unit 4: Biomimetics → innovation. Unit 9: Preservation → environmental ethics.</p>
+                `
+            },
+            {
+                title: "End of Unit Self Assessment",
+                voice: "Brian",
+                content: `
+                    <h2>SECTION 1 — FINAL ASSESSMENTS</h2>
+                    <h3>A. My Learning Across the Unit (Rate 1-5)</h3>
+                    <ul>
+                        <li>I can analyze global risks (asteroids, climate, systems collapse) using evidence.</li>
+                        <li>I can connect ideas from multiple units (1–11) to explain a complex problem.</li>
+                        <li>I can design a system (water, food, energy, culture) for a future civilization.</li>
+                        <li>I can use GenAI responsibly to model, refine, and evaluate ideas.</li>
+                        <li>I can collaborate effectively in a group to solve a global challenge.</li>
+                        <li>I can express my ideas clearly in speaking, writing, and visuals.</li>
+                    </ul>
+
+                    <h3>B. My Cognitive Tools</h3>
+                    <p>Check the tools you used intentionally during the unit:</p>
+                    <ul>
+                        <li>Patterning (finding connections across units)</li>
+                        <li>Modeling (building systems, diagrams, structures)</li>
+                        <li>Analogies (explaining complex ideas simply)</li>
+                        <li>Embodied Thinking (imagining yourself in a scenario)</li>
+                        <li>Synthesizing (combining ideas from different units)</li>
+                        <li>Perspective Taking (seeing through another role)</li>
+                        <li>Abstraction (finding underlying principles)</li>
+                    </ul>
+
+                    <h3>C. My Vocabulary Growth</h3>
+                    <p>Choose five vocabulary words from Units 1–12 that you used meaningfully in the PBL. Write the word, the sentence you used it in, and why it was the right word for that idea.</p>
+                    <p><em>Example: hazardous — “The asteroid’s hazardous composition…” — It precisely described the danger.</em></p>
+
+                    <h3>D. My Final Reflection</h3>
+                    <p>Answer in 4–6 sentences: “What does it mean to be human in the next 100 years?”</p>
+
+                    <h2>SECTION 2 — PEER ASSESSMENT (GROUP PBL)</h2>
+                    <h3>“How well did our team design the future?”</h3>
+                    <p>Rate your group’s performance from 1 (Needs Work) to 5 (Excellent).</p>
+                    <ul>
+                        <li>We listened to each other and shared speaking time.</li>
+                        <li>We used evidence from multiple units to support decisions.</li>
+                        <li>We resolved disagreements respectfully and logically.</li>
+                        <li>We integrated all subsystems into a coherent blueprint.</li>
+                        <li>We used GenAI responsibly (refining, not replacing).</li>
+                        <li>Our final presentation was clear, organized, and engaging.</li>
+                    </ul>
+                `
+            }
+        ];
+    </script>
+
+    <script>
+        let currentChapterIndex = 0;
+        let isPlaying = false;
+
+        function renderNavigation() {
+            const navContainer = document.getElementById('nav-links');
+            navContainer.innerHTML = '';
+
+            curriculumData.forEach((unit, index) => {
+                const isActive = index === currentChapterIndex;
+                const btn = document.createElement('button');
+                
+                btn.className = `w-full text-left px-5 py-4 rounded-xl transition-all flex items-center gap-4 text-sm sm:text-base ${
+                    isActive 
+                    ? 'bg-purple-50 text-purple-800 font-bold border border-purple-200 shadow-sm' 
+                    : 'text-gray-600 font-medium hover:bg-gray-100 hover:text-gray-900 border border-transparent'
+                }`;
+                
+                btn.innerHTML = `
+                    <div class="w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'bg-purple-600 shadow-md' : 'bg-gray-300'}"></div>
+                    <span class="truncate tracking-wide">${unit.title}</span>
+                `;
+                
+                btn.onclick = () => {
+                    currentChapterIndex = index;
+                    updateApp();
+                    closePanel();
+                };
+                navContainer.appendChild(btn);
+            });
+
+            // Update Progress Bar
+            const progressPct = ((currentChapterIndex + 1) / curriculumData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+            document.getElementById('progress-text').innerText = `${currentChapterIndex + 1} / ${curriculumData.length}`;
+        }
+
+        function renderContent() {
+            const contentContainer = document.getElementById('content-area');
+            const mainScroll = document.getElementById('main-scroll');
+            const unit = curriculumData[currentChapterIndex];
+            
+            // Trigger fade animation
+            contentContainer.classList.remove('fade-in');
+            void contentContainer.offsetWidth; 
+            contentContainer.classList.add('fade-in');
+
+            // Inject the raw HTML directly without the bulky title box
+            contentContainer.innerHTML = `<div class="content-body">${unit.content}</div>`;
+            mainScroll.scrollTo(0, 0);
+            
+            // Update the title dynamically in the top header
+            document.getElementById('header-title-text').innerText = unit.title;
+            
+            lucide.createIcons();
+            
+            if(isPlaying) stopTTS();
+        }
+
+        window.navigate = function(dir) {
+                const newIndex = currentChapterIndex + dir;
+                if (newIndex >= 0 && newIndex < curriculumData.length) {
+                    currentChapterIndex = newIndex;
+                    updateApp();
+                }
+            }
+
+            function updateApp() {
+                renderNavigation();
+                renderContent();
+                
+                // Update header navigation buttons
+                const prevBtn = document.getElementById('header-prev');
+                const nextBtn = document.getElementById('header-next');
+                
+                if (prevBtn) prevBtn.disabled = currentChapterIndex === 0;
+                if (nextBtn) nextBtn.disabled = currentChapterIndex === curriculumData.length - 1;
+            }
+
+            function openPanel() {
+                document.getElementById('sidebar').classList.remove('-translate-x-full');
+                document.getElementById('sidebar-overlay').classList.remove('hidden');
+            }
+
+            function closePanel() {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
+
+            // --- TTS Logic ---
+            let ttsQueue = [];
+            let currentUtterance = null;
+
+            window.toggleTTS = function() {
+                if (isPlaying) {
+                    stopTTS();
+                } else {
+                    startTTS();
+                }
+            }
+
+            function startTTS() {
+                if (!('speechSynthesis' in window)) {
+                    alert("Text-to-speech is not supported in this browser.");
+                    return;
+                }
+
+                stopTTS(); 
+                isPlaying = true;
+
+                // Extract pure text from the HTML content
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = curriculumData[currentChapterIndex].content;
+                const fullText = tempDiv.textContent || tempDiv.innerText || "";
+
+                // Chunk into sentences to prevent browser crash
+                ttsQueue = fullText.match(/[^.!?]+[.!?]+/g) || [fullText];
+                
+                if (ttsQueue.length > 0) {
+                    speakNextSentence();
+                }
+            }
+
+            function speakNextSentence() {
+                if (ttsQueue.length === 0 || !isPlaying) {
+                    isPlaying = false;
+                    return;
+                }
+
+                const sentence = ttsQueue.shift();
+                currentUtterance = new SpeechSynthesisUtterance(sentence.trim());
+                
+                // Voice selection logic based on JSON array
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoiceName = curriculumData[currentChapterIndex].voice; 
+                
+                // Attempt to find the specific Microsoft Multilingual Online voice first
+                const targetVoice = voices.find(v => v.name.includes(`Microsoft ${preferredVoiceName} Multilingual Online`)) ||
+                                    voices.find(v => v.name.includes(preferredVoiceName)) ||
+                                    voices.find(v => v.lang === 'en-US' || v.lang === 'en-GB') ||
+                                    voices[0]; 
+
+                if (targetVoice) {
+                    currentUtterance.voice = targetVoice;
+                }
+                
+                currentUtterance.rate = 1.0;
+                currentUtterance.pitch = 1.0;
+
+                currentUtterance.onend = () => {
+                    if (isPlaying) speakNextSentence();
+                };
+
+                currentUtterance.onerror = (e) => {
+                    console.error("TTS Error:", e);
+                    isPlaying = false;
+                };
+
+                window.speechSynthesis.speak(currentUtterance);
+            }
+
+            function stopTTS() {
+                isPlaying = false;
+                window.speechSynthesis.cancel();
+                ttsQueue = [];
+                currentUtterance = null;
+            }
+
+            // Ensure voices are loaded before running (browser quirk workaround)
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    // Voices are now ready
+                };
+            }
+
+            // Initialize app
+            updateApp();
+    </script>
+</body>
+</html>

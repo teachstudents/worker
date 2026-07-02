@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A2 English Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        :root {
+            --app-bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--app-bg);
+            color: var(--text-main);
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        #app-container {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scaled up 25% */
+        .dynamic-text {
+            font-size: clamp(1.25rem, 2.75vh, 2.18rem);
+            line-height: 1.8;
+            color: #1e293b;
+        }
+
+        .test-title {
+            font-size: clamp(1.56rem, 3.75vh, 3.12rem);
+        }
+
+        /* Interactive Blanks */
+        .blank-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 6em;
+            height: 1.5em;
+            margin: 0 0.25em;
+            border-bottom: 2px solid #cbd5e1;
+            background-color: #f1f5f9;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #2563eb; 
+            font-weight: 600;
+            vertical-align: bottom;
+        }
+
+        .blank-slot.focused {
+            border-color: var(--primary);
+            background-color: #dbeafe;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            animation: pulseFocus 1.5s infinite;
+        }
+
+        .blank-slot.correct {
+            border-color: var(--success);
+            background-color: #d1fae5;
+            color: #047857;
+            pointer-events: none;
+        }
+
+        .blank-slot.incorrect {
+            border-color: var(--error);
+            background-color: #fee2e2;
+            color: #b91c1c;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* Option Bank Buttons - Scaled up */
+        .option-btn {
+            background-color: var(--panel-bg);
+            border: 2px solid #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #334155;
+            font-size: clamp(1.1rem, 2.25vh, 1.56rem);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background-color: #f8fafc;
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Animations */
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        @keyframes pulseFocus {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <!-- MAIN MENU SCREEN -->
+    <div id="menu-screen" class="flex-1 flex flex-col items-center justify-center p-4 w-full h-full relative z-10">
+        <div class="bg-white border border-gray-200 p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-7xl flex flex-col h-full max-h-full">
+            
+            <div class="flex justify-between items-end mb-4 px-2 flex-shrink-0 mt-2">
+                <h2 class="text-xl sm:text-3xl font-bold text-gray-800">A2 KET - Secondary School Stories</h2>
+                <div class="text-right">
+                    <span class="text-sm text-gray-500 block font-bold uppercase tracking-wide">Total Score</span>
+                    <span class="text-3xl font-black text-emerald-600" id="total-score-display">0</span>
+                </div>
+            </div>
+
+            <!-- Test Grid -->
+            <div class="flex-1 overflow-y-auto pr-2 pb-2">
+                <div id="test-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                    <!-- Buttons injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEST SCREEN -->
+    <div id="test-screen" class="hidden flex-1 flex flex-col w-full h-full bg-gray-50 relative z-20">
+        
+        <header class="bg-white border-b border-gray-200 p-3 sm:p-4 flex justify-between items-center flex-shrink-0 shadow-sm">
+            <button onclick="returnToMenu()" class="flex items-center text-gray-500 hover:text-blue-600 font-bold transition-colors text-lg">
+                <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <span>Menu</span>
+            </button>
+            <div class="text-center flex-1 mx-4 truncate">
+                <h2 id="current-test-title" class="test-title font-black text-gray-800 truncate">Test Title</h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="audio-toggle" onclick="toggleStoryAudio()" class="text-gray-400 hover:text-blue-600 transition-colors" title="Read Story Aloud">
+                    <svg id="tts-icon" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path></svg>
+                </button>
+                <div class="bg-gray-100 border border-gray-200 rounded-full px-4 py-2 text-base font-bold">
+                    <span class="text-gray-500">Errors:</span> <span id="current-test-errors" class="text-red-500">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-hidden max-w-7xl mx-auto w-full">
+            <div class="flex-1 bg-white rounded-xl p-6 sm:p-10 shadow-sm overflow-y-auto mb-4 border border-gray-200 relative">
+                <div id="test-text-content" class="dynamic-text text-justify">
+                    <!-- Text injected via JS -->
+                </div>
+            </div>
+
+            <!-- Options Bank -->
+            <div id="options-bank-container" class="flex-shrink-0 bg-white rounded-xl p-6 border border-gray-200 shadow-sm min-h-[140px] flex flex-col justify-center">
+                <div id="options-grid" class="flex flex-wrap justify-center gap-3 sm:gap-4">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVIEW / POST-TEST SCREEN -->
+    <div id="review-screen" class="hidden flex-1 flex flex-col w-full h-full bg-gray-50 relative z-30">
+        <header class="bg-white border-b border-gray-200 p-5 flex justify-between items-center shadow-sm">
+            <button onclick="returnToMenu()" class="text-blue-600 font-bold hover:underline text-lg">&larr; Back to Menu</button>
+            <h2 class="text-2xl font-black text-gray-800">Test Review</h2>
+            <div class="w-24"></div>
+        </header>
+        
+        <div class="flex-1 overflow-y-auto p-4 sm:p-8 max-w-5xl mx-auto w-full">
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 sm:p-12 shadow-sm text-center mb-6">
+                <h3 class="text-4xl font-black text-blue-600 mb-4">Great Job!</h3>
+                <p class="text-gray-600 text-lg font-medium">You have completed the story. Review your grammar below.</p>
+            </div>
+
+            <div id="mistakes-container" class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm hidden">
+                <h4 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Grammar & Vocabulary Review</h4>
+                <div id="mistakes-list" class="space-y-6">
+                    <!-- Mistake reviews injected here -->
+                </div>
+            </div>
+            
+            <div id="perfect-container" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 shadow-sm text-center hidden mt-6">
+                <h4 class="text-2xl font-bold text-emerald-700 mb-3">Perfect Score! 🎉</h4>
+                <p class="text-emerald-600 text-lg">You made zero mistakes on your first try. Outstanding grammar skills!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Message Box -->
+    <div id="message-modal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-200" id="modal-content">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Notice</h3>
+            <p id="modal-body" class="text-gray-600 mb-6 font-medium text-lg"></p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 text-lg rounded-xl transition-colors">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // A2 Level, Secondary School Themed Hardcoded Tests (1-10)
+    const rawData = [
+        {
+            id: 1, title: "Test 1: A New School Club",
+            text: "At our school, there is a new club for students who like computers. It {1} every Tuesday after school. The teacher, Mr. Davis, {2} us how to make simple games. You don't {3} to have your own laptop because the school has plenty. Last week, we {4} a game about a hungry cat. It was very {5} to play! If you want to {6} the club, just speak to Mr. Davis.",
+            options: [["meets", "starts", "opens", "comes"], ["shows", "explains", "learns", "says"], ["need", "must", "have", "should"], ["made", "did", "put", "set"], ["fun", "funny", "glad", "happy"], ["join", "enter", "go", "visit"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Verb: A club 'meets' on a certain day.", "Verb: A teacher 'shows' us how to do something (demonstrates).", "Semi-modal: 'need to' means it is necessary.", "Verb collocation: You 'make' a game (create something new).", "Adjective: It was 'fun' (enjoyable).", "Verb: You 'join' a club to become a member."]
+        },
+        {
+            id: 2, title: "Test 2: The School Trip",
+            text: "Next month, our class is {1} to visit the science museum. We are going to travel by {2} and it will take about an hour. Our science teacher said we must {3} a notebook and pen to write down interesting facts. There is a special room {4} you can do experiments yourself. At lunchtime, we can eat our sandwiches in the park {5} the museum. I am really looking {6} to it!",
+            options: [["going", "planning", "making", "visiting"], ["coach", "car", "flight", "walk"], ["bring", "fetch", "carry", "hold"], ["where", "which", "who", "when"], ["near", "next", "close", "by"], ["forward", "for", "after", "up"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Future plan: 'is going to' visit.", "Vocabulary: We travel on a school trip by bus or 'coach'.", "Verb: You 'bring' something with you.", "Relative pronoun: 'where' refers to a place.", "Preposition: 'near' means close to.", "Phrasal verb: 'looking forward to' means feeling excited about the future."]
+        },
+        {
+            id: 3, title: "Test 3: Sports Day",
+            text: "Every summer, our school has a Sports Day. All the students {1} part in different games and races. My favourite race is the 100-metre sprint because I can run very {2}. Last year, I {3} a silver medal! My parents always come to {4} me. They usually bring a big bottle of water and some fruit. This year, I {5} going to try the high jump, too. I hope I don't {6} over!",
+            options: [["take", "make", "get", "have"], ["fast", "quick", "rapid", "speed"], ["won", "earned", "took", "caught"], ["watch", "look", "see", "notice"], ["am", "is", "are", "be"], ["fall", "drop", "slip", "crash"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Phrase: 'take part in' means to participate.", "Adverb: 'fast' describes how you run.", "Verb: You 'won' a medal in a race.", "Verb: You 'watch' someone running in a race.", "Verb 'to be': 'I am going to' for a future plan.", "Phrasal verb: 'fall over' means to drop to the ground."]
+        },
+        {
+            id: 4, title: "Test 4: Homework Club",
+            text: "Sometimes it is difficult to do homework at home because it is too noisy. That is {1} I like going to the Homework Club in the school library. It is very quiet there, and there are computers you can {2} for your projects. If you have a problem with math or science, a teacher is always there to {3} you. We usually {4} about an hour there after classes finish. Then, I can go home and relax {5} the evening. I think every student {6} try it.",
+            options: [["why", "because", "how", "what"], ["use", "play", "work", "make"], ["help", "assist", "teach", "explain"], ["spend", "pass", "stay", "keep"], ["in", "at", "on", "for"], ["should", "ought", "must", "need"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Phrase: 'That is why' introduces a reason.", "Verb: You 'use' a computer to do a project.", "Verb: A teacher is there to 'help' you.", "Verb: You 'spend time' (an hour) doing an activity.", "Preposition: We say 'in the evening'.", "Modal verb: 'should' is used to give advice."]
+        },
+        {
+            id: 5, title: "Test 5: The School Library",
+            text: "Our school library has hundreds of books for students to read. You can {1} two books at a time and keep them for a week. If you need a book for a longer time, you must {2} the librarian. There are also comfortable chairs where you can sit and read {3} your break. Please remember that you must not {4} loudly in the library, as other students are studying. If you can't find the book you want, you can look on the computer {5} is on the librarian's desk. It is a great place to {6} your homework.",
+            options: [["borrow", "lend", "keep", "hire"], ["ask", "say", "tell", "speak"], ["during", "while", "for", "since"], ["talk", "say", "discuss", "tell"], ["which", "who", "where", "what"], ["do", "make", "write", "finish"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Verb: You 'borrow' books from a library.", "Verb: You 'ask' a person a question.", "Preposition: 'during' your break (meaning throughout the time).", "Verb: You 'talk' loudly (saying words to someone).", "Relative pronoun: 'which' is used for things (the computer).", "Collocation: We 'do' homework, not make homework."]
+        },
+        {
+            id: 6, title: "Test 6: The Weekend",
+            text: "Most teenagers look forward to the weekend. After five days of school, it is nice to have some free {1}. On Saturday mornings, I usually sleep late and then play video games {2} my friends online. In the afternoon, we sometimes meet at the local park to play football. On Sundays, I have to {3} my room, which I don't really enjoy! After that, I usually {4} a couple of hours doing my homework for Monday. It is important to be ready for the new school {5}. Then, I have dinner with my family and we {6} a film together.",
+            options: [["time", "hours", "space", "break"], ["with", "and", "to", "for"], ["tidy", "clean", "clear", "sort"], ["spend", "take", "give", "use"], ["week", "day", "term", "year"], ["watch", "see", "look", "view"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Collocation: 'free time' means time when you are not working or at school.", "Preposition: You play 'with' your friends.", "Verb: You 'tidy' your room (put things in their proper place).", "Verb: You 'spend' hours doing an activity.", "Noun: The new 'school week' begins on Monday.", "Verb: You 'watch' a film or TV show."]
+        },
+        {
+            id: 7, title: "Test 7: A New Student",
+            text: "There is a new girl in our class called Maria. She comes from Spain and her English is very {1}. On her first day, our teacher asked me to {2} her around the school. I showed her where the cafeteria is and where we have our science lessons. At break time, I introduced her {3} my friends. She is very friendly and loves playing basketball. We are going to ask her to {4} our school team. I think it can be hard to start at a new school, {5} everyone has been very nice to her. She {6} already made a lot of friends.",
+            options: [["good", "well", "fine", "great"], ["show", "take", "guide", "point"], ["to", "with", "at", "for"], ["join", "enter", "play", "go"], ["but", "so", "because", "or"], ["has", "is", "was", "had"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Adjective: Her English is 'good' (well is an adverb).", "Phrasal verb: You 'show someone around' a new place.", "Preposition: You introduce someone 'to' other people.", "Verb: You 'join' a sports team.", "Conjunction: 'but' is used to connect contrasting ideas.", "Present Perfect tense: She 'has' made friends."]
+        },
+        {
+            id: 8, title: "Test 8: The School Play",
+            text: "Every December, our school puts on a play for parents and students. This year, we are doing a comedy about a group of friends {1} get lost in a jungle. I am not very good at acting, so I am helping to paint the scenery {2}. We stay after school on Wednesdays to {3} on it. The drama teacher, Mrs. Smith, is very helpful. Last week, she {4} us some pizza because we worked so hard. The play will be on the 15th of December. Tickets are quite {5}, so a lot of people will come. I hope {6} forgets their lines!",
+            options: [["who", "which", "they", "what"], ["instead", "too", "also", "either"], ["work", "do", "make", "create"], ["bought", "paid", "spent", "took"], ["cheap", "low", "small", "simple"], ["nobody", "anybody", "somebody", "everybody"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Relative pronoun: 'who' is used for people.", "Adverb: 'instead' means in place of something else (instead of acting).", "Phrasal verb: We 'work on' a project.", "Past tense verb: She 'bought' pizza for us (purchased it).", "Adjective: 'cheap' means they do not cost a lot of money.", "Pronoun: 'nobody' means no person."]
+        },
+        {
+            id: 9, title: "Test 9: Learning to Cook",
+            text: "In our food technology classes, we are learning how to cook. Last week, we {1} a simple tomato pasta. First, we had to chop the onions and garlic, which made my eyes {2}! Then, we fried them in a pan and added the tomatoes. Our teacher told us to be careful because the pans were very {3}. I added a little bit of cheese on top at the end. When I took it home, my family tried it and they said it was {4}. This week, we are going to learn how to bake a cake. I {5} wait to try it, because sweet food is my {6}.",
+            options: [["cooked", "did", "created", "built"], ["water", "cry", "drop", "tear"], ["hot", "warm", "heated", "burning"], ["delicious", "beautiful", "glad", "lovely"], ["cannot", "must", "should", "will"], ["favourite", "best", "preferred", "liked"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Verb: We 'cooked' a meal.", "Collocation: Onions make your eyes 'water'.", "Adjective: Pans on a stove are 'hot'.", "Adjective: Food that tastes very good is 'delicious'.", "Phrase: 'I cannot wait' means I am very excited for it to happen.", "Noun/Adjective: Something you like the most is your 'favourite'."]
+        },
+        {
+            id: 10, title: "Test 10: The Maths Test",
+            text: "Yesterday, we had a big maths test. I was quite nervous {1} I am not very good at numbers. I spent the whole weekend studying in my bedroom. My older sister helped me with the difficult questions. When the test {2}, I read all the instructions very carefully. Some of the questions were easy, but the last one was really {3}. I didn't know the answer, so I just {4} my best guess. After the test, my friends and I talked {5} it in the playground. We all found it tough. I just hope I get a {6} mark.",
+            options: [["because", "why", "so", "although"], ["began", "opened", "appeared", "arrived"], ["hard", "strong", "heavy", "firm"], ["made", "did", "had", "put"], ["about", "on", "for", "with"], ["passing", "winning", "jumping", "crossing"]],
+            answers: [0, 0, 0, 0, 0, 0],
+            grammar: ["Conjunction: 'because' is used to give a reason.", "Verb: A test or exam 'begins' (starts).", "Adjective: A question that is difficult is 'hard'.", "Collocation: You 'make a guess'.", "Preposition: You talk 'about' a subject.", "Collocation: You want a 'passing mark' (a grade high enough to succeed)."]
+        }
+    ];
+
+    // Procedural generation for tests 11-70 (Secondary Student focused)
+    const topicsList = [
+        "School Uniforms", "Summer Camp", "Learning English", "Playing Football", "School Dinners",
+        "Art Class", "Music Lessons", "The School Bus", "Exam Preparation", "Weekend Jobs",
+        "Mobile Phones", "The Science Fair", "School Rules", "Winter Holidays", "The Library",
+        "Physical Education", "History Projects", "Cycling to School", "Computer Rooms", "School Assemblies",
+        "Language Clubs", "School Trips", "Sports Teams", "Lunch Breaks", "Drama Class",
+        "Maths Lessons", "Science Labs", "Geography Trips", "School Debates", "Homework Routines",
+        "Reading Books", "School Concerts", "Charity Events", "Student Councils", "Playing Chess",
+        "Learning Spanish", "Drawing Pictures", "Baking Cakes", "School Sports", "Summer Fairs",
+        "Class Presidents", "Group Projects", "Taking Photos", "Playing Guitar", "Writing Stories",
+        "Visiting Museums", "Nature Walks", "Recycling at School", "Healthy Eating", "Coding Clubs",
+        "Pen Pals", "Singing Songs", "Acting in Plays", "First Aid Class", "Swimming Lessons",
+        "School Gardens", "Helping Teachers", "Making Friends", "After School Clubs", "Taking Tests"
+    ];
+
+    const archetypes = [
+        {
+            text: "In our school, many students enjoy {Topic}. It is a great way to {1} fun with friends after classes. Our teachers say it is {2} for us to learn new skills. If you want to try it, you can {3} the club on Thursdays. You don't need any special equipment, {4} the school provides everything. Last week, we {5} a lot of time practising. Next month, there will be a competition, and the winner will get a small {6}.",
+            options: [["have", "make", "do", "take"], ["good", "well", "fine", "right"], ["join", "go", "enter", "come"], ["because", "but", "so", "although"], ["spent", "passed", "used", "took"], ["prize", "gift", "present", "reward"]],
+            grammar: ["Collocation: We 'have fun', not make or do fun.", "Adjective: 'good for us' means it is beneficial.", "Vocabulary: You 'join' a club to become a member.", "Conjunction: 'because' gives a reason.", "Verb: We 'spend time' doing something.", "Vocabulary: A 'prize' is won in a competition."]
+        },
+        {
+            text: "Yesterday, my class had a lesson about {Topic}. The teacher {1} us a short video about it. It was very interesting to {2} how things work. After the video, we had to work in groups of four. We had to answer some questions and write {3} the answers in our notebooks. One of the questions was quite {4}, but we asked the teacher for help. At the end of the lesson, each group had to {5} their ideas to the rest of the class. I think everyone enjoyed {6}.",
+            options: [["showed", "watched", "looked", "saw"], ["learn", "study", "know", "read"], ["down", "up", "out", "in"], ["hard", "heavy", "strong", "busy"], ["present", "give", "make", "do"], ["it", "them", "everything", "themselves"]],
+            grammar: ["Verb: The teacher 'showed' the video to us.", "Verb: 'learn how' means to get new knowledge.", "Phrasal verb: 'write down' means to put on paper.", "Adjective: 'hard' means difficult.", "Verb: You 'present' your ideas to a class.", "Pronoun: 'enjoyed it' refers back to the lesson."]
+        },
+        {
+            text: "Next week, our class is going on a trip to learn about {Topic}. We are going to leave school {1} 9 o'clock in the morning. We will travel by bus, so we must be on {2}. The teacher said we should bring a packed lunch, like sandwiches and an apple. We are going to visit a special place {3} experts will talk to us. We will also have the {4} to ask questions. I want to ask them how they started doing their job. I am very excited, and I think it will be a {5} day out. We will get {6} to school before 3 o'clock.",
+            options: [["at", "in", "on", "for"], ["time", "hour", "clock", "moment"], ["where", "which", "who", "what"], ["chance", "luck", "hope", "wish"], ["great", "tall", "big", "large"], ["back", "return", "arrive", "go"]],
+            grammar: ["Preposition: Use 'at' for specific times on the clock.", "Phrase: 'on time' means not late.", "Relative pronoun: 'where' refers to a place.", "Noun: 'have the chance' means to have an opportunity.", "Adjective: A 'great day' means a very good day.", "Phrasal verb: 'get back' means to return."]
+        },
+        {
+            text: "Many teenagers think about {Topic} a lot. Some students think it is very important, {1} others do not care about it at all. My friend Sarah thinks it is the {2} interesting thing in the world! Last week, we {3} a long conversation about it in the cafeteria. We both agreed that you should not spend all your free time doing it. It is better to {4} other hobbies too, like playing sports or reading. If you only focus {5} one thing, you might get bored. Next year, we {6} going to start a new project about it.",
+            options: [["while", "because", "so", "if"], ["most", "more", "much", "very"], ["had", "made", "did", "took"], ["have", "make", "do", "take"], ["on", "in", "at", "to"], ["are", "is", "will", "be"]],
+            grammar: ["Conjunction: 'while' shows a contrast between two ideas.", "Superlative: 'the most interesting' compares it to all others.", "Collocation: We 'have a conversation'.", "Verb: You 'have' hobbies.", "Verb + preposition: 'focus on' something.", "Future tense: 'we are going to' for plans."]
+        }
+    ];
+
+    for(let i=11; i<=70; i++) {
+        const topicName = topicsList[i - 11].toLowerCase();
+        const arch = archetypes[(i - 11) % 4];
+        
+        let testOptions = JSON.parse(JSON.stringify(arch.options));
+        let testAnswers = [0, 0, 0, 0, 0, 0];
+        
+        // Shuffle options dynamically so the correct answer (index 0) moves around
+        for(let j=0; j<6; j++) {
+            let opts = testOptions[j];
+            let correctAnswerStr = opts[0];
+            
+            for(let k = opts.length - 1; k > 0; k--){
+                const randIdx = Math.floor(Math.random() * (k + 1));
+                [opts[k], opts[randIdx]] = [opts[randIdx], opts[k]];
+            }
+            testAnswers[j] = opts.indexOf(correctAnswerStr);
+        }
+
+        rawData.push({
+            id: i, 
+            title: `Test ${i}: ${topicName.charAt(0).toUpperCase() + topicName.slice(1)}`,
+            text: arch.text.replace('{Topic}', topicName),
+            options: testOptions,
+            answers: testAnswers,
+            grammar: arch.grammar
+        });
+    }
+
+    // --- STATE ---
+    let appState = {
+        scores: JSON.parse(localStorage.getItem('a2_scores')) || {},
+        currentTestId: null,
+        activeBlankIndex: 0,
+        currentAnswers: [],
+        currentMistakes: [], 
+        completedBlanks: 0,
+        errorsThisSession: 0
+    };
+
+    let synthCorrect, synthWrong;
+    let audioInitialized = false;
+
+    async function initAudio() {
+        if (audioInitialized) return;
+        try {
+            await Tone.start();
+            synthCorrect = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 1 }
+            }).toDestination();
+            
+            synthWrong = new Tone.Synth({
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0, release: 0.5 }
+            }).toDestination();
+            
+            synthCorrect.volume.value = -10;
+            synthWrong.volume.value = -12;
+            audioInitialized = true;
+        } catch (e) {
+            console.log("Audio init failed", e);
+        }
+    }
+
+    function playSound(type) {
+        if (!audioInitialized) return;
+        if (type === 'correct' && synthCorrect) {
+            synthCorrect.triggerAttackRelease(["C5", "E5"], "16n");
+        } else if (type === 'wrong' && synthWrong) {
+            synthWrong.triggerAttackRelease("C3", "8n");
+        }
+    }
+
+    function toggleStoryAudio() {
+        if (!('speechSynthesis' in window)) {
+            showModal("Text-to-Speech is not supported in your browser.");
+            return;
+        }
+        
+        const btnIcon = document.getElementById('tts-icon');
+
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+            btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path>`;
+            return;
+        }
+
+        const test = rawData.find(t => t.id === appState.currentTestId);
+        
+        let fullText = test.text;
+        for (let i = 0; i < 6; i++) {
+            const currentAnswer = appState.currentAnswers[i];
+            const wordToRead = currentAnswer !== null ? currentAnswer : "blank";
+            fullText = fullText.replace(`{${i+1}}`, wordToRead);
+        }
+
+        const utterance = new SpeechSynthesisUtterance(fullText);
+        // Specifically tailored speed to 85% normal speech rate
+        utterance.rate = 0.85;
+
+        const targetVoices = ["Remy", "Giuseppe", "Vivienne", "Florian", "Seraphina", "Emma", "Brian", "Andrew"];
+        const assignedVoiceName = targetVoices[(test.id - 1) % targetVoices.length];
+        
+        let voices = speechSynthesis.getVoices();
+        let selectedVoice = voices.find(v => v.name.includes(assignedVoiceName)) || 
+                            voices.find(v => v.name.includes("Microsoft") && v.lang.startsWith("en-")) ||
+                            voices.find(v => v.lang.startsWith("en-")) || 
+                            voices[0];
+                            
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+
+        utterance.onend = () => {
+            btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2l4 4V4L9 8H7a2 2 0 00-2 2z"></path>`;
+        };
+
+        speechSynthesis.speak(utterance);
+        
+        btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>`;
+    }
+
+    if ('speechSynthesis' in window) {
+        speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    }
+
+    function calculateTotalScore() {
+        let total = 0;
+        for (let key in appState.scores) {
+            total += appState.scores[key];
+        }
+        document.getElementById('total-score-display').innerText = total;
+    }
+
+    function initMenu() {
+        const grid = document.getElementById('test-grid');
+        grid.innerHTML = '';
+        rawData.forEach(test => {
+            const score = appState.scores[test.id];
+            const isCompleted = score !== undefined;
+            const btn = document.createElement('button');
+            
+            btn.className = `p-3 rounded-xl text-left transition-all transform hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between min-h-[5rem] relative overflow-hidden group border ${isCompleted ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-gray-200 hover:border-blue-400'}`;
+            
+            btn.innerHTML = `
+                <div class="font-bold ${isCompleted ? 'text-emerald-800' : 'text-gray-800'} z-10 relative text-sm sm:text-base w-full whitespace-normal leading-tight mb-2">${test.title.replace('Test ', 'T')}</div>
+                <div class="mt-auto z-10 relative flex justify-end items-end w-full">
+                    ${isCompleted ? `<span class="font-black text-emerald-600 text-base sm:text-lg">${score}/6</span>` : ''}
+                </div>
+                ${!isCompleted ? '<div class="absolute inset-0 bg-blue-50/0 group-hover:bg-blue-50 transition-colors z-0"></div>' : ''}
+            `;
+            
+            btn.onclick = () => startTest(test.id);
+            grid.appendChild(btn);
+        });
+        calculateTotalScore();
+    }
+
+    function startTest(id) {
+        initAudio();
+        
+        appState.currentTestId = id;
+        appState.currentAnswers = new Array(6).fill(null);
+        appState.currentMistakes = [];
+        appState.activeBlankIndex = 0;
+        appState.completedBlanks = 0;
+        appState.errorsThisSession = 0;
+
+        const test = rawData.find(t => t.id === id);
+        
+        document.getElementById('menu-screen').classList.add('hidden');
+        document.getElementById('review-screen').classList.add('hidden');
+        document.getElementById('test-screen').classList.remove('hidden');
+        
+        document.getElementById('current-test-title').innerText = test.title;
+        document.getElementById('current-test-errors').innerText = "0";
+        document.getElementById('current-test-errors').className = "text-red-500 font-bold";
+
+        renderTestContent(test);
+    }
+
+    function renderTestContent(test) {
+        const textContainer = document.getElementById('test-text-content');
+        const optionsBank = document.getElementById('options-grid');
+        
+        textContainer.innerHTML = '';
+        optionsBank.innerHTML = '';
+        
+        let htmlParts = test.text.split(/\{(\d+)\}/g);
+        
+        htmlParts.forEach(part => {
+            if (/^\d+$/.test(part)) {
+                const blankIdx = parseInt(part) - 1; 
+                const span = document.createElement('span');
+                span.className = 'blank-slot';
+                span.dataset.blankIndex = blankIdx;
+                span.innerHTML = `(${part})`;
+                span.onclick = () => {
+                    if (appState.currentAnswers[blankIdx] === null) selectBlank(blankIdx);
+                };
+                textContainer.appendChild(span);
+            } else {
+                const span = document.createElement('span');
+                span.innerText = part;
+                textContainer.appendChild(span);
+            }
+        });
+
+        selectBlank(0);
+    }
+
+    function selectBlank(blankIdx) {
+        if (appState.currentAnswers[blankIdx] !== null) return;
+        
+        appState.activeBlankIndex = blankIdx;
+        
+        document.querySelectorAll('.blank-slot').forEach(s => s.classList.remove('focused'));
+        const activeSlot = document.querySelector(`.blank-slot[data-blank-index="${blankIdx}"]`);
+        if (activeSlot) {
+            activeSlot.classList.add('focused');
+            activeSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        renderOptionsBank(blankIdx);
+    }
+
+    function renderOptionsBank(blankIdx) {
+        const test = rawData.find(t => t.id === appState.currentTestId);
+        const optionsBank = document.getElementById('options-grid');
+        optionsBank.innerHTML = '';
+        
+        const labelContainer = document.createElement('div');
+        labelContainer.className = 'w-full flex justify-center mb-3 sm:mb-4';
+        labelContainer.innerHTML = `<span class="bg-blue-100 text-blue-800 text-base sm:text-lg font-bold px-6 py-2 rounded-full border border-blue-200">Options for Blank (${blankIdx + 1})</span>`;
+        optionsBank.appendChild(labelContainer);
+
+        const options = test.options[blankIdx];
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'flex flex-wrap justify-center gap-3 sm:gap-5 w-full max-w-3xl mx-auto';
+        
+        options.forEach((word) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn flex-1 min-w-[140px] max-w-[220px] py-4';
+            btn.innerText = word;
+            btn.onclick = () => handleOptionTap(word, blankIdx);
+            btnContainer.appendChild(btn);
+        });
+        
+        optionsBank.appendChild(btnContainer);
+    }
+
+    function logMistake(blankIdx, userWord, correctWord, grammar) {
+        const existing = appState.currentMistakes.find(m => m.blankIdx === blankIdx);
+        if (!existing) {
+            appState.currentMistakes.push({ blankIdx, userWord, correctWord, grammar });
+        }
+        appState.errorsThisSession++;
+        document.getElementById('current-test-errors').innerText = appState.errorsThisSession;
+    }
+
+    function handleOptionTap(word, blankIdx) {
+        const test = rawData.find(t => t.id === appState.currentTestId);
+        const slot = document.querySelector(`.blank-slot[data-blank-index="${blankIdx}"]`);
+        const correctIndex = test.answers[blankIdx];
+        const correctWord = test.options[blankIdx][correctIndex];
+
+        slot.classList.remove('incorrect');
+        void slot.offsetWidth;
+
+        if (word === correctWord) {
+            playSound('correct');
+            slot.innerHTML = word;
+            slot.classList.remove('focused');
+            slot.classList.add('correct');
+            appState.currentAnswers[blankIdx] = word;
+            appState.completedBlanks++;
+            
+            document.getElementById('options-grid').innerHTML = '';
+
+            if (!checkTestComplete()) {
+                const firstEmpty = appState.currentAnswers.findIndex(ans => ans === null);
+                if (firstEmpty !== -1) selectBlank(firstEmpty);
+            }
+        } else {
+            playSound('wrong');
+            slot.innerHTML = word;
+            slot.classList.add('incorrect');
+            logMistake(blankIdx, word, correctWord, test.grammar[blankIdx]);
+            
+            setTimeout(() => {
+                slot.classList.remove('incorrect');
+                slot.innerHTML = `(${blankIdx + 1})`;
+            }, 800);
+        }
+    }
+
+    function checkTestComplete() {
+        if (appState.completedBlanks === 6) {
+            const optionsBank = document.getElementById('options-grid');
+            optionsBank.innerHTML = `
+                <div class="w-full flex flex-col items-center justify-center p-2 text-center animate-fade-in">
+                    <p class="text-emerald-600 font-black text-xl sm:text-2xl mb-2">Story Complete! 🎉</p>
+                    <p class="text-gray-600 font-medium text-sm sm:text-base mb-5">You can now read the full story or use the speaker icon above to listen.</p>
+                    <button onclick="showReviewScreen()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all active:scale-95 text-lg">
+                        Review Results &rarr;
+                    </button>
+                </div>
+            `;
+            return true;
+        }
+        return false;
+    }
+
+    function showReviewScreen() {
+        document.getElementById('test-screen').classList.add('hidden');
+        document.getElementById('review-screen').classList.remove('hidden');
+
+        const test = rawData.find(t => t.id === appState.currentTestId);
+        const mistakesContainer = document.getElementById('mistakes-container');
+        const list = document.getElementById('mistakes-list');
+        const perfectContainer = document.getElementById('perfect-container');
+        
+        list.innerHTML = '';
+        
+        const finalScore = 6 - appState.currentMistakes.length;
+        appState.scores[test.id] = Math.max(appState.scores[test.id] || 0, finalScore);
+        localStorage.setItem('a2_scores', JSON.stringify(appState.scores));
+
+        if (appState.currentMistakes.length === 0) {
+            mistakesContainer.classList.add('hidden');
+            perfectContainer.classList.remove('hidden');
+        } else {
+            perfectContainer.classList.add('hidden');
+            mistakesContainer.classList.remove('hidden');
+            
+            appState.currentMistakes.sort((a,b) => a.blankIdx - b.blankIdx).forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'p-5 bg-gray-50 border border-gray-200 rounded-xl';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 mb-3 text-base sm:text-lg">
+                        <span class="font-bold text-gray-700">Blank (${m.blankIdx + 1}):</span>
+                        <span class="line-through text-red-500">${m.userWord}</span>
+                        <span class="text-gray-400">&rarr;</span>
+                        <span class="font-black text-emerald-600">${m.correctWord}</span>
+                    </div>
+                    <p class="text-base sm:text-lg text-gray-700 font-medium bg-blue-50 border-l-4 border-blue-400 p-3 rounded">${m.grammar}</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+    }
+
+    function returnToMenu() {
+        if ('speechSynthesis' in window) speechSynthesis.cancel();
+        document.getElementById('test-screen').classList.add('hidden');
+        document.getElementById('review-screen').classList.add('hidden');
+        document.getElementById('menu-screen').classList.remove('hidden');
+        initMenu();
+    }
+
+    function showModal(message) {
+        document.getElementById('modal-body').innerText = message;
+        const modal = document.getElementById('message-modal');
+        const content = document.getElementById('modal-content');
+        modal.classList.remove('hidden');
+        setTimeout(() => content.classList.replace('scale-95', 'scale-100'), 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('message-modal');
+        const content = document.getElementById('modal-content');
+        content.classList.replace('scale-100', 'scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    window.onload = () => {
+        initMenu();
+    };
+</script>
+</body>
+</html>
