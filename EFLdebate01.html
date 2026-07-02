@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debate Arena Platform</title>
+    
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Tailwind slate-900 */
+            transition: background-color 1s linear;
+        }
+        /* Custom minimalist scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .timer-bg-normal { background-color: #0f172a; }
+        .timer-bg-warning { background-color: #451a03; } /* dark orange/brown */
+        .timer-bg-danger { background-color: #450a0a; } /* dark red */
+    </style>
+</head>
+<body class="text-slate-100 h-screen overflow-hidden flex flex-col">
+    <div id="root" class="h-full w-full flex flex-col"></div>
+
+    <script type="text/babel">
+        const topicsData = [
+            {
+                promptEn: "Taking the subway is better than taking the bus for going to school.",
+                promptZh: "坐地铁去学校比坐公交车更好。",
+                agreeArgument: "The subway is super fast and never gets stuck in traffic jams. It is always on time, which means you will never be late for class.",
+                disagreeArgument: "The bus is better because you can look out the window and see the city. Subways are crowded and dark, while bus stops are usually closer to your home.",
+                agreeVocab: [
+                    { en: "Fast", zh: "快" }, { en: "On time", zh: "准时" }, { en: "Traffic jam", zh: "交通拥堵" }, { en: "Underground", zh: "地下" }, { en: "Convenient", zh: "方便" },
+                    { en: "Station", zh: "车站" }, { en: "Avoid", zh: "避免" }, { en: "Speed", zh: "速度" }, { en: "Reliable", zh: "可靠的" }, { en: "Express", zh: "特快" }
+                ],
+                disagreeVocab: [
+                    { en: "Scenery", zh: "风景" }, { en: "Window", zh: "窗户" }, { en: "Bus stop", zh: "公交站" }, { en: "Crowded", zh: "拥挤的" }, { en: "Neighborhood", zh: "社区" },
+                    { en: "Bright", zh: "明亮的" }, { en: "Relaxing", zh: "放松的" }, { en: "Route", zh: "路线" }, { en: "Closer", zh: "更近" }, { en: "Above ground", zh: "地上的" }
+                ]
+            },
+            {
+                promptEn: "Basketball is the best sport to play with friends at school.",
+                promptZh: "篮球是在学校和朋友玩的最好的运动。",
+                agreeArgument: "Basketball is fast, exciting, and you only need a small court and a hoop. Everyone can easily score points, jump high, and have fun together.",
+                disagreeArgument: "Soccer (football) is much better because you can play it anywhere with a lot of people. You just need a ball and a big grass field to run.",
+                agreeVocab: [
+                    { en: "Hoop", zh: "篮筐" }, { en: "Court", zh: "球场" }, { en: "Score", zh: "得分" }, { en: "Exciting", zh: "令人兴奋的" }, { en: "Jump", zh: "跳跃" },
+                    { en: "Dribble", zh: "运球" }, { en: "Teamwork", zh: "团队合作" }, { en: "Indoor", zh: "室内的" }, { en: "Action", zh: "动作" }, { en: "Points", zh: "分数" }
+                ],
+                disagreeVocab: [
+                    { en: "Field", zh: "场地" }, { en: "Goal", zh: "球门" }, { en: "Run", zh: "跑" }, { en: "Kick", zh: "踢" }, { en: "Grass", zh: "草地" },
+                    { en: "Teammates", zh: "队友" }, { en: "Outdoor", zh: "户外的" }, { en: "Exercise", zh: "锻炼" }, { en: "Space", zh: "空间" }, { en: "Pass", zh: "传球" }
+                ]
+            },
+            {
+                promptEn: "Students should wear their own clothes to school instead of uniforms.",
+                promptZh: "学生应该穿自己的衣服去学校，而不是穿校服。",
+                agreeArgument: "Wearing our own clothes lets us show our personality and favorite colors. Uniforms are often uncomfortable, boring, and look the same every day.",
+                disagreeArgument: "Uniforms are great because you don't have to worry about what to wear every morning. It makes everyone equal and saves time.",
+                agreeVocab: [
+                    { en: "Personality", zh: "个性" }, { en: "Comfortable", zh: "舒服的" }, { en: "Style", zh: "风格" }, { en: "Choose", zh: "选择" }, { en: "Colorful", zh: "五颜六色的" },
+                    { en: "Fashion", zh: "时尚" }, { en: "Freedom", zh: "自由" }, { en: "Favorite", zh: "最喜欢的" }, { en: "Express", zh: "表达" }, { en: "Different", zh: "不同的" }
+                ],
+                disagreeVocab: [
+                    { en: "Equal", zh: "平等的" }, { en: "Easy", zh: "简单的" }, { en: "Morning", zh: "早晨" }, { en: "Tidy", zh: "整洁的" }, { en: "Together", zh: "一起" },
+                    { en: "Proud", zh: "自豪的" }, { en: "Save time", zh: "节省时间" }, { en: "Neat", zh: "干净的" }, { en: "Belonging", zh: "归属感" }, { en: "Fair", zh: "公平的" }
+                ]
+            },
+            {
+                promptEn: "Teachers should stop giving students homework on the weekends.",
+                promptZh: "老师应该停止在周末给学生布置作业。",
+                agreeArgument: "Weekends are for resting, playing outside, and spending time with family. Kids work hard for five days and need a break to relax their brains.",
+                disagreeArgument: "A little bit of homework helps us remember what we learned. If we don't practice on the weekend, we might forget our lessons by Monday.",
+                agreeVocab: [
+                    { en: "Rest", zh: "休息" }, { en: "Play outside", zh: "在外面玩" }, { en: "Family time", zh: "家庭时间" }, { en: "Break", zh: "休息时间" }, { en: "Relax", zh: "放松" },
+                    { en: "Hobbies", zh: "爱好" }, { en: "Free time", zh: "空闲时间" }, { en: "Tired", zh: "累的" }, { en: "Stress", zh: "压力" }, { en: "Fun", zh: "乐趣" }
+                ],
+                disagreeVocab: [
+                    { en: "Remember", zh: "记住" }, { en: "Practice", zh: "练习" }, { en: "Review", zh: "复习" }, { en: "Forget", zh: "忘记" }, { en: "Lessons", zh: "课程" },
+                    { en: "Habit", zh: "习惯" }, { en: "Prepare", zh: "准备" }, { en: "Knowledge", zh: "知识" }, { en: "Keep learning", zh: "持续学习" }, { en: "Useful", zh: "有用的" }
+                ]
+            },
+            {
+                promptEn: "Dogs make much better pets and friends for children than cats do.",
+                promptZh: "对孩子们来说，狗比猫是更好的宠物和朋友。",
+                agreeArgument: "Dogs are loyal, playful, and love to go outside. You can teach them cool tricks, run in the park with them, and they always protect you.",
+                disagreeArgument: "Cats are much cleaner, quieter, and easier to take care of. You don't have to walk them in the rain, and they are very soft and cuddly.",
+                agreeVocab: [
+                    { en: "Loyal", zh: "忠诚的" }, { en: "Playful", zh: "爱玩的" }, { en: "Outside", zh: "外面" }, { en: "Tricks", zh: "把戏" }, { en: "Park", zh: "公园" },
+                    { en: "Protect", zh: "保护" }, { en: "Active", zh: "活跃的" }, { en: "Fetch", zh: "捡东西" }, { en: "Friendly", zh: "友好的" }, { en: "Energy", zh: "精力" }
+                ],
+                disagreeVocab: [
+                    { en: "Clean", zh: "干净的" }, { en: "Quiet", zh: "安静的" }, { en: "Easy", zh: "容易的" }, { en: "Walk", zh: "散步" }, { en: "Soft", zh: "柔软的" },
+                    { en: "Cuddly", zh: "惹人喜爱的" }, { en: "Independent", zh: "独立的" }, { en: "Gentle", zh: "温和的" }, { en: "Indoors", zh: "室内" }, { en: "Purr", zh: "打呼噜" }
+                ]
+            },
+            {
+                promptEn: "Playing video games is a healthy way for children to relax and learn.",
+                promptZh: "玩电子游戏是孩子们放松和学习的一种健康方式。",
+                agreeArgument: "Video games are fun and teach kids how to solve puzzles fast. Many games require teamwork with friends and improve our hand-eye coordination.",
+                disagreeArgument: "Staring at a screen hurts your eyes and makes you lazy. It is much healthier to go outside, play sports, and read real books instead of gaming.",
+                agreeVocab: [
+                    { en: "Puzzles", zh: "谜题" }, { en: "Teamwork", zh: "团队合作" }, { en: "Coordination", zh: "协调" }, { en: "Strategy", zh: "策略" }, { en: "Creative", zh: "有创造力的" },
+                    { en: "Quick thinking", zh: "快速思考" }, { en: "Missions", zh: "任务" }, { en: "Online friends", zh: "网友" }, { en: "Reward", zh: "奖励" }, { en: "Skills", zh: "技能" }
+                ],
+                disagreeVocab: [
+                    { en: "Screen", zh: "屏幕" }, { en: "Eyesight", zh: "视力" }, { en: "Lazy", zh: "懒惰的" }, { en: "Outside", zh: "外面" }, { en: "Sports", zh: "运动" },
+                    { en: "Addictive", zh: "上瘾的" }, { en: "Time-wasting", zh: "浪费时间的" }, { en: "Unhealthy", zh: "不健康的" }, { en: "Sit still", zh: "久坐" }, { en: "Distraction", zh: "分心" }
+                ]
+            },
+            {
+                promptEn: "Reading real paper books is better than reading stories on an iPad.",
+                promptZh: "读真正的纸质书比在iPad上读故事更好。",
+                agreeArgument: "Paper books feel nice to hold and smell good. They don't need batteries, and they protect your eyes from the bright blue light of screens.",
+                disagreeArgument: "Tablets are much better because you can carry hundreds of books in one small device. You can also make the text bigger and look up words easily.",
+                agreeVocab: [
+                    { en: "Hold", zh: "拿/握" }, { en: "Smell", zh: "气味" }, { en: "Batteries", zh: "电池" }, { en: "Protect eyes", zh: "保护眼睛" }, { en: "Focus", zh: "专注" },
+                    { en: "Collect", zh: "收集" }, { en: "Pages", zh: "书页" }, { en: "Traditional", zh: "传统的" }, { en: "Quiet", zh: "安静" }, { en: "Real", zh: "真实的" }
+                ],
+                disagreeVocab: [
+                    { en: "Device", zh: "设备" }, { en: "Carry", zh: "携带" }, { en: "Hundreds", zh: "数百个" }, { en: "Text size", zh: "字体大小" }, { en: "Look up", zh: "查阅" },
+                    { en: "Light", zh: "轻的" }, { en: "Convenient", zh: "方便的" }, { en: "Modern", zh: "现代的" }, { en: "Dictionary", zh: "字典" }, { en: "Downloads", zh: "下载" }
+                ]
+            },
+            {
+                promptEn: "Parents should pay their children pocket money for doing household chores.",
+                promptZh: "父母应该给做家务的孩子零花钱。",
+                agreeArgument: "Getting paid for chores teaches kids how to work hard and save money. It helps us learn responsibility, just like having a real job.",
+                disagreeArgument: "Children should help clean the house because they are part of the family. We shouldn't ask for money to wash our own dishes or make our beds.",
+                agreeVocab: [
+                    { en: "Pocket money", zh: "零花钱" }, { en: "Hard work", zh: "努力工作" }, { en: "Save", zh: "攒钱" }, { en: "Responsibility", zh: "责任" }, { en: "Job", zh: "工作" },
+                    { en: "Earn", zh: "赚" }, { en: "Buy", zh: "买" }, { en: "Reward", zh: "奖励" }, { en: "Bank", zh: "银行" }, { en: "Helpful", zh: "有帮助的" }
+                ],
+                disagreeVocab: [
+                    { en: "Family", zh: "家庭" }, { en: "Love", zh: "爱" }, { en: "Clean", zh: "打扫" }, { en: "Together", zh: "一起" }, { en: "Duty", zh: "义务" },
+                    { en: "Share", zh: "分享" }, { en: "Housework", zh: "家务" }, { en: "Free", zh: "免费的" }, { en: "Team", zh: "团队" }, { en: "Expected", zh: "应该做的" }
+                ]
+            },
+            {
+                promptEn: "Summer is the best season of the year because you can go swimming and eat ice cream.",
+                promptZh: "夏天是一年中最好的季节，因为你可以去游泳和吃冰淇淋。",
+                agreeArgument: "Summer is amazing because there is no school, the weather is warm, and you can play outside all day. Swimming and eating cold treats are the best.",
+                disagreeArgument: "Winter is better because you can play in the snow, build snowmen, and celebrate fun holidays. It is nice to stay warm inside and drink hot chocolate.",
+                agreeVocab: [
+                    { en: "Swimming", zh: "游泳" }, { en: "Ice cream", zh: "冰淇淋" }, { en: "Warm", zh: "温暖的" }, { en: "Play outside", zh: "在外面玩" }, { en: "No school", zh: "不用上学" },
+                    { en: "Beach", zh: "海滩" }, { en: "Sunglasses", zh: "太阳镜" }, { en: "Vacation", zh: "假期" }, { en: "Sunshine", zh: "阳光" }, { en: "Shorts", zh: "短裤" }
+                ],
+                disagreeVocab: [
+                    { en: "Snow", zh: "雪" }, { en: "Build snowmen", zh: "堆雪人" }, { en: "Holidays", zh: "节日" }, { en: "Warm inside", zh: "室内温暖" }, { en: "Hot chocolate", zh: "热巧克力" },
+                    { en: "Cold", zh: "冷的" }, { en: "Gloves", zh: "手套" }, { en: "Skiing", zh: "滑雪" }, { en: "Winter break", zh: "寒假" }, { en: "Cozy", zh: "舒适的" }
+                ]
+            },
+            {
+                promptEn: "Eating fast food like hamburgers and fries is better than eating home-cooked meals.",
+                promptZh: "吃汉堡薯条等快餐比吃家常菜更好。",
+                agreeArgument: "Fast food is delicious, cheap, and very quick to get. You also get cool toys with kids' meals and don't have to wash any dishes after eating.",
+                disagreeArgument: "Home-cooked food is much healthier and made with fresh vegetables. Cooking with your family is a fun activity, and it costs less money than eating out.",
+                agreeVocab: [
+                    { en: "Delicious", zh: "美味的" }, { en: "Cheap", zh: "便宜的" }, { en: "Quick", zh: "快速的" }, { en: "Toys", zh: "玩具" }, { en: "Kids' meal", zh: "儿童套餐" },
+                    { en: "Wash dishes", zh: "洗碗" }, { en: "Tasty", zh: "好吃的" }, { en: "Menu", zh: "菜单" }, { en: "French fries", zh: "炸薯条" }, { en: "Yummy", zh: "好吃的" }
+                ],
+                disagreeVocab: [
+                    { en: "Healthy", zh: "健康的" }, { en: "Fresh", zh: "新鲜的" }, { en: "Vegetables", zh: "蔬菜" }, { en: "Family time", zh: "家庭时间" }, { en: "Activity", zh: "活动" },
+                    { en: "Save money", zh: "省钱" }, { en: "Cook", zh: "烹饪" }, { en: "Nutritious", zh: "有营养的" }, { en: "Ingredients", zh: "食材" }, { en: "Safe", zh: "安全的" }
+                ]
+            },
+            {
+                promptEn: "Working on a school project in a group is better than doing it all by yourself.",
+                promptZh: "在小组中完成学校项目比你自己一个人做更好。",
+                agreeArgument: "Group work is fun because you can share ideas and help each other. If everyone does a little bit of the work, the project finishes much faster.",
+                disagreeArgument: "Working alone is better because it is quiet and you can do things your own way. Sometimes in groups, one person does all the work while others play.",
+                agreeVocab: [
+                    { en: "Share ideas", zh: "分享想法" }, { en: "Help", zh: "帮助" }, { en: "Together", zh: "一起" }, { en: "Teamwork", zh: "团队合作" }, { en: "Faster", zh: "更快" },
+                    { en: "Discuss", zh: "讨论" }, { en: "Fun", zh: "有趣" }, { en: "Friends", zh: "朋友" }, { en: "Brainstorm", zh: "头脑风暴" }, { en: "Divide work", zh: "分工" }
+                ],
+                disagreeVocab: [
+                    { en: "Quiet", zh: "安静的" }, { en: "Own way", zh: "自己的方式" }, { en: "Focus", zh: "专注" }, { en: "Fair", zh: "公平的" }, { en: "Independent", zh: "独立的" },
+                    { en: "Distracted", zh: "分心的" }, { en: "Lazy", zh: "懒惰的" }, { en: "My choice", zh: "我的选择" }, { en: "Peaceful", zh: "平静的" }, { en: "Concentration", zh: "注意力" }
+                ]
+            },
+            {
+                promptEn: "Every student should learn to play a musical instrument like the piano or guitar.",
+                promptZh: "每个学生都应该学习弹奏乐器，比如钢琴或吉他。",
+                agreeArgument: "Playing music makes your brain smarter and is a great way to express feelings. It is also fun to perform for your friends and family on a stage.",
+                disagreeArgument: "Learning an instrument takes too much time and can be very boring. If kids do not like music, they should be allowed to spend time playing sports instead.",
+                agreeVocab: [
+                    { en: "Smart", zh: "聪明的" }, { en: "Express feelings", zh: "表达感情" }, { en: "Perform", zh: "表演" }, { en: "Stage", zh: "舞台" }, { en: "Melody", zh: "旋律" },
+                    { en: "Talent", zh: "才华" }, { en: "Proud", zh: "自豪的" }, { en: "Art", zh: "艺术" }, { en: "Practice", zh: "练习" }, { en: "Beautiful", zh: "美丽的" }
+                ],
+                disagreeVocab: [
+                    { en: "Too much time", zh: "太多时间" }, { en: "Boring", zh: "无聊的" }, { en: "Force", zh: "强迫" }, { en: "Sports", zh: "运动" }, { en: "Hard", zh: "困难的" },
+                    { en: "Give up", zh: "放弃" }, { en: "Expensive lessons", zh: "昂贵的课程" }, { en: "Noise", zh: "噪音" }, { en: "Frustrating", zh: "令人沮丧的" }, { en: "Free time", zh: "空闲时间" }
+                ]
+            },
+            {
+                promptEn: "Children should be allowed to decide what time they go to bed every night.",
+                promptZh: "孩子们应该被允许决定每晚几点睡觉。",
+                agreeArgument: "Kids know when they feel tired and should learn to manage their own time. This teaches them to be responsible and independent as they grow up.",
+                disagreeArgument: "Children love to play and will stay up too late watching TV. If parents do not set a bedtime, kids will be too sleepy in class the next morning.",
+                agreeVocab: [
+                    { en: "Decide", zh: "决定" }, { en: "Tired", zh: "累的" }, { en: "Manage time", zh: "管理时间" }, { en: "Responsible", zh: "负责任的" }, { en: "Independent", zh: "独立的" },
+                    { en: "Grow up", zh: "长大" }, { en: "Freedom", zh: "自由" }, { en: "Trust", zh: "信任" }, { en: "Choice", zh: "选择" }, { en: "Body clock", zh: "生物钟" }
+                ],
+                disagreeVocab: [
+                    { en: "Stay up late", zh: "熬夜" }, { en: "Sleepy", zh: "困倦的" }, { en: "Next morning", zh: "第二天早上" }, { en: "Rules", zh: "规则" }, { en: "Health", zh: "健康" },
+                    { en: "Rest", zh: "休息" }, { en: "Energy", zh: "精力" }, { en: "Cranky", zh: "脾气暴躁的" }, { en: "Strict", zh: "严格的" }, { en: "Routine", zh: "作息规律" }
+                ]
+            },
+            {
+                promptEn: "Watching a movie at the cinema is much better than watching it at home on a TV.",
+                promptZh: "在电影院看电影比在家里看电视好得多。",
+                agreeArgument: "The cinema has a giant screen, super loud speakers, and delicious fresh popcorn. It feels like a special event and you get to see new movies first.",
+                disagreeArgument: "Watching movies at home is free and much more comfortable. You can pause the movie to go to the bathroom and you can sit on your own cozy sofa.",
+                agreeVocab: [
+                    { en: "Cinema", zh: "电影院" }, { en: "Giant screen", zh: "巨幕" }, { en: "Loud speakers", zh: "大喇叭" }, { en: "Popcorn", zh: "爆米花" }, { en: "Special event", zh: "特殊活动" },
+                    { en: "Exciting", zh: "令人兴奋的" }, { en: "Ticket", zh: "门票" }, { en: "3D glasses", zh: "3D眼镜" }, { en: "Dark room", zh: "黑屋子" }, { en: "Huge", zh: "巨大的" }
+                ],
+                disagreeVocab: [
+                    { en: "Free", zh: "免费的" }, { en: "Comfortable", zh: "舒服的" }, { en: "Pause", zh: "暂停" }, { en: "Bathroom", zh: "洗手间" }, { en: "Cozy sofa", zh: "舒适的沙发" },
+                    { en: "Relax", zh: "放松" }, { en: "Pajamas", zh: "睡衣" }, { en: "Talk loudly", zh: "大声说话" }, { en: "Blankets", zh: "毯子" }, { en: "Convenient", zh: "方便的" }
+                ]
+            },
+            {
+                promptEn: "Living in a big city is better than living in a quiet village in the countryside.",
+                promptZh: "生活在大城市比生活在安静的乡村更好。",
+                agreeArgument: "Cities have giant shopping malls, amazing museums, and cool amusement parks. There are always lots of fun things to do and many friends to meet.",
+                disagreeArgument: "The countryside is much better because the air is clean and there is lots of space to run. It is quiet, safe, and you can see the stars clearly at night.",
+                agreeVocab: [
+                    { en: "Shopping malls", zh: "购物中心" }, { en: "Museums", zh: "博物馆" }, { en: "Amusement parks", zh: "游乐园" }, { en: "Exciting", zh: "令人兴奋的" }, { en: "Crowded", zh: "拥挤的" },
+                    { en: "Subway", zh: "地铁" }, { en: "Modern", zh: "现代的" }, { en: "Events", zh: "活动" }, { en: "Skyscrapers", zh: "摩天大楼" }, { en: "Bright lights", zh: "明亮的灯光" }
+                ],
+                disagreeVocab: [
+                    { en: "Quiet village", zh: "安静的村庄" }, { en: "Clean air", zh: "清新的空气" }, { en: "Space to run", zh: "奔跑的空间" }, { en: "Safe", zh: "安全的" }, { en: "Stars", zh: "星星" },
+                    { en: "Nature", zh: "自然" }, { en: "Farm animals", zh: "农场动物" }, { en: "Peaceful", zh: "平静的" }, { en: "Mountains", zh: "山脉" }, { en: "Green grass", zh: "绿草" }
+                ]
+            },
+            {
+                promptEn: "Writing notes by hand with a pencil is better than typing them on a computer keyboard.",
+                promptZh: "用铅笔手写笔记比在电脑键盘上打字更好。",
+                agreeArgument: "Writing by hand helps you remember things better and practice your beautiful handwriting. You do not need electricity, and your eyes will not get tired from a screen.",
+                disagreeArgument: "Typing is super fast and your hands do not get tired. Computers make your writing look perfectly neat, and you can easily fix mistakes without using an eraser.",
+                agreeVocab: [
+                    { en: "By hand", zh: "手写" }, { en: "Pencil", zh: "铅笔" }, { en: "Remember", zh: "记住" }, { en: "Handwriting", zh: "字迹" }, { en: "Electricity", zh: "电" },
+                    { en: "Brain", zh: "大脑" }, { en: "Notebook", zh: "笔记本" }, { en: "Calligraphy", zh: "书法" }, { en: "Eraser", zh: "橡皮擦" }, { en: "Focus", zh: "专注" }
+                ],
+                disagreeVocab: [
+                    { en: "Keyboard", zh: "键盘" }, { en: "Super fast", zh: "超快" }, { en: "Neat", zh: "整洁的" }, { en: "Fix mistakes", zh: "修改错误" }, { en: "Delete", zh: "删除" },
+                    { en: "Spell check", zh: "拼写检查" }, { en: "Save time", zh: "节省时间" }, { en: "Font size", zh: "字体大小" }, { en: "Modern", zh: "现代的" }, { en: "Print", zh: "打印" }
+                ]
+            },
+            {
+                promptEn: "Primary school students are old enough to have their own smartphones.",
+                promptZh: "小学生已经足够大，可以拥有自己的智能手机了。",
+                agreeArgument: "Phones are important for safety so kids can call their parents anytime. They are also great for using dictionary apps and talking to classmates about homework.",
+                disagreeArgument: "Phones are too distracting and bad for children's eyes. Kids will just play mobile games all day and might talk to strangers on the internet.",
+                agreeVocab: [
+                    { en: "Safety", zh: "安全" }, { en: "Call parents", zh: "打电话给父母" }, { en: "Anytime", zh: "随时" }, { en: "Dictionary apps", zh: "字典应用" }, { en: "Classmates", zh: "同学" },
+                    { en: "Helpful", zh: "有帮助的" }, { en: "Location", zh: "位置" }, { en: "Emergencies", zh: "紧急情况" }, { en: "Connect", zh: "联系" }, { en: "Useful", zh: "有用的" }
+                ],
+                disagreeVocab: [
+                    { en: "Distracting", zh: "分心的" }, { en: "Eyesight", zh: "视力" }, { en: "Mobile games", zh: "手机游戏" }, { en: "Strangers", zh: "陌生人" }, { en: "Internet", zh: "互联网" },
+                    { en: "Addicted", zh: "上瘾的" }, { en: "Screen time", zh: "屏幕时间" }, { en: "Dangerous", zh: "危险的" }, { en: "Waste time", zh: "浪费时间" }, { en: "Stare", zh: "盯着看" }
+                ]
+            },
+            {
+                promptEn: "Keeping animals in zoos is a good thing because it helps children learn about nature.",
+                promptZh: "把动物养在动物园是一件好事，因为它能帮助孩子们了解自然。",
+                agreeArgument: "Zoos let kids see amazing animals from other countries, like lions and penguins, up close. Good zoos also feed the animals well and protect them from hunters.",
+                disagreeArgument: "Animals are much happier in the wild where they can run freely in big forests or grasslands. Cages are too small and animals get sad and bored inside them.",
+                agreeVocab: [
+                    { en: "Up close", zh: "近距离" }, { en: "Protect", zh: "保护" }, { en: "Hunters", zh: "猎人" }, { en: "Vet", zh: "兽医" }, { en: "Safe", zh: "安全的" },
+                    { en: "Feed well", zh: "喂得好" }, { en: "Educational", zh: "有教育意义的" }, { en: "Observe", zh: "观察" }, { en: "Rare", zh: "稀有的" }, { en: "Conservation", zh: "保护" }
+                ],
+                disagreeVocab: [
+                    { en: "In the wild", zh: "在野外" }, { en: "Run freely", zh: "自由奔跑" }, { en: "Forests", zh: "森林" }, { en: "Grasslands", zh: "草原" }, { en: "Cages", zh: "笼子" },
+                    { en: "Sad", zh: "悲伤的" }, { en: "Bored", zh: "无聊的" }, { en: "Trapped", zh: "被困的" }, { en: "Natural", zh: "自然的" }, { en: "Cruel", zh: "残忍的" }
+                ]
+            },
+            {
+                promptEn: "Being a video game streamer or YouTuber is a real and important job for the future.",
+                promptZh: "成为一名游戏主播或YouTuber是未来一份真实且重要的工作。",
+                agreeArgument: "Making videos requires a lot of hard work, creativity, and video editing skills. Streamers make millions of people laugh and can earn a lot of money doing what they love.",
+                disagreeArgument: "It is better to study hard and get a traditional job like a doctor or teacher. Making videos is just playing around, and very few people actually become famous.",
+                agreeVocab: [
+                    { en: "Streamer", zh: "主播" }, { en: "Creativity", zh: "创造力" }, { en: "Video editing", zh: "视频剪辑" }, { en: "Entertain", zh: "娱乐" }, { en: "Earn money", zh: "赚钱" },
+                    { en: "Passion", zh: "热情" }, { en: "Fans", zh: "粉丝" }, { en: "Camera", zh: "相机" }, { en: "Famous", zh: "著名的" }, { en: "Online", zh: "在线的" }
+                ],
+                disagreeVocab: [
+                    { en: "Traditional job", zh: "传统工作" }, { en: "Doctor", zh: "医生" }, { en: "Teacher", zh: "老师" }, { en: "Unrealistic", zh: "不切实际的" }, { en: "Play around", zh: "玩耍" },
+                    { en: "Rare success", zh: "罕见的成功" }, { en: "Stable", zh: "稳定的" }, { en: "Risky", zh: "有风险的" }, { en: "Hard study", zh: "努力学习" }, { en: "Society", zh: "社会" }
+                ]
+            },
+            {
+                promptEn: "Listening to music while doing homework helps students study better.",
+                promptZh: "做作业时听音乐有助于学生更好地学习。",
+                agreeArgument: "Music makes doing boring homework much more fun and relaxing. It blocks out loud noises from outside and puts you in a happy mood to work faster.",
+                disagreeArgument: "Music is too distracting, especially if it has words that you want to sing along to. You need total silence to think deeply about difficult math or reading problems.",
+                agreeVocab: [
+                    { en: "Relaxing", zh: "放松的" }, { en: "Block out noise", zh: "屏蔽噪音" }, { en: "Happy mood", zh: "好心情" }, { en: "Faster", zh: "更快" }, { en: "Enjoyable", zh: "令人愉快的" },
+                    { en: "Earphones", zh: "耳机" }, { en: "Rhythm", zh: "节奏" }, { en: "Calm down", zh: "平静下来" }, { en: "Focus", zh: "专注" }, { en: "Background", zh: "背景" }
+                ],
+                disagreeVocab: [
+                    { en: "Distracting", zh: "分心的" }, { en: "Sing along", zh: "跟着唱" }, { en: "Total silence", zh: "完全安静" }, { en: "Think deeply", zh: "深入思考" }, { en: "Difficult", zh: "困难的" },
+                    { en: "Cannot focus", zh: "无法集中" }, { en: "Interrupt", zh: "打断" }, { en: "Lyrics", zh: "歌词" }, { en: "Quiet room", zh: "安静的房间" }, { en: "Mistakes", zh: "错误" }
+                ]
+            },
+            {
+                promptEn: "Aliens exist in outer space and humans will meet them one day.",
+                promptZh: "外星人存在于外太空，人类总有一天会遇到他们。",
+                agreeArgument: "The universe is so giant and has billions of stars and planets. It is impossible that Earth is the only place with life; there must be spaceships out there!",
+                disagreeArgument: "There is no real proof that aliens exist, only stories in movies. If they were real, they would have visited Earth and said hello to us already.",
+                agreeVocab: [
+                    { en: "Universe", zh: "宇宙" }, { en: "Giant", zh: "巨大的" }, { en: "Billions", zh: "数十亿" }, { en: "Planets", zh: "行星" }, { en: "Life", zh: "生命" },
+                    { en: "Spaceships", zh: "宇宙飞船" }, { en: "Discover", zh: "发现" }, { en: "Galaxy", zh: "星系" }, { en: "Future", zh: "未来" }, { en: "Explore", zh: "探索" }
+                ],
+                disagreeVocab: [
+                    { en: "Proof", zh: "证据" }, { en: "Stories", zh: "故事" }, { en: "Movies", zh: "电影" }, { en: "Visited", zh: "拜访过" }, { en: "Fake", zh: "假的" },
+                    { en: "Imagination", zh: "想象力" }, { en: "Science fiction", zh: "科幻小说" }, { en: "Empty space", zh: "空旷的太空" }, { en: "Radio signals", zh: "无线电信号" }, { en: "Lonely", zh: "孤独的" }
+                ]
+            },
+            {
+                promptEn: "Physical Education (PE) class is the most important class in primary school.",
+                promptZh: "体育课是小学最重要的课程。",
+                agreeArgument: "PE keeps kids healthy, makes their bodies strong, and prevents them from getting sick. It is also the only class where you can run, shout, and play games with friends.",
+                disagreeArgument: "Math and language classes are much more important because they make you smart. You can always exercise after school, but you need school to learn how to read and write.",
+                agreeVocab: [
+                    { en: "Healthy", zh: "健康的" }, { en: "Strong bodies", zh: "强壮的身体" }, { en: "Prevent sickness", zh: "预防生病" }, { en: "Exercise", zh: "锻炼" }, { en: "Play games", zh: "玩游戏" },
+                    { en: "Active", zh: "活跃的" }, { en: "Sweat", zh: "出汗" }, { en: "Run fast", zh: "跑得快" }, { en: "Team sports", zh: "团队运动" }, { en: "Fun", zh: "乐趣" }
+                ],
+                disagreeVocab: [
+                    { en: "Math", zh: "数学" }, { en: "Language", zh: "语言" }, { en: "Smart", zh: "聪明的" }, { en: "After school", zh: "放学后" }, { en: "Read and write", zh: "读和写" },
+                    { en: "Knowledge", zh: "知识" }, { en: "Brain", zh: "大脑" }, { en: "Future", zh: "未来" }, { en: "Test", zh: "考试" }, { en: "Sit quietly", zh: "安静地坐着" }
+                ]
+            },
+            {
+                promptEn: "Every classroom should have a class pet, like a hamster or a rabbit.",
+                promptZh: "每个教室都应该有一只班级宠物，比如仓鼠或兔子。",
+                agreeArgument: "A class pet makes the classroom feel warm and cute. It teaches children how to be gentle and how to take turns feeding and cleaning the animal.",
+                disagreeArgument: "Class pets can be smelly, noisy, and might bite someone. Also, during the weekend or long holidays, there is no one at school to take care of them.",
+                agreeVocab: [
+                    { en: "Class pet", zh: "班级宠物" }, { en: "Hamster", zh: "仓鼠" }, { en: "Rabbit", zh: "兔子" }, { en: "Warm", zh: "温暖的" }, { en: "Cute", zh: "可爱的" },
+                    { en: "Gentle", zh: "温柔的" }, { en: "Take turns", zh: "轮流" }, { en: "Feed", zh: "喂食" }, { en: "Care for", zh: "照顾" }, { en: "Soft", zh: "柔软的" }
+                ],
+                disagreeVocab: [
+                    { en: "Smelly", zh: "难闻的" }, { en: "Noisy", zh: "吵闹的" }, { en: "Bite", zh: "咬人" }, { en: "Weekend", zh: "周末" }, { en: "Holidays", zh: "假期" },
+                    { en: "Take care", zh: "照顾" }, { en: "Messy", zh: "杂乱的" }, { en: "Allergies", zh: "过敏" }, { en: "Dangerous", zh: "危险的" }, { en: "Animal hair", zh: "动物毛发" }
+                ]
+            },
+            {
+                promptEn: "Schools should make lunchtime and recess longer so students can play more.",
+                promptZh: "学校应该延长午餐和课间休息时间，这样学生就可以玩得更多。",
+                agreeArgument: "Kids sit at desks for too many hours and their brains get very tired. A longer recess lets them burn off energy, make more friends, and come back to class focused.",
+                disagreeArgument: "If recess is longer, kids will have to stay at school until much later in the evening. Shorter breaks mean school finishes early, and students can go home sooner to relax.",
+                agreeVocab: [
+                    { en: "Lunchtime", zh: "午餐时间" }, { en: "Recess", zh: "课间休息" }, { en: "Desks", zh: "课桌" }, { en: "Tired brains", zh: "疲惫的大脑" }, { en: "Burn energy", zh: "消耗精力" },
+                    { en: "Make friends", zh: "交朋友" }, { en: "Focused", zh: "专注的" }, { en: "Playtime", zh: "玩耍时间" }, { en: "Fresh air", zh: "新鲜空气" }, { en: "Chat", zh: "聊天" }
+                ],
+                disagreeVocab: [
+                    { en: "Stay later", zh: "留得晚" }, { en: "Evening", zh: "晚上" }, { en: "Finish early", zh: "早点结束" }, { en: "Go home", zh: "回家" }, { en: "Relax", zh: "放松" },
+                    { en: "Too long", zh: "太长" }, { en: "Wasted time", zh: "浪费时间" }, { en: "Get bored", zh: "感到无聊" }, { en: "Schedule", zh: "时间表" }, { en: "Leave school", zh: "离开学校" }
+                ]
+            },
+            {
+                promptEn: "Playing classic board games is more fun than playing mobile games on an iPad.",
+                promptZh: "玩经典的棋盘游戏比在iPad上玩手机游戏更有趣。",
+                agreeArgument: "Board games let you sit together with your family and talk face-to-face. You get to roll dice, move pieces, and laugh without staring at a bright screen.",
+                disagreeArgument: "iPad games are better because they have amazing animations, cool sound effects, and you can play them anywhere by yourself without setting up a messy board.",
+                agreeVocab: [
+                    { en: "Board games", zh: "棋盘游戏" }, { en: "Face-to-face", zh: "面对面" }, { en: "Roll dice", zh: "掷骰子" }, { en: "Move pieces", zh: "移动棋子" }, { en: "Laugh", zh: "笑" },
+                    { en: "Together", zh: "一起" }, { en: "Family", zh: "家庭" }, { en: "Rules", zh: "规则" }, { en: "Table", zh: "桌子" }, { en: "Communicate", zh: "交流" }
+                ],
+                disagreeVocab: [
+                    { en: "Animations", zh: "动画" }, { en: "Sound effects", zh: "音效" }, { en: "Anywhere", zh: "任何地方" }, { en: "By yourself", zh: "你自己" }, { en: "Messy", zh: "杂乱的" },
+                    { en: "Set up", zh: "布置" }, { en: "Graphics", zh: "图像" }, { en: "Levels", zh: "关卡" }, { en: "Updates", zh: "更新" }, { en: "Portable", zh: "便携的" }
+                ]
+            },
+            {
+                promptEn: "Visiting museums is a fun and exciting way to learn about the world.",
+                promptZh: "参观博物馆是了解世界的一种有趣而令人兴奋的方式。",
+                agreeArgument: "Museums have giant dinosaur bones, cool space rockets, and beautiful paintings. Seeing real historical things is much more exciting than just reading a textbook.",
+                disagreeArgument: "Museums are often very quiet and boring. You have to walk around for hours, your feet get tired, and you are not allowed to touch any of the interesting things.",
+                agreeVocab: [
+                    { en: "Dinosaur bones", zh: "恐龙骨头" }, { en: "Space rockets", zh: "太空火箭" }, { en: "Paintings", zh: "画作" }, { en: "Real things", zh: "真实的东西" }, { en: "Historical", zh: "历史的" },
+                    { en: "Discover", zh: "发现" }, { en: "Exhibition", zh: "展览" }, { en: "Tour guide", zh: "导游" }, { en: "Fascinating", zh: "迷人的" }, { en: "Artifacts", zh: "文物" }
+                ],
+                disagreeVocab: [
+                    { en: "Boring", zh: "无聊的" }, { en: "Walk for hours", zh: "走好几个小时" }, { en: "Feet get tired", zh: "脚累了" }, { en: "Do not touch", zh: "请勿触摸" }, { en: "Quiet", zh: "安静" },
+                    { en: "Dusty", zh: "布满灰尘的" }, { en: "Old", zh: "旧的" }, { en: "Glass cases", zh: "玻璃柜" }, { en: "Strict", zh: "严格的" }, { en: "Yawn", zh: "打哈欠" }
+                ]
+            },
+            {
+                promptEn: "Growing up with a brother or sister is better than being an only child.",
+                promptZh: "和兄弟姐妹一起长大比做独生子女更好。",
+                agreeArgument: "Having a sibling means you always have a friend to play with at home. You can share secrets, play games together, and never feel lonely.",
+                disagreeArgument: "Being an only child is great because you get all your parents' attention. You do not have to share your toys, and your house is much quieter and more peaceful.",
+                agreeVocab: [
+                    { en: "Sibling", zh: "兄弟姐妹" }, { en: "Friend", zh: "朋友" }, { en: "Share secrets", zh: "分享秘密" }, { en: "Play together", zh: "一起玩" }, { en: "Never lonely", zh: "从不孤单" },
+                    { en: "Support", zh: "支持" }, { en: "Partner", zh: "伙伴" }, { en: "Trust", zh: "信任" }, { en: "Helpful", zh: "有帮助的" }, { en: "Bond", zh: "纽带" }
+                ],
+                disagreeVocab: [
+                    { en: "Only child", zh: "独生子女" }, { en: "Attention", zh: "注意力" }, { en: "Share toys", zh: "分享玩具" }, { en: "Quieter", zh: "更安静的" }, { en: "Peaceful", zh: "平静的" },
+                    { en: "Spoiled", zh: "被宠爱的" }, { en: "Own room", zh: "自己的房间" }, { en: "Focus", zh: "专注" }, { en: "Fights", zh: "打架" }, { en: "Independent", zh: "独立的" }
+                ]
+            },
+            {
+                promptEn: "Schools should completely ban students from bringing candy and junk food.",
+                promptZh: "学校应该彻底禁止学生带糖果和垃圾食品。",
+                agreeArgument: "Candy is terrible for kids' teeth and has too much sugar. If schools ban junk food, students will eat more healthy fruit and have better energy for learning.",
+                disagreeArgument: "Kids should be allowed to enjoy a small treat during lunch. It makes the school day happier, and students need to learn how to control what they eat by themselves.",
+                agreeVocab: [
+                    { en: "Terrible", zh: "糟糕的" }, { en: "Teeth", zh: "牙齿" }, { en: "Too much sugar", zh: "太多糖" }, { en: "Ban", zh: "禁止" }, { en: "Healthy fruit", zh: "健康水果" },
+                    { en: "Better energy", zh: "更好的精力" }, { en: "Dentist", zh: "牙医" }, { en: "Cavities", zh: "蛀牙" }, { en: "Nutrition", zh: "营养" }, { en: "Rules", zh: "规则" }
+                ],
+                disagreeVocab: [
+                    { en: "Small treat", zh: "小点心" }, { en: "Happier", zh: "更快乐的" }, { en: "Control", zh: "控制" }, { en: "By themselves", zh: "靠他们自己" }, { en: "Enjoy", zh: "享受" },
+                    { en: "Delicious", zh: "美味的" }, { en: "Snacks", zh: "零食" }, { en: "Freedom", zh: "自由" }, { en: "Moderation", zh: "适度" }, { en: "Unfair", zh: "不公平的" }
+                ]
+            },
+            {
+                promptEn: "Taking photos of everything on a trip ruins the fun of the vacation.",
+                promptZh: "在旅行中什么都拍照会破坏度假的乐趣。",
+                agreeArgument: "If you always look at your phone to take pictures, you miss the real beautiful sights. It is better to just look with your eyes and keep the memories in your heart.",
+                disagreeArgument: "Photos are the best way to remember a fun trip forever. When you grow up, looking at old pictures of your family vacations will make you very happy.",
+                agreeVocab: [
+                    { en: "Look at phone", zh: "看手机" }, { en: "Miss sights", zh: "错过风景" }, { en: "Real", zh: "真实的" }, { en: "With your eyes", zh: "用你的眼睛" }, { en: "Memories", zh: "记忆" },
+                    { en: "In your heart", zh: "在心里" }, { en: "Experience", zh: "体验" }, { en: "Present moment", zh: "当下" }, { en: "Distracted", zh: "分心的" }, { en: "Enjoy", zh: "享受" }
+                ],
+                disagreeVocab: [
+                    { en: "Best way", zh: "最好的方法" }, { en: "Remember forever", zh: "永远记住" }, { en: "Grow up", zh: "长大" }, { en: "Old pictures", zh: "老照片" }, { en: "Make you happy", zh: "让你开心" },
+                    { en: "Camera", zh: "相机" }, { en: "Capture", zh: "捕捉" }, { en: "Album", zh: "相册" }, { en: "Share", zh: "分享" }, { en: "Precious", zh: "珍贵的" }
+                ]
+            },
+            {
+                promptEn: "Online classes on a computer are better than going to a real school building.",
+                promptZh: "在电脑上上网课比去真实的学校上学更好。",
+                agreeArgument: "Online classes are super comfortable because you can learn in your pajamas at home. You save time traveling to school and can eat snacks whenever you want.",
+                disagreeArgument: "Real school is much better because you can actually play with your friends at recess. It is easier to ask the teacher for help, and you do not get tired eyes from the screen.",
+                agreeVocab: [
+                    { en: "Comfortable", zh: "舒服的" }, { en: "Pajamas", zh: "睡衣" }, { en: "At home", zh: "在家" }, { en: "Save time", zh: "节省时间" }, { en: "Traveling", zh: "旅行/通勤" },
+                    { en: "Eat snacks", zh: "吃零食" }, { en: "Whenever", zh: "随时" }, { en: "Convenient", zh: "方便的" }, { en: "Safe", zh: "安全的" }, { en: "Quiet", zh: "安静" }
+                ],
+                disagreeVocab: [
+                    { en: "Real school", zh: "真实的学校" }, { en: "Play with friends", zh: "和朋友玩" }, { en: "Ask teacher", zh: "问老师" }, { en: "Help", zh: "帮助" }, { en: "Tired eyes", zh: "眼睛疲劳" },
+                    { en: "Screen", zh: "屏幕" }, { en: "Socialize", zh: "社交" }, { en: "Activities", zh: "活动" }, { en: "Boring", zh: "无聊的" }, { en: "Lonely", zh: "孤独的" }
+                ]
+            },
+            {
+                promptEn: "Riding a bicycle to school is better than taking a car or the school bus.",
+                promptZh: "骑自行车上学比坐车或校车更好。",
+                agreeArgument: "Riding a bike is great exercise for your legs and heart. It is also good for the environment because bicycles do not make any dirty air or pollution.",
+                disagreeArgument: "Taking a car or bus is much safer and faster. If it is raining or very cold outside, sitting in a warm car is much more comfortable than riding a bike.",
+                agreeVocab: [
+                    { en: "Great exercise", zh: "很好的锻炼" }, { en: "Legs", zh: "腿" }, { en: "Heart", zh: "心脏" }, { en: "Environment", zh: "环境" }, { en: "No pollution", zh: "没有污染" },
+                    { en: "Fresh air", zh: "新鲜空气" }, { en: "Healthy", zh: "健康的" }, { en: "Helmet", zh: "头盔" }, { en: "Pedal", zh: "踩踏板" }, { en: "Fun", zh: "有趣" }
+                ],
+                disagreeVocab: [
+                    { en: "Safer", zh: "更安全" }, { en: "Faster", zh: "更快" }, { en: "Raining", zh: "下雨" }, { en: "Very cold", zh: "很冷" }, { en: "Warm car", zh: "温暖的车" },
+                    { en: "Comfortable", zh: "舒服的" }, { en: "Traffic", zh: "交通" }, { en: "Seatbelt", zh: "安全带" }, { en: "Dry", zh: "干燥的" }, { en: "Heavy backpack", zh: "沉重的书包" }
+                ]
+            },
+            {
+                promptEn: "Giving a gift to someone makes you happier than receiving a gift.",
+                promptZh: "送别人礼物比收到礼物让你更快乐。",
+                agreeArgument: "Seeing your friend smile when they open your gift is the best feeling in the world. It shows you care about them and makes you feel very proud and kind.",
+                disagreeArgument: "Getting presents is the most exciting thing! It feels like a magical surprise, especially on your birthday, and you get cool new toys or books to keep for yourself.",
+                agreeVocab: [
+                    { en: "Smile", zh: "微笑" }, { en: "Best feeling", zh: "最好的感觉" }, { en: "Care about", zh: "关心" }, { en: "Proud", zh: "自豪的" }, { en: "Kind", zh: "善良的" },
+                    { en: "Generous", zh: "慷慨的" }, { en: "Thoughtful", zh: "体贴的" }, { en: "Wrap", zh: "包装" }, { en: "Surprise them", zh: "给他们惊喜" }, { en: "Love", zh: "爱" }
+                ],
+                disagreeVocab: [
+                    { en: "Exciting", zh: "令人兴奋的" }, { en: "Magical surprise", zh: "神奇的惊喜" }, { en: "Birthday", zh: "生日" }, { en: "Keep for yourself", zh: "自己留着" }, { en: "New toys", zh: "新玩具" },
+                    { en: "Lucky", zh: "幸运的" }, { en: "Open box", zh: "打开盒子" }, { en: "Want", zh: "想要" }, { en: "Happy", zh: "快乐的" }, { en: "Reward", zh: "奖励" }
+                ]
+            },
+            {
+                promptEn: "Making mistakes is the absolute best way for students to learn new things.",
+                promptZh: "犯错是学生学习新事物绝对最好的方式。",
+                agreeArgument: "When you make a mistake, your brain learns what not to do next time. Nobody is perfect at first, and failing helps you become brave and try harder.",
+                disagreeArgument: "Making mistakes can make students feel embarrassed and sad. It is much faster and better to just listen carefully to the teacher and get the right answer the first time.",
+                agreeVocab: [
+                    { en: "Next time", zh: "下次" }, { en: "Nobody is perfect", zh: "人无完人" }, { en: "Failing", zh: "失败" }, { en: "Become brave", zh: "变得勇敢" }, { en: "Try harder", zh: "更努力尝试" },
+                    { en: "Experience", zh: "经验" }, { en: "Improve", zh: "进步" }, { en: "Lesson", zh: "教训" }, { en: "Grow", zh: "成长" }, { en: "Keep going", zh: "坚持下去" }
+                ],
+                disagreeVocab: [
+                    { en: "Embarrassed", zh: "尴尬的" }, { en: "Sad", zh: "悲伤的" }, { en: "Faster", zh: "更快" }, { en: "Listen carefully", zh: "仔细听" }, { en: "Right answer", zh: "正确答案" },
+                    { en: "First time", zh: "第一次" }, { en: "Perfect", zh: "完美的" }, { en: "Smart", zh: "聪明的" }, { en: "Avoid", zh: "避免" }, { en: "Instructions", zh: "指示" }
+                ]
+            },
+            {
+                promptEn: "Art and Music classes are just as important as Science and Math classes.",
+                promptZh: "美术和音乐课与科学和数学课一样重要。",
+                agreeArgument: "Art and music let students use their imagination and be creative. They help you relax from hard math problems and teach you how to express beautiful feelings.",
+                disagreeArgument: "Math and science are more important because they help us invent new technology and cure diseases. You need math to get a good job, but art is just a fun hobby.",
+                agreeVocab: [
+                    { en: "Imagination", zh: "想象力" }, { en: "Creative", zh: "有创造力的" }, { en: "Relax", zh: "放松" }, { en: "Express feelings", zh: "表达感情" }, { en: "Beautiful", zh: "美丽的" },
+                    { en: "Draw", zh: "画画" }, { en: "Sing", zh: "唱歌" }, { en: "Colorful", zh: "五颜六色的" }, { en: "Talent", zh: "才华" }, { en: "Balance", zh: "平衡" }
+                ],
+                disagreeVocab: [
+                    { en: "Invent", zh: "发明" }, { en: "Technology", zh: "技术" }, { en: "Cure diseases", zh: "治愈疾病" }, { en: "Good job", zh: "好工作" }, { en: "Fun hobby", zh: "有趣的爱好" },
+                    { en: "Numbers", zh: "数字" }, { en: "Logic", zh: "逻辑" }, { en: "Experiments", zh: "实验" }, { en: "Useful", zh: "有用的" }, { en: "Serious", zh: "严肃的" }
+                ]
+            },
+            {
+                promptEn: "Keeping a daily diary or journal is a very important habit for kids.",
+                promptZh: "每天记日记对孩子们来说是一个非常重要的习惯。",
+                agreeArgument: "Writing in a diary helps you remember all your special memories. It is a safe place to write down your private feelings when you are angry or sad.",
+                disagreeArgument: "Writing a diary takes too much time every night when you just want to sleep. Also, it is scary because someone else might find your notebook and read your secrets.",
+                agreeVocab: [
+                    { en: "Remember", zh: "记住" }, { en: "Special memories", zh: "特别的回忆" }, { en: "Safe place", zh: "安全的地方" }, { en: "Private feelings", zh: "私人的感情" }, { en: "Angry or sad", zh: "生气或难过" },
+                    { en: "Habit", zh: "习惯" }, { en: "Write down", zh: "写下来" }, { en: "Express", zh: "表达" }, { en: "Journal", zh: "日记" }, { en: "Therapy", zh: "治疗" }
+                ],
+                disagreeVocab: [
+                    { en: "Too much time", zh: "太多时间" }, { en: "Every night", zh: "每天晚上" }, { en: "Want to sleep", zh: "想睡觉" }, { en: "Scary", zh: "可怕的" }, { en: "Find notebook", zh: "找到笔记本" },
+                    { en: "Read secrets", zh: "读秘密" }, { en: "Boring", zh: "无聊的" }, { en: "Tired", zh: "累的" }, { en: "Hide", zh: "隐藏" }, { en: "Forget", zh: "忘记" }
+                ]
+            },
+            {
+                promptEn: "Playing outside in the dirt and building forts is better than playing inside.",
+                promptZh: "在外面玩泥巴和建堡垒比在室内玩更好。",
+                agreeArgument: "Playing outside lets you breathe fresh air, get dirty, and use your imagination to build amazing things. It is completely free and makes your body very strong.",
+                disagreeArgument: "Playing inside is much safer and cleaner. You do not have to worry about bug bites, bad weather, or getting your clothes completely covered in mud.",
+                agreeVocab: [
+                    { en: "Breathe fresh air", zh: "呼吸新鲜空气" }, { en: "Get dirty", zh: "弄脏" }, { en: "Imagination", zh: "想象力" }, { en: "Build things", zh: "建造东西" }, { en: "Completely free", zh: "完全免费" },
+                    { en: "Strong body", zh: "强壮的身体" }, { en: "Nature", zh: "自然" }, { en: "Run around", zh: "到处跑" }, { en: "Explore", zh: "探索" }, { en: "Sticks and stones", zh: "树枝和石头" }
+                ],
+                disagreeVocab: [
+                    { en: "Safer", zh: "更安全" }, { en: "Cleaner", zh: "更干净" }, { en: "Bug bites", zh: "虫咬" }, { en: "Bad weather", zh: "坏天气" }, { en: "Covered in mud", zh: "满身是泥" },
+                    { en: "Wash clothes", zh: "洗衣服" }, { en: "Carpet", zh: "地毯" }, { en: "Air conditioning", zh: "空调" }, { en: "Toys", zh: "玩具" }, { en: "Comfortable", zh: "舒服的" }
+                ]
+            },
+            {
+                promptEn: "It is more exciting to explore outer space than to explore the deep ocean.",
+                promptZh: "探索外太空比探索深海更令人兴奋。",
+                agreeArgument: "Outer space has billions of shining stars, black holes, and maybe even aliens! Flying in a rocket ship to other planets is the greatest adventure humans can have.",
+                disagreeArgument: "Our own ocean is full of strange, glowing creatures and giant whales that we have never seen. We should explore the water on Earth before we try to fly to the stars.",
+                agreeVocab: [
+                    { en: "Outer space", zh: "外太空" }, { en: "Shining stars", zh: "闪亮的星星" }, { en: "Black holes", zh: "黑洞" }, { en: "Aliens", zh: "外星人" }, { en: "Rocket ship", zh: "火箭" },
+                    { en: "Other planets", zh: "其他星球" }, { en: "Adventure", zh: "冒险" }, { en: "Astronaut", zh: "宇航员" }, { en: "Moon", zh: "月亮" }, { en: "Zero gravity", zh: "失重" }
+                ],
+                disagreeVocab: [
+                    { en: "Deep ocean", zh: "深海" }, { en: "Glowing creatures", zh: "发光的生物" }, { en: "Giant whales", zh: "巨大的鲸鱼" }, { en: "Never seen", zh: "从未见过的" }, { en: "On Earth", zh: "在地球上" },
+                    { en: "Submarine", zh: "潜水艇" }, { en: "Dark water", zh: "黑暗的水" }, { en: "Mysterious", zh: "神秘的" }, { en: "Sharks", zh: "鲨鱼" }, { en: "Coral reefs", zh: "珊瑚礁" }
+                ]
+            },
+            {
+                promptEn: "Every student should learn how to cook their own meals before high school.",
+                promptZh: "每个学生在高中前都应该学会自己做饭。",
+                agreeArgument: "Cooking is a survival skill everyone needs. If you know how to cook, you can always make healthy food for yourself and help your parents make dinner.",
+                disagreeArgument: "Cooking can be dangerous for kids because of hot stoves and sharp knives. Parents and school cafeterias should provide food so students can focus on studying.",
+                agreeVocab: [
+                    { en: "Survival skill", zh: "生存技能" }, { en: "Healthy food", zh: "健康食物" }, { en: "Help parents", zh: "帮助父母" }, { en: "Make dinner", zh: "做晚饭" }, { en: "Independent", zh: "独立的" },
+                    { en: "Ingredients", zh: "食材" }, { en: "Recipe", zh: "食谱" }, { en: "Delicious", zh: "美味的" }, { en: "Proud", zh: "自豪的" }, { en: "Life skill", zh: "生活技能" }
+                ],
+                disagreeVocab: [
+                    { en: "Dangerous", zh: "危险的" }, { en: "Hot stoves", zh: "热炉子" }, { en: "Sharp knives", zh: "锋利的刀" }, { en: "Cafeterias", zh: "食堂" }, { en: "Provide food", zh: "提供食物" },
+                    { en: "Focus on studying", zh: "专注于学习" }, { en: "Burn", zh: "烧伤" }, { en: "Cut", zh: "割伤" }, { en: "Busy", zh: "忙碌的" }, { en: "Too young", zh: "太小" }
+                ]
+            },
+            {
+                promptEn: "Summer vacation is too long and should be cut shorter.",
+                promptZh: "暑假太长了，应该缩短。",
+                agreeArgument: "During a long summer, students forget a lot of the math and reading they learned. A shorter summer means kids won't be bored at home with nothing to do.",
+                disagreeArgument: "Kids work extremely hard for nine months and need a long break to recharge. Summer is the only time to travel far away, go to fun camps, and truly relax.",
+                agreeVocab: [
+                    { en: "Forget", zh: "忘记" }, { en: "Math and reading", zh: "数学和阅读" }, { en: "Shorter", zh: "更短的" }, { en: "Bored at home", zh: "在家里无聊" }, { en: "Nothing to do", zh: "无所事事" },
+                    { en: "Review", zh: "复习" }, { en: "Waste time", zh: "浪费时间" }, { en: "Routine", zh: "作息规律" }, { en: "Knowledge", zh: "知识" }, { en: "Lazy", zh: "懒惰的" }
+                ],
+                disagreeVocab: [
+                    { en: "Work hard", zh: "努力工作" }, { en: "Long break", zh: "长假" }, { en: "Recharge", zh: "充电/恢复精力" }, { en: "Travel far away", zh: "去远方旅行" }, { en: "Fun camps", zh: "有趣的夏令营" },
+                    { en: "Truly relax", zh: "真正放松" }, { en: "Freedom", zh: "自由" }, { en: "Sleep in", zh: "睡懒觉" }, { en: "Hobbies", zh: "爱好" }, { en: "Family trip", zh: "家庭旅行" }
+                ]
+            },
+            {
+                promptEn: "It is better to read a book before watching the movie version of it.",
+                promptZh: "在看改编的电影之前先看原著书会更好。",
+                agreeArgument: "Books have much more detail and let you imagine the characters in your own mind. Movies often cut out the best parts of the story to make it shorter.",
+                disagreeArgument: "Movies are better first because the special effects and actors make the story come alive quickly. If you read the book first, you usually get disappointed by the movie.",
+                agreeVocab: [
+                    { en: "More detail", zh: "更多细节" }, { en: "Imagine", zh: "想象" }, { en: "Characters", zh: "角色" }, { en: "In your mind", zh: "在你的脑海中" }, { en: "Cut out", zh: "删减" },
+                    { en: "Best parts", zh: "最好的部分" }, { en: "Original", zh: "原版的" }, { en: "Pages", zh: "书页" }, { en: "Description", zh: "描写" }, { en: "Better story", zh: "更好的故事" }
+                ],
+                disagreeVocab: [
+                    { en: "Special effects", zh: "特效" }, { en: "Actors", zh: "演员" }, { en: "Come alive", zh: "变得生动" }, { en: "Quickly", zh: "迅速地" }, { en: "Disappointed", zh: "失望的" },
+                    { en: "Visual", zh: "视觉的" }, { en: "Soundtrack", zh: "配乐" }, { en: "Exciting", zh: "令人兴奋的" }, { en: "Action", zh: "动作" }, { en: "Screen", zh: "屏幕" }
+                ]
+            }
+        ];
+
+        const agreePhrases = [
+            { en: "I strongly agree with this statement because...", zh: "我强烈同意这个说法，因为..." },
+            { en: "The main reason I support this is...", zh: "我支持这个的主要原因是..." },
+            { en: "For example, look at...", zh: "例如，看看..." },
+            { en: "In addition to that...", zh: "除此之外..." },
+            { en: "Therefore, it is clear that...", zh: "因此，很明显..." },
+            { en: "Many people might say... but actually...", zh: "很多人可能会说...但实际上..." },
+            { en: "We must consider the fact that...", zh: "我们必须考虑到这样一个事实..." }
+        ];
+
+        const disagreePhrases = [
+            { en: "I completely disagree with this statement because...", zh: "我完全不同意这个说法，因为..." },
+            { en: "The biggest problem with that idea is...", zh: "这个想法最大的问题是..." },
+            { en: "On the contrary...", zh: "相反..." },
+            { en: "Another important point to remember is...", zh: "另一个需要记住的重要观点是..." },
+            { en: "While that might be true sometimes, generally...", zh: "虽然有时可能是这样，但通常..." },
+            { en: "This proves that...", zh: "这证明了..." },
+            { en: "Instead of doing that, we should...", zh: "我们不应该那样做，而应该..." }
+        ];
+
+        const { useState, useEffect } = React;
+
+        const DebateApp = () => {
+            const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
+            const [timerActive, setTimerActive] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(0);
+            const [totalTime, setTotalTime] = useState(1);
+            const [students, setStudents] = useState([]);
+            const [newStudentName, setNewStudentName] = useState("");
+            
+            // Modal states
+            const [showAgreePhrases, setShowAgreePhrases] = useState(false);
+            const [showDisagreePhrases, setShowDisagreePhrases] = useState(false);
+
+            const topic = topicsData[currentTopicIndex];
+
+            useEffect(() => {
+                let interval = null;
+                if (timerActive && timeLeft > 0) {
+                    interval = setInterval(() => {
+                        setTimeLeft((prev) => prev - 1);
+                    }, 1000);
+                } else if (timeLeft === 0) {
+                    setTimerActive(false);
+                    clearInterval(interval);
+                }
+                
+                // Dynamic background based on timer
+                const body = document.body;
+                if (timeLeft > 0 && totalTime > 0) {
+                    const ratio = timeLeft / totalTime;
+                    if (ratio < 0.2) {
+                        body.className = "text-slate-100 h-screen overflow-hidden flex flex-col timer-bg-danger";
+                    } else if (ratio < 0.5) {
+                        body.className = "text-slate-100 h-screen overflow-hidden flex flex-col timer-bg-warning";
+                    } else {
+                        body.className = "text-slate-100 h-screen overflow-hidden flex flex-col timer-bg-normal";
+                    }
+                } else {
+                    body.className = "text-slate-100 h-screen overflow-hidden flex flex-col timer-bg-normal";
+                }
+
+                return () => clearInterval(interval);
+            }, [timerActive, timeLeft, totalTime]);
+
+            const setTimer = (minutes) => {
+                const seconds = minutes * 60;
+                setTimeLeft(seconds);
+                setTotalTime(seconds);
+                setTimerActive(false);
+            };
+
+            const toggleTimer = () => {
+                if (timeLeft > 0) {
+                    setTimerActive(!timerActive);
+                }
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const nextTopic = () => {
+                setCurrentTopicIndex((prev) => (prev + 1) % topicsData.length);
+            };
+            const prevTopic = () => {
+                setCurrentTopicIndex((prev) => (prev - 1 + topicsData.length) % topicsData.length);
+            };
+
+            const addStudent = (e) => {
+                if (e.key === 'Enter' && newStudentName.trim()) {
+                    setStudents([...students, { id: Date.now(), name: newStudentName.trim(), team: 'unassigned' }]);
+                    setNewStudentName("");
+                }
+            };
+
+            const assignTeam = (id, team) => {
+                setStudents(students.map(s => s.id === id ? { ...s, team } : s));
+            };
+
+            return (
+                <div className="flex flex-col h-full w-full">
+                    {/* Fixed Height Header to prevent layout shifting */}
+                    <div className="w-full bg-slate-800/80 backdrop-blur border-b border-slate-700 shadow-lg shrink-0" style={{ minHeight: '130px', maxHeight: '130px' }}>
+                        <div className="max-w-6xl mx-auto px-4 py-3 h-full flex flex-col justify-center relative">
+                            <div className="flex justify-between items-center mb-1">
+                                <button onClick={prevTopic} className="text-slate-400 hover:text-white transition-colors bg-slate-700/50 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center shrink-0">
+                                    <i className="fas fa-chevron-left"></i>
+                                </button>
+                                <div className="text-center text-slate-400 text-sm font-semibold tracking-wider">
+                                    TOPIC {currentTopicIndex + 1} OF {topicsData.length}
+                                </div>
+                                <button onClick={nextTopic} className="text-slate-400 hover:text-white transition-colors bg-slate-700/50 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center shrink-0">
+                                    <i className="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div className="text-center px-8 overflow-hidden h-full flex flex-col justify-center">
+                                <h1 className="text-2xl font-bold text-white mb-1 leading-tight line-clamp-2" title={topic.promptEn}>{topic.promptEn}</h1>
+                                <h2 className="text-lg text-slate-300 font-medium line-clamp-1" title={topic.promptZh}>{topic.promptZh}</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    {}
+                    <div className="flex-1 min-h-0 w-full max-w-[1400px] mx-auto p-4">
+                        <div className="grid grid-cols-3 gap-6 h-full">
+                            
+                            {/* LEFT COLUMN: AGREE */}
+                            <TeamColumn 
+                                side="agree" 
+                                title="Team Agree" 
+                                color="emerald" 
+                                topic={topic} 
+                                students={students.filter(s => s.team === 'agree')} 
+                                onShowPhrases={() => setShowAgreePhrases(true)}
+                            />
+
+                            {/* CENTER COLUMN: TIMER & SCOREBOARD */}
+                            <div className="flex flex-col h-full bg-slate-800/50 rounded-2xl border border-slate-700/50 overflow-hidden shadow-xl p-4 shrink-0 custom-scrollbar overflow-y-auto">
+                                
+                                {/* Timer Section */}
+                                <div className="bg-slate-900/60 rounded-xl p-4 mb-4 text-center border border-slate-700/50">
+                                    <div className="text-5xl font-bold text-white mb-3 font-mono tracking-wider tabular-nums">
+                                        {formatTime(timeLeft)}
+                                    </div>
+                                    
+                                    {/* Progress Bar */}
+                                    <div className="w-full bg-slate-700 rounded-full h-2 mb-4 overflow-hidden">
+                                        <div 
+                                            className={`h-2 rounded-full transition-all duration-1000 ${timeLeft / totalTime < 0.2 ? 'bg-red-500' : timeLeft / totalTime < 0.5 ? 'bg-amber-500' : 'bg-blue-500'}`}
+                                            style={{ width: `${totalTime > 0 ? (timeLeft / totalTime) * 100 : 0}%` }}
+                                        ></div>
+                                    </div>
+
+                                    <div className="flex justify-center gap-2 mb-3">
+                                        <button onClick={() => setTimer(5)} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold transition-colors">5 Min</button>
+                                        <button onClick={() => setTimer(10)} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold transition-colors">10 Min</button>
+                                        <button onClick={() => setTimer(15)} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold transition-colors">15 Min</button>
+                                    </div>
+
+                                    <div className="flex justify-center gap-3">
+                                        <button 
+                                            onClick={toggleTimer}
+                                            className={`px-6 py-2 rounded-lg text-sm font-bold shadow-lg transition-all ${timerActive ? 'bg-amber-500 hover:bg-amber-400 text-amber-900' : 'bg-emerald-500 hover:bg-emerald-400 text-emerald-900'}`}
+                                        >
+                                            <i className={`fas ${timerActive ? 'fa-pause' : 'fa-play'} mr-2`}></i>
+                                            {timerActive ? 'PAUSE' : 'START'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Roster/Scoreboard Section */}
+                                <div className="flex-1 flex flex-col min-h-0 bg-slate-900/60 rounded-xl border border-slate-700/50 overflow-hidden">
+                                    <div className="p-3 border-b border-slate-700">
+                                        <input 
+                                            type="text" 
+                                            value={newStudentName}
+                                            onChange={(e) => setNewStudentName(e.target.value)}
+                                            onKeyDown={addStudent}
+                                            placeholder="Type student name & press Enter..." 
+                                            className="w-full bg-slate-800 text-white rounded px-3 py-2 text-sm border border-slate-600 focus:outline-none focus:border-blue-500 placeholder-slate-400"
+                                        />
+                                    </div>
+                                    
+                                    {/* Unassigned Students */}
+                                    {students.filter(s => s.team === 'unassigned').length > 0 && (
+                                        <div className="p-2 border-b border-slate-700 bg-slate-800/30 flex flex-wrap gap-2">
+                                            {students.filter(s => s.team === 'unassigned').map(s => (
+                                                <div key={s.id} className="bg-slate-700 px-2 py-1 rounded text-sm flex items-center gap-2">
+                                                    <span>{s.name}</span>
+                                                    <button onClick={() => assignTeam(s.id, 'agree')} className="text-emerald-400 hover:text-emerald-300 ml-1"><i className="fas fa-arrow-left"></i></button>
+                                                    <button onClick={() => assignTeam(s.id, 'disagree')} className="text-rose-400 hover:text-rose-300"><i className="fas fa-arrow-right"></i></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Vertical Split Scoreboard */}
+                                    <div className="flex-1 grid grid-cols-2 divide-x divide-slate-700 overflow-hidden">
+                                        <div className="p-3 overflow-y-auto custom-scrollbar">
+                                            <h3 className="text-xs font-bold text-emerald-400 uppercase mb-2 text-center border-b border-slate-700 pb-1">Agree Team</h3>
+                                            <div className="flex flex-col gap-1">
+                                                {students.filter(s => s.team === 'agree').map(s => (
+                                                    <div key={s.id} className="bg-emerald-900/30 text-emerald-100 px-2 py-1 rounded text-sm flex justify-between items-center border border-emerald-800/50">
+                                                        <span className="truncate">{s.name}</span>
+                                                        <button onClick={() => assignTeam(s.id, 'unassigned')} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="p-3 overflow-y-auto custom-scrollbar">
+                                            <h3 className="text-xs font-bold text-rose-400 uppercase mb-2 text-center border-b border-slate-700 pb-1">Disagree Team</h3>
+                                            <div className="flex flex-col gap-1">
+                                                {students.filter(s => s.team === 'disagree').map(s => (
+                                                    <div key={s.id} className="bg-rose-900/30 text-rose-100 px-2 py-1 rounded text-sm flex justify-between items-center border border-rose-800/50">
+                                                        <span className="truncate">{s.name}</span>
+                                                        <button onClick={() => assignTeam(s.id, 'unassigned')} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* RIGHT COLUMN: DISAGREE */}
+                            <TeamColumn 
+                                side="disagree" 
+                                title="Team Disagree" 
+                                color="rose" 
+                                topic={topic} 
+                                students={students.filter(s => s.team === 'disagree')} 
+                                onShowPhrases={() => setShowDisagreePhrases(true)}
+                            />
+
+                        </div>
+                    </div>
+
+                    {/* Modals */}
+                    {showAgreePhrases && <PhraseModal title="Agree Phrases (同意短语)" color="emerald" phrases={agreePhrases} onClose={() => setShowAgreePhrases(false)} />}
+                    {showDisagreePhrases && <PhraseModal title="Disagree Phrases (不同意短语)" color="rose" phrases={disagreePhrases} onClose={() => setShowDisagreePhrases(false)} />}
+                </div>
+            );
+        };
+
+        const TeamColumn = ({ side, title, color, topic, students, onShowPhrases }) => {
+            const [showArg, setShowArg] = useState(false);
+            
+            const isAgree = side === 'agree';
+            const colorClasses = {
+                emerald: {
+                    bg: 'bg-emerald-900/20',
+                    border: 'border-emerald-700/50',
+                    text: 'text-emerald-400',
+                    buttonBg: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+                    icon: 'fa-thumbs-up'
+                },
+                rose: {
+                    bg: 'bg-rose-900/20',
+                    border: 'border-rose-700/50',
+                    text: 'text-rose-400',
+                    buttonBg: 'bg-rose-600 hover:bg-rose-500 text-white',
+                    icon: 'fa-thumbs-down'
+                }
+            };
+            const c = colorClasses[color];
+            
+            const vocabList = isAgree ? topic.agreeVocab : topic.disagreeVocab;
+
+            return (
+                <div className={`h-full flex flex-col ${c.bg} rounded-2xl border ${c.border} overflow-hidden shadow-xl`}>
+                    
+                    {/* Team Header & Roster */}
+                    <div className={`p-4 border-b ${c.border} bg-slate-900/40 shrink-0`}>
+                        <h2 className={`text-2xl font-bold ${c.text} flex items-center justify-center gap-2 uppercase tracking-wide`}>
+                            <i className={`fas ${c.icon}`}></i> {title}
+                        </h2>
+                        
+                        {/* Teammates quick list at top */}
+                        <div className="mt-3 flex flex-wrap justify-center gap-2 min-h-[28px]">
+                            {students.map(s => (
+                                <span key={s.id} className={`px-2 py-1 text-xs font-bold rounded bg-slate-800 text-white border ${c.border}`}>
+                                    {s.name}
+                                </span>
+                            ))}
+                            {students.length === 0 && <span className="text-slate-500 text-xs italic">No assigned debaters</span>}
+                        </div>
+                    </div>
+
+                    {/* Scrollable Content Area */}
+                    <div className="p-5 overflow-y-auto custom-scrollbar flex-1 flex flex-col">
+                        
+                        {/* Side-by-side Buttons */}
+                        <div className="flex gap-2 mb-4 shrink-0">
+                            <button 
+                                onClick={() => setShowArg(!showArg)} 
+                                className={`flex-1 py-2 rounded-lg font-bold text-sm shadow-md transition-colors border border-transparent hover:border-slate-400 ${c.buttonBg}`}
+                            >
+                                <i className={`fas ${showArg ? 'fa-eye-slash' : 'fa-eye'} mr-2`}></i>
+                                {showArg ? "Hide Argument" : "Show Argument"}
+                            </button>
+                            <button 
+                                onClick={onShowPhrases} 
+                                className={`flex-1 py-2 rounded-lg font-bold text-sm shadow-md transition-colors bg-slate-700 hover:bg-slate-600 text-white border border-slate-500 hover:border-white`}
+                            >
+                                <i className="fas fa-comment-dots mr-2"></i>
+                                Phrase Bank
+                            </button>
+                        </div>
+
+                        {/* Hidden Argument */}
+                        {showArg && (
+                            <div className="mb-5 bg-slate-900/80 p-4 rounded-xl border border-slate-600 shadow-inner shrink-0">
+                                <p className="text-slate-200 leading-relaxed text-[15px]">
+                                    {isAgree ? topic.agreeArgument : topic.disagreeArgument}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* High Visibility Topic Vocabulary */}
+                        <div className="flex-1 flex flex-col mt-0">
+                            <h3 className={`text-sm font-bold uppercase mb-3 ${c.text} flex items-center gap-2 shrink-0 border-b ${c.border} pb-2`}>
+                                <i className="fas fa-book-open"></i> Topic Vocabulary
+                            </h3>
+                            <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1 pb-2">
+                                {vocabList.map((v, i) => (
+                                    <div key={i} className="flex justify-between items-center bg-slate-800/80 p-3 rounded-lg border border-slate-700 hover:border-slate-500 transition-colors">
+                                        <span className="font-bold text-lg text-amber-200">{v.en}</span>
+                                        <span className="font-medium text-lg text-white">{v.zh}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            );
+        };
+
+        const PhraseModal = ({ title, color, phrases, onClose }) => {
+            const textColor = color === 'emerald' ? 'text-emerald-400' : 'text-rose-400';
+            
+            return (
+                <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-full">
+                        <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
+                            <h2 className={`text-xl font-bold ${textColor}`}><i className="fas fa-comments mr-2"></i>{title}</h2>
+                            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+                                <i className="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto custom-scrollbar flex flex-col gap-3">
+                            {phrases.map((p, i) => (
+                                <div key={i} className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
+                                    <p className="font-bold text-amber-200 text-lg mb-1">{p.en}</p>
+                                    <p className="text-white text-md">{p.zh}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="p-4 border-t border-slate-700 bg-slate-900/50 text-center">
+                            <button onClick={onClose} className="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-bold rounded-lg transition-colors">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<DebateApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
